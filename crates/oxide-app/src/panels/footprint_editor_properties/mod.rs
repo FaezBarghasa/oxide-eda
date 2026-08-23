@@ -41,7 +41,7 @@ pub(super) fn view_footprint_editor_properties<'a>(
     custom_filter_presets: Vec<crate::active_bar::CustomFilterPreset>,
     active_custom_filter_tab: usize,
     collapsed_sections: &'a CollapsedSections,
-    unit: signex_types::coord::Unit,
+    unit: oxide_types::coord::Unit,
 ) -> Element<'a, PanelMsg> {
     let PanelPalette {
         muted,

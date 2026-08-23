@@ -92,10 +92,10 @@ impl Signex {
                 crate::library::LibraryMessage::NewComponent,
             ))),
             MenuMessage::AddLibrarySymbol => {
-                Some(self.handle_add_library_primitive(signex_library::PrimitiveKind::Symbol))
+                Some(self.handle_add_library_primitive(oxide_library::PrimitiveKind::Symbol))
             }
             MenuMessage::AddLibraryFootprint => {
-                Some(self.handle_add_library_primitive(signex_library::PrimitiveKind::Footprint))
+                Some(self.handle_add_library_primitive(oxide_library::PrimitiveKind::Footprint))
             }
             MenuMessage::ToolsNewPart => self.dispatch_active_symbol_primitive_event(
                 crate::library::messages::SymbolEditorMsg::NewPart,
@@ -166,9 +166,9 @@ impl Signex {
     /// and opens the file as a standalone primitive-editor tab.
     fn handle_add_library_primitive(
         &mut self,
-        kind: signex_library::PrimitiveKind,
+        kind: oxide_library::PrimitiveKind,
     ) -> Task<Message> {
-        use signex_library::PrimitiveKind;
+        use oxide_library::PrimitiveKind;
 
         // Library-context "Add New ▸ Symbol/Footprint" reuses the
         // project-root flow — the user wants both surfaces to behave

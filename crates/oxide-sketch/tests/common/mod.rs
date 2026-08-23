@@ -1,7 +1,7 @@
 //! Shared test fixtures for the constraint-residual integration tests.
 //!
 //! Test files (`constraints_*.rs`) compile as separate crates, but they
-//! all share the same `signex-sketch` API. Concrete sketch builders
+//! all share the same `oxide-sketch` API. Concrete sketch builders
 //! live here so each test file can import them via
 //! `mod common;` and avoid drifting fixtures.
 
@@ -13,10 +13,10 @@
     reason = "each constraints_*.rs test binary imports this module whole but uses only the builders it needs"
 )]
 
-use signex_sketch::SketchData;
-use signex_sketch::entity::{Entity, EntityKind};
-use signex_sketch::id::SketchEntityId;
-use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
+use oxide_sketch::SketchData;
+use oxide_sketch::entity::{Entity, EntityKind};
+use oxide_sketch::id::SketchEntityId;
+use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
 
 pub struct Sketch {
     pub data: SketchData,

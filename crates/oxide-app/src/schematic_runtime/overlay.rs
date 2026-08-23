@@ -94,8 +94,8 @@ pub fn draw_erc_markers(
     draw_renderer_snapshot(
         frame,
         &snapshot,
-        &ResolvedTheme::from_canvas_colors(signex_types::theme::canvas_colors(
-            signex_types::theme::ThemeId::Signex,
+        &ResolvedTheme::from_canvas_colors(oxide_types::theme::canvas_colors(
+            oxide_types::theme::ThemeId::Signex,
         )),
         DirtyFlags::OVERLAY,
         transform,

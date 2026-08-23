@@ -38,7 +38,7 @@ impl JlcpcbAdapter {
             cache,
             throttle: Mutex::new(None),
             http: reqwest::blocking::Client::builder()
-                .user_agent("signex-library/0.9 (+https://signex.dev)")
+                .user_agent("oxide-library/0.9 (+https://signex.dev)")
                 .build()
                 .expect("reqwest::blocking::Client::build is infallible with default opts"),
         }
@@ -50,7 +50,7 @@ impl JlcpcbAdapter {
             cache,
             throttle: Mutex::new(None),
             http: reqwest::blocking::Client::builder()
-                .user_agent("signex-library/0.9 (+https://signex.dev)")
+                .user_agent("oxide-library/0.9 (+https://signex.dev)")
                 .build()
                 .expect("reqwest::blocking::Client::build is infallible with default opts"),
         }

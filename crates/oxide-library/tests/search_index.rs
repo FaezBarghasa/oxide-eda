@@ -6,7 +6,7 @@
 //! corpus-level tests below build rows directly and verify
 //! text/numeric query paths against the row schema.
 //!
-//! Run with: `cargo test -p signex-library --features search-tantivy --test search_index`.
+//! Run with: `cargo test -p oxide-library --features search-tantivy --test search_index`.
 
 #![cfg(feature = "search-tantivy")]
 
@@ -14,7 +14,7 @@ use std::collections::BTreeMap;
 use std::sync::Mutex;
 
 use chrono::Utc;
-use signex_library::{
+use oxide_library::{
     ComponentClass, ComponentRow, DatasheetRef, Facet, FacetOp, LifecycleState, ManufacturerPart,
     ParamMap, ParamValue, PlmReserved, PrimitiveRef, SearchIndex, SearchQuery, TantivySearchIndex,
 };
@@ -50,7 +50,7 @@ fn fresh_row(
     let lib = Uuid::nil();
     ComponentRow {
         row_id: Uuid::now_v7(),
-        internal_pn: signex_library::InternalPn::new(internal_pn),
+        internal_pn: oxide_library::InternalPn::new(internal_pn),
         class: ComponentClass::new(class),
         datasheet: DatasheetRef::url(""),
         state: LifecycleState::Released,

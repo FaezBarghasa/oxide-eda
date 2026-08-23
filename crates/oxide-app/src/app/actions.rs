@@ -131,33 +131,33 @@ impl Signex {
             .map(|pp| pp.rotation)
             .unwrap_or(0.0);
 
-        let symbol = signex_types::schematic::Symbol {
+        let symbol = oxide_types::schematic::Symbol {
             uuid: uuid::Uuid::new_v4(),
             lib_id: lib_id.clone(),
             reference: reference.clone(),
             value,
             footprint: String::new(),
             datasheet: String::new(),
-            position: signex_types::schematic::Point::new(wx, wy),
+            position: oxide_types::schematic::Point::new(wx, wy),
             rotation,
             mirror_x: false,
             mirror_y: false,
             unit: 1,
             is_power: false,
-            ref_text: Some(signex_types::schematic::TextProp {
-                position: signex_types::schematic::Point::new(wx, wy - 2.54),
+            ref_text: Some(oxide_types::schematic::TextProp {
+                position: oxide_types::schematic::Point::new(wx, wy - 2.54),
                 rotation,
-                font_size: signex_types::schematic::SCHEMATIC_TEXT_MM,
-                justify_h: signex_types::schematic::HAlign::Center,
-                justify_v: signex_types::schematic::VAlign::default(),
+                font_size: oxide_types::schematic::SCHEMATIC_TEXT_MM,
+                justify_h: oxide_types::schematic::HAlign::Center,
+                justify_v: oxide_types::schematic::VAlign::default(),
                 hidden: false,
             }),
-            val_text: Some(signex_types::schematic::TextProp {
-                position: signex_types::schematic::Point::new(wx, wy + 2.54),
+            val_text: Some(oxide_types::schematic::TextProp {
+                position: oxide_types::schematic::Point::new(wx, wy + 2.54),
                 rotation,
-                font_size: signex_types::schematic::SCHEMATIC_TEXT_MM,
-                justify_h: signex_types::schematic::HAlign::Center,
-                justify_v: signex_types::schematic::VAlign::default(),
+                font_size: oxide_types::schematic::SCHEMATIC_TEXT_MM,
+                justify_h: oxide_types::schematic::HAlign::Center,
+                justify_v: oxide_types::schematic::VAlign::default(),
                 hidden: false,
             }),
             fields_autoplaced: true,
@@ -181,7 +181,7 @@ impl Signex {
             row_id: None,
             library_version: String::new(),
         };
-        self.apply_engine_command(signex_engine::Command::PlaceSymbol { symbol }, false, false);
+        self.apply_engine_command(oxide_engine::Command::PlaceSymbol { symbol }, false, false);
 
         let next_designator = Self::increment_designator(&reference).unwrap_or_else(|| {
             self.next_designator_for_prefix(&Self::component_prefix_from_lib_id(&lib_id))
@@ -326,11 +326,11 @@ impl Signex {
             let dx = target_x - anchor.x;
             let dy = target_y - anchor.y;
             if dx.abs() > 0.001 || dy.abs() > 0.001 {
-                let items = vec![signex_types::schematic::SelectedItem::new(
+                let items = vec![oxide_types::schematic::SelectedItem::new(
                     anchor.uuid,
                     anchor.kind,
                 )];
-                engine_commands.push(signex_engine::Command::MoveSelection { items, dx, dy });
+                engine_commands.push(oxide_engine::Command::MoveSelection { items, dx, dy });
             }
         }
 
@@ -350,11 +350,11 @@ impl Signex {
                         let target_x = min_x + step * index as f64;
                         let dx = target_x - anchor.x;
                         if dx.abs() > 0.001 {
-                            let items = vec![signex_types::schematic::SelectedItem::new(
+                            let items = vec![oxide_types::schematic::SelectedItem::new(
                                 anchor.uuid,
                                 anchor.kind,
                             )];
-                            engine_commands.push(signex_engine::Command::MoveSelection {
+                            engine_commands.push(oxide_engine::Command::MoveSelection {
                                 items,
                                 dx,
                                 dy: 0.0,
@@ -369,11 +369,11 @@ impl Signex {
                         let target_y = min_y + step * index as f64;
                         let dy = target_y - anchor.y;
                         if dy.abs() > 0.001 {
-                            let items = vec![signex_types::schematic::SelectedItem::new(
+                            let items = vec![oxide_types::schematic::SelectedItem::new(
                                 anchor.uuid,
                                 anchor.kind,
                             )];
-                            engine_commands.push(signex_engine::Command::MoveSelection {
+                            engine_commands.push(oxide_engine::Command::MoveSelection {
                                 items,
                                 dx: 0.0,
                                 dy,

@@ -20,7 +20,7 @@ pub enum PanelMsg {
     /// `LibraryMessage::PrimitiveEditorEvent { ... FootprintSketchSetRole }`
     /// keyed on the active footprint editor tab.
     FpEditorSetRole {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         role: crate::library::messages::RoleTag,
     },
     /// v0.16.2 — Properties-panel Parameter row text input. Routed
@@ -54,8 +54,8 @@ pub enum PanelMsg {
     /// matching sub-struct) so the next `add_pad_at` picks it up.
     /// String-typed inputs preserve the per-field typing buffer
     /// behaviour we use for size_x / size_y / rotation.
-    FpEditorSetNextPadShape(signex_library::PadShape),
-    FpEditorSetNextPadKind(signex_library::PadKind),
+    FpEditorSetNextPadShape(oxide_library::PadShape),
+    FpEditorSetNextPadKind(oxide_library::PadKind),
     FpEditorSetNextPadDrillDiameter(String),
     FpEditorSetNextPadDrillSlotLength(String),
     FpEditorSetNextPadCornerRadiusPct(String),
@@ -70,8 +70,8 @@ pub enum PanelMsg {
     FpEditorToggleNextPadMaskTentedTop(bool),
     FpEditorToggleNextPadMaskTentedBottom(bool),
     FpEditorToggleNextPadThermalRelief(bool),
-    FpEditorSetNextPadFeatureTop(signex_sketch::attr::PadFeature),
-    FpEditorSetNextPadFeatureBottom(signex_sketch::attr::PadFeature),
+    FpEditorSetNextPadFeatureTop(oxide_sketch::attr::PadFeature),
+    FpEditorSetNextPadFeatureBottom(oxide_sketch::attr::PadFeature),
     FpEditorToggleNextPadTestpointTopAssembly(bool),
     FpEditorToggleNextPadTestpointTopFab(bool),
     FpEditorToggleNextPadTestpointBottomAssembly(bool),
@@ -91,11 +91,11 @@ pub enum PanelMsg {
     },
     FpEditorSetSelectedPadShape {
         idx: usize,
-        shape: signex_library::PadShape,
+        shape: oxide_library::PadShape,
     },
     FpEditorSetSelectedPadKind {
         idx: usize,
-        kind: signex_library::PadKind,
+        kind: oxide_library::PadKind,
     },
     FpEditorSetSelectedPadSizeX {
         idx: usize,
@@ -163,11 +163,11 @@ pub enum PanelMsg {
     },
     FpEditorSetSelectedPadFeatureTop {
         idx: usize,
-        value: signex_sketch::attr::PadFeature,
+        value: oxide_sketch::attr::PadFeature,
     },
     FpEditorSetSelectedPadFeatureBottom {
         idx: usize,
-        value: signex_sketch::attr::PadFeature,
+        value: oxide_sketch::attr::PadFeature,
     },
     FpEditorToggleSelectedPadTestpointTopAssembly {
         idx: usize,
@@ -191,12 +191,12 @@ pub enum PanelMsg {
     FpEditorSetPadStackTab(crate::library::editor::footprint::state::PadStackTab),
     /// v0.21 — Altium-parity Net / Locked / Electrical Type fields
     /// for both placement-defaults and selected-pad targets.
-    FpEditorSetNextPadElectricalType(signex_sketch::attr::ElectricalType),
+    FpEditorSetNextPadElectricalType(oxide_sketch::attr::ElectricalType),
     FpEditorSetNextPadNet(String),
     FpEditorToggleNextPadLocked(bool),
     FpEditorSetSelectedPadElectricalType {
         idx: usize,
-        value: signex_sketch::attr::ElectricalType,
+        value: oxide_sketch::attr::ElectricalType,
     },
     FpEditorSetSelectedPadNet {
         idx: usize,
@@ -209,7 +209,7 @@ pub enum PanelMsg {
     /// v0.21 — Footprint (component-level) edits.
     FpEditorSetFootprintDescription(String),
     FpEditorSetFootprintDefaultDesignator(String),
-    FpEditorSetFootprintComponentType(signex_library::primitive::footprint::ComponentType),
+    FpEditorSetFootprintComponentType(oxide_library::primitive::footprint::ComponentType),
     FpEditorSetFootprintHeight(String),
     /// v0.21 — Selected silk graphic edits (Line + Text only;
     /// Arc/Region/Fill/etc are sketch-mode-authored).
@@ -262,91 +262,91 @@ pub enum PanelMsg {
     /// Pads-mode but addressed by the sketch entity rather than the
     /// flat-pad index.
     FpEditorSetSketchPadElectricalType {
-        id: signex_sketch::id::SketchEntityId,
-        value: signex_sketch::attr::ElectricalType,
+        id: oxide_sketch::id::SketchEntityId,
+        value: oxide_sketch::attr::ElectricalType,
     },
     FpEditorSetSketchPadNet {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: String,
     },
     FpEditorToggleSketchPadLocked {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: bool,
     },
     FpEditorSetSketchPadTemplate {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: String,
     },
     FpEditorSetSketchPadTemplateLibrary {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: String,
     },
     FpEditorSetSketchPadFeatureTop {
-        id: signex_sketch::id::SketchEntityId,
-        value: signex_sketch::attr::PadFeature,
+        id: oxide_sketch::id::SketchEntityId,
+        value: oxide_sketch::attr::PadFeature,
     },
     FpEditorSetSketchPadFeatureBottom {
-        id: signex_sketch::id::SketchEntityId,
-        value: signex_sketch::attr::PadFeature,
+        id: oxide_sketch::id::SketchEntityId,
+        value: oxide_sketch::attr::PadFeature,
     },
     FpEditorToggleSketchPadTestpointTopAssembly {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: bool,
     },
     FpEditorToggleSketchPadTestpointTopFab {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: bool,
     },
     FpEditorToggleSketchPadTestpointBottomAssembly {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: bool,
     },
     FpEditorToggleSketchPadTestpointBottomFab {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: bool,
     },
     FpEditorToggleSketchPadThermalRelief {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: bool,
     },
     FpEditorToggleSketchPadMaskTentedTop {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: bool,
     },
     FpEditorToggleSketchPadMaskTentedBottom {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: bool,
     },
     FpEditorToggleSketchPadPasteEnabledTop {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: bool,
     },
     FpEditorToggleSketchPadPasteEnabledBottom {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: bool,
     },
     FpEditorSetSketchPadHoleTolerancePlus {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: String,
     },
     FpEditorSetSketchPadHoleToleranceMinus {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: String,
     },
     FpEditorSetSketchPadHoleRotation {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: String,
     },
     FpEditorSetSketchPadCopperOffsetX {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: String,
     },
     FpEditorSetSketchPadCopperOffsetY {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: String,
     },
     FpEditorSetSketchPadCornerRadiusPct {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: String,
     },
     /// v0.21 — "Edit in Sketch" jump from a selected pad to its
@@ -375,7 +375,7 @@ pub enum PanelMsg {
     /// shared `corner_r` parameter. No-op when the Arc isn't part of
     /// any pad's `shape_params` graph.
     FpEditorUnlinkCornerRadius {
-        arc_entity_id: signex_sketch::id::SketchEntityId,
+        arc_entity_id: oxide_sketch::id::SketchEntityId,
     },
     /// v0.22 Phase D6 — Mirror of `FpEditorEditPadInSketch` going the
     /// other direction. From a sketch entity carrying a `PadAttr`,
@@ -383,7 +383,7 @@ pub enum PanelMsg {
     /// `sketch_entity_id` matches this id. No-op when no pad has
     /// this entity as its backing point.
     FpEditorEditSketchPadInPads {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
     },
     /// v0.22 Phase E3+E4 — Properties-panel "Conflicts (worst first)"
     /// over-constrained constraint row. Click → select the row's
@@ -391,7 +391,7 @@ pub enum PanelMsg {
     /// constraint icon highlighted. The handler dispatches the
     /// equivalent `FootprintSketchSelect` library message.
     FpEditorSelectSketchEntity {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
     },
     /// v0.22 Phase 8.5 — Right-dock History panel "Restore this
     /// version" button. The handler resolves the active tab's
@@ -413,37 +413,37 @@ pub enum PanelMsg {
     /// single offender. `None` clears the isolation back to the
     /// default rendering.
     FpEditorHoverOverConstraint {
-        constraint: Option<signex_sketch::id::ConstraintId>,
+        constraint: Option<oxide_sketch::id::ConstraintId>,
     },
     /// v0.16.4 — Pour-role sub-form. The handler mutates the
     /// selected entity's `pour` attr and runs solve+bake.
     FpEditorSetPourNet {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: String,
     },
     FpEditorSetPourFillType {
-        id: signex_sketch::id::SketchEntityId,
-        value: signex_sketch::attr::PourFillType,
+        id: oxide_sketch::id::SketchEntityId,
+        value: oxide_sketch::attr::PourFillType,
     },
     FpEditorSetPourPriority {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: String,
     },
     /// v0.16.4 — Keepout-role kinds checklist. The handler mutates
     /// the matching `kinds.<flag>` and runs solve+bake.
     FpEditorSetKeepoutKind {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         kind: KeepoutKindFlag,
         value: bool,
     },
     /// v0.16.4 — BoardCutout-role edge-radius expression input.
     FpEditorSetCutoutEdgeRadius {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: String,
     },
     /// v0.16.4 — BoardCutout-role through-vs-partial-depth toggle.
     FpEditorSetCutoutThrough {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: bool,
     },
     /// v0.23 — Pattern Properties sub-form text-input edit. The
@@ -451,7 +451,7 @@ pub enum PanelMsg {
     /// mutates the field identified by `field`, then runs
     /// `SketchEdit::ForceRebuild` so the bake re-expands.
     FpEditorEditArrayParam {
-        array_id: signex_sketch::array::ArrayId,
+        array_id: oxide_sketch::array::ArrayId,
         field: ArrayParamField,
         value: String,
     },
@@ -460,43 +460,43 @@ pub enum PanelMsg {
     /// keeps prior start/step exprs; flipping to Explicit clears the
     /// names list).
     FpEditorSetArrayNumberingScheme {
-        array_id: signex_sketch::array::ArrayId,
+        array_id: oxide_sketch::array::ArrayId,
         scheme: NumberingSchemeKindUi,
     },
     /// v0.25 polish — toggle BGA `skip_letters`. Active only when the
     /// array's numbering is BgaRowCol; ignored for Linear / Explicit.
     FpEditorSetBgaSkipLetters {
-        array_id: signex_sketch::array::ArrayId,
+        array_id: oxide_sketch::array::ArrayId,
         value: bool,
     },
     /// v0.25 polish — set BGA `start_row` letter. Empty input no-ops;
     /// non-letter input no-ops; multi-char input takes the first
     /// letter. Uppercased before storage.
     FpEditorSetBgaStartRow {
-        array_id: signex_sketch::array::ArrayId,
+        array_id: oxide_sketch::array::ArrayId,
         value: String,
     },
     /// v0.25 polish — set BGA `start_col` integer. Empty input no-ops;
     /// non-numeric input no-ops; bounds are otherwise unconstrained.
     FpEditorSetBgaStartCol {
-        array_id: signex_sketch::array::ArrayId,
+        array_id: oxide_sketch::array::ArrayId,
         value: String,
     },
     /// v0.23 — Delete the array entirely. The source entity stays put.
     FpEditorDeleteArray {
-        array_id: signex_sketch::array::ArrayId,
+        array_id: oxide_sketch::array::ArrayId,
     },
     /// v0.23 — Begin re-picking the polar centre. Sets
     /// `ToolPending::RepickPolarCenter { array_id }` so the next sketch
     /// click on a Point overwrites `array.center`. Cancels with Esc.
     FpEditorBeginRepickPolarCenter {
-        array_id: signex_sketch::array::ArrayId,
+        array_id: oxide_sketch::array::ArrayId,
     },
     /// v0.23 — Toggle a single (i, j) instance in a Grid array's
     /// `GridDepopulation.suppressed_instances`. `value=true` re-enables
     /// the instance; `value=false` suppresses it.
     FpEditorToggleArrayInstance {
-        array_id: signex_sketch::array::ArrayId,
+        array_id: oxide_sketch::array::ArrayId,
         i: u32,
         j: u32,
         value: bool,
@@ -658,9 +658,9 @@ pub enum PanelMsg {
     /// Edit a label's text (committed on submit).
     EditLabelText(uuid::Uuid, String),
     /// Edit a label's horizontal justification.
-    EditLabelJustifyH(uuid::Uuid, signex_types::schematic::HAlign),
+    EditLabelJustifyH(uuid::Uuid, oxide_types::schematic::HAlign),
     /// Edit a label direction preset (rotation + horizontal justify).
-    EditLabelDirection(uuid::Uuid, f64, signex_types::schematic::HAlign),
+    EditLabelDirection(uuid::Uuid, f64, oxide_types::schematic::HAlign),
     /// Edit a label's rotation (degrees).
     EditLabelRotation(uuid::Uuid, f64),
     /// Edit a label's font size in Altium pt (10 = 2.54 mm).
@@ -678,15 +678,15 @@ pub enum PanelMsg {
     /// Pre-placement: update font size (pt).
     SetPrePlacementFontSize(u32),
     /// Pre-placement: set horizontal justification.
-    SetPrePlacementJustifyH(signex_types::schematic::HAlign),
+    SetPrePlacementJustifyH(oxide_types::schematic::HAlign),
     /// Pre-placement: set vertical justification.
-    SetPrePlacementJustifyV(signex_types::schematic::VAlign),
+    SetPrePlacementJustifyV(oxide_types::schematic::VAlign),
     /// Pre-placement: toggle bold / italic / underline.
     TogglePrePlacementBold,
     TogglePrePlacementItalic,
     TogglePrePlacementUnderline,
     SetPrePlacementShapeWidth(f64),
-    SetPrePlacementShapeFill(signex_types::schematic::FillType),
+    SetPrePlacementShapeFill(oxide_types::schematic::FillType),
     /// Properties panel — edit a pin's designator (number) on the
     /// active Symbol editor tab. Routed through `handle_dock_sch_library_message`
     /// because the symbol editor's lifecycle owns the pin edits.
@@ -710,14 +710,14 @@ pub enum PanelMsg {
     /// Not Connected / Unspecified).
     SymEditorSetPinElectrical {
         pin_idx: usize,
-        value: signex_library::PinDirection,
+        value: oxide_library::PinDirection,
     },
     /// Properties panel — set a pin's orientation (Right / Up /
     /// Left / Down). Also updates the canvas cache so the pin
     /// re-renders.
     SymEditorSetPinOrientation {
         pin_idx: usize,
-        value: signex_library::PinOrientation,
+        value: oxide_library::PinOrientation,
     },
     /// Properties panel — set a pin's X coordinate in mm.
     SymEditorSetPinX {
@@ -758,7 +758,7 @@ pub enum PanelMsg {
     SymEditorSetPinSymbol {
         pin_idx: usize,
         slot: u8,
-        value: signex_library::PinSymbolKind,
+        value: oxide_library::PinSymbolKind,
     },
     /// Properties panel — set a pin's multi-part scope (Altium
     /// "Part Number" spinner). `0` is the special Part Zero (pin
@@ -832,7 +832,7 @@ pub enum PanelMsg {
     /// description.
     SymEditorSetSymbolDescription(String),
     /// Properties panel — pick the active symbol's Component Type.
-    SymEditorSetSymbolType(signex_library::ComponentType),
+    SymEditorSetSymbolType(oxide_library::ComponentType),
     /// Properties panel — toggle the active symbol's mirrored flag.
     SymEditorToggleSymbolMirrored,
     /// Properties panel — open / close a symbol-level local-colour

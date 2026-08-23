@@ -1,7 +1,7 @@
 //! QA harness — exercise every v0.8 exporter against a real Signex
 //! project and report sizes / sheet counts / validation issues.
 //!
-//! Usage: `cargo run --example qa_harness -p signex-output -- <project.snxprj> [out_dir]`
+//! Usage: `cargo run --example qa_harness -p oxide-output -- <project.snxprj> [out_dir]`
 //!
 //! Reads the project, walks every sheet via the same logic the app uses,
 //! drives PdfExporter / NetlistExporter / BomExporter (CSV / HTML / XLSX),
@@ -10,13 +10,13 @@
 
 use std::path::{Path, PathBuf};
 
-use signex_output::{
+use oxide_output::{
     BomColumn, BomExporter, BomFormat, BomGrouping, BomOptions, ExportContext, Exporter,
     NetlistExporter, NetlistOptions, PdfExporter, PdfOptions, ProjectMetadata, SheetSnapshot,
     rollup,
 };
-use signex_types::format::SnxSchematic;
-use signex_types::project::parse_project;
+use oxide_types::format::SnxSchematic;
+use oxide_types::project::parse_project;
 
 fn main() {
     let mut args = std::env::args().skip(1);
@@ -170,7 +170,7 @@ fn qa_bom(ctx: &ExportContext, out_dir: &Path, grouping: BomGrouping, label: &st
         BomColumn::LibRef,
         BomColumn::Qty,
     ];
-    // Show the rolled-up table once via signex-output::rollup, then
+    // Show the rolled-up table once via oxide-output::rollup, then
     // emit each format. The rollup is independent of format so a
     // single rollup feeds all 3 emitters.
     let table = rollup(
@@ -222,7 +222,7 @@ fn qa_bom(ctx: &ExportContext, out_dir: &Path, grouping: BomGrouping, label: &st
                 // per component which is verbose and expected on Standard
                 // projects without MPN fields populated).
                 if format == BomFormat::Csv {
-                    use signex_output::BomIssueSeverity;
+                    use oxide_output::BomIssueSeverity;
                     let mut shown = 0;
                     for issue in &out.validation_report.issues {
                         if issue.severity == BomIssueSeverity::Error {

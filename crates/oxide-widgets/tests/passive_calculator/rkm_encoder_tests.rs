@@ -1,4 +1,4 @@
-use signex_widgets::passive_calculator::{ESeries, RkmEncoder, RkmEncoderMessage};
+use oxide_widgets::passive_calculator::{ESeries, RkmEncoder, RkmEncoderMessage};
 
 #[test]
 fn value_dropdown_contains_exactly_the_e192_series() {

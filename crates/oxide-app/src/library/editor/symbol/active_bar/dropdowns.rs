@@ -3,7 +3,7 @@
 //!
 //! Each `SymActiveBarMenu` variant maps to a function that returns a
 //! list of `DropdownEntry<LibraryMessage>` rows. Rendering lives in
-//! `signex_widgets::active_bar_dropdown::view`; the chevron-trigger
+//! `oxide_widgets::active_bar_dropdown::view`; the chevron-trigger
 //! buttons + overlay positioning are owned by `symbol/active_bar.rs`.
 //!
 //! Wiring philosophy mirrors the footprint editor: items that map to
@@ -14,8 +14,8 @@
 
 use std::path::PathBuf;
 
-use signex_types::theme::ThemeId;
-use signex_widgets::active_bar_dropdown::{DropdownEntry, DropdownItem};
+use oxide_types::theme::ThemeId;
+use oxide_widgets::active_bar_dropdown::{DropdownEntry, DropdownItem};
 
 use crate::icons as ic;
 use crate::library::editor::symbol::canvas::SymbolTool;
@@ -73,7 +73,7 @@ fn filter_entries(f: SymbolSelectionFilter, path: PathBuf) -> Vec<DropdownEntry<
     use SymbolFilterKind as K;
     use iced::widget::{column, container, row};
     use iced::{Color, Length};
-    use signex_widgets::active_bar_dropdown::chip_btn;
+    use oxide_widgets::active_bar_dropdown::chip_btn;
 
     let chip_border = Color::from_rgba8(0xE7, 0x8B, 0x2A, 1.0);
 
@@ -412,7 +412,7 @@ fn shapes_entries(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_types::theme::ThemeId;
+    use oxide_types::theme::ThemeId;
 
     /// Look up a dropdown row by its exact label — robust against the
     /// row's position shifting as sibling stub rows are wired up.

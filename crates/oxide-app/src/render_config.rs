@@ -1,4 +1,4 @@
-//! Render-configuration *types* for signex-app — the enums the appearance
+//! Render-configuration *types* for oxide-app — the enums the appearance
 //! preferences are expressed in, plus the two shared render helpers.
 //!
 //! #630 — this module used to also own a process-wide
@@ -137,6 +137,6 @@ impl std::fmt::Display for PinSelectionMode {
     }
 }
 
-pub fn to_iced(c: &signex_types::theme::Color) -> iced::Color {
+pub fn to_iced(c: &oxide_types::theme::Color) -> iced::Color {
     iced::Color::from_rgba8(c.r, c.g, c.b, c.a as f32 / 255.0)
 }

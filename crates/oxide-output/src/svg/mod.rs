@@ -5,8 +5,8 @@
 
 use std::collections::HashMap;
 
-use signex_types::markup::{ExpressionEvalContext, evaluate_expressions};
-use signex_types::schematic::FillType;
+use oxide_types::markup::{ExpressionEvalContext, evaluate_expressions};
+use oxide_types::schematic::FillType;
 use tiny_skia::Color;
 
 use crate::pdf::ColourMode;
@@ -145,7 +145,7 @@ fn pt(x: f32, y: f32) -> SvgPoint {
 mod tests {
     use std::path::PathBuf;
 
-    use signex_types::schematic::{Point, SchematicSheet, Wire};
+    use oxide_types::schematic::{Point, SchematicSheet, Wire};
     use uuid::Uuid;
 
     use super::*;

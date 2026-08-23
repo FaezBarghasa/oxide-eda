@@ -25,13 +25,13 @@
 //! Cleanroom: per-entity translation only; no third-party
 //! footprint-generator source consulted.
 
-use signex_library::primitive::footprint::{FpGraphic, FpGraphicKind};
-use signex_sketch::SketchError;
-use signex_sketch::entity::{Entity, EntityKind};
-use signex_sketch::sketch::SketchData;
-use signex_sketch::solver::FullSolveOutput;
-use signex_sketch::solver::state::point_xy;
-use signex_types::layer::SignexLayer;
+use oxide_library::primitive::footprint::{FpGraphic, FpGraphicKind};
+use oxide_sketch::SketchError;
+use oxide_sketch::entity::{Entity, EntityKind};
+use oxide_sketch::sketch::SketchData;
+use oxide_sketch::solver::FullSolveOutput;
+use oxide_sketch::solver::state::point_xy;
+use oxide_types::layer::OxideLayer;
 
 /// Bake every SilkAttr-tagged non-construction entity into an
 /// `FpGraphic` on `silk_f` or `silk_b`. Both Vecs are passed by mut-ref
@@ -56,8 +56,8 @@ pub fn bake_silk(
         };
 
         let target = match attr.layer {
-            SignexLayer::TopSilk => &mut *silk_f,
-            SignexLayer::BottomSilk => &mut *silk_b,
+            OxideLayer::TopSilk => &mut *silk_f,
+            OxideLayer::BottomSilk => &mut *silk_b,
             other => {
                 warnings.push(format!(
                     "entity {}: SilkAttr.layer = {:?} is not a silk layer; skipping bake (use TopSilk or BottomSilk)",
@@ -156,7 +156,7 @@ const DEFAULT_SILK_STROKE_MM: f64 = 0.12;
 fn pos(
     sketch: &SketchData,
     solve: &FullSolveOutput,
-    id: signex_sketch::id::SketchEntityId,
+    id: oxide_sketch::id::SketchEntityId,
 ) -> Result<[f64; 2], String> {
     let (x, y) = point_xy(id, &solve.result.state, &solve.result.index, sketch)
         .ok_or_else(|| format!("missing endpoint Point {id}"))?;
@@ -166,12 +166,12 @@ fn pos(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_sketch::attr::SilkAttr;
-    use signex_sketch::entity::Entity;
-    use signex_sketch::id::SketchEntityId;
-    use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
-    use signex_sketch::solver::Solver;
-    use signex_sketch::solver::residual::ResolvedParams;
+    use oxide_sketch::attr::SilkAttr;
+    use oxide_sketch::entity::Entity;
+    use oxide_sketch::id::SketchEntityId;
+    use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
+    use oxide_sketch::solver::Solver;
+    use oxide_sketch::solver::residual::ResolvedParams;
 
     fn solve(sketch: &SketchData) -> FullSolveOutput {
         Solver::default()
@@ -204,7 +204,7 @@ mod tests {
             EntityKind::Line { start: p1, end: p2 },
         );
         line.silk = Some(SilkAttr {
-            layer: SignexLayer::TopSilk,
+            layer: OxideLayer::TopSilk,
         });
         data.entities.push(line);
 
@@ -241,7 +241,7 @@ mod tests {
             },
         );
         circle.silk = Some(SilkAttr {
-            layer: SignexLayer::BottomSilk,
+            layer: OxideLayer::BottomSilk,
         });
         data.entities.push(circle);
 
@@ -271,7 +271,7 @@ mod tests {
             EntityKind::Line { start: p1, end: p2 },
         );
         line.silk = Some(SilkAttr {
-            layer: SignexLayer::TopSilk,
+            layer: OxideLayer::TopSilk,
         });
         line.construction = true;
         data.entities.push(line);
@@ -302,7 +302,7 @@ mod tests {
         );
         // Wrong: SilkAttr on a copper layer.
         line.silk = Some(SilkAttr {
-            layer: SignexLayer::TopCopper,
+            layer: OxideLayer::TopCopper,
         });
         data.entities.push(line);
 

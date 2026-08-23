@@ -26,15 +26,15 @@ pub struct Arc {
 /// reach `end_angle`.
 ///
 /// This is the exact Rust equivalent of `normalize_angle(end_angle -
-/// start_angle)` in `crates/signex-gfx/src/shader/arc.wgsl`'s
+/// start_angle)` in `crates/oxide-gfx/src/shader/arc.wgsl`'s
 /// `sdf_arc` (the GPU arc renderer) — same formula, same convention.
-/// `crates/signex-app/src/library/editor/symbol/state/hit_test.rs`'s
+/// `crates/oxide-app/src/library/editor/symbol/state/hit_test.rs`'s
 /// `Arc` hit-test arm and `rotation.rs`'s Arc rotate arm independently
 /// implement the same wraparound rule against `SymbolGraphicKind::
 /// Arc`'s degree-valued `start_deg`/`end_deg` (via `rem_euclid(360.0)`
 /// combined with an `if s <= e { .. } else { .. }` branch) rather than
 /// calling this function directly, since they operate in degrees on a
-/// different (signex-library) type — but the rule they implement is
+/// different (oxide-library) type — but the rule they implement is
 /// this one. Any Rust code that needs the CCW-wraparound sweep of a
 /// radian-valued arc (in particular the CPU canvas draw path, which
 /// used to hand iced's arc builder a raw unnormalized `end - start`

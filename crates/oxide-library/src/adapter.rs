@@ -89,7 +89,7 @@ pub struct PrimitiveSummary {
 /// Per `v0.9-snxlib-as-file-plan.md` §3 ("History panel inside the
 /// per-primitive editor"), the SCH Library / Footprint / Sim editors
 /// and the Library Browser tab all bind a [`HistoryEntry`] list to the
-/// shared `signex_widgets::history_pane::HistoryPane` widget. Stage 17
+/// shared `oxide_widgets::history_pane::HistoryPane` widget. Stage 17
 /// scaffolds the API + data shape; later stages layer the graph lane,
 /// diff stats, and revert/reset affordances on top.
 ///
@@ -497,7 +497,7 @@ pub trait LibraryAdapter: Send + Sync {
     /// Per `v0.9-snxlib-as-file-plan.md` §3 this is the *single*
     /// hook the SCH Library / Footprint / Sim editors and the
     /// Library Browser tab call to populate the
-    /// `signex_widgets::history_pane::HistoryPane` widget — there's
+    /// `oxide_widgets::history_pane::HistoryPane` widget — there's
     /// no second code path. Adapters that aren't backed by git
     /// (e.g. the database adapter) keep the default
     /// `Backend("history not implemented")` response so the UI can

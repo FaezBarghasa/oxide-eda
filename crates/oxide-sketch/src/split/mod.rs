@@ -1,7 +1,7 @@
 //! `split_line` — divide a sketch `Line` at a parameter into two Lines
 //! sharing a new mid `Point`.
 //!
-//! Pure model primitive (issue #360) — no `signex-app` / UI dependency.
+//! Pure model primitive (issue #360) — no `oxide-app` / UI dependency.
 //! The footprint editor's Break Track action (issue #372) is the
 //! consumer: it hit-tests a click against a Line, projects it to a
 //! parameter `t`, and calls [`split_line`] directly.
@@ -113,7 +113,7 @@ pub struct SplitResult {
 /// `mask_exclude`, `paste_aperture`, `pour`, `keepout`,
 /// `board_cutout`) stay on `line_a` ONLY. Each of those bakes by
 /// tracing the WHOLE closed loop from any entity that carries the
-/// attribute (`trace_closed_profile` in `signex-bake`), so a Line that
+/// attribute (`trace_closed_profile` in `oxide-bake`), so a Line that
 /// kept the attribute on both halves would make the bake discover —
 /// and emit — the same loop twice (two identical pours on the same
 /// net, two routed board cutouts on the same slot, a spurious "only

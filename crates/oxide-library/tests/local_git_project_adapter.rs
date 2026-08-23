@@ -14,7 +14,7 @@
 use std::fs;
 use std::path::Path;
 
-use signex_library::adapters::local_git_project::LocalGitProjectAdapter;
+use oxide_library::adapters::local_git_project::LocalGitProjectAdapter;
 use tempfile::TempDir;
 
 fn write_file(root: &Path, rel: &str, content: &str) {

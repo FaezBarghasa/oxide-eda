@@ -28,7 +28,7 @@ impl Engine {
         locked: &std::collections::HashSet<uuid::Uuid>,
     ) -> Result<bool, EngineError> {
         let before = self.document.clone();
-        let is_designator_target = |sym: &signex_types::schematic::Symbol| -> bool {
+        let is_designator_target = |sym: &oxide_types::schematic::Symbol| -> bool {
             !sym.is_power && !sym.reference.starts_with('#') && !locked.contains(&sym.uuid)
         };
 

@@ -5,17 +5,17 @@
 //! Sources: IPC-2612-1, IEEE 315, IEC 60617, wgpu/WGSL public docs.
 
 use crate::theme::ResolvedTheme;
-use signex_gfx::scene::{DirtyFlags, Scene};
+use oxide_gfx::scene::{DirtyFlags, Scene};
 use std::collections::HashMap;
 
-use signex_gfx::primitive::arc::Arc;
-use signex_gfx::primitive::circle::Circle;
-use signex_gfx::primitive::line::LineSegment;
-use signex_gfx::primitive::polygon::GpuPolygon;
-use signex_gfx::primitive::text::{TextHAlign, TextItem, TextVAlign};
-use signex_gfx::style::{ColorSlot, StyleRef};
-use signex_types::schematic::{HAlign, VAlign};
-use signex_types::violation::Severity;
+use oxide_gfx::primitive::arc::Arc;
+use oxide_gfx::primitive::circle::Circle;
+use oxide_gfx::primitive::line::LineSegment;
+use oxide_gfx::primitive::polygon::GpuPolygon;
+use oxide_gfx::primitive::text::{TextHAlign, TextItem, TextVAlign};
+use oxide_gfx::style::{ColorSlot, StyleRef};
+use oxide_types::schematic::{HAlign, VAlign};
+use oxide_types::violation::Severity;
 
 /// Common view renderer contract used by scene translators.
 pub trait ViewRenderer {
@@ -181,11 +181,11 @@ mod tests {
         OverlayPolygonInput, PolygonInput, SchematicRenderer, SchematicSnapshot, TextInput,
         ViewRenderer, WireInput,
     };
-    use signex_gfx::primitive::text::{TextHAlign, TextVAlign};
-    use signex_gfx::scene::{DirtyFlags, Scene};
-    use signex_gfx::style::ColorSlot;
-    use signex_types::schematic::{HAlign, VAlign};
-    use signex_types::violation::Severity;
+    use oxide_gfx::primitive::text::{TextHAlign, TextVAlign};
+    use oxide_gfx::scene::{DirtyFlags, Scene};
+    use oxide_gfx::style::ColorSlot;
+    use oxide_types::schematic::{HAlign, VAlign};
+    use oxide_types::violation::Severity;
     use std::collections::HashMap;
 
     use crate::theme::ResolvedTheme;

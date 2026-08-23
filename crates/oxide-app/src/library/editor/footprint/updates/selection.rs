@@ -189,10 +189,10 @@ fn delete_selected(editor: &mut crate::app::FootprintEditorState) {
         // Sketch-mode deletion — primary + secondary + extras.
         if state.mode == EditorMode::Sketch {
             use std::collections::HashSet;
-            let mut seen: HashSet<signex_sketch::id::SketchEntityId> = HashSet::new();
-            let mut victims: Vec<signex_sketch::id::SketchEntityId> = Vec::new();
-            let push_unique = |id: signex_sketch::id::SketchEntityId,
-                               vs: &mut Vec<signex_sketch::id::SketchEntityId>,
+            let mut seen: HashSet<oxide_sketch::id::SketchEntityId> = HashSet::new();
+            let mut victims: Vec<oxide_sketch::id::SketchEntityId> = Vec::new();
+            let push_unique = |id: oxide_sketch::id::SketchEntityId,
+                               vs: &mut Vec<oxide_sketch::id::SketchEntityId>,
                                seen: &mut HashSet<_>| {
                 if seen.insert(id) {
                     vs.push(id);

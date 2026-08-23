@@ -104,32 +104,32 @@ pub enum ToolPending {
     Idle,
     /// Line tool, first click landed.
     LineFirst {
-        first: signex_sketch::id::SketchEntityId,
+        first: oxide_sketch::id::SketchEntityId,
     },
     /// Rectangle tool, first corner click landed. v0.15.
     RectangleFirst {
-        first: signex_sketch::id::SketchEntityId,
+        first: oxide_sketch::id::SketchEntityId,
     },
     /// Rounded-Rectangle tool, first corner click landed. v0.16.
     RoundedRectangleFirst {
-        first: signex_sketch::id::SketchEntityId,
+        first: oxide_sketch::id::SketchEntityId,
     },
     /// Circle tool, centre click landed.
     CircleCenter {
-        center: signex_sketch::id::SketchEntityId,
+        center: oxide_sketch::id::SketchEntityId,
     },
     /// Arc tool, centre click landed.
     ArcCenter {
-        center: signex_sketch::id::SketchEntityId,
+        center: oxide_sketch::id::SketchEntityId,
     },
     /// Arc tool, centre + start clicks landed; awaiting end click.
     ArcStart {
-        center: signex_sketch::id::SketchEntityId,
-        start: signex_sketch::id::SketchEntityId,
+        center: oxide_sketch::id::SketchEntityId,
+        start: oxide_sketch::id::SketchEntityId,
     },
     /// #467 — Edge Arc tool, start click landed; awaiting end click.
     EdgeArcStart {
-        start: signex_sketch::id::SketchEntityId,
+        start: oxide_sketch::id::SketchEntityId,
     },
     /// #467 — Edge Arc tool, start + end clicks landed; awaiting the
     /// third "point on arc" click. That click's position is fed into
@@ -137,20 +137,20 @@ pub enum ToolPending {
     /// sweep direction; collinear picks are rejected via
     /// `solve_warnings` instead of minting a degenerate arc.
     EdgeArcEnd {
-        start: signex_sketch::id::SketchEntityId,
-        end: signex_sketch::id::SketchEntityId,
+        start: oxide_sketch::id::SketchEntityId,
+        end: oxide_sketch::id::SketchEntityId,
     },
     /// v0.23 — "Re-pick centre" affordance from the Pattern Properties
     /// sub-form.
     RepickPolarCenter {
-        array_id: signex_sketch::array::ArrayId,
+        array_id: oxide_sketch::array::ArrayId,
     },
     /// v0.24 Track C — Tangent Arc, first endpoint placed.
     TangentArcFirst {
-        first: signex_sketch::id::SketchEntityId,
+        first: oxide_sketch::id::SketchEntityId,
     },
     /// v0.27 — Fillet, first Line picked. Awaiting second Line.
     FilletFirst {
-        line: signex_sketch::id::SketchEntityId,
+        line: oxide_sketch::id::SketchEntityId,
     },
 }

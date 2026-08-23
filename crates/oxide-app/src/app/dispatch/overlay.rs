@@ -350,7 +350,7 @@ impl Signex {
             ErcMsg::CloseDialog => self.handle_close_erc_dialog(),
             ErcMsg::SeverityChanged(rule, sev) => self.handle_erc_severity_changed(rule, sev),
             ErcMsg::PinMatrixCellCycled { row, col } => {
-                use signex_erc::Severity;
+                use oxide_erc::Severity;
                 // Baseline defaults must match the `MATRIX` constant in
                 // `pin_matrix_view` so "clearing" an override drops back
                 // to the same severity the user sees in the UI.

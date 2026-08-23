@@ -7,7 +7,7 @@
 //! `Edit(_)` variant. Tool-state changes are local to the editor
 //! state.
 
-use signex_sketch::{
+use oxide_sketch::{
     constraint::Constraint,
     entity::Entity,
     id::{ConstraintId, SketchEntityId},

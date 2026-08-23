@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
-use signex_types::pcb::PcbBoard;
-use signex_types::schematic::SchematicSheet;
+use oxide_types::pcb::PcbBoard;
+use oxide_types::schematic::SchematicSheet;
 
 use super::*;
 
@@ -148,7 +148,7 @@ impl Signex {
         let path = self.active_tab_path();
         match (path, schematic) {
             (Some(p), Some(sheet)) => {
-                match signex_engine::Engine::new_with_path(sheet, Some(p.clone())) {
+                match oxide_engine::Engine::new_with_path(sheet, Some(p.clone())) {
                     Ok(engine) => {
                         self.document_state.engines.insert(p.clone(), engine);
                         self.document_state.active_path = Some(p);
@@ -196,7 +196,7 @@ impl Signex {
     pub(crate) fn sync_pcb_canvas_from_visible_board(&mut self) {
         let renderer_snapshot = self
             .active_pcb()
-            .map(signex_renderer::pcb::PcbSnapshot::from_board);
+            .map(oxide_renderer::pcb::PcbSnapshot::from_board);
 
         self.interaction_state
             .pcb_canvas

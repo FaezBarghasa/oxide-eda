@@ -13,7 +13,7 @@ use std::sync::OnceLock;
 
 use iced::widget::{Column, Row, Space, button, container, mouse_area, scrollable, svg, text};
 use iced::{Background, Border, Color, Element, Length, Theme};
-use signex_types::theme::ThemeTokens;
+use oxide_types::theme::ThemeTokens;
 
 // ─── SVG Chevron Icons (cached handles) ──────────────────────
 
@@ -86,10 +86,10 @@ pub enum TreeIcon {
 //
 //  * **Generic tree icons** — folder / file / library / component /
 //    sheet / net / pin. Live at
-//    `crates/signex-widgets/assets/tree-icons/`.
+//    `crates/oxide-widgets/assets/tree-icons/`.
 //  * **Signex native `.snx***` file family** — shared with the
 //    installer's file-association artwork at
-//    `crates/signex-app/assets/icons/files/`. Reached cross-crate via
+//    `crates/oxide-app/assets/icons/files/`. Reached cross-crate via
 //    `include_bytes!` so one copy of the artwork serves both the
 //    tree view and the .ico/.icns raster pipeline.
 //  * **Standard handoff formats** — `.standard_sch` / `.standard_pcb` /
@@ -126,13 +126,13 @@ const SVG_TREE_MODEL: &[u8] = include_bytes!("../assets/tree-icons/model.svg");
 // Signex native `.snx***` file family (SVG). Shared with the
 // installer's file-association artwork; update both paths together
 // if the asset layout changes.
-const SVG_SNX_PROJECT: &[u8] = include_bytes!("../../signex-app/assets/icons/files/snxprj.svg");
-const SVG_SNX_SCHEMATIC: &[u8] = include_bytes!("../../signex-app/assets/icons/files/snxsch.svg");
-const SVG_SNX_PCB: &[u8] = include_bytes!("../../signex-app/assets/icons/files/snxpcb.svg");
-const SVG_SNX_FOOTPRINT: &[u8] = include_bytes!("../../signex-app/assets/icons/files/snxfpt.svg");
-const SVG_SNX_SIMULATION: &[u8] = include_bytes!("../../signex-app/assets/icons/files/snxsim.svg");
-const SVG_SNX_LIBRARY: &[u8] = include_bytes!("../../signex-app/assets/icons/files/snxlib.svg");
-const SVG_SNX_SYMBOL: &[u8] = include_bytes!("../../signex-app/assets/icons/files/snxsym.svg");
+const SVG_SNX_PROJECT: &[u8] = include_bytes!("../../oxide-app/assets/icons/files/snxprj.svg");
+const SVG_SNX_SCHEMATIC: &[u8] = include_bytes!("../../oxide-app/assets/icons/files/snxsch.svg");
+const SVG_SNX_PCB: &[u8] = include_bytes!("../../oxide-app/assets/icons/files/snxpcb.svg");
+const SVG_SNX_FOOTPRINT: &[u8] = include_bytes!("../../oxide-app/assets/icons/files/snxfpt.svg");
+const SVG_SNX_SIMULATION: &[u8] = include_bytes!("../../oxide-app/assets/icons/files/snxsim.svg");
+const SVG_SNX_LIBRARY: &[u8] = include_bytes!("../../oxide-app/assets/icons/files/snxlib.svg");
+const SVG_SNX_SYMBOL: &[u8] = include_bytes!("../../oxide-app/assets/icons/files/snxsym.svg");
 
 impl TreeIcon {
     /// Return the cached SVG handle for this icon. Each variant

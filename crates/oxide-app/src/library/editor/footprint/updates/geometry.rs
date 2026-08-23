@@ -40,7 +40,7 @@ pub(super) fn apply(editor: &mut crate::app::FootprintEditorState, msg: Footprin
 // via the Properties panel.
 fn add_new_sibling(editor: &mut crate::app::FootprintEditorState) {
     let next_n = editor.file.footprints.len() + 1;
-    let new_fp = signex_library::Footprint::empty(format!("Footprint {next_n}"));
+    let new_fp = oxide_library::Footprint::empty(format!("Footprint {next_n}"));
     editor.file.footprints.push(new_fp);
     editor.active_idx = editor.file.footprints.len() - 1;
     editor.state = crate::library::editor::footprint::state::FootprintEditorState::from_footprint(
@@ -79,7 +79,7 @@ fn add_via(editor: &mut crate::app::FootprintEditorState, x_mm: f64, y_mm: f64) 
     // like. Bypasses `add_pad_at` (which inherits Pads-mode
     // defaults) and constructs the EditorPad directly.
     use crate::library::editor::footprint::state::EditorPad;
-    use signex_library::{LayerId, PadKind, PadShape};
+    use oxide_library::{LayerId, PadKind, PadShape};
     const VIA_DIAMETER_MM: f64 = 0.6;
     const VIA_DRILL_MM: f64 = 0.3;
     editor.with_parts(|state, primitive| {
@@ -122,8 +122,8 @@ fn track_click(editor: &mut crate::app::FootprintEditorState, x_mm: f64, y_mm: f
             let primitive = editor.primitive_mut();
             primitive
                 .silk_f
-                .push(signex_library::primitive::footprint::FpGraphic {
-                    kind: signex_library::primitive::footprint::FpGraphicKind::Line {
+                .push(oxide_library::primitive::footprint::FpGraphic {
+                    kind: oxide_library::primitive::footprint::FpGraphicKind::Line {
                         from: [sx, sy],
                         to: [x_mm, y_mm],
                     },
@@ -169,8 +169,8 @@ fn arc_click(editor: &mut crate::app::FootprintEditorState, x_mm: f64, y_mm: f64
                 let primitive = editor.primitive_mut();
                 primitive
                     .silk_f
-                    .push(signex_library::primitive::footprint::FpGraphic {
-                        kind: signex_library::primitive::footprint::FpGraphicKind::Arc {
+                    .push(oxide_library::primitive::footprint::FpGraphic {
+                        kind: oxide_library::primitive::footprint::FpGraphicKind::Arc {
                             center: [cx, cy],
                             radius,
                             start_deg,
@@ -217,8 +217,8 @@ fn polygon_commit(editor: &mut crate::app::FootprintEditorState) {
         let primitive = editor.primitive_mut();
         primitive
             .silk_f
-            .push(signex_library::primitive::footprint::FpGraphic {
-                kind: signex_library::primitive::footprint::FpGraphicKind::Polygon { vertices },
+            .push(oxide_library::primitive::footprint::FpGraphic {
+                kind: oxide_library::primitive::footprint::FpGraphicKind::Polygon { vertices },
                 stroke_width: if filled { 0.0 } else { 0.15 },
                 filled,
             });
@@ -241,8 +241,8 @@ fn add_text(editor: &mut crate::app::FootprintEditorState, x_mm: f64, y_mm: f64)
     let primitive = editor.primitive_mut();
     primitive
         .silk_f
-        .push(signex_library::primitive::footprint::FpGraphic {
-            kind: signex_library::primitive::footprint::FpGraphicKind::Text {
+        .push(oxide_library::primitive::footprint::FpGraphic {
+            kind: oxide_library::primitive::footprint::FpGraphicKind::Text {
                 position: [x_mm, y_mm],
                 content: "TEXT".to_string(),
                 size: 1.0,
@@ -321,7 +321,7 @@ fn mint_extruded_body3d(editor: &mut crate::app::FootprintEditorState) {
 /// auto-mint has already fired). Mirroring into a non-existent sketch would
 /// create one silently, which is undesirable for users who only ever work
 /// in Pads mode.
-fn footprint_sketch_is_active(fp: &signex_library::primitive::footprint::Footprint) -> bool {
+fn footprint_sketch_is_active(fp: &oxide_library::primitive::footprint::Footprint) -> bool {
     match fp.sketch.as_ref() {
         Some(s) => !s.entities.is_empty(),
         None => false,

@@ -13,7 +13,7 @@
 //! additional faces.
 //!
 //! Use cases for this crate:
-//! - Closed-loop walker for `signex-bake::profile` (uniform face
+//! - Closed-loop walker for `oxide-bake::profile` (uniform face
 //!   traversal regardless of the ad-hoc adjacency map).
 //! - Polygon boolean cleanup (Phase 2 follow-up).
 //! - Multi-region pad-stack composition.

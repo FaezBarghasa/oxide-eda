@@ -5,7 +5,7 @@
 //! [`Violation`] is kept as the public API type; [`From<Diagnostic>`] converts
 //! for backward compatibility with the rest of the app.
 
-use signex_types::schematic::{Point, SelectedItem};
+use oxide_types::schematic::{Point, SelectedItem};
 
 use crate::rule::RuleId;
 use crate::{RuleKind, Severity, Violation};

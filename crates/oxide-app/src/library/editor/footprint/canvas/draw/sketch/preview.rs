@@ -99,12 +99,12 @@ fn placement_field_buf(
 pub(in crate::library::editor::footprint::canvas::draw) fn draw_sketch_tool_preview(
     frame: &mut canvas::Frame,
     cstate: &FootprintCanvasState,
-    sketch: &signex_sketch::SketchData,
+    sketch: &oxide_sketch::SketchData,
     state: &FootprintEditorState,
 ) {
     use crate::library::editor::footprint::state::{PlacementInputKind, ToolPending};
-    use signex_sketch::entity::EntityKind;
-    use signex_sketch::id::SketchEntityId;
+    use oxide_sketch::entity::EntityKind;
+    use oxide_sketch::id::SketchEntityId;
 
     let cursor = match state.cursor_mm {
         Some(c) => c,
@@ -124,7 +124,7 @@ pub(in crate::library::editor::footprint::canvas::draw) fn draw_sketch_tool_prev
 
     let resolve_point = |id: SketchEntityId| -> Option<(f64, f64)> {
         if let Some(solve) = state.last_solve.as_ref()
-            && let Some((x, y)) = signex_sketch::solver::state::point_xy(
+            && let Some((x, y)) = oxide_sketch::solver::state::point_xy(
                 id,
                 &solve.result.state,
                 &solve.result.index,
@@ -572,14 +572,14 @@ pub(in crate::library::editor::footprint::canvas::draw) fn draw_sketch_tool_prev
             let (Some(s_world), Some(e_world)) = (resolve_point(start), resolve_point(end)) else {
                 return;
             };
-            use signex_types::schematic::{Point as SchPoint, circumcircle};
+            use oxide_types::schematic::{Point as SchPoint, circumcircle};
             match circumcircle(
                 SchPoint::new(s_world.0, s_world.1),
                 SchPoint::new(cursor.0, cursor.1),
                 SchPoint::new(e_world.0, e_world.1),
             ) {
                 Some((cx, cy, r)) => {
-                    use signex_sketch::geom::{Sign, orient2d};
+                    use oxide_sketch::geom::{Sign, orient2d};
                     let sweep_ccw = match orient2d(s_world.into(), cursor.into(), e_world.into()) {
                         Sign::Negative => false,
                         Sign::Positive | Sign::Zero => true,

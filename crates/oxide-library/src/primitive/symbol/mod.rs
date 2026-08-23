@@ -254,10 +254,10 @@ pub enum SymbolGraphicKind {
 /// Used by two call sites that can't share a dependency edge: this
 /// crate's own [`SymbolFile::from_toml_str`] (migrating legacy
 /// `.snxsym` files saved by builds that stored a clockwise drag's
-/// raw, unswapped pair) and `signex_app`'s Place Arc placement-commit
+/// raw, unswapped pair) and `oxide_app`'s Place Arc placement-commit
 /// handler (the tool that can hand this a raw, possibly-negative pair
-/// from a live drag). Lives here — signex-library must not depend on
-/// signex-app — with signex-app calling into it, not the reverse.
+/// from a live drag). Lives here — oxide-library must not depend on
+/// oxide-app — with oxide-app calling into it, not the reverse.
 pub fn normalize_arc_endpoints_deg(start_deg: f64, end_deg: f64) -> (f64, f64) {
     let (start_deg, end_deg) = if end_deg < start_deg {
         (end_deg, start_deg)
@@ -527,7 +527,7 @@ const PIN_TSV_COLUMNS: &[&str] = &[
 /// before TOML serialise; replaced post-emit with the literal multi-
 /// line `'''…'''` block. The long random suffix prevents collision
 /// with any plausible pin field text.
-const PINS_TSV_PLACEHOLDER_PREFIX: &str = "__SIGNEX_PINS_TSV_a1b2c3d4_";
+const PINS_TSV_PLACEHOLDER_PREFIX: &str = "__OXIDE_PINS_TSV_a1b2c3d4_";
 
 fn default_format() -> String {
     SYMBOL_FILE_FORMAT_TOKEN.to_string()

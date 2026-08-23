@@ -13,12 +13,12 @@
 //! (signex#276) — regenerate deliberately, never just to make a test pass:
 //!
 //! ```text
-//! UPDATE_DOCS=1 cargo test -p signex-app --test command_reference
+//! UPDATE_DOCS=1 cargo test -p oxide-app --test command_reference
 //! ```
 
 use std::collections::BTreeMap;
 
-use signex_app::keymap::{AppCommandId, CommandGroup, all_command_ids, metadata_for};
+use oxide_app::keymap::{AppCommandId, CommandGroup, all_command_ids, metadata_for};
 
 const ALTIUM_TOML: &str = include_str!("../assets/keyboard-shortcuts/altium.toml");
 const CLASSIC_TOML: &str = include_str!("../assets/keyboard-shortcuts/classic.toml");
@@ -79,18 +79,18 @@ fn render() -> String {
          for the file format.\n\
          \n\
          **Generated — do not edit by hand.** Produced from\n\
-         `crates/signex-app/src/keymap/catalog/` and\n\
-         `crates/signex-app/assets/keyboard-shortcuts/` by\n\
-         `crates/signex-app/tests/command_reference.rs`, which fails if this\n\
+         `crates/oxide-app/src/keymap/catalog/` and\n\
+         `crates/oxide-app/assets/keyboard-shortcuts/` by\n\
+         `crates/oxide-app/tests/command_reference.rs`, which fails if this\n\
          file drifts. Regenerate with:\n\
          \n\
          ```sh\n\
-         UPDATE_DOCS=1 cargo test -p signex-app --test command_reference\n\
+         UPDATE_DOCS=1 cargo test -p oxide-app --test command_reference\n\
          ```\n\
          \n\
          A command listed here resolves in the keymap. Not all of them reach an\n\
          action yet — the ones that do not are pinned in\n\
-         `crates/signex-app/src/app/command/bridge.rs`, and that set may only\n\
+         `crates/oxide-app/src/app/command/bridge.rs`, and that set may only\n\
          shrink.\n",
     );
 
@@ -146,7 +146,7 @@ fn command_reference_matches_the_catalog() {
     assert_eq!(
         actual, expected,
         "docs/COMMANDS.md is stale — regenerate with \
-         `UPDATE_DOCS=1 cargo test -p signex-app --test command_reference`"
+         `UPDATE_DOCS=1 cargo test -p oxide-app --test command_reference`"
     );
 }
 

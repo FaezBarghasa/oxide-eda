@@ -634,7 +634,7 @@ impl SearchIndex for TantivySearchIndex {
         let query = match self.build_query(q) {
             Ok(qq) => qq,
             Err(e) => {
-                // MD-31: was previously gated behind `SIGNEX_TANTIVY_TRACE`,
+                // MD-31: was previously gated behind `OXIDE_TANTIVY_TRACE`,
                 // which meant production users saw an empty result list
                 // with no signal in logs. Always log at `warn` so an
                 // index-error → empty-result outcome is distinguishable

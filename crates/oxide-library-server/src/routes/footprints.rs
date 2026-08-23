@@ -12,7 +12,7 @@ use axum::{
     routing::get,
 };
 use serde::Deserialize;
-use signex_library::primitive::Footprint;
+use oxide_library::primitive::Footprint;
 use uuid::Uuid;
 
 use crate::db::{AppState, PrimitiveSummary};

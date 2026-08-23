@@ -30,9 +30,9 @@ use iced::widget::{
 };
 use iced::{Background, Border, Color, Element, Length, Theme};
 
-use signex_library::ComponentRow;
-use signex_types::theme::ThemeTokens;
-use signex_widgets::theme_ext;
+use oxide_library::ComponentRow;
+use oxide_types::theme::ThemeTokens;
+use oxide_widgets::theme_ext;
 
 use crate::library::messages::LibraryMessage;
 use crate::library::state::{ComponentsMountSource, LibraryState, OpenLibrary};
@@ -319,7 +319,7 @@ fn view_row_button<'a>(
     muted: Color,
     hover_c: Color,
 ) -> Element<'a, LibraryMessage> {
-    let row_id = signex_library::RowId::from_uuid(row_data.row_id);
+    let row_id = oxide_library::RowId::from_uuid(row_data.row_id);
     let label_left = format!(
         "{} — {}",
         row_data.internal_pn.as_str(),
@@ -378,7 +378,7 @@ fn thin_sep<'a, M: 'a>(border_c: Color) -> Element<'a, M> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_library::{
+    use oxide_library::{
         ComponentClass, DatasheetRef, InternalPn, LifecycleState, ManufacturerPart, ParamMap,
         PinPadOverride, PlmReserved,
     };
@@ -392,7 +392,7 @@ mod tests {
             class: ComponentClass::generic(),
             datasheet: DatasheetRef::default(),
             state: LifecycleState::Draft,
-            symbol_ref: signex_library::PrimitiveRef::new(Uuid::nil(), Uuid::new_v4()),
+            symbol_ref: oxide_library::PrimitiveRef::new(Uuid::nil(), Uuid::new_v4()),
             footprint_ref: None,
             sim_ref: None,
             pin_map_overrides: Vec::new(),

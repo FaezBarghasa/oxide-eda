@@ -9,26 +9,26 @@ impl Signex {
         let dsl_eval_fns = self.load_project_dsl_eval_fns();
         let overrides = self.ui_state.erc_severity_override.clone();
         let apply_overrides =
-            |mut violations: Vec<signex_erc::Violation>| -> Vec<signex_erc::Violation> {
+            |mut violations: Vec<oxide_erc::Violation>| -> Vec<oxide_erc::Violation> {
                 for v in &mut violations {
                     if let Some(&sev) = overrides.get(&v.rule) {
                         v.severity = sev;
                     }
                 }
-                violations.retain(|v| v.severity != signex_erc::Severity::Off);
+                violations.retain(|v| v.severity != oxide_erc::Severity::Off);
                 violations.sort_by_key(|v| {
                     let bucket = match v.severity {
-                        signex_erc::Severity::Error => 0,
-                        signex_erc::Severity::Warning => 1,
-                        signex_erc::Severity::Info => 2,
-                        signex_erc::Severity::Off => 3,
+                        oxide_erc::Severity::Error => 0,
+                        oxide_erc::Severity::Warning => 1,
+                        oxide_erc::Severity::Info => 2,
+                        oxide_erc::Severity::Off => 3,
                     };
                     (bucket, format!("{:?}", v.rule))
                 });
                 violations
             };
 
-        let mut by_path: std::collections::HashMap<std::path::PathBuf, Vec<signex_erc::Violation>> =
+        let mut by_path: std::collections::HashMap<std::path::PathBuf, Vec<oxide_erc::Violation>> =
             std::collections::HashMap::new();
 
         // First pass: collect every project sheet's snapshot keyed by its
@@ -108,20 +108,20 @@ impl Signex {
         // BadHierSheetPin can cross-check each sheet symbol against the
         // actual child schematic — the same file the netlist stitcher
         // resolved for that same reference.
-        let empty_resolved: std::collections::HashMap<String, signex_net::SheetKey> =
+        let empty_resolved: std::collections::HashMap<String, oxide_net::SheetKey> =
             std::collections::HashMap::new();
         for (path, snapshot) in &snapshots_by_path {
             let key = crate::app::project_sheets::sheet_key(path, base_dir.as_deref());
             let resolved = graph.resolved.get(&key).unwrap_or(&empty_resolved);
             let violations = if let Some(eval_fns) = dsl_eval_fns.as_ref() {
-                apply_overrides(signex_erc::run_with_project_and_dsl(
+                apply_overrides(oxide_erc::run_with_project_and_dsl(
                     snapshot,
                     resolved,
                     &graph.sheets,
                     eval_fns,
                 ))
             } else {
-                apply_overrides(signex_erc::run_with_project(
+                apply_overrides(oxide_erc::run_with_project(
                     snapshot,
                     resolved,
                     &graph.sheets,
@@ -160,7 +160,7 @@ impl Signex {
         self.show_panel(crate::panels::PanelKind::Erc)
     }
 
-    fn load_project_dsl_eval_fns(&self) -> Option<Vec<signex_erc::engine::EvalFn>> {
+    fn load_project_dsl_eval_fns(&self) -> Option<Vec<oxide_erc::engine::EvalFn>> {
         let project_root = self
             .document_state
             .active_document_project()
@@ -177,7 +177,7 @@ impl Signex {
             return None;
         };
 
-        match signex_erc_dsl::parse_validate_compile_to_eval_fns(&src) {
+        match oxide_erc_dsl::parse_validate_compile_to_eval_fns(&src) {
             Ok(eval_fns) => {
                 crate::diagnostics::log_info(format!(
                     "ERC DSL: loaded {} compiled rule(s) from {}",
@@ -213,8 +213,8 @@ impl Signex {
                 x: v.location.x,
                 y: v.location.y,
                 severity: match v.severity {
-                    signex_erc::Severity::Error => crate::canvas::ErcMarkerSeverity::Error,
-                    signex_erc::Severity::Warning => crate::canvas::ErcMarkerSeverity::Warning,
+                    oxide_erc::Severity::Error => crate::canvas::ErcMarkerSeverity::Error,
+                    oxide_erc::Severity::Warning => crate::canvas::ErcMarkerSeverity::Warning,
                     _ => crate::canvas::ErcMarkerSeverity::Info,
                 },
                 primary_uuid: v.primary.as_ref().map(|s| s.uuid),
@@ -248,8 +248,8 @@ impl Signex {
                         sheet_name: sheet_name.clone(),
                         sheet_path: path.clone(),
                         severity: match v.severity {
-                            signex_erc::Severity::Error => crate::panels::ErcSeverityLite::Error,
-                            signex_erc::Severity::Warning => {
+                            oxide_erc::Severity::Error => crate::panels::ErcSeverityLite::Error,
+                            oxide_erc::Severity::Warning => {
                                 crate::panels::ErcSeverityLite::Warning
                             }
                             _ => crate::panels::ErcSeverityLite::Info,
@@ -301,13 +301,13 @@ impl Signex {
         self.ensure_sheet_open_and_active(&target.sheet_path);
 
         match target.rule_kind {
-            signex_erc::RuleKind::UnusedPin => {
-                let nc = signex_types::schematic::NoConnect {
+            oxide_erc::RuleKind::UnusedPin => {
+                let nc = oxide_types::schematic::NoConnect {
                     uuid: uuid::Uuid::new_v4(),
-                    position: signex_types::schematic::Point::new(target.world_x, target.world_y),
+                    position: oxide_types::schematic::Point::new(target.world_x, target.world_y),
                 };
                 self.apply_engine_command(
-                    signex_engine::Command::PlaceNoConnect { no_connect: nc },
+                    oxide_engine::Command::PlaceNoConnect { no_connect: nc },
                     false,
                     false,
                 );
@@ -387,7 +387,7 @@ impl Signex {
             ));
             return;
         };
-        let Ok(sheet) = signex_types::format::SnxSchematic::parse(&text).map(|snx| snx.sheet)
+        let Ok(sheet) = oxide_types::format::SnxSchematic::parse(&text).map(|snx| snx.sheet)
         else {
             crate::diagnostics::log_info(format!(
                 "ERC navigation: failed to parse sheet {}",
@@ -410,7 +410,7 @@ impl Signex {
         &mut self,
         world_x: f64,
         world_y: f64,
-        select: Option<signex_types::schematic::SelectedItem>,
+        select: Option<oxide_types::schematic::SelectedItem>,
     ) -> Task<Message> {
         if let Some(item) = select {
             self.interaction_state.active_canvas_mut().selected = vec![item];

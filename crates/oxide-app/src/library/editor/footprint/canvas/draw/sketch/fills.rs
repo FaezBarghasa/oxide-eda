@@ -25,8 +25,8 @@ use crate::library::editor::footprint::state::FootprintEditorState;
 /// single click on the polygon fill can select every entity in the
 /// loop. Mirrors what `draw_filled_closed_loops` walks internally.
 pub(in crate::library::editor::footprint::canvas) struct ClosedLoop {
-    pub lines: Vec<signex_sketch::id::SketchEntityId>,
-    pub points: Vec<signex_sketch::id::SketchEntityId>,
+    pub lines: Vec<oxide_sketch::id::SketchEntityId>,
+    pub points: Vec<oxide_sketch::id::SketchEntityId>,
     /// Vertex array shaped as `[[x, y]; n]` for direct hand-off to
     /// `super::super::geometry::point_in_polygon`.
     pub polygon: Vec<[f64; 2]>,
@@ -38,20 +38,20 @@ pub(in crate::library::editor::footprint::canvas) struct ClosedLoop {
 /// construction loops); those are visible only as dashed strokes
 /// and selecting them via fill would surprise the user.
 pub(in crate::library::editor::footprint::canvas) fn find_closed_loops(
-    sketch: &signex_sketch::SketchData,
+    sketch: &oxide_sketch::SketchData,
     state: &FootprintEditorState,
 ) -> Vec<ClosedLoop> {
-    use signex_sketch::entity::EntityKind;
-    use signex_sketch::id::SketchEntityId;
+    use oxide_sketch::entity::EntityKind;
+    use oxide_sketch::id::SketchEntityId;
     use std::collections::{HashMap, HashSet};
 
     fn pos(
         id: SketchEntityId,
-        sketch: &signex_sketch::SketchData,
+        sketch: &oxide_sketch::SketchData,
         state: &FootprintEditorState,
     ) -> Option<(f64, f64)> {
         if let Some(solve) = state.last_solve.as_ref()
-            && let Some(p) = signex_sketch::solver::state::point_xy(
+            && let Some(p) = oxide_sketch::solver::state::point_xy(
                 id,
                 &solve.result.state,
                 &solve.result.index,
@@ -161,12 +161,12 @@ pub(in crate::library::editor::footprint::canvas) fn find_closed_loops(
 pub(super) fn draw_filled_closed_loops(
     frame: &mut canvas::Frame,
     cstate: &FootprintCanvasState,
-    sketch: &signex_sketch::SketchData,
+    sketch: &oxide_sketch::SketchData,
     state: &FootprintEditorState,
 ) {
-    use signex_sketch::entity::{Entity, EntityKind};
-    use signex_sketch::id::SketchEntityId;
-    use signex_types::layer::SignexLayer;
+    use oxide_sketch::entity::{Entity, EntityKind};
+    use oxide_sketch::id::SketchEntityId;
+    use oxide_types::layer::OxideLayer;
     use std::collections::{HashMap, HashSet};
 
     // v0.16.2 — pick a fill colour for a loop by inspecting each
@@ -177,7 +177,7 @@ pub(super) fn draw_filled_closed_loops(
             return Some(FpLayer::FCu);
         }
         if let Some(s) = entity.silk.as_ref() {
-            return Some(if matches!(s.layer, SignexLayer::TopSilk) {
+            return Some(if matches!(s.layer, OxideLayer::TopSilk) {
                 FpLayer::FSilks
             } else {
                 FpLayer::BSilks
@@ -187,28 +187,28 @@ pub(super) fn draw_filled_closed_loops(
             return Some(FpLayer::EdgeCuts);
         }
         if let Some(m) = entity.mask_opening.as_ref() {
-            return Some(if matches!(m.layer, SignexLayer::TopSolderMask) {
+            return Some(if matches!(m.layer, OxideLayer::TopSolderMask) {
                 FpLayer::FFab
             } else {
                 FpLayer::BFab
             });
         }
         if let Some(m) = entity.mask_exclude.as_ref() {
-            return Some(if matches!(m.layer, SignexLayer::TopSolderMask) {
+            return Some(if matches!(m.layer, OxideLayer::TopSolderMask) {
                 FpLayer::FFab
             } else {
                 FpLayer::BFab
             });
         }
         if let Some(p) = entity.paste_aperture.as_ref() {
-            return Some(if matches!(p.layer, SignexLayer::TopPaste) {
+            return Some(if matches!(p.layer, OxideLayer::TopPaste) {
                 FpLayer::FFab
             } else {
                 FpLayer::BFab
             });
         }
         if let Some(p) = entity.pour.as_ref() {
-            return Some(if matches!(p.layer, SignexLayer::TopCopper) {
+            return Some(if matches!(p.layer, OxideLayer::TopCopper) {
                 FpLayer::FCu
             } else {
                 FpLayer::BCu
@@ -225,11 +225,11 @@ pub(super) fn draw_filled_closed_loops(
 
     fn point_pos(
         id: SketchEntityId,
-        sketch: &signex_sketch::SketchData,
+        sketch: &oxide_sketch::SketchData,
         state: &FootprintEditorState,
     ) -> Option<(f64, f64)> {
         if let Some(solve) = state.last_solve.as_ref()
-            && let Some(p) = signex_sketch::solver::state::point_xy(
+            && let Some(p) = oxide_sketch::solver::state::point_xy(
                 id,
                 &solve.result.state,
                 &solve.result.index,

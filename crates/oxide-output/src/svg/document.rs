@@ -22,8 +22,8 @@ use super::*;
 use crate::SheetSnapshot;
 use crate::pdf::layout::PageTransform;
 use crate::pdf::{ColourMode, PdfOptions};
-use signex_types::markup::ExpressionEvalContext;
-use signex_types::schematic::LabelType;
+use oxide_types::markup::ExpressionEvalContext;
+use oxide_types::schematic::LabelType;
 use std::collections::HashMap;
 use std::fmt::Write as _;
 use tiny_skia::{Color, FillRule, Paint, Pixmap, Stroke};
@@ -196,7 +196,7 @@ impl SvgRenderContext {
                 LabelType::Global => schematic_text_offset_global(&label.shape, spin),
                 LabelType::Hierarchical => schematic_text_offset_hier(
                     &label.text,
-                    signex_types::schematic::SCHEMATIC_TEXT_MM,
+                    oxide_types::schematic::SCHEMATIC_TEXT_MM,
                     spin,
                 ),
                 LabelType::Power => (0.0, 0.0),
@@ -348,7 +348,7 @@ impl SvgRenderContext {
                     x: xform.x(ref_text.position.x),
                     y: xform.px_y(ref_text.position.y),
                     font_alias: "F3",
-                    size_pt: (signex_types::schematic::SCHEMATIC_TEXT_MM * xform.mm_to_unit) as f32,
+                    size_pt: (oxide_types::schematic::SCHEMATIC_TEXT_MM * xform.mm_to_unit) as f32,
                     align: halign_to_svg(field_effective_style(ref_text, sym).1),
                     v_align: valign_to_svg(field_effective_style(ref_text, sym).2),
                     rotation_deg: field_effective_style(ref_text, sym).0 as f32,
@@ -365,7 +365,7 @@ impl SvgRenderContext {
                     x: xform.x(val_text.position.x),
                     y: xform.px_y(val_text.position.y),
                     font_alias: "F1",
-                    size_pt: (signex_types::schematic::SCHEMATIC_TEXT_MM * xform.mm_to_unit) as f32,
+                    size_pt: (oxide_types::schematic::SCHEMATIC_TEXT_MM * xform.mm_to_unit) as f32,
                     align: halign_to_svg(field_effective_style(val_text, sym).1),
                     v_align: valign_to_svg(field_effective_style(val_text, sym).2),
                     rotation_deg: field_effective_style(val_text, sym).0 as f32,

@@ -12,7 +12,7 @@
 //! - new enum variants are gated behind `#[non_exhaustive]` so callers
 //!   already match exhaustively in their own code.
 
-use signex_library::primitive::footprint::{
+use oxide_library::primitive::footprint::{
     ChamferedCorners, FOOTPRINT_SCHEMA_VERSION, Footprint, FpCutout, FpKeepout, FpMaskOpening,
     FpPasteAperture, FpPour, FpVScore, KeepoutForbid, LayerId, NetRef, PadKind, PadShape, Polygon,
     PourFillType, ThermalReliefStyle,
@@ -81,7 +81,7 @@ fn v3_cutout_v_score_mask_paste_round_trip() {
     fp.v_scores.push(FpVScore {
         line: [[0.0, 0.0], [10.0, 0.0]],
         depth: 0.5,
-        side: signex_library::primitive::footprint::VScoreSide::Both,
+        side: oxide_library::primitive::footprint::VScoreSide::Both,
         min_web_mm: 0.0,
     });
     fp.mask_openings.push(FpMaskOpening {
@@ -104,7 +104,7 @@ fn v3_cutout_v_score_mask_paste_round_trip() {
 
 #[test]
 fn text_frame_round_trips_and_defaults_none() {
-    use signex_library::primitive::footprint::{FpGraphic, FpGraphicKind};
+    use oxide_library::primitive::footprint::{FpGraphic, FpGraphicKind};
 
     let mut fp = Footprint::empty("FrameTest");
     fp.silk_f.push(FpGraphic {
@@ -129,7 +129,7 @@ fn text_frame_round_trips_and_defaults_none() {
 
 #[test]
 fn text_without_frame_defaults_to_none_on_legacy_load() {
-    use signex_library::primitive::footprint::FpGraphicKind;
+    use oxide_library::primitive::footprint::FpGraphicKind;
 
     // Legacy TOML (pre-frame field) omits the `frame` key entirely —
     // must still deserialise via `#[serde(default)]`.
@@ -153,14 +153,14 @@ size = 1.0
 #[test]
 fn v3_castellated_pad_kind_round_trips() {
     let json = r#"{"number":"1","kind":"Castellated","shape":{"kind":"rect"},"size":[1.0,1.0],"position":[0.0,0.0],"rotation":0.0,"layers":["Top Layer"],"drill":{"diameter":0.5,"slot_length":null},"solder_mask_margin":null,"paste_margin":null}"#;
-    let pad: signex_library::primitive::footprint::Pad = serde_json::from_str(json).unwrap();
+    let pad: oxide_library::primitive::footprint::Pad = serde_json::from_str(json).unwrap();
     assert_eq!(pad.kind, PadKind::Castellated);
 }
 
 #[test]
 fn v3_fiducial_pad_kind_round_trips() {
     let json = r#"{"number":"FID1","kind":"Fiducial","shape":{"kind":"round"},"size":[1.0,1.0],"position":[0.0,0.0],"rotation":0.0,"layers":["Top Layer","Top Solder"],"drill":null,"solder_mask_margin":1.0,"paste_margin":null}"#;
-    let pad: signex_library::primitive::footprint::Pad = serde_json::from_str(json).unwrap();
+    let pad: oxide_library::primitive::footprint::Pad = serde_json::from_str(json).unwrap();
     assert_eq!(pad.kind, PadKind::Fiducial);
 }
 

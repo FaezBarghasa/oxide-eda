@@ -210,7 +210,7 @@ pub fn view_components<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
             detail_col = detail_col.push(
                 container(
                     container(
-                        signex_widgets::symbol_preview::symbol_preview(lib_sym.clone(), 120.0)
+                        oxide_widgets::symbol_preview::symbol_preview(lib_sym.clone(), 120.0)
                             .map(|_: ()| PanelMsg::ToggleGrid),
                     )
                     .width(Length::Fill)

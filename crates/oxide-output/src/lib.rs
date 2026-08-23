@@ -7,7 +7,7 @@
 
 use std::path::PathBuf;
 
-use signex_types::schematic::SchematicSheet;
+use oxide_types::schematic::SchematicSheet;
 use thiserror::Error;
 
 pub mod bom;
@@ -55,11 +55,11 @@ pub struct ExportContext {
     pub sheets: Vec<SheetSnapshot>,
     pub metadata: ProjectMetadata,
     /// The project's authoritative connectivity, derived once by the app via
-    /// `signex_net::build_project_netlist` and handed to exporters that emit
+    /// `oxide_net::build_project_netlist` and handed to exporters that emit
     /// connectivity (the netlist). `None` when the caller didn't derive it
     /// (e.g. a PDF-only export). Exporters read this rather than re-deriving
     /// nets from `sheets` (ADR-0002 D7).
-    pub netlist: Option<signex_types::net::Netlist>,
+    pub netlist: Option<oxide_types::net::Netlist>,
 }
 
 #[derive(Debug, Clone)]

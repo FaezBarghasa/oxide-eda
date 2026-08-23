@@ -1,6 +1,6 @@
 //! BGA row/column numbering (skip-letters, start-row, start-col).
 
-use signex_app::app::{Message, Signex};
+use oxide_app::app::{Message, Signex};
 
 use std::path::PathBuf;
 
@@ -18,15 +18,15 @@ use std::path::PathBuf;
 /// Build a footprint editor with one Linear array + BgaRowCol numbering,
 /// plant it as the active tab, and return the array's id so the test
 /// can target it by id (the dispatcher matches arrays by id).
-fn fixture_footprint_with_bga_array(stem: &str) -> (Signex, signex_sketch::array::ArrayId) {
-    use signex_app::app::{FootprintEditorState, TabInfo, TabKind};
-    use signex_library::{Footprint, FootprintFile};
-    use signex_sketch::SketchData;
-    use signex_sketch::array::{Array, ArrayId, ArrayKind, NumberingScheme};
-    use signex_sketch::entity::{Entity, EntityKind};
-    use signex_sketch::id::SketchEntityId;
-    use signex_sketch::parameter::ParameterTable;
-    use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
+fn fixture_footprint_with_bga_array(stem: &str) -> (Signex, oxide_sketch::array::ArrayId) {
+    use oxide_app::app::{FootprintEditorState, TabInfo, TabKind};
+    use oxide_library::{Footprint, FootprintFile};
+    use oxide_sketch::SketchData;
+    use oxide_sketch::array::{Array, ArrayId, ArrayKind, NumberingScheme};
+    use oxide_sketch::entity::{Entity, EntityKind};
+    use oxide_sketch::id::SketchEntityId;
+    use oxide_sketch::parameter::ParameterTable;
+    use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
     let plane_id = PlaneId::new();
     let pt_id = SketchEntityId::new();
     let pt = Entity::new(pt_id, plane_id, EntityKind::Point { x: 0.0, y: 0.0 });
@@ -79,13 +79,13 @@ fn fixture_footprint_with_bga_array(stem: &str) -> (Signex, signex_sketch::array
 /// editor's first array. Panics if the array isn't BgaRowCol — that
 /// would indicate the test setup got clobbered.
 fn read_bga_config(app: &Signex) -> (bool, char, u32) {
-    use signex_sketch::array::NumberingScheme;
+    use oxide_sketch::array::NumberingScheme;
     let editor = app
         .document_state
         .tabs
         .first()
         .and_then(|t| match &t.kind {
-            signex_app::app::TabKind::FootprintEditor(p) => {
+            oxide_app::app::TabKind::FootprintEditor(p) => {
                 app.document_state.footprint_editors.get(p)
             }
             _ => None,
@@ -110,8 +110,8 @@ fn read_bga_config(app: &Signex) -> (bool, char, u32) {
 
 #[test]
 fn v025_bga_set_skip_letters_round_trips_bool() {
-    use signex_app::dock::DockMessage;
-    use signex_app::panels::PanelMsg;
+    use oxide_app::dock::DockMessage;
+    use oxide_app::panels::PanelMsg;
     let (mut app, array_id) = fixture_footprint_with_bga_array("v025-bga-skip");
     assert!(read_bga_config(&app).0, "fixture seeds skip_letters=true");
     let _ = app.update(Message::Dock(DockMessage::Panel(
@@ -128,8 +128,8 @@ fn v025_bga_set_skip_letters_round_trips_bool() {
 
 #[test]
 fn v025_bga_set_start_row_uppercases_lowercase_input() {
-    use signex_app::dock::DockMessage;
-    use signex_app::panels::PanelMsg;
+    use oxide_app::dock::DockMessage;
+    use oxide_app::panels::PanelMsg;
     let (mut app, array_id) = fixture_footprint_with_bga_array("v025-bga-row-lower");
     let _ = app.update(Message::Dock(DockMessage::Panel(
         PanelMsg::FpEditorSetBgaStartRow {
@@ -146,8 +146,8 @@ fn v025_bga_set_start_row_uppercases_lowercase_input() {
 
 #[test]
 fn v025_bga_set_start_row_rejects_non_alphabetic_input() {
-    use signex_app::dock::DockMessage;
-    use signex_app::panels::PanelMsg;
+    use oxide_app::dock::DockMessage;
+    use oxide_app::panels::PanelMsg;
     let (mut app, array_id) = fixture_footprint_with_bga_array("v025-bga-row-digit");
     let before = read_bga_config(&app).1;
     let _ = app.update(Message::Dock(DockMessage::Panel(
@@ -171,8 +171,8 @@ fn v025_bga_set_start_row_rejects_non_alphabetic_input() {
 
 #[test]
 fn v025_bga_set_start_col_parses_valid_integer() {
-    use signex_app::dock::DockMessage;
-    use signex_app::panels::PanelMsg;
+    use oxide_app::dock::DockMessage;
+    use oxide_app::panels::PanelMsg;
     let (mut app, array_id) = fixture_footprint_with_bga_array("v025-bga-col-ok");
     let _ = app.update(Message::Dock(DockMessage::Panel(
         PanelMsg::FpEditorSetBgaStartCol {
@@ -189,8 +189,8 @@ fn v025_bga_set_start_col_parses_valid_integer() {
 
 #[test]
 fn v025_bga_set_start_col_rejects_non_numeric_input() {
-    use signex_app::dock::DockMessage;
-    use signex_app::panels::PanelMsg;
+    use oxide_app::dock::DockMessage;
+    use oxide_app::panels::PanelMsg;
     let (mut app, array_id) = fixture_footprint_with_bga_array("v025-bga-col-bad");
     let before = read_bga_config(&app).2;
     for v in ["", "abc", "-5", "1.5"] {

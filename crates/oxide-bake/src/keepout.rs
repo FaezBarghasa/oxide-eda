@@ -20,12 +20,12 @@
 //! - No bits set → `KeepoutForbid::All` (defensive default — an
 //!   untyped keepout zone forbids everything).
 
-use signex_library::primitive::footprint::{FpKeepout, KeepoutForbid, LayerId, Polygon};
-use signex_sketch::SketchError;
-use signex_sketch::attr::KeepoutKinds;
-use signex_sketch::entity::EntityKind;
-use signex_sketch::sketch::SketchData;
-use signex_sketch::solver::FullSolveOutput;
+use oxide_library::primitive::footprint::{FpKeepout, KeepoutForbid, LayerId, Polygon};
+use oxide_sketch::SketchError;
+use oxide_sketch::attr::KeepoutKinds;
+use oxide_sketch::entity::EntityKind;
+use oxide_sketch::sketch::SketchData;
+use oxide_sketch::solver::FullSolveOutput;
 
 use crate::profile::{TraceError, trace_closed_profile};
 
@@ -108,13 +108,13 @@ fn map_kinds(k: KeepoutKinds) -> KeepoutForbid {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_sketch::attr::KeepoutAttr;
-    use signex_sketch::entity::Entity;
-    use signex_sketch::id::SketchEntityId;
-    use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
-    use signex_sketch::solver::Solver;
-    use signex_sketch::solver::residual::ResolvedParams;
-    use signex_types::layer::SignexLayer;
+    use oxide_sketch::attr::KeepoutAttr;
+    use oxide_sketch::entity::Entity;
+    use oxide_sketch::id::SketchEntityId;
+    use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
+    use oxide_sketch::solver::Solver;
+    use oxide_sketch::solver::residual::ResolvedParams;
+    use oxide_types::layer::OxideLayer;
 
     fn solve(sketch: &SketchData) -> FullSolveOutput {
         Solver::default()
@@ -173,7 +173,7 @@ mod tests {
             ..KeepoutKinds::default()
         };
         let attr = KeepoutAttr {
-            layer: SignexLayer::TopCopper,
+            layer: OxideLayer::TopCopper,
             kinds,
         };
         let data = rectangle_with_keepout(attr);
@@ -195,7 +195,7 @@ mod tests {
             ..KeepoutKinds::default()
         };
         let attr = KeepoutAttr {
-            layer: SignexLayer::BottomCopper,
+            layer: OxideLayer::BottomCopper,
             kinds,
         };
         let data = rectangle_with_keepout(attr);
@@ -209,7 +209,7 @@ mod tests {
     #[test]
     fn bake_keepout_no_kinds_set_is_all() {
         let attr = KeepoutAttr {
-            layer: SignexLayer::TopCopper,
+            layer: OxideLayer::TopCopper,
             kinds: KeepoutKinds::default(),
         };
         let data = rectangle_with_keepout(attr);
@@ -227,7 +227,7 @@ mod tests {
             ..KeepoutKinds::default()
         };
         let attr = KeepoutAttr {
-            layer: SignexLayer::TopCopper,
+            layer: OxideLayer::TopCopper,
             kinds,
         };
         let data = rectangle_with_keepout(attr);

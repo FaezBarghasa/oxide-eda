@@ -1,16 +1,16 @@
-use signex_sketch::SketchData;
-use signex_sketch::array::{
+use oxide_sketch::SketchData;
+use oxide_sketch::array::{
     Array, ArrayId, ArrayKind, GridDepopulation, NumberingScheme, bga_row_letter,
 };
-use signex_sketch::attr::{
+use oxide_sketch::attr::{
     BoardCutoutAttr, ChamferedCorners, CustomPadShape, DrillSpec, KeepoutAttr, KeepoutKinds,
     MaskOpeningAttr, PadAttr, PadKind, PadShape, PadSide, PasteApertureAttr, PasteAperturePattern,
     PourAttr, PourFillType, ThermalRelief, VScoreHintAttr, VScoreSide,
 };
-use signex_sketch::entity::{Entity, EntityKind};
-use signex_sketch::id::{ConstraintId, SketchEntityId};
-use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
-use signex_types::layer::SignexLayer;
+use oxide_sketch::entity::{Entity, EntityKind};
+use oxide_sketch::id::{ConstraintId, SketchEntityId};
+use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
+use oxide_types::layer::OxideLayer;
 use uuid::Uuid;
 
 #[test]
@@ -274,7 +274,7 @@ fn pad_attr_thermal_grid_round_trip() {
 #[test]
 fn standalone_mask_opening_round_trip() {
     let a = MaskOpeningAttr {
-        layer: SignexLayer::TopSolderMask,
+        layer: OxideLayer::TopSolderMask,
     };
     let s = toml::to_string(&a).unwrap();
     let back: MaskOpeningAttr = toml::from_str(&s).unwrap();
@@ -284,7 +284,7 @@ fn standalone_mask_opening_round_trip() {
 #[test]
 fn standalone_paste_aperture_round_trip() {
     let a = PasteApertureAttr {
-        layer: SignexLayer::TopPaste,
+        layer: OxideLayer::TopPaste,
     };
     let s = toml::to_string(&a).unwrap();
     let back: PasteApertureAttr = toml::from_str(&s).unwrap();
@@ -317,7 +317,7 @@ fn fiducial_pad_round_trip() {
 #[test]
 fn pour_attr_round_trip_default() {
     let a = PourAttr {
-        layer: SignexLayer::TopCopper,
+        layer: OxideLayer::TopCopper,
         net: Some("GND".into()),
         fill_type: PourFillType::Solid,
         thermal_relief: ThermalRelief::default(),
@@ -333,7 +333,7 @@ fn pour_attr_round_trip_default() {
 #[test]
 fn pour_attr_hatched_with_overrides_round_trip() {
     let a = PourAttr {
-        layer: SignexLayer::TopCopper,
+        layer: OxideLayer::TopCopper,
         net: Some("GND".into()),
         fill_type: PourFillType::Hatched,
         thermal_relief: ThermalRelief {
@@ -354,7 +354,7 @@ fn pour_attr_hatched_with_overrides_round_trip() {
 #[test]
 fn keepout_attr_no_copper_round_trip() {
     let a = KeepoutAttr {
-        layer: SignexLayer::TopCopper,
+        layer: OxideLayer::TopCopper,
         kinds: KeepoutKinds::ALL_COPPER,
     };
     let s = toml::to_string(&a).unwrap();
@@ -365,7 +365,7 @@ fn keepout_attr_no_copper_round_trip() {
 #[test]
 fn keepout_attr_antenna_preset_round_trip() {
     let a = KeepoutAttr {
-        layer: SignexLayer::TopCopper,
+        layer: OxideLayer::TopCopper,
         kinds: KeepoutKinds::ANTENNA,
     };
     let s = toml::to_string(&a).unwrap();
@@ -376,7 +376,7 @@ fn keepout_attr_antenna_preset_round_trip() {
 #[test]
 fn keepout_attr_routing_only_round_trip() {
     let a = KeepoutAttr {
-        layer: SignexLayer::TopCopper,
+        layer: OxideLayer::TopCopper,
         kinds: KeepoutKinds::NO_ROUTING,
     };
     let s = toml::to_string(&a).unwrap();
@@ -747,7 +747,7 @@ fn distance_pt_circle_constraint_round_trip() {
     // v0.23 — the new parametric DistancePtCircle constraint must
     // round-trip through TOML cleanly, including its DimTarget. Both
     // literal and Expr targets are exercised.
-    use signex_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
+    use oxide_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
 
     let mut data = SketchData::default();
     let plane_id = PlaneId::new();

@@ -10,7 +10,7 @@
 
 use std::path::PathBuf;
 
-use signex_library::{RowId, WhereUsedIndex};
+use oxide_library::{RowId, WhereUsedIndex};
 
 #[test]
 fn where_used_returns_all_sites_for_a_row_across_sheets() {

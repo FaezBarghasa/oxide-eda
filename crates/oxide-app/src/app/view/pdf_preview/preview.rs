@@ -63,30 +63,30 @@ impl Signex {
                 "Color",
                 matches!(
                     preview.pdf_options.colour_mode,
-                    signex_output::ColourMode::Colour
+                    oxide_output::ColourMode::Colour
                 ),
                 Message::PrintPreview(PrintPreviewMsg::SetColourMode(
-                    signex_output::ColourMode::Colour
+                    oxide_output::ColourMode::Colour
                 )),
             ),
             mode_button(
                 "Gray",
                 matches!(
                     preview.pdf_options.colour_mode,
-                    signex_output::ColourMode::Grayscale
+                    oxide_output::ColourMode::Grayscale
                 ),
                 Message::PrintPreview(PrintPreviewMsg::SetColourMode(
-                    signex_output::ColourMode::Grayscale
+                    oxide_output::ColourMode::Grayscale
                 )),
             ),
             mode_button(
                 "B/W",
                 matches!(
                     preview.pdf_options.colour_mode,
-                    signex_output::ColourMode::BlackAndWhite
+                    oxide_output::ColourMode::BlackAndWhite
                 ),
                 Message::PrintPreview(PrintPreviewMsg::SetColourMode(
-                    signex_output::ColourMode::BlackAndWhite
+                    oxide_output::ColourMode::BlackAndWhite
                 )),
             ),
         ]
@@ -99,7 +99,7 @@ impl Signex {
                 "All",
                 matches!(
                     preview.pdf_options.page_range,
-                    signex_output::PageRange::All
+                    oxide_output::PageRange::All
                 ),
                 Message::PrintPreview(PrintPreviewMsg::SetPageRangeAll),
             ),
@@ -107,7 +107,7 @@ impl Signex {
                 "Current",
                 matches!(
                     preview.pdf_options.page_range,
-                    signex_output::PageRange::Current
+                    oxide_output::PageRange::Current
                 ),
                 Message::PrintPreview(PrintPreviewMsg::SetPageRangeCurrent),
             ),
@@ -115,7 +115,7 @@ impl Signex {
                 "Specific",
                 matches!(
                     preview.pdf_options.page_range,
-                    signex_output::PageRange::Specific(_)
+                    oxide_output::PageRange::Specific(_)
                 ),
                 Message::PrintPreview(PrintPreviewMsg::SetPageRangeSpecific),
             ),
@@ -125,7 +125,7 @@ impl Signex {
 
         let specific_page_input: Element<'_, Message> = if matches!(
             preview.pdf_options.page_range,
-            signex_output::PageRange::Specific(_)
+            oxide_output::PageRange::Specific(_)
         ) {
             row![
                 text("Page").size(11).color(text_muted),
@@ -144,7 +144,7 @@ impl Signex {
 
         let fit_to_page = matches!(
             preview.pdf_options.scale,
-            signex_output::PdfScale::FitToPage
+            oxide_output::PdfScale::FitToPage
         );
         let toggles_row = row![
             text("Output").size(11).color(text_muted),
@@ -167,24 +167,24 @@ impl Signex {
         .align_y(iced::Alignment::Center);
 
         let page_size_label = match &preview.pdf_options.page_size {
-            signex_output::PageSize::IsoA0 => "ISO A0",
-            signex_output::PageSize::IsoA1 => "ISO A1",
-            signex_output::PageSize::IsoA2 => "ISO A2",
-            signex_output::PageSize::IsoA3 => "ISO A3",
-            signex_output::PageSize::IsoA4 => "ISO A4",
-            signex_output::PageSize::IsoA5 => "ISO A5",
-            signex_output::PageSize::AnsiA => "ANSI A",
-            signex_output::PageSize::AnsiB => "ANSI B",
-            signex_output::PageSize::AnsiC => "ANSI C",
-            signex_output::PageSize::AnsiD => "ANSI D",
-            signex_output::PageSize::AnsiE => "ANSI E",
-            signex_output::PageSize::UsLetter => "US Letter",
-            signex_output::PageSize::UsLegal => "US Legal",
-            signex_output::PageSize::Custom { .. } => "Custom",
+            oxide_output::PageSize::IsoA0 => "ISO A0",
+            oxide_output::PageSize::IsoA1 => "ISO A1",
+            oxide_output::PageSize::IsoA2 => "ISO A2",
+            oxide_output::PageSize::IsoA3 => "ISO A3",
+            oxide_output::PageSize::IsoA4 => "ISO A4",
+            oxide_output::PageSize::IsoA5 => "ISO A5",
+            oxide_output::PageSize::AnsiA => "ANSI A",
+            oxide_output::PageSize::AnsiB => "ANSI B",
+            oxide_output::PageSize::AnsiC => "ANSI C",
+            oxide_output::PageSize::AnsiD => "ANSI D",
+            oxide_output::PageSize::AnsiE => "ANSI E",
+            oxide_output::PageSize::UsLetter => "US Letter",
+            oxide_output::PageSize::UsLegal => "US Legal",
+            oxide_output::PageSize::Custom { .. } => "Custom",
         };
         let orientation_label = match preview.pdf_options.orientation {
-            signex_output::Orientation::Portrait => "Portrait",
-            signex_output::Orientation::Landscape => "Landscape",
+            oxide_output::Orientation::Portrait => "Portrait",
+            oxide_output::Orientation::Landscape => "Landscape",
         };
         let summary_row = row![
             text("Sheet").size(11).color(text_muted),

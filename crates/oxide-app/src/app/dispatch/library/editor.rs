@@ -83,7 +83,7 @@ impl Signex {
                 let bytes = std::fs::read(&path)
                     .map_err(|e| anyhow::anyhow!("could not read {}: {e}", path.display()))?;
                 // v0.18.4 — auto-detect TOML vs legacy JSON.
-                let file = signex_library::SymbolFile::from_bytes(&bytes)
+                let file = oxide_library::SymbolFile::from_bytes(&bytes)
                     .map_err(|e| anyhow::anyhow!("could not parse {}: {e}", path.display()))?;
                 // Reported, not ignored: a container that decodes but
                 // holds nothing is a different problem from a corrupt
@@ -149,7 +149,7 @@ impl Signex {
                 // v0.18.4 — parse TOML+TSV envelope and use the first
                 // footprint as the editor primitive. Multi-footprint
                 // containers are not yet exposed in the editor UI.
-                let file = signex_library::FootprintFile::from_toml_str(&bytes)
+                let file = oxide_library::FootprintFile::from_toml_str(&bytes)
                     .map_err(|e| anyhow::anyhow!("could not parse {}: {e}", path.display()))?;
                 anyhow::ensure!(
                     !file.footprints.is_empty(),
@@ -278,7 +278,7 @@ impl Signex {
             }
             SymbolEditorMsg::CycleUnit => {
                 if let Some(lib) = self.library.containing_library_mut(&path) {
-                    use signex_types::coord::Unit;
+                    use oxide_types::coord::Unit;
                     lib.display.unit = match lib.display.unit {
                         Unit::Mm => Unit::Mil,
                         Unit::Mil => Unit::Inch,

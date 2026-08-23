@@ -1,7 +1,7 @@
 use iced::widget::{Column, Row, Space, column, container, text};
 use iced::{Background, Color, Element, Length, Theme};
-use signex_types::theme::ThemeTokens;
-use signex_widgets::tab_pill::{AccentPosition, TabPill, TabPillStyle};
+use oxide_types::theme::ThemeTokens;
+use oxide_widgets::tab_pill::{AccentPosition, TabPill, TabPillStyle};
 
 use crate::catalog::Message;
 use crate::theme;

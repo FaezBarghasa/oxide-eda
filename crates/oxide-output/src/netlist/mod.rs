@@ -2,12 +2,12 @@
 //!
 //! The Standard-format `.net` S-expression emitter that previously lived
 //! here was split out as part of the issue #62 Apache-clean cutover.
-//! It moves to the optional `signex-standard-import` GPL-3.0 companion
+//! It moves to the optional `oxide-standard-import` GPL-3.0 companion
 //! repository alongside the rest of the Standard I/O codepaths.
 //!
 //! What stays here is the *input side* (ADR-0002 D7): the exporter reads the
-//! authoritative [`Netlist`](signex_types::net::Netlist) off [`ExportContext`]
-//! — derived once by the app through `signex_net::build_project_netlist` — so
+//! authoritative [`Netlist`](oxide_types::net::Netlist) off [`ExportContext`]
+//! — derived once by the app through `oxide_net::build_project_netlist` — so
 //! future Signex-native emitters (XML, Spice, …) land against the contract
 //! instead of re-deriving connectivity. The interim emitter writes a plain,
 //! deterministic net listing; the Standard `.net` format is issue #62.
@@ -41,7 +41,7 @@ pub struct NetlistOutput {
 #[derive(Debug, Error)]
 pub enum NetlistError {
     #[error(
-        "no netlist was derived for this export — the app must attach `ExportContext.netlist` (via signex_net::build_project_netlist) before exporting"
+        "no netlist was derived for this export — the app must attach `ExportContext.netlist` (via oxide_net::build_project_netlist) before exporting"
     )]
     NoNetlist,
 }
@@ -112,7 +112,7 @@ fn incomplete_header(note: &[String]) -> String {
 /// [`incomplete_header`]) is prepended before the banner (#431); when `None`
 /// the output is byte-identical to the plain dump.
 fn render_listing(
-    netlist: &signex_types::net::Netlist,
+    netlist: &oxide_types::net::Netlist,
     incomplete_note: Option<&[String]>,
 ) -> Vec<u8> {
     let mut out = String::new();
@@ -133,7 +133,7 @@ fn render_listing(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_types::net::{Net, NetId, Netlist, Terminal};
+    use oxide_types::net::{Net, NetId, Netlist, Terminal};
     use uuid::Uuid;
 
     fn ctx_with(netlist: Option<Netlist>) -> ExportContext {

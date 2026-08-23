@@ -1,4 +1,4 @@
-use signex_types::schematic::{ChildSheet, GRID_MM, LabelType, SchematicSheet, SheetPin};
+use oxide_types::schematic::{ChildSheet, GRID_MM, LabelType, SchematicSheet, SheetPin};
 
 use crate::command::SheetPort;
 
@@ -197,7 +197,7 @@ pub(crate) fn reconcile_child_sheet_pins(child: &mut ChildSheet, ports: &[SheetP
                 uuid: uuid::Uuid::new_v4(),
                 name: port.name.clone(),
                 direction,
-                position: signex_types::schematic::Point::new(x, y),
+                position: oxide_types::schematic::Point::new(x, y),
                 rotation,
                 auto_generated: true,
                 user_moved: false,

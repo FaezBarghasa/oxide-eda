@@ -42,9 +42,9 @@ pub(in crate::panels::footprint_editor_properties) fn render_sketch_pad_subform<
     // Properties group.
     col = col.push(pad_pick_row(
         "Electrical Type",
-        signex_sketch::attr::ElectricalType::ALL,
+        oxide_sketch::attr::ElectricalType::ALL,
         p.electrical_type,
-        move |v: signex_sketch::attr::ElectricalType| {
+        move |v: oxide_sketch::attr::ElectricalType| {
             PanelMsg::FpEditorSetSketchPadElectricalType { id, value: v }
         },
         muted,
@@ -92,9 +92,9 @@ pub(in crate::panels::footprint_editor_properties) fn render_sketch_pad_subform<
     );
     col = col.push(pad_pick_row(
         "Top Side",
-        signex_sketch::attr::PadFeature::ALL,
+        oxide_sketch::attr::PadFeature::ALL,
         p.feature_top,
-        move |v: signex_sketch::attr::PadFeature| PanelMsg::FpEditorSetSketchPadFeatureTop {
+        move |v: oxide_sketch::attr::PadFeature| PanelMsg::FpEditorSetSketchPadFeatureTop {
             id,
             value: v,
         },
@@ -102,9 +102,9 @@ pub(in crate::panels::footprint_editor_properties) fn render_sketch_pad_subform<
     ));
     col = col.push(pad_pick_row(
         "Bottom Side",
-        signex_sketch::attr::PadFeature::ALL,
+        oxide_sketch::attr::PadFeature::ALL,
         p.feature_bottom,
-        move |v: signex_sketch::attr::PadFeature| PanelMsg::FpEditorSetSketchPadFeatureBottom {
+        move |v: oxide_sketch::attr::PadFeature| PanelMsg::FpEditorSetSketchPadFeatureBottom {
             id,
             value: v,
         },

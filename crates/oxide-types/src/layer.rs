@@ -8,19 +8,19 @@
 //! mirrored Standard's `PCB_LAYER_ID` numbering; those have been
 //! removed as part of the issue #62 Apache-clean remediation.
 //! Concrete `u8` IDs for any future foreign-format I/O are produced
-//! by the `signex-standard-import` companion crate's translation layer
+//! by the `oxide-standard-import` companion crate's translation layer
 //! and do not live in this Apache codebase.
 
 use serde::{Deserialize, Serialize};
 
 // ---------------------------------------------------------------------------
-// SignexLayer — semantic variant set
+// OxideLayer — semantic variant set
 // ---------------------------------------------------------------------------
 
 /// A PCB layer identified by purpose, not by index.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub enum SignexLayer {
+pub enum OxideLayer {
     TopCopper,
     BottomCopper,
     /// 1-based index of an inner-stackup copper layer.
@@ -63,10 +63,10 @@ pub enum LayerKind {
 }
 
 // ---------------------------------------------------------------------------
-// SignexLayer methods
+// OxideLayer methods
 // ---------------------------------------------------------------------------
 
-impl SignexLayer {
+impl OxideLayer {
     pub fn kind(self) -> LayerKind {
         match self {
             Self::TopCopper | Self::BottomCopper | Self::InnerCopper(_) => LayerKind::Copper,
@@ -109,7 +109,7 @@ impl SignexLayer {
     /// Iterate the canonical fixed-set layers in stable display order.
     /// Excludes the parameterised variants (`InnerCopper`, `Mechanical`,
     /// `User`); callers iterating those provide their own indices.
-    pub fn all() -> impl Iterator<Item = SignexLayer> {
+    pub fn all() -> impl Iterator<Item = OxideLayer> {
         [
             Self::TopCopper,
             Self::BottomCopper,
@@ -134,21 +134,21 @@ impl SignexLayer {
 // Default layer colours (Altium-flavoured palette, RGBA)
 // ---------------------------------------------------------------------------
 
-pub const DEFAULT_LAYER_COLORS: &[(SignexLayer, [u8; 4])] = &[
-    (SignexLayer::TopCopper, [0xC8, 0x00, 0x00, 0xFF]), // red
-    (SignexLayer::BottomCopper, [0x00, 0x00, 0xC8, 0xFF]), // blue
-    (SignexLayer::TopSilk, [0xC8, 0xC8, 0x00, 0xFF]),   // yellow
-    (SignexLayer::BottomSilk, [0x80, 0x00, 0x80, 0xFF]), // purple
-    (SignexLayer::TopSolderMask, [0xC8, 0x00, 0xC8, 0x80]), // magenta semi
-    (SignexLayer::BottomSolderMask, [0x00, 0xC8, 0xC8, 0x80]), // cyan semi
-    (SignexLayer::TopPaste, [0x80, 0x80, 0x00, 0xC0]),  // dark yellow
-    (SignexLayer::BottomPaste, [0x00, 0x80, 0x80, 0xC0]), // teal
-    (SignexLayer::TopAssembly, [0x80, 0x80, 0x80, 0xFF]), // grey
-    (SignexLayer::BottomAssembly, [0x60, 0x60, 0x60, 0xFF]), // dark grey
-    (SignexLayer::TopCourtyard, [0xC0, 0xC0, 0xC0, 0xFF]), // light grey
-    (SignexLayer::BottomCourtyard, [0xA0, 0xA0, 0xA0, 0xFF]), // mid grey
-    (SignexLayer::BoardOutline, [0xFF, 0xFF, 0x00, 0xFF]), // bright yellow
-    (SignexLayer::KeepOut, [0xFF, 0x00, 0xFF, 0xFF]),   // bright magenta
+pub const DEFAULT_LAYER_COLORS: &[(OxideLayer, [u8; 4])] = &[
+    (OxideLayer::TopCopper, [0xC8, 0x00, 0x00, 0xFF]), // red
+    (OxideLayer::BottomCopper, [0x00, 0x00, 0xC8, 0xFF]), // blue
+    (OxideLayer::TopSilk, [0xC8, 0xC8, 0x00, 0xFF]),   // yellow
+    (OxideLayer::BottomSilk, [0x80, 0x00, 0x80, 0xFF]), // purple
+    (OxideLayer::TopSolderMask, [0xC8, 0x00, 0xC8, 0x80]), // magenta semi
+    (OxideLayer::BottomSolderMask, [0x00, 0xC8, 0xC8, 0x80]), // cyan semi
+    (OxideLayer::TopPaste, [0x80, 0x80, 0x00, 0xC0]),  // dark yellow
+    (OxideLayer::BottomPaste, [0x00, 0x80, 0x80, 0xC0]), // teal
+    (OxideLayer::TopAssembly, [0x80, 0x80, 0x80, 0xFF]), // grey
+    (OxideLayer::BottomAssembly, [0x60, 0x60, 0x60, 0xFF]), // dark grey
+    (OxideLayer::TopCourtyard, [0xC0, 0xC0, 0xC0, 0xFF]), // light grey
+    (OxideLayer::BottomCourtyard, [0xA0, 0xA0, 0xA0, 0xFF]), // mid grey
+    (OxideLayer::BoardOutline, [0xFF, 0xFF, 0x00, 0xFF]), // bright yellow
+    (OxideLayer::KeepOut, [0xFF, 0x00, 0xFF, 0xFF]),   // bright magenta
 ];
 
 // ---------------------------------------------------------------------------
@@ -161,45 +161,45 @@ mod tests {
 
     #[test]
     fn altium_labels_match_reference() {
-        assert_eq!(SignexLayer::TopCopper.altium_label(), "Top Layer");
-        assert_eq!(SignexLayer::BottomCopper.altium_label(), "Bottom Layer");
-        assert_eq!(SignexLayer::TopSilk.altium_label(), "Top Overlay");
-        assert_eq!(SignexLayer::TopSolderMask.altium_label(), "Top Solder");
-        assert_eq!(SignexLayer::TopPaste.altium_label(), "Top Paste");
-        assert_eq!(SignexLayer::KeepOut.altium_label(), "Keep-Out");
-        assert_eq!(SignexLayer::InnerCopper(2).altium_label(), "Mid Layer 2");
-        assert_eq!(SignexLayer::Mechanical(13).altium_label(), "Mechanical 13");
+        assert_eq!(OxideLayer::TopCopper.altium_label(), "Top Layer");
+        assert_eq!(OxideLayer::BottomCopper.altium_label(), "Bottom Layer");
+        assert_eq!(OxideLayer::TopSilk.altium_label(), "Top Overlay");
+        assert_eq!(OxideLayer::TopSolderMask.altium_label(), "Top Solder");
+        assert_eq!(OxideLayer::TopPaste.altium_label(), "Top Paste");
+        assert_eq!(OxideLayer::KeepOut.altium_label(), "Keep-Out");
+        assert_eq!(OxideLayer::InnerCopper(2).altium_label(), "Mid Layer 2");
+        assert_eq!(OxideLayer::Mechanical(13).altium_label(), "Mechanical 13");
     }
 
     #[test]
     fn kinds_partition_correctly() {
-        assert_eq!(SignexLayer::TopCopper.kind(), LayerKind::Copper);
-        assert_eq!(SignexLayer::InnerCopper(1).kind(), LayerKind::Copper);
-        assert_eq!(SignexLayer::TopSilk.kind(), LayerKind::Silk);
-        assert_eq!(SignexLayer::TopSolderMask.kind(), LayerKind::Mask);
-        assert_eq!(SignexLayer::BoardOutline.kind(), LayerKind::Outline);
-        assert_eq!(SignexLayer::KeepOut.kind(), LayerKind::KeepOut);
+        assert_eq!(OxideLayer::TopCopper.kind(), LayerKind::Copper);
+        assert_eq!(OxideLayer::InnerCopper(1).kind(), LayerKind::Copper);
+        assert_eq!(OxideLayer::TopSilk.kind(), LayerKind::Silk);
+        assert_eq!(OxideLayer::TopSolderMask.kind(), LayerKind::Mask);
+        assert_eq!(OxideLayer::BoardOutline.kind(), LayerKind::Outline);
+        assert_eq!(OxideLayer::KeepOut.kind(), LayerKind::KeepOut);
     }
 
     #[test]
     fn round_trip_json() {
         for l in [
-            SignexLayer::TopCopper,
-            SignexLayer::InnerCopper(3),
-            SignexLayer::Mechanical(4),
-            SignexLayer::User(7),
+            OxideLayer::TopCopper,
+            OxideLayer::InnerCopper(3),
+            OxideLayer::Mechanical(4),
+            OxideLayer::User(7),
         ] {
             let s = serde_json::to_string(&l).unwrap();
-            let back: SignexLayer = serde_json::from_str(&s).unwrap();
+            let back: OxideLayer = serde_json::from_str(&s).unwrap();
             assert_eq!(l, back);
         }
     }
 
     #[test]
     fn all_iteration_yields_canonical_set() {
-        let v: Vec<_> = SignexLayer::all().collect();
+        let v: Vec<_> = OxideLayer::all().collect();
         assert_eq!(v.len(), 14);
-        assert_eq!(v[0], SignexLayer::TopCopper);
-        assert_eq!(v[v.len() - 1], SignexLayer::KeepOut);
+        assert_eq!(v[0], OxideLayer::TopCopper);
+        assert_eq!(v[v.len() - 1], OxideLayer::KeepOut);
     }
 }

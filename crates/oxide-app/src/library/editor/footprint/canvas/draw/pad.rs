@@ -14,7 +14,7 @@ pub(super) fn draw_pad(
     pad: &EditorPad,
     is_selected: bool,
 ) {
-    use signex_library::PadShape as PS;
+    use oxide_library::PadShape as PS;
     let layer = pad.primary_layer();
     let color = layer.color();
     // Pad-local extents: the shape is built around the origin and the

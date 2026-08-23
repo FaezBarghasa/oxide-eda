@@ -69,7 +69,7 @@ mod size_tests {
     use super::*;
 
     /// The schematic's own numbers: 1.27 mm is 50 mils / 10 Altium pt
-    /// (`signex_types::schematic::SCHEMATIC_TEXT_MM`) and 3.0 px/mm is 100%
+    /// (`oxide_types::schematic::SCHEMATIC_TEXT_MM`) and 3.0 px/mm is 100%
     /// zoom (`SCHEMATIC_ZOOM_100_SCALE`).
     const SCHEMATIC: TextSizePolicy = TextSizePolicy::new(6.0, 64.0);
 

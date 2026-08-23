@@ -51,7 +51,7 @@ fn push_undo(editor: &mut SymEditor) {
 /// something changed. Doing the two independently (push now, maybe pop
 /// the snapshot back off later) still leaves the redo stack cleared on
 /// a no-op, which is the bug this split exists to prevent.
-fn push_undo_snapshot(editor: &mut SymEditor, snapshot: signex_library::Symbol) {
+fn push_undo_snapshot(editor: &mut SymEditor, snapshot: oxide_library::Symbol) {
     editor.undo_snapshots.push(snapshot);
     if editor.undo_snapshots.len() > 100 {
         editor.undo_snapshots.remove(0);
@@ -120,7 +120,7 @@ pub(super) fn close_pickers(editor: &mut SymEditor) {
 /// Push a graphic onto the symbol, recording an undo snapshot first.
 fn push_graphic(
     editor: &mut SymEditor,
-    kind: signex_library::SymbolGraphicKind,
+    kind: oxide_library::SymbolGraphicKind,
     stroke_width: f64,
 ) {
     push_undo(editor);
@@ -132,7 +132,7 @@ fn push_graphic(
     editor
         .primitive_mut()
         .graphics
-        .push(signex_library::SymbolGraphic {
+        .push(oxide_library::SymbolGraphic {
             kind,
             stroke_width,
             fill: None,
@@ -153,7 +153,7 @@ pub(super) fn commit_or_discard_polygon(editor: &mut SymEditor) {
     if vertices.len() >= 3 {
         push_graphic(
             editor,
-            signex_library::SymbolGraphicKind::Polygon { vertices },
+            oxide_library::SymbolGraphicKind::Polygon { vertices },
             0.15,
         );
     } else {
@@ -175,7 +175,7 @@ const POLYGON_COLLINEAR_EPS_MM: f64 = 1e-6;
 ///   Q, R]` -> `[P, Q, R]`), including the wrap-around last-to-first
 ///   pair (a closing click landing back on vertex 0's snapped grid
 ///   position, which would otherwise double the closing edge at
-///   render time). Mirrors `signex_library`'s chain `finalize_ring`
+///   render time). Mirrors `oxide_library`'s chain `finalize_ring`
 ///   dedup pass exactly, using the same `CHAIN_ENDPOINT_EPSILON_MM`
 ///   constant, so this click-collect commit path and the
 ///   Join-into-Polygon chain path agree on what counts as "the same
@@ -200,11 +200,11 @@ fn normalize_polygon_ring(vertices: Vec<(f64, f64)>) -> Vec<[f64; 2]> {
 }
 
 /// Collapse consecutive epsilon-duplicate points, including the
-/// wrap-around last-to-first pair — mirrors `signex_library`'s chain
+/// wrap-around last-to-first pair — mirrors `oxide_library`'s chain
 /// `finalize_ring` dedup pass exactly.
 fn collapse_consecutive_duplicate_vertices(raw: Vec<[f64; 2]>) -> Vec<[f64; 2]> {
     let eps_sq =
-        signex_library::CHAIN_ENDPOINT_EPSILON_MM * signex_library::CHAIN_ENDPOINT_EPSILON_MM;
+        oxide_library::CHAIN_ENDPOINT_EPSILON_MM * oxide_library::CHAIN_ENDPOINT_EPSILON_MM;
     let mut points: Vec<[f64; 2]> = Vec::with_capacity(raw.len());
     for p in raw {
         match points.last() {
@@ -226,7 +226,7 @@ fn dist_sq(a: [f64; 2], b: [f64; 2]) -> f64 {
 
 /// `true` when every vertex in `points` lies within `eps` mm of the
 /// infinite line through the first two DISTINCT vertices — mirrors
-/// `signex_library`'s chain `is_collinear` (same algorithm,
+/// `oxide_library`'s chain `is_collinear` (same algorithm,
 /// independently implemented: it's a private helper on the other side
 /// of the crate boundary). A genuinely degenerate (zero-width) ring,
 /// the case this gate is documented to catch.
@@ -274,15 +274,15 @@ fn polygon_is_collinear(points: &[[f64; 2]], eps: f64) -> bool {
 /// ghost from the exact same CCW-wraparound sweep this function's
 /// callers store).
 ///
-/// A thin wrapper over `signex_library::normalize_arc_endpoints_deg`
+/// A thin wrapper over `oxide_library::normalize_arc_endpoints_deg`
 /// — that function's doc comment has the full swap-vs-`rem_euclid`
 /// rationale, shared verbatim with `SymbolFile::from_toml_str`'s
 /// legacy-arc load migration (which reuses the exact same function
-/// rather than duplicating this formula a third time; signex-library
-/// must not depend on signex-app, so the shared implementation lives
+/// rather than duplicating this formula a third time; oxide-library
+/// must not depend on oxide-app, so the shared implementation lives
 /// there and this crate calls into it, not the reverse).
 pub(super) fn normalize_arc_commit_deg(start_deg: f64, end_deg: f64) -> (f64, f64) {
-    signex_library::normalize_arc_endpoints_deg(start_deg, end_deg)
+    oxide_library::normalize_arc_endpoints_deg(start_deg, end_deg)
 }
 
 /// Apply a primitive-editor event to a standalone Symbol editor
@@ -332,7 +332,7 @@ pub(crate) fn apply_symbol_primitive_edit(
             // regardless of which direction the user dragged.
             push_graphic(
                 editor,
-                signex_library::SymbolGraphicKind::Rectangle {
+                oxide_library::SymbolGraphicKind::Rectangle {
                     from: [from_x.min(to_x), from_y.min(to_y)],
                     to: [from_x.max(to_x), from_y.max(to_y)],
                 },
@@ -347,7 +347,7 @@ pub(crate) fn apply_symbol_primitive_edit(
         } => {
             push_graphic(
                 editor,
-                signex_library::SymbolGraphicKind::Line {
+                oxide_library::SymbolGraphicKind::Line {
                     from: [from_x, from_y],
                     to: [to_x, to_y],
                 },
@@ -364,7 +364,7 @@ pub(crate) fn apply_symbol_primitive_edit(
             let (start_deg, end_deg) = normalize_arc_commit_deg(start_deg, end_deg);
             push_graphic(
                 editor,
-                signex_library::SymbolGraphicKind::Arc {
+                oxide_library::SymbolGraphicKind::Arc {
                     center: [cx, cy],
                     radius,
                     start_deg,
@@ -382,7 +382,7 @@ pub(crate) fn apply_symbol_primitive_edit(
         SymbolEditorMsg::AddText { x, y } => {
             push_graphic(
                 editor,
-                signex_library::SymbolGraphicKind::Text {
+                oxide_library::SymbolGraphicKind::Text {
                     position: [x, y],
                     content: "Text".to_string(),
                     size: 1.27,
@@ -393,7 +393,7 @@ pub(crate) fn apply_symbol_primitive_edit(
         SymbolEditorMsg::AddCircle { cx, cy, radius } => {
             push_graphic(
                 editor,
-                signex_library::SymbolGraphicKind::Circle {
+                oxide_library::SymbolGraphicKind::Circle {
                     center: [cx, cy],
                     radius,
                 },
@@ -496,8 +496,8 @@ fn context_submenu_msg_to_state(
 /// `Camera::fit_rect` against the active symbol without reaching
 /// into the canvas program. Matches the `SymbolCanvas::bbox` shape
 /// so click-Fit and Home key produce the same viewport.
-fn symbol_bbox(sym: &signex_library::Symbol) -> (f64, f64, f64, f64) {
-    use signex_library::SymbolGraphicKind;
+fn symbol_bbox(sym: &oxide_library::Symbol) -> (f64, f64, f64, f64) {
+    use oxide_library::SymbolGraphicKind;
     let mut bounds: Option<(f64, f64, f64, f64)> = None;
     let include_rect =
         |bounds: &mut Option<(f64, f64, f64, f64)>, x0: f64, y0: f64, x1: f64, y1: f64| {
@@ -605,7 +605,7 @@ fn rotate_pivot_msg_to_state(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_library::{Symbol, SymbolFile, SymbolGraphicKind};
+    use oxide_library::{Symbol, SymbolFile, SymbolGraphicKind};
     use std::path::PathBuf;
 
     fn new_editor() -> SymEditor {
@@ -786,7 +786,7 @@ mod tests {
 
     /// Two slow clicks landing on the same snapped point mid-sequence
     /// collapse into one vertex — `[P, P, Q, R]` -> `[P, Q, R]` —
-    /// mirroring `signex_library`'s chain `finalize_ring` dedup pass.
+    /// mirroring `oxide_library`'s chain `finalize_ring` dedup pass.
     #[test]
     fn polygon_commit_collapses_a_consecutive_duplicate_mid_sequence() {
         let mut editor = new_editor();

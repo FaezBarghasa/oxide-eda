@@ -11,8 +11,8 @@
 //! Asserting the whole violation multiset (not just one rule) covers every rule
 //! that routes through the shared anchor, `derive_nets` included.
 
-use signex_erc::{RuleKind, Violation};
-use signex_types::schematic::{HAlign, Label, LabelType, Point, SchematicSheet, VAlign, Wire};
+use oxide_erc::{RuleKind, Violation};
+use oxide_types::schematic::{HAlign, Label, LabelType, Point, SchematicSheet, VAlign, Wire};
 use std::collections::HashMap;
 use uuid::Uuid;
 
@@ -110,8 +110,8 @@ fn conflicting_t(reversed: bool) -> SchematicSheet {
 
 #[test]
 fn erc_verdict_is_independent_of_wire_order_at_a_junction_less_t() {
-    let forward = signex_erc::run(&conflicting_t(false));
-    let reversed = signex_erc::run(&conflicting_t(true));
+    let forward = oxide_erc::run(&conflicting_t(false));
+    let reversed = oxide_erc::run(&conflicting_t(true));
 
     assert_eq!(
         fingerprint(&forward),
@@ -123,7 +123,7 @@ fn erc_verdict_is_independent_of_wire_order_at_a_junction_less_t() {
 #[test]
 fn net_label_conflict_count_is_independent_of_wire_order() {
     let count = |s: &SchematicSheet| {
-        signex_erc::run(s)
+        oxide_erc::run(s)
             .iter()
             .filter(|v| v.rule == RuleKind::NetLabelConflict)
             .count()

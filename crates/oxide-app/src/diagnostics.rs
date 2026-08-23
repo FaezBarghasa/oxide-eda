@@ -143,7 +143,7 @@ fn push_entry(entry: DiagnosticEntry) {
 }
 
 fn resolve_configured_level() -> LevelFilter {
-    ["SIGNEX_LOG", "RUST_LOG"]
+    ["OXIDE_LOG", "RUST_LOG"]
         .into_iter()
         .find_map(|key| {
             std::env::var(key)
@@ -163,7 +163,7 @@ fn parse_level_filter(value: &str) -> Option<LevelFilter> {
     {
         if let Some((target, level)) = directive.split_once('=') {
             let target = target.trim();
-            if matches!(target, "signex" | "signex_app") {
+            if matches!(target, "signex" | "oxide_app") {
                 return parse_level(level.trim());
             }
             continue;

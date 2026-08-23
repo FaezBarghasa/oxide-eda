@@ -2,8 +2,8 @@
 //! command-palette state. Split from `app/state.rs` as pure code motion.
 
 use crate::render_config::{GridStyle, LabelStyle, MultisheetStyle, PowerPortStyle};
-use signex_types::coord::Unit;
-use signex_types::theme::ThemeId;
+use oxide_types::coord::Unit;
+use oxide_types::theme::ThemeId;
 
 use super::{
     AnnotateOrder, KeymapRecorderState, ModalId, MoveSelectionState, NetColorCustomState,
@@ -232,7 +232,7 @@ pub struct UiState {
     /// appearance-draft change can't clobber the pending import back to
     /// "clean" and let the dialog close without a prompt.
     pub preferences_dirty_sticky: bool,
-    pub custom_theme: Option<signex_types::theme::CustomThemeFile>,
+    pub custom_theme: Option<oxide_types::theme::CustomThemeFile>,
     /// Rename-sheet modal state. Opened from the Projects-panel tree
     /// context menu; `None` when the modal is closed.
     pub rename_dialog: Option<crate::app::RenameDialogState>,
@@ -268,13 +268,13 @@ pub struct UiState {
     /// per-sheet cache below — switching tabs repoints this at the
     /// cached violations for that sheet, so markers and the Messages
     /// panel always match what's on the canvas.
-    pub erc_violations: Vec<signex_erc::Violation>,
+    pub erc_violations: Vec<oxide_erc::Violation>,
     /// Per-sheet ERC violation cache, keyed by the sheet's on-disk
     /// file path. Run ERC populates this for every sheet in the
     /// project; tab switches point `erc_violations` at the matching
     /// entry without rerunning the analysis.
     pub erc_violations_by_path:
-        std::collections::HashMap<std::path::PathBuf, Vec<signex_erc::Violation>>,
+        std::collections::HashMap<std::path::PathBuf, Vec<oxide_erc::Violation>>,
     /// Global cursor into the flattened ERC diagnostics list spanning all
     /// sheets in `erc_violations_by_path`. Used by next/prev navigation.
     pub erc_focus_global_index: Option<usize>,
@@ -282,16 +282,16 @@ pub struct UiState {
     /// like any other Model state: recomputed in `update` off the shared sheet
     /// view and invalidated whenever a schematic edit touches connectivity
     /// (`finish_schematic_mutation`). `None` means "recompute before next use".
-    pub project_netlist: Option<signex_net::ProjectNetlist>,
+    pub project_netlist: Option<oxide_net::ProjectNetlist>,
     /// Per-rule severity override — if empty, the rule's default is used.
     pub erc_severity_override:
-        std::collections::HashMap<signex_erc::RuleKind, signex_erc::Severity>,
+        std::collections::HashMap<oxide_erc::RuleKind, oxide_erc::Severity>,
     /// Net-color overrides keyed by net-label text. Superseded by the
     /// per-wire `wire_color_overrides` map below which the Active-Bar
     /// net-colour flood populates; kept here so a future net-name
     /// palette (maybe the F5 dialog) can cross-reference it without
     /// another round-trip through state plumbing.
-    pub net_colors: std::collections::HashMap<String, signex_types::theme::Color>,
+    pub net_colors: std::collections::HashMap<String, oxide_types::theme::Color>,
     /// AutoFocus mode — when true, non-selected items dim on the canvas.
     pub auto_focus: bool,
     /// Annotate dialog open flag. When true, the Annotate-Schematics modal
@@ -331,7 +331,7 @@ pub struct UiState {
     /// for that pair; missing entries fall back to the hard-coded
     /// baseline in `pin_matrix_view`. Persisted alongside the ERC
     /// severity map.
-    pub pin_matrix_overrides: std::collections::HashMap<(u8, u8), signex_erc::Severity>,
+    pub pin_matrix_overrides: std::collections::HashMap<(u8, u8), oxide_erc::Severity>,
     /// Symbols whose designator the user locked against reannotation.
     /// Exposed as per-row checkboxes in the Annotate dialog; the engine
     /// skips these uuids in `annotate_with_seed_and_locks`.
@@ -344,21 +344,21 @@ pub struct UiState {
     /// next click on a wire floods that color across every connected
     /// wire. Cleared after the click applies, or by Escape. Colors are
     /// render-time only — they do NOT write back to the .standard_sch.
-    pub pending_net_color: Option<signex_types::theme::Color>,
+    pub pending_net_color: Option<oxide_types::theme::Color>,
     /// Per-wire color overrides keyed by wire uuid. Populated by the
     /// net-color click; consulted when drawing wires. Not serialised.
-    pub wire_color_overrides: std::collections::HashMap<uuid::Uuid, signex_types::theme::Color>,
+    pub wire_color_overrides: std::collections::HashMap<uuid::Uuid, oxide_types::theme::Color>,
     /// Altium-style lasso in flight. `Some(points)` means the user
     /// started a lasso — each canvas click appends a vertex; a
     /// double-click or a click on the first vertex closes the polygon
     /// and commits the selection. Escape or right-click cancels.
-    pub lasso_polygon: Option<Vec<signex_types::schematic::Point>>,
+    pub lasso_polygon: Option<Vec<oxide_types::schematic::Point>>,
     /// App-level undo stack for net-color floods. Each entry is the
     /// full `wire_color_overrides` map captured before an action —
     /// popping one restores the previous state. This is separate from
     /// the engine's undo because net colours are render-only and
     /// shouldn't mix with document mutations.
-    pub net_color_undo: Vec<std::collections::HashMap<uuid::Uuid, signex_types::theme::Color>>,
+    pub net_color_undo: Vec<std::collections::HashMap<uuid::Uuid, oxide_types::theme::Color>>,
     /// Custom net-color picker state. When `show = true`, a floating
     /// iced_aw ColorPicker appears anchored to the Active Bar button;
     /// `draft` is the user's pending pick — committed on OK.
@@ -375,7 +375,7 @@ pub struct UiState {
     pub windows: std::collections::HashMap<iced::window::Id, WindowKind>,
     /// Calculator state, owned here so the modal view stays a pure
     /// function of the model (ADR-0001 A1).
-    pub passive_calculator: signex_widgets::passive_calculator::CalculatorControl,
+    pub passive_calculator: oxide_widgets::passive_calculator::CalculatorControl,
     /// Whether the Tools > Passive Network Calculator modal is open.
     pub passive_calculator_open: bool,
     /// Command palette state — query / dropdown open flag / selected

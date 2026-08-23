@@ -36,9 +36,9 @@
 
 use iced::widget::{Space, container, text, text_input};
 use iced::{Border, Color, Element, Length, Theme};
-use signex_types::theme::ThemeTokens;
-use signex_widgets::active_bar::{ActiveBarButton, ActiveBarIcon, ActiveBarItem};
-use signex_widgets::theme_ext;
+use oxide_types::theme::ThemeTokens;
+use oxide_widgets::active_bar::{ActiveBarButton, ActiveBarIcon, ActiveBarItem};
+use oxide_widgets::theme_ext;
 
 use crate::app::FootprintEditorState;
 use crate::icons;
@@ -52,7 +52,7 @@ use crate::library::messages::{
 /// caller's site (same pattern as the SchLib editor).
 pub fn items<'a>(
     editor: &'a FootprintEditorState,
-    theme_id: signex_types::theme::ThemeId,
+    theme_id: oxide_types::theme::ThemeId,
     tokens: &'a ThemeTokens,
 ) -> Vec<ActiveBarItem<LibraryMessage>> {
     let path = editor.path.clone();
@@ -357,13 +357,13 @@ pub fn items<'a>(
 }
 
 /// Convenience wrapper — build items + render via
-/// [`signex_widgets::active_bar::view`].
+/// [`oxide_widgets::active_bar::view`].
 pub fn view<'a>(
     editor: &'a FootprintEditorState,
-    theme_id: signex_types::theme::ThemeId,
+    theme_id: oxide_types::theme::ThemeId,
     tokens: &'a ThemeTokens,
 ) -> Element<'a, LibraryMessage> {
-    signex_widgets::active_bar::view(items(editor, theme_id, tokens), tokens)
+    oxide_widgets::active_bar::view(items(editor, theme_id, tokens), tokens)
 }
 
 /// Icon for an armed sketch tool, so a collapsed group trigger can
@@ -372,7 +372,7 @@ pub fn view<'a>(
 /// they fall back to the Create glyph.
 fn sketch_tool_icon(
     tool: SketchTool,
-    theme_id: signex_types::theme::ThemeId,
+    theme_id: oxide_types::theme::ThemeId,
 ) -> iced::widget::svg::Handle {
     match tool {
         SketchTool::Line => icons::icon_shape_line(theme_id),
@@ -403,10 +403,10 @@ fn sketch_tool_icon(
 /// Compute the per-tag enable state from the current selection slots.
 /// Returns a fixed-length array indexed by [`tag_index`].
 fn constraint_enable_matrix(editor: &FootprintEditorState) -> [bool; 19] {
-    use signex_sketch::entity::EntityKind;
+    use oxide_sketch::entity::EntityKind;
     let primary = editor.state.selected_sketch;
     let secondary = editor.state.selected_sketch_secondary;
-    let kind_of = |id: signex_sketch::id::SketchEntityId| -> Option<&'static str> {
+    let kind_of = |id: oxide_sketch::id::SketchEntityId| -> Option<&'static str> {
         editor
             .primitive()
             .sketch

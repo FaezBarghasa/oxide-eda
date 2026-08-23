@@ -1,7 +1,7 @@
 //! Data-to-view tests (iced-rust skill §10): assert on the pure context-
 //! menu entry builders — no GPU, no window, no widget tree. Each builder
 //! turns app state into a `Vec<DropdownEntry<Message>>`; the widget that
-//! renders those rows is tested in `signex-widgets`.
+//! renders those rows is tested in `oxide-widgets`.
 
 use super::*;
 
@@ -9,9 +9,9 @@ use super::items::{dd_disabled, dd_msg};
 use super::menus::{CanvasShortcuts, canvas_menu_entries, tab_menu_entries};
 use super::project_tree::{TreeNodeRole, tree_node_role};
 use super::submenu::{align_entries, align_gate, place_entries};
-use signex_types::theme::{ThemeId, theme_tokens};
-use signex_widgets::active_bar_dropdown::DropdownEntry;
-use signex_widgets::tree_view::TreeIcon;
+use oxide_types::theme::{ThemeId, theme_tokens};
+use oxide_widgets::active_bar_dropdown::DropdownEntry;
+use oxide_widgets::tree_view::TreeIcon;
 
 const TID: ThemeId = ThemeId::CatppuccinMocha;
 

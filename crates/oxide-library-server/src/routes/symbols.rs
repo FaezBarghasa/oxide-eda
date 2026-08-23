@@ -2,7 +2,7 @@
 //!
 //! Per `v0.9-refactor-2-plan.md` §9 Step D3, primitives are addressed by
 //! `(library_id, uuid)` tuples. The wire format is the JSON-serialised
-//! `Symbol` struct from `signex-library`. Routes are bearer-token gated like
+//! `Symbol` struct from `oxide-library`. Routes are bearer-token gated like
 //! the existing `/components` family — `router_with_state` slots them into
 //! the protected sub-router.
 
@@ -14,7 +14,7 @@ use axum::{
     routing::get,
 };
 use serde::Deserialize;
-use signex_library::primitive::Symbol;
+use oxide_library::primitive::Symbol;
 use uuid::Uuid;
 
 use crate::db::{AppState, PrimitiveSummary};

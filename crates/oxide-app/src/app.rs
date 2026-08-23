@@ -1,8 +1,8 @@
 //! Main Iced application — module root, update loop, view tree.
 
 use iced::{Task, Theme};
-use signex_types::coord::Unit;
-use signex_types::theme::ThemeId;
+use oxide_types::coord::Unit;
+use oxide_types::theme::ThemeId;
 
 use crate::canvas::CanvasEvent;
 use crate::dock::PanelPosition;

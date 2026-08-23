@@ -23,7 +23,7 @@ impl Signex {
     pub(super) fn view_main_window_chrome<'a>(
         &self,
         menu_row: Element<'a, Message>,
-        tokens: &signex_types::theme::ThemeTokens,
+        tokens: &oxide_types::theme::ThemeTokens,
     ) -> Element<'a, Message> {
         use iced::widget::{Space, button, container, mouse_area, row, svg};
         use iced::{Alignment, Background, Border, Color, Length};

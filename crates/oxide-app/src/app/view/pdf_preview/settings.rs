@@ -345,9 +345,9 @@ impl Signex {
         .spacing(2);
 
         let radio = move |label: &'static str,
-                          this: signex_output::ColourMode,
-                          current: signex_output::ColourMode,
-                          on: fn(signex_output::ColourMode) -> Message| {
+                          this: oxide_output::ColourMode,
+                          current: oxide_output::ColourMode,
+                          on: fn(oxide_output::ColourMode) -> Message| {
             iced::widget::radio(label, this, Some(current), on)
                 .text_size(11)
                 .size(14)
@@ -358,19 +358,19 @@ impl Signex {
             Space::new().height(4),
             radio(
                 "Color",
-                signex_output::ColourMode::Colour,
+                oxide_output::ColourMode::Colour,
                 opts.colour_mode,
                 |v| Message::PrintPreview(PrintPreviewMsg::SetColourMode(v))
             ),
             radio(
                 "Greyscale",
-                signex_output::ColourMode::Grayscale,
+                oxide_output::ColourMode::Grayscale,
                 opts.colour_mode,
                 |v| Message::PrintPreview(PrintPreviewMsg::SetColourMode(v))
             ),
             radio(
                 "Monochrome",
-                signex_output::ColourMode::BlackAndWhite,
+                oxide_output::ColourMode::BlackAndWhite,
                 opts.colour_mode,
                 |v| Message::PrintPreview(PrintPreviewMsg::SetColourMode(v))
             ),
@@ -379,19 +379,19 @@ impl Signex {
             Space::new().height(4),
             radio(
                 "Color",
-                signex_output::ColourMode::Colour,
+                oxide_output::ColourMode::Colour,
                 opts.pcb_colour_mode,
                 |v| Message::PrintPreview(PrintPreviewMsg::SetPcbColourMode(v))
             ),
             radio(
                 "Greyscale",
-                signex_output::ColourMode::Grayscale,
+                oxide_output::ColourMode::Grayscale,
                 opts.pcb_colour_mode,
                 |v| Message::PrintPreview(PrintPreviewMsg::SetPcbColourMode(v))
             ),
             radio(
                 "Monochrome",
-                signex_output::ColourMode::BlackAndWhite,
+                oxide_output::ColourMode::BlackAndWhite,
                 opts.pcb_colour_mode,
                 |v| Message::PrintPreview(PrintPreviewMsg::SetPcbColourMode(v))
             ),

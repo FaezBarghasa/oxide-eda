@@ -47,7 +47,7 @@ impl Signex {
     /// match.
     pub(super) fn sym_editor_mutate_pin<F>(&mut self, pin_idx: usize, mutator: F) -> bool
     where
-        F: FnOnce(&mut signex_library::SymbolPin),
+        F: FnOnce(&mut oxide_library::SymbolPin),
     {
         let Some(editor) = self.active_symbol_editor_mut() else {
             return true;
@@ -70,7 +70,7 @@ impl Signex {
     /// no Symbol editor is the active tab.
     pub(super) fn sym_editor_mutate_symbol<F>(&mut self, mutator: F) -> bool
     where
-        F: FnOnce(&mut signex_library::Symbol),
+        F: FnOnce(&mut oxide_library::Symbol),
     {
         let Some(editor) = self.active_symbol_editor_mut() else {
             return true;
@@ -89,7 +89,7 @@ impl Signex {
     /// editor is active or the index is out of range.
     pub(super) fn sym_editor_mutate_graphic<F>(&mut self, idx: usize, mutator: F) -> bool
     where
-        F: FnOnce(&mut signex_library::SymbolGraphic),
+        F: FnOnce(&mut oxide_library::SymbolGraphic),
     {
         let Some(editor) = self.active_symbol_editor_mut() else {
             return true;
@@ -316,7 +316,7 @@ impl Signex {
     pub(super) fn sym_editor_set_pin_electrical(
         &mut self,
         pin_idx: usize,
-        value: signex_library::PinDirection,
+        value: oxide_library::PinDirection,
     ) -> bool {
         let Some(editor) = self.active_symbol_editor_mut() else {
             return true;
@@ -334,7 +334,7 @@ impl Signex {
     pub(super) fn sym_editor_set_pin_orientation(
         &mut self,
         pin_idx: usize,
-        value: signex_library::PinOrientation,
+        value: oxide_library::PinOrientation,
     ) -> bool {
         let Some(editor) = self.active_symbol_editor_mut() else {
             return true;
@@ -520,7 +520,7 @@ impl Signex {
                 }
             }
         }
-        let sym = signex_library::Symbol::empty(name);
+        let sym = oxide_library::Symbol::empty(name);
         editor.file.symbols.push(sym);
         editor.file.updated = chrono::Utc::now();
         editor.active_idx = editor.file.symbols.len() - 1;

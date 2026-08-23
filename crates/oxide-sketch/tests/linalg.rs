@@ -6,7 +6,7 @@
 
 use std::f64::consts::PI;
 
-use signex_sketch::solver::linalg::{LinAlgError, QrDecomposition, lu_decompose, lu_solve, solve};
+use oxide_sketch::solver::linalg::{LinAlgError, QrDecomposition, lu_decompose, lu_solve, solve};
 
 const TOL: f64 = 1e-10;
 

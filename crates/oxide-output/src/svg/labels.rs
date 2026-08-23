@@ -10,8 +10,8 @@
 use super::*;
 use crate::pdf::PdfScale;
 use crate::pdf::palette::SchematicPalette;
-use signex_types::markup::{RichSegment, parse_signex_markup};
-use signex_types::schematic::{HAlign, LabelType, VAlign};
+use oxide_types::markup::{RichSegment, parse_signex_markup};
+use oxide_types::schematic::{HAlign, LabelType, VAlign};
 
 pub(super) fn label_size_pt(font_size_mm: f64, mm_to_unit: f64, scale: &PdfScale) -> f32 {
     if font_size_mm > 0.0 {
@@ -95,11 +95,11 @@ pub(super) fn schematic_text_offset_hier(
 }
 
 pub(super) fn schematic_text_offset_global(shape: &str, spin: SpinStyle) -> (f64, f64) {
-    let mut horiz = signex_types::schematic::SCHEMATIC_TEXT_MM * 0.5;
-    let vert = signex_types::schematic::SCHEMATIC_TEXT_MM * 0.0715;
+    let mut horiz = oxide_types::schematic::SCHEMATIC_TEXT_MM * 0.5;
+    let vert = oxide_types::schematic::SCHEMATIC_TEXT_MM * 0.0715;
 
     if matches!(shape, "input" | "bidirectional" | "tri_state") {
-        horiz += signex_types::schematic::SCHEMATIC_TEXT_MM * 0.75;
+        horiz += oxide_types::schematic::SCHEMATIC_TEXT_MM * 0.75;
     }
 
     match spin {

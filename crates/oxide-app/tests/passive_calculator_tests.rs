@@ -7,9 +7,9 @@
     reason = "integration tests discard Results with `let _ = ...` routinely; this is test scaffolding, not a production `iced::Task` being dropped, and `[lints]` in Cargo.toml is package-scoped so each integration-test crate root needs its own"
 )]
 
-use signex_app::app::{Message, OverlayMsg, Signex};
-use signex_app::menu_bar::MenuMessage;
-use signex_widgets::passive_calculator::{CalculatorMessage, ComponentKind};
+use oxide_app::app::{Message, OverlayMsg, Signex};
+use oxide_app::menu_bar::MenuMessage;
+use oxide_widgets::passive_calculator::{CalculatorMessage, ComponentKind};
 
 #[test]
 fn calculator_messages_update_the_dedicated_control_state() {

@@ -22,7 +22,7 @@ fn chevron_down() -> svg::Handle {
 
 pub fn shape_icon_handle(
     elem_type: &str,
-    theme: signex_types::theme::ThemeId,
+    theme: oxide_types::theme::ThemeId,
 ) -> Option<svg::Handle> {
     match elem_type {
         "Line" => Some(crate::icons::icon_shape_line(theme)),
@@ -272,12 +272,12 @@ pub fn form_edit_row_f64<'a>(
 }
 
 pub fn shape_fill_row<'a>(
-    current: signex_types::schematic::FillType,
+    current: oxide_types::schematic::FillType,
     muted: Color,
     _border_c: Color,
 ) -> Element<'a, PanelMsg> {
     use iced::widget::{button, row, text};
-    use signex_types::schematic::FillType;
+    use oxide_types::schematic::FillType;
     let tile = |label: &'static str, ft: FillType, active: bool| -> Element<'a, PanelMsg> {
         button(text(label).size(10))
             .padding([3, 8])

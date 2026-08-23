@@ -9,10 +9,10 @@ use super::*;
 impl Signex {
     pub(super) fn handle_library_settings_message(&mut self, msg: SettingsMsg) -> Task<Message> {
         use crate::library::settings::digikey_oauth;
-        use signex_library::distributor::DistributorAdapter;
-        use signex_library::distributors::digikey::{DIGIKEY_AUTH_URL, DIGIKEY_TOKEN_URL};
-        use signex_library::distributors::keyring::KeyringStore;
-        use signex_library::distributors::mouser::MouserAdapter;
+        use oxide_library::distributor::DistributorAdapter;
+        use oxide_library::distributors::digikey::{DIGIKEY_AUTH_URL, DIGIKEY_TOKEN_URL};
+        use oxide_library::distributors::keyring::KeyringStore;
+        use oxide_library::distributors::mouser::MouserAdapter;
 
         match msg {
             SettingsMsg::DigiKeyConnect => {
@@ -201,7 +201,7 @@ impl Signex {
     /// persist. A save failure lands in `preferred_order_error` so the
     /// panel can show it inline — silently swallowing it left the user
     /// to discover the reverted order on next launch.
-    fn swap_preferred_order(&mut self, src: signex_library::DistributorSource, up: bool) {
+    fn swap_preferred_order(&mut self, src: oxide_library::DistributorSource, up: bool) {
         let order = &mut self.library.settings.preferred_order;
         let Some(i) = order.iter().position(|s| *s == src) else {
             return;

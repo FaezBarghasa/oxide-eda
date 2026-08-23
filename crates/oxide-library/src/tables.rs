@@ -138,7 +138,7 @@ pub fn read_table(path: &Path) -> Result<Vec<ComponentRow>, LibraryError> {
 /// Replace the contents of `path` with `rows`. Creates parent directories
 /// if they don't exist.
 ///
-/// Crash-safe: the bytes land via [`signex_types::atomic_io::atomic_write`]
+/// Crash-safe: the bytes land via [`oxide_types::atomic_io::atomic_write`]
 /// (temp file + fsync + rename), so a crash or power loss mid-save leaves
 /// either the previous table or the new one — never a truncated file. Every
 /// mutator here ([`append_row`], [`delete_row`], [`update_row`]) rewrites the
@@ -157,7 +157,7 @@ pub fn write_table(path: &Path, rows: &[ComponentRow]) -> Result<(), LibraryErro
     let bytes = wtr
         .into_inner()
         .map_err(|e| LibraryError::Backend(format!("flush table: {e}")))?;
-    signex_types::atomic_io::atomic_write(path, &bytes)?;
+    oxide_types::atomic_io::atomic_write(path, &bytes)?;
     Ok(())
 }
 

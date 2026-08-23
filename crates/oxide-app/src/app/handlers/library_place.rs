@@ -14,7 +14,7 @@
 //! The actual schematic-engine embed (writing the
 //! `LibrarySourceRef { library_id, uuid, version, content_hash }` +
 //! embedded slice + shared snapshot onto the placed
-//! `signex_types::schematic::Symbol`) lands in v0.9 Phase 3 once the
+//! `oxide_types::schematic::Symbol`) lands in v0.9 Phase 3 once the
 //! schematic-side schema slots exist. Until then this handler
 //! exercises the dispatch routing end-to-end and gives operators a
 //! correlatable trace per place gesture.
@@ -22,7 +22,7 @@
 use iced::Task;
 use std::path::PathBuf;
 
-use signex_library::RowId;
+use oxide_library::RowId;
 
 use super::super::contracts::Message;
 use super::super::state::Signex;

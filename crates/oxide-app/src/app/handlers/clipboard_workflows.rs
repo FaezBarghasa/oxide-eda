@@ -3,17 +3,17 @@ use iced::Task;
 use super::super::*;
 
 fn union_bounds(
-    current: Option<signex_types::schematic::Aabb>,
-    next: signex_types::schematic::Aabb,
-) -> Option<signex_types::schematic::Aabb> {
+    current: Option<oxide_types::schematic::Aabb>,
+    next: oxide_types::schematic::Aabb,
+) -> Option<oxide_types::schematic::Aabb> {
     Some(match current {
         Some(bounds) => bounds.union(&next),
         None => next,
     })
 }
 
-fn clipboard_bounds(app: &Signex) -> Option<signex_types::schematic::Aabb> {
-    use signex_types::schematic::Aabb;
+fn clipboard_bounds(app: &Signex) -> Option<oxide_types::schematic::Aabb> {
+    use oxide_types::schematic::Aabb;
 
     let mut bounds = None;
 
@@ -143,7 +143,7 @@ impl Signex {
     /// scope; Cut just can't silently eat what Copy drops).
     pub(crate) fn handle_selection_cut_requested(&mut self) -> Task<Message> {
         let selected = self.interaction_state.active_canvas().selected.clone();
-        let (cuttable, kept) = signex_engine::partition_cuttable(&selected);
+        let (cuttable, kept) = oxide_engine::partition_cuttable(&selected);
         if cuttable.is_empty() {
             return Task::none();
         }
@@ -205,7 +205,7 @@ impl Signex {
                 nw.start.y += offset_y;
                 nw.end.x += offset_x;
                 nw.end.y += offset_y;
-                commands.push(signex_engine::Command::PlaceWireSegment { wire: nw });
+                commands.push(oxide_engine::Command::PlaceWireSegment { wire: nw });
             }
             for b in &self.interaction_state.clipboard_buses {
                 let mut nb = b.clone();
@@ -214,14 +214,14 @@ impl Signex {
                 nb.start.y += offset_y;
                 nb.end.x += offset_x;
                 nb.end.y += offset_y;
-                commands.push(signex_engine::Command::PlaceBus { bus: nb });
+                commands.push(oxide_engine::Command::PlaceBus { bus: nb });
             }
             for l in &self.interaction_state.clipboard_labels {
                 let mut nl = l.clone();
                 nl.uuid = uuid::Uuid::new_v4();
                 nl.position.x += offset_x;
                 nl.position.y += offset_y;
-                commands.push(signex_engine::Command::PlaceLabel { label: nl });
+                commands.push(oxide_engine::Command::PlaceLabel { label: nl });
             }
             for s in &self.interaction_state.clipboard_symbols {
                 let mut ns = s.clone();
@@ -236,28 +236,28 @@ impl Signex {
                     vt.position.x += offset_x;
                     vt.position.y += offset_y;
                 }
-                commands.push(signex_engine::Command::PlaceSymbol { symbol: ns });
+                commands.push(oxide_engine::Command::PlaceSymbol { symbol: ns });
             }
             for j in &self.interaction_state.clipboard_junctions {
                 let mut nj = j.clone();
                 nj.uuid = uuid::Uuid::new_v4();
                 nj.position.x += offset_x;
                 nj.position.y += offset_y;
-                commands.push(signex_engine::Command::PlaceJunction { junction: nj });
+                commands.push(oxide_engine::Command::PlaceJunction { junction: nj });
             }
             for nc in &self.interaction_state.clipboard_no_connects {
                 let mut nnc = nc.clone();
                 nnc.uuid = uuid::Uuid::new_v4();
                 nnc.position.x += offset_x;
                 nnc.position.y += offset_y;
-                commands.push(signex_engine::Command::PlaceNoConnect { no_connect: nnc });
+                commands.push(oxide_engine::Command::PlaceNoConnect { no_connect: nnc });
             }
             for tn in &self.interaction_state.clipboard_text_notes {
                 let mut ntn = tn.clone();
                 ntn.uuid = uuid::Uuid::new_v4();
                 ntn.position.x += offset_x;
                 ntn.position.y += offset_y;
-                commands.push(signex_engine::Command::PlaceTextNote { text_note: ntn });
+                commands.push(oxide_engine::Command::PlaceTextNote { text_note: ntn });
             }
             if !commands.is_empty() {
                 self.apply_engine_commands(commands, true, true);

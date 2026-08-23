@@ -19,21 +19,21 @@ use super::fills::draw_filled_closed_loops;
 pub(in crate::library::editor::footprint::canvas::draw) fn draw_sketch_overlay(
     frame: &mut canvas::Frame,
     cstate: &FootprintCanvasState,
-    sketch: &signex_sketch::SketchData,
+    sketch: &oxide_sketch::SketchData,
     state: &FootprintEditorState,
 ) {
-    use signex_sketch::entity::EntityKind;
-    use signex_sketch::id::SketchEntityId;
+    use oxide_sketch::entity::EntityKind;
+    use oxide_sketch::id::SketchEntityId;
 
     fn point_world(
         id: SketchEntityId,
-        sketch: &signex_sketch::SketchData,
+        sketch: &oxide_sketch::SketchData,
         state: &FootprintEditorState,
     ) -> Option<(f64, f64)> {
         // Prefer the solved state if available; fall back to the
         // entity's authored coords.
         if let Some(solve) = state.last_solve.as_ref()
-            && let Some((x, y)) = signex_sketch::solver::state::point_xy(
+            && let Some((x, y)) = oxide_sketch::solver::state::point_xy(
                 id,
                 &solve.result.state,
                 &solve.result.index,
@@ -59,7 +59,7 @@ pub(in crate::library::editor::footprint::canvas::draw) fn draw_sketch_overlay(
     // against white; dark grey reads at the same weight as the
     // black fully-constrained state without competing with it.
     let dof_colour = |id: SketchEntityId| -> Color {
-        use signex_sketch::solver::dof::DofColor;
+        use oxide_sketch::solver::dof::DofColor;
         if let Some(solve) = state.last_solve.as_ref() {
             match solve.colours.get(&id) {
                 Some(DofColor::Under) => Color::from_rgba(0.10, 0.30, 0.85, 1.00),

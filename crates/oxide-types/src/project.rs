@@ -303,7 +303,7 @@ pub enum ProjectError {
         source: std::io::Error,
     },
     #[error(
-        "unsupported project file extension: .{0} (Signex Community only opens .snxprj; convert Standard projects with the signex-standard-import companion)"
+        "unsupported project file extension: .{0} (Signex Community only opens .snxprj; convert Standard projects with the oxide-standard-import companion)"
     )]
     UnsupportedExtension(String),
     #[error(
@@ -326,7 +326,7 @@ pub enum ProjectError {
 ///
 /// Standard project files (`.standard_pro`) are not supported in Signex
 /// Community. Users running Standard projects use the optional
-/// `signex-standard-import` GPL-3.0 companion tool to convert their files
+/// `oxide-standard-import` GPL-3.0 companion tool to convert their files
 /// first.
 pub fn parse_project(path: &Path) -> Result<ProjectData, ProjectError> {
     let ext = path

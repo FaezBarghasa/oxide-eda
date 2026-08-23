@@ -1,6 +1,6 @@
 //! Symbol-tab interactive canvas.
 //!
-//! The canvas reads the typed [`signex_library::Symbol`] primitive
+//! The canvas reads the typed [`oxide_library::Symbol`] primitive
 //! directly. The body rectangle is derived from `Symbol.graphics`
 //! (first `Rectangle` graphic), or defaults to a
 //! `[-5.08, -2.54] .. [5.08, 2.54]` rectangle when the primitive
@@ -17,7 +17,7 @@
 //! coordinate readout follow the same Altium-parity surface as the
 //! schematic canvas: bg + grid colour come from the active theme's
 //! `CanvasColors`; grid spacing follows `panel_ctx.grid_size_mm`;
-//! the unit ([`signex_types::coord::Unit`]) drives the status
+//! the unit ([`oxide_types::coord::Unit`]) drives the status
 //! footer. Sheet colour is per-tab (Altium "Document Options")
 //! and shifts the bg fill alpha so the user can pick Black / White
 //! / Dark Gray / Light Gray / Cream per-symbol library.
@@ -29,14 +29,14 @@ use iced::Theme;
 use iced::event::Event;
 use iced::mouse;
 use iced::widget::canvas;
-use signex_gfx::scene::{DirtyFlags, Scene};
-use signex_library::{Symbol, SymbolGraphicKind, SymbolPin};
-use signex_renderer::schematic::{
+use oxide_gfx::scene::{DirtyFlags, Scene};
+use oxide_library::{Symbol, SymbolGraphicKind, SymbolPin};
+use oxide_renderer::schematic::{
     ArcInput, JunctionInput, OverlayInputs, PolygonInput, SchematicRenderer,
     SchematicSnapshot as RendererSnapshot, ViewRenderer, WireInput,
 };
-use signex_renderer::theme::ResolvedTheme;
-use signex_types::schematic::{HAlign, VAlign};
+use oxide_renderer::theme::ResolvedTheme;
+use oxide_types::schematic::{HAlign, VAlign};
 use std::collections::HashMap;
 
 use super::state::{self, SymbolSelection};
@@ -311,10 +311,10 @@ const ORIGIN_MARKER_MM: f32 = 1.27;
 /// This surface's readability limits. Wider than the schematic's `[6.0, 64.0]`
 /// on purpose — a symbol is edited close up, so pin text may render smaller
 /// and grow larger here. The mm→em ratio is *not* a per-surface choice and
-/// lives once in `signex_gfx::primitive::text::MM_PER_EM`; a local copy of it
+/// lives once in `oxide_gfx::primitive::text::MM_PER_EM`; a local copy of it
 /// is what let this canvas and its own hit-test disagree.
-const SYMBOL_TEXT_SIZE: signex_gfx::primitive::text::TextSizePolicy =
-    signex_gfx::primitive::text::TextSizePolicy::new(2.0, 96.0);
+const SYMBOL_TEXT_SIZE: oxide_gfx::primitive::text::TextSizePolicy =
+    oxide_gfx::primitive::text::TextSizePolicy::new(2.0, 96.0);
 const SYMBOL_AXIS_STROKE_PX_AT_100: f32 = 1.0;
 const SYMBOL_GRAPHIC_STROKE_PX_AT_100: f32 = 1.5;
 const SYMBOL_GRAPHIC_SELECTED_STROKE_PX_AT_100: f32 = 2.5;
@@ -488,8 +488,8 @@ impl<'a> SymbolCanvas<'a> {
         let mut scene = Scene::default();
         SchematicRenderer::build_scene(
             &snapshot,
-            &ResolvedTheme::from_canvas_colors(signex_types::theme::canvas_colors(
-                signex_types::theme::ThemeId::Signex,
+            &ResolvedTheme::from_canvas_colors(oxide_types::theme::canvas_colors(
+                oxide_types::theme::ThemeId::Signex,
             )),
             DirtyFlags::LINES
                 | DirtyFlags::CIRCLES
@@ -507,7 +507,7 @@ impl<'a> SymbolCanvas<'a> {
             |point| iced::Point::new(ox + point[0] * scale, oy - point[1] * scale),
             crate::renderer_scene_canvas::SceneDrawOptions {
                 scale_px_per_mm: scale,
-                min_stroke_px: signex_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_PX,
+                min_stroke_px: oxide_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_PX,
                 text_min_px: SYMBOL_TEXT_SIZE.min_px,
                 text_max_px: SYMBOL_TEXT_SIZE.max_px,
             },
@@ -620,7 +620,7 @@ impl<'a> SymbolCanvas<'a> {
                     content,
                     size,
                 } => {
-                    labels.push(signex_renderer::schematic::TextInput {
+                    labels.push(oxide_renderer::schematic::TextInput {
                         content: content.clone(),
                         position: [position[0] as f32, position[1] as f32],
                         size_mm: (*size as f32).max(0.1),
@@ -683,9 +683,9 @@ impl<'a> SymbolCanvas<'a> {
                 p1: body_f32,
                 width_mm: stroke_world_mm(
                     if selected {
-                        signex_types::schematic::PIN_STROKE_SELECTED_PX
+                        oxide_types::schematic::PIN_STROKE_SELECTED_PX
                     } else {
-                        signex_types::schematic::PIN_STROKE_PX
+                        oxide_types::schematic::PIN_STROKE_PX
                     },
                     scale,
                 ),
@@ -714,7 +714,7 @@ impl<'a> SymbolCanvas<'a> {
                 });
             }
 
-            pin_texts.push(signex_renderer::schematic::TextInput {
+            pin_texts.push(oxide_renderer::schematic::TextInput {
                 content: pin.number.clone(),
                 position: [geom.number_pos.x as f32, geom.number_pos.y as f32],
                 size_mm: PIN_TEXT_LAYOUT.number_size_mm,
@@ -732,7 +732,7 @@ impl<'a> SymbolCanvas<'a> {
                 v_align: VAlign::Bottom,
             });
 
-            pin_texts.push(signex_renderer::schematic::TextInput {
+            pin_texts.push(oxide_renderer::schematic::TextInput {
                 content: pin.name.clone(),
                 position: [geom.name_pos.x as f32, geom.name_pos.y as f32],
                 size_mm: PIN_TEXT_LAYOUT.name_size_mm,

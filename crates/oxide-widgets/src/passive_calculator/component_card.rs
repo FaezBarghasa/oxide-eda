@@ -1,6 +1,6 @@
 use iced::widget::{column, container, pick_list, row, text};
 use iced::{Alignment, Background, Border, Element, Length};
-use signex_types::theme::ThemeTokens;
+use oxide_types::theme::ThemeTokens;
 
 use super::color_code::ComponentColorCode;
 use super::color_code_view::color_code_representations;
@@ -139,6 +139,6 @@ fn subscript(value: usize) -> String {
         .collect()
 }
 
-fn token_color(color: signex_types::theme::Color) -> iced::Color {
+fn token_color(color: oxide_types::theme::Color) -> iced::Color {
     iced::Color::from_rgba8(color.r, color.g, color.b, f32::from(color.a) / 255.0)
 }

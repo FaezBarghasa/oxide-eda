@@ -1,10 +1,10 @@
-//! Generic GPU render path for any `signex_gfx::scene::Scene`.
+//! Generic GPU render path for any `oxide_gfx::scene::Scene`.
 //!
 //! CLEAN ROOM DECLARATION
 //! This module was written without reference to GPL-licensed software.
 //! Sources: iced/wgpu public docs, IPC-2612-1, IEEE 315, IEC 60617.
 //!
-//! Bridges the `signex_gfx` render pipelines into iced's `shader` widget so a
+//! Bridges the `oxide_gfx` render pipelines into iced's `shader` widget so a
 //! `Scene` draws on the GPU instead of being tessellated into a
 //! `canvas::Frame` on the CPU. The pipelines are primitive-agnostic — they are
 //! driven purely by a `Scene` plus a screen-space pan/zoom transform — so every
@@ -31,15 +31,15 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use iced::widget::shader::{self, Viewport};
 use iced::{Rectangle, mouse};
 
-use signex_gfx::camera::{CameraGpu, CameraUniform};
-use signex_gfx::pipeline::arc::ArcPipeline;
-use signex_gfx::pipeline::circle::CirclePipeline;
-use signex_gfx::pipeline::line::LinePipeline;
-use signex_gfx::pipeline::polygon::PolygonPipeline;
-use signex_gfx::pipeline::text::GlyphonTextPipeline;
-use signex_gfx::primitive::text::TextSizePolicy;
-use signex_gfx::scene::{GPU_SCENE_DRAW_ORDER, Scene, SceneBucket};
-use signex_gfx::wgpu;
+use oxide_gfx::camera::{CameraGpu, CameraUniform};
+use oxide_gfx::pipeline::arc::ArcPipeline;
+use oxide_gfx::pipeline::circle::CirclePipeline;
+use oxide_gfx::pipeline::line::LinePipeline;
+use oxide_gfx::pipeline::polygon::PolygonPipeline;
+use oxide_gfx::pipeline::text::GlyphonTextPipeline;
+use oxide_gfx::primitive::text::TextSizePolicy;
+use oxide_gfx::scene::{GPU_SCENE_DRAW_ORDER, Scene, SceneBucket};
+use oxide_gfx::wgpu;
 
 use crate::app::Message;
 
@@ -81,7 +81,7 @@ use crate::app::Message;
 /// generation cache exactly as above. The fix is a discriminator in the
 /// resident key — the primitive carrying an instance id (window or document)
 /// alongside its generation, and the pipeline storing both — not a split of
-/// the `signex_gfx` pipelines. Unreachable today: the PCB is the only mounted
+/// the `oxide_gfx` pipelines. Unreachable today: the PCB is the only mounted
 /// surface and it has a single `PcbCanvas`, not one per window. Must be solved
 /// before the schematic mounts (#199), which is per-window.
 pub trait SceneSurface: 'static + Send + Sync + std::fmt::Debug {
@@ -162,7 +162,7 @@ fn log_text_error_once(
     }
 }
 
-/// The set of `signex_gfx` pipelines plus the camera, created once by iced and
+/// The set of `oxide_gfx` pipelines plus the camera, created once by iced and
 /// reused across frames.
 ///
 /// iced stores one of these per primitive type (see [`SceneSurface`]), so each
@@ -474,7 +474,7 @@ impl<S: SceneSurface> shader::Program<Message> for SceneShaderProgram<S> {
 mod tests {
     use super::*;
     use iced::widget::shader::Program;
-    use signex_gfx::primitive::line::LineSegment;
+    use oxide_gfx::primitive::line::LineSegment;
 
     /// This module's own source, embedded at compile time. Building a
     /// [`ScenePipeline`] needs a live `wgpu::Device`, so the `trim`

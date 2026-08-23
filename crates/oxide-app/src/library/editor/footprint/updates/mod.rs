@@ -307,7 +307,7 @@ pub(crate) fn apply_footprint_primitive_edit(
             .sketch
             .as_ref()
             .and_then(|s| s.entities.iter().find(|e| e.id == *id))
-            .map(|e| matches!(e.kind, signex_sketch::entity::EntityKind::Line { .. }))
+            .map(|e| matches!(e.kind, oxide_sketch::entity::EntityKind::Line { .. }))
             .unwrap_or(false);
         if is_line {
             editor.state.selected_sketch = Some(*id);

@@ -5,8 +5,8 @@
 use std::future::Future;
 
 use serde_json::json;
-use signex_library::distributor::{DistributorAdapter, DistributorSource};
-use signex_library::distributors::lcsc::LcscAdapter;
+use oxide_library::distributor::{DistributorAdapter, DistributorSource};
+use oxide_library::distributors::lcsc::LcscAdapter;
 use wiremock::matchers::{method, path, query_param};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
@@ -142,12 +142,12 @@ fn http_429_surfaces_rate_limited_with_retry_after() {
 fn cache_hit_short_circuits_network() {
     let dir = tempfile::tempdir().unwrap();
     let cache =
-        signex_library::distributors::cache::DistributorCache::with_root(dir.path()).unwrap();
+        oxide_library::distributors::cache::DistributorCache::with_root(dir.path()).unwrap();
 
     // Pre-seed cache with a known part — adapter must not hit the wiremock
     // server for the same MPN within TTL.
     let mpn = "RC0805FR-0710KL";
-    let pre = signex_library::distributor::DistributorPart {
+    let pre = oxide_library::distributor::DistributorPart {
         mpn: mpn.into(),
         manufacturer: "Yageo".into(),
         description: "Pre-cached".into(),

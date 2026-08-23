@@ -2,8 +2,8 @@
 //! Point only) under a click for the Select tool + auto-Coincident
 //! snap behaviour.
 
-use signex_sketch::entity::EntityKind;
-use signex_sketch::id::SketchEntityId;
+use oxide_sketch::entity::EntityKind;
+use oxide_sketch::id::SketchEntityId;
 
 use super::FootprintCanvasState;
 use super::geometry::screen_dist_to_segment_sq;
@@ -19,7 +19,7 @@ const SKETCH_SNAP_RADIUS_PX: f32 = 12.0;
 /// Select tool so the user can grab line / arc / circle entities,
 /// not just Points.
 pub(super) fn sketch_hit_other(
-    sketch: Option<&signex_sketch::SketchData>,
+    sketch: Option<&oxide_sketch::SketchData>,
     cstate: &FootprintCanvasState,
     click_world: (f64, f64),
 ) -> Option<SketchEntityId> {
@@ -103,7 +103,7 @@ pub(super) fn sketch_hit_other(
 /// in range. Used by the canvas to drive auto-Coincident behaviour
 /// in multi-click drawing tools.
 pub(super) fn sketch_snap(
-    sketch: Option<&signex_sketch::SketchData>,
+    sketch: Option<&oxide_sketch::SketchData>,
     cstate: &FootprintCanvasState,
     click_world: (f64, f64),
 ) -> Option<SketchEntityId> {

@@ -98,7 +98,7 @@ impl Signex {
         // two-step path for adapters without single-borrow
         // support).
         if let Err(error) = adapter.add_library_class(
-            signex_library::ClassEntry {
+            oxide_library::ClassEntry {
                 key: key.clone(),
                 label,
             },
@@ -242,7 +242,7 @@ impl Signex {
         // single-borrow support).
         if let Err(error) = adapter.rename_library_class(
             &orig,
-            signex_library::ClassEntry {
+            oxide_library::ClassEntry {
                 key: new_key.clone(),
                 label: new_label,
             },

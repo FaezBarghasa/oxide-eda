@@ -21,9 +21,9 @@ use std::path::PathBuf;
 
 use iced::widget::{Space, button, container, row, text};
 use iced::{Border, Color, Length, Theme};
-use signex_types::theme::ThemeTokens;
-use signex_widgets::active_bar::{ActiveBarButton, ActiveBarIcon, ActiveBarItem};
-use signex_widgets::theme_ext;
+use oxide_types::theme::ThemeTokens;
+use oxide_widgets::active_bar::{ActiveBarButton, ActiveBarIcon, ActiveBarItem};
+use oxide_widgets::theme_ext;
 
 use crate::app::FootprintEditorState;
 use crate::icons;
@@ -248,7 +248,7 @@ pub fn footprint_tabs_overlay<'a>(
 /// Build the Pads-mode Active Bar items.
 pub fn items(
     editor: &FootprintEditorState,
-    theme_id: signex_types::theme::ThemeId,
+    theme_id: oxide_types::theme::ThemeId,
 ) -> Vec<ActiveBarItem<LibraryMessage>> {
     let path: PathBuf = editor.path.clone();
 
@@ -353,11 +353,11 @@ pub fn items(
 }
 
 /// Convenience wrapper — build items + render via
-/// [`signex_widgets::active_bar::view`].
+/// [`oxide_widgets::active_bar::view`].
 pub fn view<'a>(
     editor: &'a FootprintEditorState,
-    theme_id: signex_types::theme::ThemeId,
+    theme_id: oxide_types::theme::ThemeId,
     tokens: &'a ThemeTokens,
 ) -> iced::Element<'a, LibraryMessage> {
-    signex_widgets::active_bar::view(items(editor, theme_id), tokens)
+    oxide_widgets::active_bar::view(items(editor, theme_id), tokens)
 }

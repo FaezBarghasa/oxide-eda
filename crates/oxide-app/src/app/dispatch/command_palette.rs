@@ -133,9 +133,9 @@ impl Signex {
         Task::done(Message::Overlay(OverlayMsg::FocusAt {
             world_x: symbol.position.x,
             world_y: symbol.position.y,
-            select: Some(signex_types::schematic::SelectedItem {
+            select: Some(oxide_types::schematic::SelectedItem {
                 uuid: symbol.uuid,
-                kind: signex_types::schematic::SelectedKind::Symbol,
+                kind: oxide_types::schematic::SelectedKind::Symbol,
             }),
         }))
     }

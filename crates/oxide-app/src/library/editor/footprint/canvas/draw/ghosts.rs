@@ -23,7 +23,7 @@ impl FootprintCanvas<'_> {
             && !self.state.placement_paused
             && let Some((cx, cy)) = self.state.cursor_mm
         {
-            use signex_library::PadShape as PS;
+            use oxide_library::PadShape as PS;
             let defaults = &self.state.next_pad_defaults;
             let half_w = (defaults.size_x_mm.max(0.05) / 2.0) as f32 * cstate.scale;
             let half_h = (defaults.size_y_mm.max(0.05) / 2.0) as f32 * cstate.scale;

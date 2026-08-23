@@ -32,7 +32,7 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
-use signex_library::{LibraryAdapter, LibraryError, LocalGitAdapter};
+use oxide_library::{LibraryAdapter, LibraryError, LocalGitAdapter};
 
 use super::state::{LibraryDisplaySettings, LibraryState, OpenLibrary};
 

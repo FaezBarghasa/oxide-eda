@@ -1,15 +1,15 @@
 //! Projects-panel tree-view right-click menu.
 //!
 //! Data-to-view (#269): the menu is assembled as a `Vec<DropdownEntry>`
-//! rendered by the shared `signex_widgets::active_bar_dropdown` widget. The
+//! rendered by the shared `oxide_widgets::active_bar_dropdown` widget. The
 //! clicked node's [`TreeNodeRole`] (pure, unit-tested) selects which item
 //! set the `&self` builder produces.
 
 use super::*;
 
 use super::items::{dd_disabled, dd_msg, save_entry, submenu_launcher};
-use signex_widgets::active_bar_dropdown::DropdownEntry;
-use signex_widgets::tree_view::TreeIcon;
+use oxide_widgets::active_bar_dropdown::DropdownEntry;
+use oxide_widgets::tree_view::TreeIcon;
 
 /// Role a project-tree node plays, which selects its right-click menu.
 /// Precedence matches the historic `if/else if` chain: a single-segment
@@ -66,7 +66,7 @@ impl Signex {
         ctx: &crate::app::ProjectTreeContextMenuState,
     ) -> Element<'_, Message> {
         use crate::app::ProjectTreeAction as A;
-        use signex_widgets::tree_view::get_node;
+        use oxide_widgets::tree_view::get_node;
 
         let panel_ctx = &self.document_state.panel_ctx;
         let tokens = &panel_ctx.tokens;
@@ -412,6 +412,6 @@ impl Signex {
             }
         }
 
-        signex_widgets::active_bar_dropdown::view(v, tokens, Some(Self::CONTEXT_MENU_WIDTH))
+        oxide_widgets::active_bar_dropdown::view(v, tokens, Some(Self::CONTEXT_MENU_WIDTH))
     }
 }

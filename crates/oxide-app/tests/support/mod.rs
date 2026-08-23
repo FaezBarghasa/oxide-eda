@@ -27,16 +27,16 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use signex_library::adapter::{LibraryAdapter, LibraryError};
-use signex_library::adapters::local_git::{LibraryInitOptions, LocalGitAdapter};
-use signex_library::component::{ComponentRow, DatasheetRef, PlmReserved};
-use signex_library::identity::{ComponentClass, InternalPn};
-use signex_library::library_file::{FORMAT_TOKEN, LibrarySection, SnxlibManifest};
-use signex_library::lifecycle::LifecycleState;
-use signex_library::manifest::{LibraryMode, UsersConfig, WorkflowConfig};
-use signex_library::manufacturer::ManufacturerPart;
-use signex_library::param::{ParamMap, ParamValue};
-use signex_library::primitive::{
+use oxide_library::adapter::{LibraryAdapter, LibraryError};
+use oxide_library::adapters::local_git::{LibraryInitOptions, LocalGitAdapter};
+use oxide_library::component::{ComponentRow, DatasheetRef, PlmReserved};
+use oxide_library::identity::{ComponentClass, InternalPn};
+use oxide_library::library_file::{FORMAT_TOKEN, LibrarySection, SnxlibManifest};
+use oxide_library::lifecycle::LifecycleState;
+use oxide_library::manifest::{LibraryMode, UsersConfig, WorkflowConfig};
+use oxide_library::manufacturer::ManufacturerPart;
+use oxide_library::param::{ParamMap, ParamValue};
+use oxide_library::primitive::{
     Body3D, BodyShape, ComponentType, Footprint, FootprintFile, FpGraphic, FpGraphicKind, LayerId,
     Pad, PadKind, PadShape, PinDirection, PinOrientation, Polygon, PrimitiveRef, SimFile, SimKind,
     SimModel, Symbol, SymbolFile, SymbolGraphic, SymbolGraphicKind, SymbolPin,
@@ -270,7 +270,7 @@ fn make_footprint(index: usize) -> Footprint {
         paste_apertures: Vec::new(),
         description: "16-lead small outline integrated circuit, 1.27 mm pitch".into(),
         default_designator: "U?".into(),
-        component_type: signex_library::primitive::footprint::ComponentType::Standard,
+        component_type: oxide_library::primitive::footprint::ComponentType::Standard,
         height_mm: Some(1.75),
     }
 }

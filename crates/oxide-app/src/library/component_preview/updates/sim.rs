@@ -14,10 +14,10 @@ use crate::library::ComponentPreviewState;
 pub(super) fn set_enabled(state: &mut ComponentPreviewState, enabled: bool) {
     if enabled {
         if state.row.sim_ref.is_none() {
-            let sim = signex_library::SimModel {
+            let sim = oxide_library::SimModel {
                 uuid: uuid::Uuid::now_v7(),
                 name: state.row.internal_pn.as_str().to_string(),
-                kind: signex_library::SimKind::Spice3,
+                kind: oxide_library::SimKind::Spice3,
                 body: String::new(),
                 default_node_map: std::collections::BTreeMap::new(),
                 // Stage 14: every primitive carries its own semver string
@@ -28,7 +28,7 @@ pub(super) fn set_enabled(state: &mut ComponentPreviewState, enabled: bool) {
                 created: chrono::Utc::now(),
                 updated: chrono::Utc::now(),
             };
-            state.row.sim_ref = Some(signex_library::PrimitiveRef::new(
+            state.row.sim_ref = Some(oxide_library::PrimitiveRef::new(
                 state.row.symbol_ref.library_id,
                 sim.uuid,
             ));
@@ -44,7 +44,7 @@ pub(super) fn set_enabled(state: &mut ComponentPreviewState, enabled: bool) {
 }
 
 /// Set the simulation model's kind, touching its `updated` timestamp.
-pub(super) fn set_kind(state: &mut ComponentPreviewState, kind: signex_library::SimKind) {
+pub(super) fn set_kind(state: &mut ComponentPreviewState, kind: oxide_library::SimKind) {
     if let Some(sim) = state.sim.as_mut() {
         sim.kind = kind;
         sim.updated = chrono::Utc::now();

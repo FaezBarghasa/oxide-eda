@@ -15,9 +15,9 @@
 //! These drive the real dispatcher through `Signex::update`, so they fail
 //! if the republish call is removed.
 
-use signex_app::app::Signex;
-use signex_app::app::contracts::{Message, PreferencesMsg};
-use signex_app::diagnostics;
+use oxide_app::app::Signex;
+use oxide_app::app::contracts::{Message, PreferencesMsg};
+use oxide_app::diagnostics;
 
 /// Install the process logger so `tracing::*` records actually reach the
 /// ring buffer. `log::set_boxed_logger` accepts exactly one call per

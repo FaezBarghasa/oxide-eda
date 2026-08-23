@@ -131,7 +131,7 @@ fn hit_test_graphic_body(sym: &Symbol, idx: usize, x: f64, y: f64) -> bool {
             // CPU draw path's full-turn belt so draw and hit-test never
             // disagree (a 0° -> 360° Properties-panel edit renders a
             // circle the user can also click anywhere on).
-            if signex_gfx::primitive::arc::arc_is_full_turn_rad(
+            if oxide_gfx::primitive::arc::arc_is_full_turn_rad(
                 (*start_deg as f32).to_radians(),
                 (*end_deg as f32).to_radians(),
             ) {
@@ -170,15 +170,15 @@ fn hit_test_graphic_body(sym: &Symbol, idx: usize, x: f64, y: f64) -> bool {
 }
 
 fn point_to_segment_dist_sq(p: [f64; 2], a: [f64; 2], b: [f64; 2]) -> f64 {
-    signex_sketch::geom::point_to_segment_distance_sq(p, a, b)
+    oxide_sketch::geom::point_to_segment_distance_sq(p, a, b)
 }
 
 /// Even-odd point-in-polygon test (implicitly-closed vertex ring) — a
-/// thin adapter over `signex_sketch::geom::point_in_polygon`. Mirrors
+/// thin adapter over `oxide_sketch::geom::point_in_polygon`. Mirrors
 /// the footprint canvas's own adapter of the same shared helper.
 fn point_in_polygon(p: [f64; 2], vertices: &[[f64; 2]]) -> bool {
-    let polygon: Vec<signex_sketch::geom::Point2> = vertices.iter().map(|&v| v.into()).collect();
-    signex_sketch::geom::point_in_polygon(p, &polygon)
+    let polygon: Vec<oxide_sketch::geom::Point2> = vertices.iter().map(|&v| v.into()).collect();
+    oxide_sketch::geom::point_in_polygon(p, &polygon)
 }
 
 /// `true` when `(x, y)` lies within `tol` of any closed-polygon edge

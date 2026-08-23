@@ -1,7 +1,7 @@
 //! `/rows/:row_id/locks` — advisory locking over the row tier.
 //!
 //! Locks key off `RowId`. The caller identifies itself with the
-//! `x-signex-holder` header and the body picks the field-set.
+//! `x-oxide-holder` header and the body picks the field-set.
 //!
 //! ```json
 //! { "field_set": "Symbol" }
@@ -15,8 +15,8 @@ use axum::{
     routing::post,
 };
 use serde::{Deserialize, Serialize};
-use signex_library::adapter::FieldSet;
-use signex_library::identity::RowId;
+use oxide_library::adapter::FieldSet;
+use oxide_library::identity::RowId;
 
 use crate::db::AppState;
 use crate::locks::LockErrorKind;
@@ -60,29 +60,29 @@ impl From<FieldSetWire> for FieldSet {
     }
 }
 
-/// Maximum length for the `x-signex-holder` header. Bounded so a client
+/// Maximum length for the `x-oxide-holder` header. Bounded so a client
 /// can't grow the lock-map keys (which are echoed in error responses) by
 /// supplying megabyte holder strings. (MD-15)
 const MAX_HOLDER_LEN: usize = 256;
 
 fn holder_from(headers: &HeaderMap) -> Result<String, ApiError> {
     let raw = headers
-        .get("x-signex-holder")
+        .get("x-oxide-holder")
         .and_then(|h| h.to_str().ok())
-        .ok_or_else(|| ApiError::bad_request("missing x-signex-holder header"))?;
+        .ok_or_else(|| ApiError::bad_request("missing x-oxide-holder header"))?;
     if raw.is_empty() {
-        return Err(ApiError::bad_request("x-signex-holder is empty"));
+        return Err(ApiError::bad_request("x-oxide-holder is empty"));
     }
     if raw.len() > MAX_HOLDER_LEN {
         return Err(ApiError::bad_request(format!(
-            "x-signex-holder exceeds {MAX_HOLDER_LEN}-byte limit"
+            "x-oxide-holder exceeds {MAX_HOLDER_LEN}-byte limit"
         )));
     }
     // Reject control characters — they would corrupt the echoed error
     // body and tracing output.
     if raw.chars().any(|c| c.is_control()) {
         return Err(ApiError::bad_request(
-            "x-signex-holder contains control characters",
+            "x-oxide-holder contains control characters",
         ));
     }
     Ok(raw.to_string())

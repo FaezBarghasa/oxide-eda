@@ -1,4 +1,4 @@
-use signex_types::schematic::SchematicSheet;
+use oxide_types::schematic::SchematicSheet;
 
 use crate::EngineError;
 use crate::patch::PatchPair;

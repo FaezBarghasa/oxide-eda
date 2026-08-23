@@ -15,7 +15,7 @@ pub mod tree_view;
 
 // The dropdown widget now lives at `active_bar::dropdown`; keep the
 // flat `active_bar_dropdown` path so external
-// `signex_widgets::active_bar_dropdown::…` consumers resolve unchanged.
+// `oxide_widgets::active_bar_dropdown::…` consumers resolve unchanged.
 pub use active_bar::dropdown as active_bar_dropdown;
 
 pub use history_pane::{HistoryEntry, history_pane};

@@ -10,15 +10,15 @@
 //!   refresh token via `KeyringStore`).
 //!
 //! Why blocking, not async: the underlying `oauth2`/`reqwest` calls
-//! that `signex-library` exposes are blocking, and the iced runtime
+//! that `oxide-library` exposes are blocking, and the iced runtime
 //! happily spawns blocking work via `Task::perform` over `tokio`'s
 //! `spawn_blocking`. Keeping the whole flow blocking inside one
 //! function makes the borrow shape obvious and avoids needing a
-//! parallel async branch in `signex-library`.
+//! parallel async branch in `oxide-library`.
 //!
 //! Configuration:
 //! - DigiKey client_id / client_secret are read from the environment
-//!   (`SIGNEX_DIGIKEY_CLIENT_ID` / `SIGNEX_DIGIKEY_CLIENT_SECRET`).
+//!   (`OXIDE_DIGIKEY_CLIENT_ID` / `OXIDE_DIGIKEY_CLIENT_SECRET`).
 //!   Unit tests use a wiremock server, so the constants are never
 //!   committed to source.
 //!
@@ -33,14 +33,14 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 
-use signex_library::distributors::digikey::{DigiKeyAuth, DigiKeyAuthError};
+use oxide_library::distributors::digikey::{DigiKeyAuth, DigiKeyAuthError};
 
 use crate::ignore::IgnoreResult;
 
 /// Environment variable that holds the DigiKey OAuth client_id.
-pub const ENV_CLIENT_ID: &str = "SIGNEX_DIGIKEY_CLIENT_ID";
+pub const ENV_CLIENT_ID: &str = "OXIDE_DIGIKEY_CLIENT_ID";
 /// Environment variable that holds the DigiKey OAuth client_secret.
-pub const ENV_CLIENT_SECRET: &str = "SIGNEX_DIGIKEY_CLIENT_SECRET";
+pub const ENV_CLIENT_SECRET: &str = "OXIDE_DIGIKEY_CLIENT_SECRET";
 
 /// Outcome of the OAuth handshake. Returned via the iced `Task` that
 /// drives the flow.
@@ -48,7 +48,7 @@ pub const ENV_CLIENT_SECRET: &str = "SIGNEX_DIGIKEY_CLIENT_SECRET";
 pub enum Outcome {
     /// Auth succeeded — the access token is held by `DigiKeyAuth` for
     /// the duration of the process; the refresh token is persisted in
-    /// the OS keyring under `signex-distributor-digikey/refresh`. The
+    /// the OS keyring under `oxide-distributor-digikey/refresh`. The
     /// returned string is a user-facing identifier (best-effort: the
     /// canonical email isn't returned by the token endpoint, so we
     /// fall back to "Connected" here and let the panel tweak the
@@ -120,7 +120,7 @@ fn bind_callback_listener() -> Result<(TcpListener, String), std::io::Error> {
 ///
 /// `auth_url_endpoint` / `token_url_endpoint` let tests redirect at a
 /// wiremock instance; production callers pass the DigiKey constants
-/// from `signex-library`.
+/// from `oxide-library`.
 ///
 /// The function is split so the `cargo test` path can drive it end-
 /// to-end against wiremock without needing a real browser.

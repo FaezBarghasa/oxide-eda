@@ -1,16 +1,16 @@
 use std::net::SocketAddr;
 
-use signex_library_server::{
+use oxide_library_server::{
     API_TOKEN_ENV, AppState, DATABASE_URL_ENV, router_with_in_memory_state, router_with_state,
     with_rate_limit,
 };
 
 /// Default bind address — loopback only. Previously `0.0.0.0:3535`, which
-/// exposes the service on every interface. Override via `SIGNEX_LIBRARY_BIND`
+/// exposes the service on every interface. Override via `OXIDE_LIBRARY_BIND`
 /// for deployments that need an explicit interface (`0.0.0.0:3535` in
 /// container images, etc.).
 const DEFAULT_BIND: &str = "127.0.0.1:3535";
-const BIND_ENV: &str = "SIGNEX_LIBRARY_BIND";
+const BIND_ENV: &str = "OXIDE_LIBRARY_BIND";
 
 /// Parse a `host:port` bind string and return whether the host is a
 /// loopback (127.0.0.0/8 or [::1]). IPv6 zone-id addresses (`fe80::1%lo0`)
@@ -45,7 +45,7 @@ async fn main() -> anyhow::Result<()> {
         );
     }
 
-    // Persistent storage. Without `SIGNEX_DATABASE_URL` the server falls
+    // Persistent storage. Without `OXIDE_DATABASE_URL` the server falls
     // back to an ephemeral in-memory SQLite that loses every row on
     // restart — fine for loopback dev, catastrophic in production. A
     // non-loopback (public) bind therefore REQUIRES a database URL.
@@ -61,7 +61,7 @@ async fn main() -> anyhow::Result<()> {
 
     let listener = tokio::net::TcpListener::bind(&bind).await?;
     tracing::info!(
-        "signex-library-server listening on {}",
+        "oxide-library-server listening on {}",
         listener.local_addr()?
     );
 

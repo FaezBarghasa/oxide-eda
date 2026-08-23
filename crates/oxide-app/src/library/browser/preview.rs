@@ -72,7 +72,7 @@ fn view_preview_pane<'a>(
             // could not be read" and "the UUID is not in the library"
             // are different diagnoses, and only the second one means
             // the binding is wrong.
-            let read_failure_summary = |label: &str, error: &signex_library::LibraryError| {
+            let read_failure_summary = |label: &str, error: &oxide_library::LibraryError| {
                 format!(
                     "{label} primitive could not be read.\n\nThe library reported: {error}\n\nThe binding itself is not known to be wrong."
                 )
@@ -106,7 +106,7 @@ fn view_preview_pane<'a>(
                 symbol_text,
                 "Pick Symbol…",
                 LibraryMessage::OpenPrimitivePicker {
-                    kind: signex_library::PrimitiveKind::Symbol,
+                    kind: oxide_library::PrimitiveKind::Symbol,
                     target: crate::library::state::PrimitivePickerTarget::BrowserRow(
                         address.clone(),
                     ),
@@ -118,7 +118,7 @@ fn view_preview_pane<'a>(
                 footprint_text,
                 "Pick Footprint…",
                 LibraryMessage::OpenPrimitivePicker {
-                    kind: signex_library::PrimitiveKind::Footprint,
+                    kind: oxide_library::PrimitiveKind::Footprint,
                     target: crate::library::state::PrimitivePickerTarget::BrowserRow(address),
                 },
                 tokens,
@@ -269,7 +269,7 @@ fn preview_panel_with_pick<'a>(
     dead_code,
     reason = "F15 removed the preview pane; the builders stay until the Properties panel absorbs them"
 )]
-fn symbol_summary(sym: Option<&signex_library::Symbol>) -> String {
+fn symbol_summary(sym: Option<&oxide_library::Symbol>) -> String {
     match sym {
         None => {
             "Symbol primitive unresolved.\n\nThe row's symbol_ref points at a UUID not currently mounted."
@@ -303,7 +303,7 @@ fn symbol_summary(sym: Option<&signex_library::Symbol>) -> String {
     dead_code,
     reason = "F15 removed the preview pane; the builders stay until the Properties panel absorbs them"
 )]
-fn footprint_summary(fp: Option<&signex_library::Footprint>) -> String {
+fn footprint_summary(fp: Option<&oxide_library::Footprint>) -> String {
     match fp {
         None => "No footprint bound.".to_string(),
         Some(f) => {

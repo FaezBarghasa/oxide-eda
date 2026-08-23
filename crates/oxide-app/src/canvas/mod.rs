@@ -86,22 +86,22 @@ pub struct CanvasSlot {
     /// The app updates this from the active engine or active tab cache.
     pub render_cache: Option<crate::schematic_runtime::SchematicRenderCache>,
     /// Currently selected items — drives selection overlay rendering.
-    pub selected: Vec<signex_types::schematic::SelectedItem>,
+    pub selected: Vec<oxide_types::schematic::SelectedItem>,
     /// Pending fit target to transfer to CanvasState.
     /// Uses Cell so canvas::Program::update (&self) can consume it.
     pub pending_fit: std::cell::Cell<Option<Rectangle>>,
     /// Wire-in-progress points for rubber-band preview.
-    pub wire_preview: Vec<signex_types::schematic::Point>,
+    pub wire_preview: Vec<oxide_types::schematic::Point>,
     /// Whether currently in wire/bus drawing mode.
     pub drawing_mode: bool,
     /// Current tool name for preview display.
     pub tool_preview: Option<String>,
     /// Ghost label preview for port/label placement (follows cursor).
-    pub ghost_label: Option<signex_types::schematic::Label>,
+    pub ghost_label: Option<oxide_types::schematic::Label>,
     /// Ghost power-port / symbol preview for placement (follows cursor).
-    pub ghost_symbol: Option<signex_types::schematic::Symbol>,
+    pub ghost_symbol: Option<oxide_types::schematic::Symbol>,
     /// Ghost text-note preview for placement (follows cursor).
-    pub ghost_text: Option<signex_types::schematic::TextNote>,
+    pub ghost_text: Option<oxide_types::schematic::TextNote>,
     /// When true, placement is paused (TAB pressed → pre-placement form
     /// open). The ghost freezes and canvas clicks don't place — the user
     /// interacts with the Properties panel until they confirm with OK.
@@ -119,18 +119,18 @@ pub struct CanvasSlot {
     /// non-zero alpha means the next wire click floods that colour
     /// onto the whole connected net; alpha 0 signals "clear one".
     /// Drives the pen cursor drawn over the canvas.
-    pub pending_net_color: Option<signex_types::theme::Color>,
+    pub pending_net_color: Option<oxide_types::theme::Color>,
     /// In-flight lasso polygon in world space. Synced from
     /// `ui_state.lasso_polygon` so the overlay draw can render the
     /// committed vertices + rubber-band to the cursor without
     /// reaching into app state.
-    pub lasso_polygon: Option<Vec<signex_types::schematic::Point>>,
+    pub lasso_polygon: Option<Vec<oxide_types::schematic::Point>>,
     /// In-flight 3-click arc (start, mid) while Tool::Arc is active.
     /// Mirrors `interaction_state.arc_points` for the preview draw.
-    pub arc_points: Vec<signex_types::schematic::Point>,
+    pub arc_points: Vec<oxide_types::schematic::Point>,
     /// In-flight polyline vertices while Tool::Polyline is active.
     /// Mirrors `interaction_state.polyline_points`.
-    pub polyline_points: Vec<signex_types::schematic::Point>,
+    pub polyline_points: Vec<oxide_types::schematic::Point>,
     /// When the BringToFrontOf / SendToBackOf picker is armed, show
     /// the gray-X placement cursor so the user knows the next click
     /// is a reference pick, not a selection. Synced from
@@ -138,7 +138,7 @@ pub struct CanvasSlot {
     pub reorder_picker_armed: bool,
     /// Two-click shape anchor + which shape is being drawn. Used by
     /// the rubber-band preview for Line / Rectangle / Circle.
-    pub shape_anchor: Option<(signex_types::schematic::Point, ShapePreviewKind)>,
+    pub shape_anchor: Option<(oxide_types::schematic::Point, ShapePreviewKind)>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -291,14 +291,14 @@ pub struct CanvasViewPrefs<'a> {
     pub theme_bg: Color,
     pub theme_grid: Color,
     pub theme_paper: Color,
-    pub canvas_colors: signex_types::theme::CanvasColors,
+    pub canvas_colors: oxide_types::theme::CanvasColors,
     pub snap_enabled: bool,
     pub snap_grid_mm: f64,
     pub visible_grid_mm: f64,
     pub grid_style: crate::render_config::GridStyle,
     pub auto_focus: bool,
     pub draw_mode: crate::app::DrawMode,
-    pub wire_color_overrides: &'a std::collections::HashMap<uuid::Uuid, signex_types::theme::Color>,
+    pub wire_color_overrides: &'a std::collections::HashMap<uuid::Uuid, oxide_types::theme::Color>,
 }
 
 /// The schematic `canvas::Program` — a per-frame *view* of the app state,
@@ -502,11 +502,11 @@ impl canvas::Program<Message> for SchematicCanvas<'_> {
 /// are not drawn at their pre-drag location.
 fn shift_snapshot_for_selection(
     snap: &crate::schematic_runtime::SchematicRenderSnapshot,
-    selection: &[signex_types::schematic::SelectedItem],
+    selection: &[oxide_types::schematic::SelectedItem],
     dx: f64,
     dy: f64,
 ) -> crate::schematic_runtime::SchematicRenderSnapshot {
-    use signex_types::schematic::{Point, SelectedKind};
+    use oxide_types::schematic::{Point, SelectedKind};
 
     let is_selected = |uuid: uuid::Uuid, kind: SelectedKind| -> bool {
         selection.iter().any(|s| s.uuid == uuid && s.kind == kind)
@@ -591,7 +591,7 @@ fn shift_snapshot_for_selection(
             }
         }
     }
-    use signex_types::schematic::SchDrawing;
+    use oxide_types::schematic::SchDrawing;
     for d in out.drawings.iter_mut() {
         let uuid = match d {
             SchDrawing::Line { uuid, .. }
@@ -757,9 +757,9 @@ mod tests {
     /// #631 moved the method onto the borrowing view, which needs both
     /// halves to be constructed.
     fn test_prefs(
-        overrides: &std::collections::HashMap<uuid::Uuid, signex_types::theme::Color>,
+        overrides: &std::collections::HashMap<uuid::Uuid, oxide_types::theme::Color>,
     ) -> CanvasViewPrefs<'_> {
-        let colors = signex_types::theme::canvas_colors(signex_types::theme::ThemeId::Signex);
+        let colors = oxide_types::theme::canvas_colors(oxide_types::theme::ThemeId::Signex);
         CanvasViewPrefs {
             grid_visible: true,
             theme_bg: crate::render_config::to_iced(&colors.background),

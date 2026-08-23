@@ -86,11 +86,11 @@ fn nudge_pads_translates_selection_by_delta() {
 // courtyard, so the CPU preview shows a solid immediately.
 #[test]
 fn mint_body3d_extrudes_courtyard() {
-    use signex_library::primitive::footprint::BodyShape;
-    let mut fp = signex_library::primitive::footprint::Footprint::empty("TestFp");
+    use oxide_library::primitive::footprint::BodyShape;
+    let mut fp = oxide_library::primitive::footprint::Footprint::empty("TestFp");
     // give the footprint a non-empty courtyard (2x2mm square) so the box
     // has an outline to copy.
-    fp.courtyard = signex_library::primitive::footprint::Polygon::new(vec![
+    fp.courtyard = oxide_library::primitive::footprint::Polygon::new(vec![
         [-1.0, -1.0],
         [1.0, -1.0],
         [1.0, 1.0],
@@ -149,8 +149,8 @@ fn move_by_modal_nudges_by_typed_delta() {
 // Some(frame) box (item ③ bounding-box Text Frame place tool).
 #[test]
 fn place_text_frame_sets_frame_box() {
-    use signex_library::primitive::footprint::FpGraphicKind;
-    let mut fp = signex_library::primitive::footprint::Footprint::empty("FrameTool");
+    use oxide_library::primitive::footprint::FpGraphicKind;
+    let mut fp = oxide_library::primitive::footprint::Footprint::empty("FrameTool");
     crate::library::editor::footprint::text_frame::add_text_frame(&mut fp, 0.0, 0.0, 4.0, 2.0);
     match &fp.silk_f.last().unwrap().kind {
         FpGraphicKind::Text { frame, .. } => assert_eq!(*frame, Some((4.0, 2.0))),
@@ -189,7 +189,7 @@ fn apply_filter_preset_sets_state_filter() {
 fn place_move_button_left_click_arms_select_tool() {
     use crate::library::editor::footprint::state::PadsTool;
     use crate::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_widgets::active_bar::ActiveBarItem;
+    use oxide_widgets::active_bar::ActiveBarItem;
 
     let ActiveBarItem::Button(place_btn) = place_move_button(default_editor()) else {
         panic!("index 2 should be the Place/Move button");
@@ -205,8 +205,8 @@ fn place_move_button_left_click_arms_select_tool() {
 }
 
 fn default_editor() -> crate::app::FootprintEditorState {
-    let file = signex_library::FootprintFile::from_footprint(
-        signex_library::primitive::footprint::Footprint::empty("Test"),
+    let file = oxide_library::FootprintFile::from_footprint(
+        oxide_library::primitive::footprint::Footprint::empty("Test"),
     );
     crate::app::FootprintEditorState::new(std::path::PathBuf::from("t.snxfpt"), file)
 }
@@ -248,9 +248,9 @@ fn escape_closes_context_menu_before_clearing_selection() {
 
 fn place_move_button(
     editor: crate::app::FootprintEditorState,
-) -> signex_widgets::active_bar::ActiveBarItem<crate::library::messages::LibraryMessage> {
+) -> oxide_widgets::active_bar::ActiveBarItem<crate::library::messages::LibraryMessage> {
     use crate::library::editor::footprint::unified_active_bar::bar_items;
-    use signex_types::theme::{ThemeId, theme_tokens};
+    use oxide_types::theme::{ThemeId, theme_tokens};
 
     let tid = ThemeId::CatppuccinMocha;
     let tokens = theme_tokens(tid);

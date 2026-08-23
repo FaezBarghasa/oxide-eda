@@ -125,7 +125,7 @@ pub(super) fn view_selection<'a>(
                 // hunting for the canvas tint. Hidden when the entity has
                 // no DOF colour (non-Point entities or pre-solve state).
                 if let Some(dof) = ent.dof_state {
-                    use signex_sketch::solver::dof::DofColor;
+                    use oxide_sketch::solver::dof::DofColor;
                     let (label, c) = match dof {
                         DofColor::Under => (
                             "Under-constrained",
@@ -446,9 +446,9 @@ pub(super) fn view_selection<'a>(
                     ));
                     col = col.push(pad_pick_row(
                         "Type",
-                        signex_library::primitive::footprint::ComponentType::ALL,
+                        oxide_library::primitive::footprint::ComponentType::ALL,
                         fp.footprint_component_type,
-                        |t: signex_library::primitive::footprint::ComponentType| {
+                        |t: oxide_library::primitive::footprint::ComponentType| {
                             PanelMsg::FpEditorSetFootprintComponentType(t)
                         },
                         muted,

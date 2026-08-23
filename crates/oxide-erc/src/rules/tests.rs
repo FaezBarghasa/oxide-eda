@@ -1,6 +1,6 @@
 use super::*;
 use crate::context::{ErcJunction, ErcLabel, ErcPin, ErcSymbol, ErcWire, PaperSize};
-use signex_types::schematic::{LabelType, PinDirection, Point};
+use oxide_types::schematic::{LabelType, PinDirection, Point};
 use std::collections::HashMap;
 use uuid::Uuid;
 

@@ -2,7 +2,7 @@
 //!
 //! Phase 7 Task 7.1 + 7.2 of the SKETCH_MODE_v0.13_PLAN. Each test
 //! constructs a small `SketchData` inline, runs the solver to produce
-//! a `FullSolveOutput`, then bakes via `signex_bake::bake_pads`
+//! a `FullSolveOutput`, then bakes via `oxide_bake::bake_pads`
 //! / `bake_arrays` and asserts the resulting `LibPad` set.
 //!
 //! Cleanroom: no third-party constraint-solver, footprint-generator,
@@ -10,21 +10,21 @@
 
 use std::collections::HashMap;
 
-use signex_bake::{bake_arrays, bake_pads};
-use signex_library::primitive::footprint::{
+use oxide_bake::{bake_arrays, bake_pads};
+use oxide_library::primitive::footprint::{
     LayerId, Pad as LibPad, PadKind as LibPadKind, PadShape as LibPadShape,
 };
-use signex_sketch::array::{Array, ArrayId, ArrayKind, NumberingScheme};
-use signex_sketch::attr::{
+use oxide_sketch::array::{Array, ArrayId, ArrayKind, NumberingScheme};
+use oxide_sketch::attr::{
     ChamferedCorners, DrillSpec, PadAttr, PadKind, PadShape, PadSide, PasteAperturePattern,
 };
-use signex_sketch::entity::{Entity, EntityKind};
-use signex_sketch::error::SketchError;
-use signex_sketch::id::SketchEntityId;
-use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
-use signex_sketch::sketch::SketchData;
-use signex_sketch::solver::Solver;
-use signex_sketch::solver::residual::ResolvedParams;
+use oxide_sketch::entity::{Entity, EntityKind};
+use oxide_sketch::error::SketchError;
+use oxide_sketch::id::SketchEntityId;
+use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
+use oxide_sketch::sketch::SketchData;
+use oxide_sketch::solver::Solver;
+use oxide_sketch::solver::residual::ResolvedParams;
 
 // ─────────────────────────────────────────────────────────────────────
 // Inline sketch builder — no shared `tests/common/` for this crate.
@@ -107,7 +107,7 @@ fn smd_rect_pad(number: &str, w: &str, h: &str) -> PadAttr {
     }
 }
 
-fn solve(sketch: &SketchData) -> signex_sketch::solver::FullSolveOutput {
+fn solve(sketch: &SketchData) -> oxide_sketch::solver::FullSolveOutput {
     let solver = Solver::default();
     solver
         .solve(sketch, &ResolvedParams::new())
@@ -457,8 +457,8 @@ fn bake_construction_entities_skipped() {
 
 #[test]
 fn bake_construction_entity_with_silk_attr_emits_no_warning() {
-    use signex_sketch::attr::SilkAttr;
-    use signex_types::layer::SignexLayer;
+    use oxide_sketch::attr::SilkAttr;
+    use oxide_types::layer::OxideLayer;
 
     let mut s = Sketch::new();
     let p = s.add_point(0.0, 0.0);
@@ -468,7 +468,7 @@ fn bake_construction_entity_with_silk_attr_emits_no_warning() {
     {
         let e = s.data.entities.iter_mut().find(|e| e.id == p).unwrap();
         e.silk = Some(SilkAttr {
-            layer: SignexLayer::TopSilk,
+            layer: OxideLayer::TopSilk,
         });
     }
     s.set_construction(p, true);
@@ -489,8 +489,8 @@ fn bake_construction_entity_with_silk_attr_emits_no_warning() {
 fn bake_non_construction_entity_with_silk_attr_no_longer_warns_in_v014() {
     // v0.14: silk bake moved to crate::silk; pad.rs no longer warns
     // about SilkAttr — the dispatcher invokes bake_silk separately.
-    use signex_sketch::attr::SilkAttr;
-    use signex_types::layer::SignexLayer;
+    use oxide_sketch::attr::SilkAttr;
+    use oxide_types::layer::OxideLayer;
 
     let mut s = Sketch::new();
     let p = s.add_point(0.0, 0.0);
@@ -498,7 +498,7 @@ fn bake_non_construction_entity_with_silk_attr_no_longer_warns_in_v014() {
     {
         let e = s.data.entities.iter_mut().find(|e| e.id == p).unwrap();
         e.silk = Some(SilkAttr {
-            layer: SignexLayer::TopSilk,
+            layer: OxideLayer::TopSilk,
         });
     }
 
@@ -560,7 +560,7 @@ fn bake_linear_array_3_pads_along_x() {
 
 #[test]
 fn bake_grid_array_with_suppressed_instances_skips_selected_cells() {
-    use signex_sketch::array::GridDepopulation;
+    use oxide_sketch::array::GridDepopulation;
 
     let mut s = Sketch::new();
     let p = s.add_point(0.0, 0.0);
@@ -603,7 +603,7 @@ fn bake_grid_array_with_suppressed_instances_skips_selected_cells() {
 
 #[test]
 fn bake_polar_array_with_suppressed_instances_skips_selected_indices() {
-    use signex_sketch::array::GridDepopulation;
+    use oxide_sketch::array::GridDepopulation;
 
     let mut s = Sketch::new();
     let centre = s.add_point(0.0, 0.0);
@@ -640,10 +640,10 @@ fn bake_polar_array_with_suppressed_instances_skips_selected_indices() {
 
 #[test]
 fn bake_custom_sketch_profile_native_v0141() {
-    use signex_sketch::attr::{CustomPadShape, PadShape};
-    use signex_sketch::entity::{Entity, EntityKind};
-    use signex_sketch::id::SketchEntityId;
-    use signex_sketch::plane::Plane;
+    use oxide_sketch::attr::{CustomPadShape, PadShape};
+    use oxide_sketch::entity::{Entity, EntityKind};
+    use oxide_sketch::id::SketchEntityId;
+    use oxide_sketch::plane::Plane;
 
     let mut s = Sketch::new();
     let plane = s.plane;
@@ -707,7 +707,7 @@ fn bake_custom_sketch_profile_native_v0141() {
 
     let _ = Plane {
         id: plane,
-        kind: signex_sketch::plane::PlaneKind::BoardTop,
+        kind: oxide_sketch::plane::PlaneKind::BoardTop,
     };
     let solve = solve(&s.data);
     let mut out = Vec::new();

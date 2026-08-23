@@ -63,7 +63,7 @@ mod tests {
     use super::*;
     use crate::library::editor::symbol::canvas::SymbolTool;
     use crate::library::editor::symbol::updates::apply_symbol_primitive_edit;
-    use signex_library::{Symbol, SymbolFile};
+    use oxide_library::{Symbol, SymbolFile};
     use std::path::PathBuf;
 
     fn new_editor(name: &str) -> SymEditor {

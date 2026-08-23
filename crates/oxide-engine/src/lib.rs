@@ -23,7 +23,7 @@ pub use error::EngineError;
 use history::HistoryEntry;
 pub use patch::{CommandResult, DocumentPatch, PatchPair, SemanticPatch};
 pub use selection::{ClipboardSelection, SelectionAnchor, SelectionDetails, partition_cuttable};
-use signex_types::schematic::SchematicSheet;
+use oxide_types::schematic::SchematicSheet;
 
 const JUNCTION_TOLERANCE_MM: f64 = 0.01;
 
@@ -68,7 +68,7 @@ impl Engine {
     pub fn open(path: &Path) -> Result<Self, EngineError> {
         let text = std::fs::read_to_string(path)
             .map_err(|error| EngineError::OpenFailed(anyhow::Error::msg(error.to_string())))?;
-        let snx = signex_types::format::SnxSchematic::parse(&text)
+        let snx = oxide_types::format::SnxSchematic::parse(&text)
             .map_err(|error| EngineError::OpenFailed(anyhow::Error::msg(error.to_string())))?;
 
         Ok(Self {
@@ -89,14 +89,14 @@ impl Engine {
     }
 
     pub fn save_as(&mut self, path: &Path) -> Result<(), EngineError> {
-        let snx = signex_types::format::SnxSchematic::new(self.document.clone());
+        let snx = oxide_types::format::SnxSchematic::new(self.document.clone());
         let content = snx
             .write_string()
             .map_err(|error| EngineError::SaveFailed(std::io::Error::other(error.to_string())))?;
         // HI-6: atomic write — a crash mid-save no longer truncates the
         // destination. The user's prior file stays intact until the
         // rename succeeds.
-        signex_types::atomic_io::atomic_write(path, content.as_bytes())
+        oxide_types::atomic_io::atomic_write(path, content.as_bytes())
             .map_err(EngineError::SaveFailed)?;
         self.path = Some(path.to_path_buf());
         Ok(())
@@ -159,7 +159,7 @@ impl Engine {
 mod tests {
     use super::*;
     use crate::test_support::test_sheet;
-    use signex_types::schematic::{
+    use oxide_types::schematic::{
         BusEntry, ChildSheet, FillType, GRID_MM, Label, LabelType, Point, SelectedItem,
         SelectedKind, SheetPin,
     };
@@ -175,8 +175,8 @@ mod tests {
             label_type: LabelType::Global,
             shape: "output".to_string(),
             font_size: 1.27,
-            justify: signex_types::schematic::HAlign::Left,
-            justify_v: signex_types::schematic::VAlign::Bottom,
+            justify: oxide_types::schematic::HAlign::Left,
+            justify_v: oxide_types::schematic::VAlign::Bottom,
         });
         document.labels.push(Label {
             uuid: uuid::Uuid::new_v4(),
@@ -186,8 +186,8 @@ mod tests {
             label_type: LabelType::Hierarchical,
             shape: "input".to_string(),
             font_size: 1.27,
-            justify: signex_types::schematic::HAlign::Left,
-            justify_v: signex_types::schematic::VAlign::Bottom,
+            justify: oxide_types::schematic::HAlign::Left,
+            justify_v: oxide_types::schematic::VAlign::Bottom,
         });
 
         let engine = Engine::new(document).unwrap();
@@ -534,7 +534,7 @@ mod tests {
     fn partition_cuttable_keeps_child_sheet_and_pin_out_of_cut() {
         // Review finding #1: Cut (copy + delete) must not destroy a kind
         // `collect_selection_clipboard` silently drops. `partition_cuttable`
-        // is what `handle_selection_cut_requested` (signex-app) uses to
+        // is what `handle_selection_cut_requested` (oxide-app) uses to
         // keep the two in sync.
         let symbol_item = SelectedItem::new(uuid::Uuid::new_v4(), SelectedKind::Symbol);
         let sheet_item = SelectedItem::new(uuid::Uuid::new_v4(), SelectedKind::ChildSheet);
@@ -621,8 +621,8 @@ mod tests {
         assert_eq!(engine.document().paper_size, "A4");
     }
 
-    fn wire(a: Point, b: Point) -> signex_types::schematic::Wire {
-        signex_types::schematic::Wire {
+    fn wire(a: Point, b: Point) -> oxide_types::schematic::Wire {
+        oxide_types::schematic::Wire {
             uuid: uuid::Uuid::new_v4(),
             start: a,
             end: b,
@@ -851,7 +851,7 @@ mod tests {
         let user_junction_uuid = uuid::Uuid::new_v4();
         engine
             .execute(Command::PlaceJunction {
-                junction: signex_types::schematic::Junction {
+                junction: oxide_types::schematic::Junction {
                     uuid: user_junction_uuid,
                     position: Point::new(50.0, 50.0),
                     diameter: 0.0,

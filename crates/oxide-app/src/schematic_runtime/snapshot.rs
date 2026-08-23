@@ -34,7 +34,7 @@ pub(super) fn build_renderer_snapshot(
             p1: [wire.end.x as f32, wire.end.y as f32],
             width_mm: wire
                 .stroke_width
-                .max(signex_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_MM)
+                .max(oxide_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_MM)
                 as f32,
             explicit_color: Some(to_rgba(color)),
         });
@@ -51,7 +51,7 @@ pub(super) fn build_renderer_snapshot(
             id: renderer_id(bus.uuid),
             p0: [bus.start.x as f32, bus.start.y as f32],
             p1: [bus.end.x as f32, bus.end.y as f32],
-            width_mm: signex_types::schematic::SCHEMATIC_RENDER_BUS_STROKE_MM as f32,
+            width_mm: oxide_types::schematic::SCHEMATIC_RENDER_BUS_STROKE_MM as f32,
             explicit_color: Some(to_rgba(focus_color(
                 to_iced(&colors.bus),
                 focus_set,
@@ -67,14 +67,14 @@ pub(super) fn build_renderer_snapshot(
         }
 
         let color = focus_color(to_iced(&colors.body), focus_set, no_connect.uuid);
-        let len_mm = signex_types::schematic::SCHEMATIC_RENDER_NO_CONNECT_HALF_LEN_MM.max(
+        let len_mm = oxide_types::schematic::SCHEMATIC_RENDER_NO_CONNECT_HALF_LEN_MM.max(
             screen_px_to_world_mm(
-                signex_types::schematic::SCHEMATIC_RENDER_NO_CONNECT_MIN_HALF_LEN_PX,
+                oxide_types::schematic::SCHEMATIC_RENDER_NO_CONNECT_MIN_HALF_LEN_PX,
                 transform.scale,
             ),
         );
         let width_mm = stroke_world_mm(
-            signex_types::schematic::SCHEMATIC_RENDER_NO_CONNECT_STROKE_PX,
+            oxide_types::schematic::SCHEMATIC_RENDER_NO_CONNECT_STROKE_PX,
             transform.scale,
         );
         let (cx, cy) = (no_connect.position.x as f32, no_connect.position.y as f32);
@@ -104,7 +104,7 @@ pub(super) fn build_renderer_snapshot(
         junctions.push(JunctionInput {
             center: [junction.position.x as f32, junction.position.y as f32],
             radius_mm: (junction.diameter * 0.5)
-                .max(signex_types::schematic::SCHEMATIC_RENDER_JUNCTION_MIN_RADIUS_MM)
+                .max(oxide_types::schematic::SCHEMATIC_RENDER_JUNCTION_MIN_RADIUS_MM)
                 as f32,
             color: to_rgba(focus_color(
                 to_iced(&colors.junction),
@@ -136,7 +136,7 @@ pub(super) fn build_renderer_snapshot(
             fill_color: to_rgba(fill_color),
             stroke_color: Some(to_rgba(stroke_color)),
             stroke_width_mm: stroke_world_mm(
-                signex_types::schematic::SCHEMATIC_RENDER_SYMBOL_BODY_STROKE_PX,
+                oxide_types::schematic::SCHEMATIC_RENDER_SYMBOL_BODY_STROKE_PX,
                 transform.scale,
             ),
         });
@@ -197,7 +197,7 @@ pub(super) fn build_renderer_snapshot(
             fill_color: [0.0, 0.0, 0.0, 0.0],
             stroke_color: Some(to_rgba(color)),
             stroke_width_mm: stroke_world_mm(
-                signex_types::schematic::SCHEMATIC_RENDER_CHILD_SHEET_STROKE_PX,
+                oxide_types::schematic::SCHEMATIC_RENDER_CHILD_SHEET_STROKE_PX,
                 transform.scale,
             ),
         });
@@ -221,7 +221,7 @@ pub(super) fn build_renderer_snapshot(
             junctions.push(JunctionInput {
                 center: [pin.position.x as f32, pin.position.y as f32],
                 radius_mm: screen_px_to_world_mm(
-                    signex_types::schematic::SCHEMATIC_RENDER_CHILD_SHEET_PIN_RADIUS_PX,
+                    oxide_types::schematic::SCHEMATIC_RENDER_CHILD_SHEET_PIN_RADIUS_PX,
                     transform.scale,
                 ) as f32,
                 color: to_rgba(Color { a: 0.3, ..color }),
@@ -259,7 +259,7 @@ pub(super) fn build_renderer_snapshot(
                     id: renderer_id(uuid),
                     p0: [start.x as f32, start.y as f32],
                     p1: [end.x as f32, end.y as f32],
-                    width_mm: width.max(signex_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_MM)
+                    width_mm: width.max(oxide_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_MM)
                         as f32,
                     explicit_color: Some(to_rgba(resolve_stroke_color(stroke_color, base_color))),
                 });
@@ -284,7 +284,7 @@ pub(super) fn build_renderer_snapshot(
                         .unwrap_or([0.0, 0.0, 0.0, 0.0]),
                     stroke_color: Some(to_rgba(resolve_stroke_color(stroke_color, base_color))),
                     stroke_width_mm: width
-                        .max(signex_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_MM)
+                        .max(oxide_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_MM)
                         as f32,
                 });
             }
@@ -300,7 +300,7 @@ pub(super) fn build_renderer_snapshot(
                     vertices: circle_vertices(
                         [center.x, center.y],
                         radius.max(screen_px_to_world_mm(
-                            signex_types::schematic::SCHEMATIC_RENDER_DRAWING_MIN_CIRCLE_RADIUS_PX,
+                            oxide_types::schematic::SCHEMATIC_RENDER_DRAWING_MIN_CIRCLE_RADIUS_PX,
                             transform.scale,
                         )) as f32,
                         40,
@@ -310,7 +310,7 @@ pub(super) fn build_renderer_snapshot(
                         .unwrap_or([0.0, 0.0, 0.0, 0.0]),
                     stroke_color: Some(to_rgba(resolve_stroke_color(stroke_color, base_color))),
                     stroke_width_mm: width
-                        .max(signex_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_MM)
+                        .max(oxide_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_MM)
                         as f32,
                 });
             }
@@ -334,19 +334,19 @@ pub(super) fn build_renderer_snapshot(
                     arcs.push(ArcInput {
                         center: [cx as f32, cy as f32],
                         radius_mm: r.max(screen_px_to_world_mm(
-                            signex_types::schematic::SCHEMATIC_RENDER_DRAWING_MIN_ARC_RADIUS_PX,
+                            oxide_types::schematic::SCHEMATIC_RENDER_DRAWING_MIN_ARC_RADIUS_PX,
                             transform.scale,
                         )) as f32,
                         start_angle_rad: start_angle as f32,
                         end_angle_rad: end_angle as f32,
-                        width_mm: width.max(signex_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_MM)
+                        width_mm: width.max(oxide_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_MM)
                             as f32,
                         color: to_rgba(resolve_stroke_color(stroke_color, base_color)),
                     });
                 } else {
                     let stroke_color = to_rgba(resolve_stroke_color(stroke_color, base_color));
                     let width_mm =
-                        width.max(signex_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_MM) as f32;
+                        width.max(oxide_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_MM) as f32;
                     wires.push(WireInput {
                         id: renderer_id(uuid),
                         p0: [start.x as f32, start.y as f32],
@@ -376,7 +376,7 @@ pub(super) fn build_renderer_snapshot(
 
                 let stroke = to_rgba(resolve_stroke_color(stroke_color, base_color));
                 let width_mm =
-                    width.max(signex_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_MM) as f32;
+                    width.max(oxide_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_MM) as f32;
                 if matches!(fill, FillType::None) {
                     for idx in 1..points.len() {
                         let p0 = points[idx - 1];
@@ -428,7 +428,7 @@ pub(super) fn build_renderer_snapshot(
                 position: [label.position.x as f32, label.position.y as f32],
                 size_mm: label
                     .font_size
-                    .max(signex_types::schematic::SCHEMATIC_TEXT_MM)
+                    .max(oxide_types::schematic::SCHEMATIC_TEXT_MM)
                     as f32,
                 color: to_rgba(color),
                 bold: false,
@@ -443,7 +443,7 @@ pub(super) fn build_renderer_snapshot(
                 position: [label.position.x as f32, label.position.y as f32],
                 size_mm: label
                     .font_size
-                    .max(signex_types::schematic::SCHEMATIC_TEXT_MM)
+                    .max(oxide_types::schematic::SCHEMATIC_TEXT_MM)
                     as f32,
                 color: to_rgba(color),
                 bold: false,
@@ -466,7 +466,7 @@ pub(super) fn build_renderer_snapshot(
             position: [note.position.x as f32, note.position.y as f32],
             size_mm: note
                 .font_size
-                .max(signex_types::schematic::SCHEMATIC_TEXT_MM) as f32,
+                .max(oxide_types::schematic::SCHEMATIC_TEXT_MM) as f32,
             color: to_rgba(focus_color(to_iced(&colors.value), focus_set, note.uuid)),
             bold: false,
             italic: false,

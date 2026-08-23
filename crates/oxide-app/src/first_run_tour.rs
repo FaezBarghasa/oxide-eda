@@ -5,7 +5,7 @@
 
 use iced::widget::{Space, button, column, container, row, text};
 use iced::{Element, Length};
-use signex_types::theme::ThemeTokens;
+use oxide_types::theme::ThemeTokens;
 
 use crate::app::{Message, OverlayMsg};
 use crate::styles;

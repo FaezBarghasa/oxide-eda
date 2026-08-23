@@ -1,6 +1,6 @@
 //! Schematic colour palette for the PDF / preview pipeline.
 //!
-//! The on-screen schematic is themed via `signex_types::CanvasColors`.
+//! The on-screen schematic is themed via `oxide_types::CanvasColors`.
 //! For the exported PDF and the preview rasteriser we lift those
 //! values into f32 RGB triples — that's what `SvgRenderContext`
 //! consumes for stroke / fill state. Mapping happens once when the
@@ -15,7 +15,7 @@
 //! palette in when it kicks off an export, so users see Altium-style
 //! cream / Catppuccin Mocha / etc. honoured on paper too.
 
-use signex_types::theme::CanvasColors;
+use oxide_types::theme::CanvasColors;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct SchematicPalette {
@@ -128,16 +128,16 @@ impl From<CanvasColors> for SchematicPalette {
     }
 }
 
-/// `signex_types::theme::Color` is u8 RGBA — strip alpha and divide
+/// `oxide_types::theme::Color` is u8 RGBA — strip alpha and divide
 /// by 255 so the renderer can feed PDF / tiny-skia f32 colour ops.
-fn rgb(c: signex_types::theme::Color) -> (f32, f32, f32) {
+fn rgb(c: oxide_types::theme::Color) -> (f32, f32, f32) {
     (c.r as f32 / 255.0, c.g as f32 / 255.0, c.b as f32 / 255.0)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_types::theme::{ThemeId, canvas_colors};
+    use oxide_types::theme::{ThemeId, canvas_colors};
 
     #[test]
     fn classic_palette_matches_legacy_constants() {

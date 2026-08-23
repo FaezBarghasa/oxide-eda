@@ -10,13 +10,13 @@ use iced::{Background, Color, Element, Length, Theme};
 
 /// First designator of a BOM row — the key the export pipeline orders rows by,
 /// so the preview's Designator sort matches the exported file exactly.
-fn first_reference(row: &signex_output::BomRow) -> &str {
+fn first_reference(row: &oxide_output::BomRow) -> &str {
     row.references.first().map(String::as_str).unwrap_or("")
 }
 
 /// Rendered text of one cell — also the sort key for the text columns.
-fn column_value(c: &signex_output::BomColumn, r: &signex_output::BomRow) -> String {
-    use signex_output::BomColumn;
+fn column_value(c: &oxide_output::BomColumn, r: &oxide_output::BomRow) -> String {
+    use oxide_output::BomColumn;
     match c {
         BomColumn::Name => r.name.clone(),
         BomColumn::Description => r.description.clone(),
@@ -33,16 +33,16 @@ fn column_value(c: &signex_output::BomColumn, r: &signex_output::BomRow) -> Stri
 ///
 /// Indexes rather than rows so the caller borrows without cloning the `BomRow`
 /// vec. Qty sorts numerically; a designator column sorts with the *same*
-/// natural order the export pipeline applies (`signex_bom::build_table`), so
+/// natural order the export pipeline applies (`oxide_bom::build_table`), so
 /// the modal and the CSV/HTML/XLSX the user exports next never disagree — a
 /// plain `str` compare here would show R1, R10, R2 over an export reading
 /// R1, R2, R10. Every other column sorts case-insensitively on its cell text.
 fn sorted_row_order(
-    rows: &[signex_output::BomRow],
-    columns: &[signex_output::BomColumn],
+    rows: &[oxide_output::BomRow],
+    columns: &[oxide_output::BomColumn],
     sort: Option<(usize, bool)>,
 ) -> Vec<usize> {
-    use signex_output::BomColumn;
+    use oxide_output::BomColumn;
     let mut row_order: Vec<usize> = (0..rows.len()).collect();
     let Some((sort_idx, asc)) = sort else {
         return row_order;
@@ -55,7 +55,7 @@ fn sorted_row_order(
         let cmp = match sort_col {
             BomColumn::Qty => ra.qty.cmp(&rb.qty),
             BomColumn::Designator | BomColumn::Reference => {
-                signex_types::designator::compare_references(
+                oxide_types::designator::compare_references(
                     first_reference(ra),
                     first_reference(rb),
                 )
@@ -74,7 +74,7 @@ impl Signex {
     /// active preview. Returns the `scrollable` body the modal drops into its
     /// main row.
     pub(super) fn bom_table(&self) -> Element<'_, Message> {
-        use signex_output::BomColumn;
+        use oxide_output::BomColumn;
         let Some(ref preview) = self.document_state.bom_preview else {
             return container(Space::new()).into();
         };
@@ -374,7 +374,7 @@ impl Signex {
 #[cfg(test)]
 mod tests {
     use super::sorted_row_order;
-    use signex_output::{BomColumn, BomRow};
+    use oxide_output::{BomColumn, BomRow};
 
     fn row(references: &[&str], qty: u32, value: &str) -> BomRow {
         BomRow {
@@ -386,7 +386,7 @@ mod tests {
     }
 
     /// The export pipeline orders rollup rows by their first designator with
-    /// `signex_types::designator::compare_references`, and the preview modal
+    /// `oxide_types::designator::compare_references`, and the preview modal
     /// opens with the Designator column sort pre-seeded. Sorting the joined
     /// reference string with `str::cmp` here showed R1, R10, R2 in the modal
     /// over a CSV/HTML/XLSX reading R1, R2, R10 — the preview has to agree

@@ -49,18 +49,18 @@ impl GridPipeline {
         camera_bind_group_layout: &wgpu::BindGroupLayout,
     ) -> Self {
         let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("signex_gfx_grid_shader"),
+            label: Some("oxide_gfx_grid_shader"),
             source: wgpu::ShaderSource::Wgsl(shader::GRID_WGSL.into()),
         });
 
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: Some("signex_gfx_grid_pipeline_layout"),
+            label: Some("oxide_gfx_grid_pipeline_layout"),
             bind_group_layouts: &[camera_bind_group_layout],
             push_constant_ranges: &[],
         });
 
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("signex_gfx_grid_pipeline"),
+            label: Some("oxide_gfx_grid_pipeline"),
             layout: Some(&pipeline_layout),
             vertex: wgpu::VertexState {
                 module: &shader_module,

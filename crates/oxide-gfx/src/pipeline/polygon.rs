@@ -21,7 +21,7 @@ pub(crate) struct PolygonVertex {
 /// come last and composite on top of the fill under alpha blending, matching
 /// the CPU `draw_polygons` order (fill, then stroke).
 ///
-/// so misdrew any 3/6/9-vertex pour. Fill uses `signex_sketch::ear_clip`
+/// so misdrew any 3/6/9-vertex pour. Fill uses `oxide_sketch::ear_clip`
 /// (below), which is exact for concave contours too — the CPU path
 /// (`frame.fill`, lyon) tessellates the same contour, so the two now agree.
 ///
@@ -49,7 +49,7 @@ pub(crate) fn triangulate_polygons(polygons: &[GpuPolygon]) -> Vec<PolygonVertex
 /// A triangle fan from `points[0]` is exact only for convex contours — a
 /// concave copper pour/rule-area (an arbitrary user outline, frequently
 /// non-convex) would bridge triangles across the notch and paint copper where
-/// the pour has none. `signex_sketch::ear_clip` is the authoritative
+/// the pour has none. `oxide_sketch::ear_clip` is the authoritative
 /// triangulator for exactly this contract (already driving the sketch
 /// overlay's filled-loop renderer), reused here instead of re-derived so the
 /// GPU fill partitions the same polygon area the CPU `frame.fill` (lyon)
@@ -59,11 +59,11 @@ pub(crate) fn triangulate_polygons(polygons: &[GpuPolygon]) -> Vec<PolygonVertex
 /// best-effort rather than drawing nothing.
 fn append_fill(vertices: &mut Vec<PolygonVertex>, polygon: &GpuPolygon) {
     let points = &polygon.vertices;
-    let points_2d: Vec<signex_sketch::geom::Point2> = points
+    let points_2d: Vec<oxide_sketch::geom::Point2> = points
         .iter()
-        .map(|p| signex_sketch::geom::Point2::new(p[0] as f64, p[1] as f64))
+        .map(|p| oxide_sketch::geom::Point2::new(p[0] as f64, p[1] as f64))
         .collect();
-    let triangles = signex_sketch::geom::ear_clip(&points_2d);
+    let triangles = oxide_sketch::geom::ear_clip(&points_2d);
 
     if triangles.is_empty() {
         append_fan_fill(vertices, points, polygon.fill_color);
@@ -179,18 +179,18 @@ impl PolygonPipeline {
         camera_bind_group_layout: &wgpu::BindGroupLayout,
     ) -> Self {
         let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("signex_gfx_polygon_shader"),
+            label: Some("oxide_gfx_polygon_shader"),
             source: wgpu::ShaderSource::Wgsl(shader::POLYGON_WGSL.into()),
         });
 
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: Some("signex_gfx_polygon_pipeline_layout"),
+            label: Some("oxide_gfx_polygon_pipeline_layout"),
             bind_group_layouts: &[camera_bind_group_layout],
             push_constant_ranges: &[],
         });
 
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("signex_gfx_polygon_pipeline"),
+            label: Some("oxide_gfx_polygon_pipeline"),
             layout: Some(&pipeline_layout),
             vertex: wgpu::VertexState {
                 module: &shader_module,
@@ -240,13 +240,13 @@ impl PolygonPipeline {
 
         let vertex_capacity = 1usize;
         let vertex_buffer = device.create_buffer(&wgpu::BufferDescriptor {
-            label: Some("signex_gfx_polygon_vertices"),
+            label: Some("oxide_gfx_polygon_vertices"),
             size: std::mem::size_of::<PolygonVertex>() as wgpu::BufferAddress,
             usage: wgpu::BufferUsages::VERTEX | wgpu::BufferUsages::COPY_DST,
             mapped_at_creation: false,
         });
         let overlay_vertex_buffer = device.create_buffer(&wgpu::BufferDescriptor {
-            label: Some("signex_gfx_polygon_overlay_vertices"),
+            label: Some("oxide_gfx_polygon_overlay_vertices"),
             size: std::mem::size_of::<PolygonVertex>() as wgpu::BufferAddress,
             usage: wgpu::BufferUsages::VERTEX | wgpu::BufferUsages::COPY_DST,
             mapped_at_creation: false,
@@ -272,7 +272,7 @@ impl PolygonPipeline {
             &mut self.vertex_buffer,
             &mut self.vertex_capacity,
             &mut self.vertex_count,
-            "signex_gfx_polygon_vertices",
+            "oxide_gfx_polygon_vertices",
         );
     }
 
@@ -292,7 +292,7 @@ impl PolygonPipeline {
             &mut self.overlay_vertex_buffer,
             &mut self.overlay_vertex_capacity,
             &mut self.overlay_vertex_count,
-            "signex_gfx_polygon_overlay_vertices",
+            "oxide_gfx_polygon_overlay_vertices",
         );
     }
 

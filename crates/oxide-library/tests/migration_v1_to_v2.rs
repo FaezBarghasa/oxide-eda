@@ -14,8 +14,8 @@
 //! precisely so the test proves a TOML written before
 //! `schema_version` and `sketch` existed still loads.
 
-use signex_library::primitive::footprint::Footprint;
-use signex_sketch::SketchData;
+use oxide_library::primitive::footprint::Footprint;
+use oxide_sketch::SketchData;
 
 #[test]
 fn v1_soic8_loads_with_no_sketch_and_schema_2() {

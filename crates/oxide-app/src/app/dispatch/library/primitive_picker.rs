@@ -172,7 +172,7 @@ impl Signex {
             _ => return,
         }
         // 3. Re-hash.
-        match signex_library::hash_row_content(&row) {
+        match oxide_library::hash_row_content(&row) {
             Ok(h) => row.content_hash = h,
             Err(e) => {
                 tracing::warn!(
@@ -196,7 +196,7 @@ impl Signex {
         };
         let result = match library_id.and_then(|id| self.library.set.get(id)) {
             Some(adapter) => adapter.update_row(&address.table, row, commit_msg),
-            None => Err(signex_library::LibraryError::NotFound(
+            None => Err(oxide_library::LibraryError::NotFound(
                 address.library_path.display().to_string(),
             )),
         };
@@ -261,7 +261,7 @@ impl Signex {
         }
         // Refresh content_hash + save.
         let mut row = state.row.clone();
-        match signex_library::hash_row_content(&row) {
+        match oxide_library::hash_row_content(&row) {
             Ok(h) => {
                 row.content_hash = h;
                 state.row.content_hash = h;
@@ -287,7 +287,7 @@ impl Signex {
         };
         let result = match library_id.and_then(|id| self.library.set.get(id)) {
             Some(adapter) => adapter.update_row(&address.table, row, msg),
-            None => Err(signex_library::LibraryError::NotFound(
+            None => Err(oxide_library::LibraryError::NotFound(
                 address.library_path.display().to_string(),
             )),
         };

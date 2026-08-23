@@ -18,9 +18,9 @@
     reason = "integration tests discard Results with `let _ = ...` routinely; this is test scaffolding, not a production `iced::Task` being dropped, and `[lints]` in Cargo.toml is package-scoped so each integration-test crate root needs its own"
 )]
 
-use signex_app::app::{EditMsg, Message, Signex};
-use signex_app::library::editor::footprint::state::EditorPad;
-use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+use oxide_app::app::{EditMsg, Message, Signex};
+use oxide_app::library::editor::footprint::state::EditorPad;
+use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
 use std::path::{Path, PathBuf};
 use tempfile::TempDir;
 
@@ -28,8 +28,8 @@ use tempfile::TempDir;
 /// the active tab pointed at it so `Message::Edit(EditMsg::Undo)`
 /// resolves through `active_footprint_editor_path()`.
 fn fixture(stem: &str, count: usize) -> (Signex, PathBuf, TempDir) {
-    use signex_app::app::{FootprintEditorState, TabInfo, TabKind};
-    use signex_library::{Footprint, FootprintFile};
+    use oxide_app::app::{FootprintEditorState, TabInfo, TabKind};
+    use oxide_library::{Footprint, FootprintFile};
 
     let tmp = TempDir::new().expect("tempdir");
     let path = tmp.path().join(format!("{stem}.snxfpt"));
@@ -91,7 +91,7 @@ fn rotated_pad_hit_tests_against_the_turned_copper() {
 /// un-rotated box let a turned pad stick out of its own courtyard.
 #[test]
 fn courtyard_encloses_the_rotated_pad() {
-    use signex_app::library::editor::footprint::state::FootprintEditorState as CanvasState;
+    use oxide_app::library::editor::footprint::state::FootprintEditorState as CanvasState;
 
     let mut state = CanvasState::empty();
     let mut pad = EditorPad::new_default("1".into(), (0.0, 0.0));
@@ -258,7 +258,7 @@ fn touching_line_scores_the_rotated_pad_not_the_unrotated_box() {
     );
 }
 
-/// Flip mirrors the pad's copper to the other side. `signex_bake::pad`
+/// Flip mirrors the pad's copper to the other side. `oxide_bake::pad`
 /// consumes the stored fields verbatim with no side-based mirroring of
 /// its own, so the stored data IS the geometry and the WHOLE
 /// mirror-sensitive set has to move under `x → -x`, not just the angle.
@@ -269,8 +269,8 @@ fn touching_line_scores_the_rotated_pad_not_the_unrotated_box() {
 /// the part will not seat.
 #[test]
 fn flip_mirrors_every_mirror_sensitive_field_of_every_selected_pad() {
-    use signex_library::PadShape;
-    use signex_library::primitive::footprint::ChamferedCorners;
+    use oxide_library::PadShape;
+    use oxide_library::primitive::footprint::ChamferedCorners;
 
     let (mut app, path, _tmp) = fixture("multi-flip-rotation", 3);
     {
@@ -391,8 +391,8 @@ fn flip_moves_the_sketch_outline_corners_to_match_the_mirrored_copper() {
 /// writes `rotation_deg` and syncs without re-placing the corners.
 #[test]
 fn properties_panel_rotation_moves_the_sketch_outline_corners() {
-    use signex_app::dock::DockMessage;
-    use signex_app::panels::PanelMsg;
+    use oxide_app::dock::DockMessage;
+    use oxide_app::panels::PanelMsg;
 
     let (mut app, path) = sketched_pad_fixture("panel-rotate-outline", (2.0, 1.0));
 
@@ -412,9 +412,9 @@ fn properties_panel_rotation_moves_the_sketch_outline_corners() {
 /// A footprint editor holding one selected `Rect` pad at the origin
 /// with its sketch outline already minted.
 fn sketched_pad_fixture(stem: &str, size_mm: (f64, f64)) -> (Signex, PathBuf) {
-    use signex_app::app::{FootprintEditorState, TabInfo, TabKind};
-    use signex_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
-    use signex_library::{Footprint, FootprintFile, PadShape};
+    use oxide_app::app::{FootprintEditorState, TabInfo, TabKind};
+    use oxide_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
+    use oxide_library::{Footprint, FootprintFile, PadShape};
 
     let path = PathBuf::from(format!("{stem}.snxfpt"));
     let mut fp = Footprint::empty(stem);
@@ -460,11 +460,11 @@ fn sketched_pad_fixture(stem: &str, size_mm: (f64, f64)) -> (Signex, PathBuf) {
 /// property that matters is that the outline the pad currently points
 /// at traces the copper.
 fn assert_corners_match_pad(
-    editor: &signex_app::app::FootprintEditorState,
+    editor: &oxide_app::app::FootprintEditorState,
     pad: &EditorPad,
     when: &str,
 ) {
-    use signex_sketch::entity::EntityKind;
+    use oxide_sketch::entity::EntityKind;
 
     let sketch = editor
         .primitive()
@@ -504,10 +504,10 @@ fn assert_corners_match_pad(
 /// move while the copper underneath does nothing.
 #[test]
 fn sketch_edge_drag_resizes_a_rotated_pad() {
-    use signex_app::app::{FootprintEditorState, TabInfo, TabKind};
-    use signex_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
-    use signex_library::{Footprint, FootprintFile, PadShape};
-    use signex_sketch::entity::EntityKind;
+    use oxide_app::app::{FootprintEditorState, TabInfo, TabKind};
+    use oxide_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
+    use oxide_library::{Footprint, FootprintFile, PadShape};
+    use oxide_sketch::entity::EntityKind;
 
     let path = PathBuf::from("rotated-line-drag-resize.snxfpt");
     let mut fp = Footprint::empty("rotated-line-drag");
@@ -521,7 +521,7 @@ fn sketch_edge_drag_resizes_a_rotated_pad() {
     // maps to the world segment x = 0.5, y ∈ [−1, 1] — a VERTICAL
     // world line. Find it by its constant world x.
     let sketch = fp.sketch.as_ref().expect("mirror minted a sketch");
-    let pos_of = |id: signex_sketch::id::SketchEntityId| -> Option<(f64, f64)> {
+    let pos_of = |id: oxide_sketch::id::SketchEntityId| -> Option<(f64, f64)> {
         sketch.entities.iter().find(|e| e.id == id).and_then(|e| {
             if let EntityKind::Point { x, y } = e.kind {
                 Some((x, y))

@@ -11,8 +11,8 @@ pub(crate) use ambiguous_label_anchor::ambiguous_label_anchor;
 
 use std::collections::HashMap;
 
-use signex_net::{SheetConnectivity, point_on_segment, pt_key};
-use signex_types::schematic::{LabelType, Point, SelectedKind};
+use oxide_net::{SheetConnectivity, point_on_segment, pt_key};
+use oxide_types::schematic::{LabelType, Point, SelectedKind};
 
 use crate::context::ErcContext;
 use crate::diagnostic::Diagnostic;
@@ -78,7 +78,7 @@ pub(crate) fn unused_pin(ctx: &ErcContext, out: &mut Vec<Diagnostic>) {
         for pin in &symbol.pins {
             // `ErcPin.connected` is already the shared, junction-aware
             // connectivity gate (`context::point_is_connected`, mirroring
-            // `signex_net`'s) — trust it instead of re-deriving an
+            // `oxide_net`'s) — trust it instead of re-deriving an
             // endpoint-only, bus-gated approximation here (issue #388, D5.4).
             if pin.connected {
                 continue;
@@ -318,7 +318,7 @@ pub(crate) fn orphan_label(ctx: &ErcContext, out: &mut Vec<Diagnostic>) {
 pub(crate) fn bus_bit_width_mismatch(ctx: &ErcContext, out: &mut Vec<Diagnostic>) {
     // Bus bundles connect by segment only (no junction dots), so no junctions
     // are fed to the shared connectivity — same topology as before, now derived
-    // through `signex-net` rather than a hand-rolled union-find.
+    // through `oxide-net` rather than a hand-rolled union-find.
     let buses: Vec<(Point, Point)> = ctx.buses.iter().map(|b| (b.start, b.end)).collect();
     let mut conn = SheetConnectivity::from_segments(&buses, &[]);
 

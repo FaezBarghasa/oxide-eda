@@ -1,4 +1,4 @@
-use signex_types::{
+use oxide_types::{
     rotation2d::normalize_angle_rad,
     schematic::{SchDrawing, SchematicSheet, SelectedItem, SelectedKind},
 };
@@ -152,7 +152,7 @@ impl Engine {
     /// no longer holds for it. A user-placed dot (`Junction::minted == false`)
     /// is user data and is never considered for removal.
     pub(super) fn reconcile_wire_junctions(&mut self, items: &[SelectedItem]) -> bool {
-        let touched: Vec<signex_types::schematic::Wire> = items
+        let touched: Vec<oxide_types::schematic::Wire> = items
             .iter()
             .filter(|item| matches!(item.kind, SelectedKind::Wire))
             .filter_map(|item| self.document.wires.iter().find(|w| w.uuid == item.uuid))
@@ -550,14 +550,14 @@ macro_rules! impl_has_uuid {
 }
 
 impl_has_uuid!(
-    signex_types::schematic::Wire,
-    signex_types::schematic::Bus,
-    signex_types::schematic::BusEntry,
-    signex_types::schematic::Label,
-    signex_types::schematic::Junction,
-    signex_types::schematic::NoConnect,
-    signex_types::schematic::Symbol,
-    signex_types::schematic::TextNote,
-    signex_types::schematic::ChildSheet,
-    signex_types::schematic::SheetPin,
+    oxide_types::schematic::Wire,
+    oxide_types::schematic::Bus,
+    oxide_types::schematic::BusEntry,
+    oxide_types::schematic::Label,
+    oxide_types::schematic::Junction,
+    oxide_types::schematic::NoConnect,
+    oxide_types::schematic::Symbol,
+    oxide_types::schematic::TextNote,
+    oxide_types::schematic::ChildSheet,
+    oxide_types::schematic::SheetPin,
 );

@@ -577,7 +577,7 @@ mod tests {
             WindowKind::ComponentEditor {
                 library_path: std::path::PathBuf::from("/tmp/parts.snxlib"),
                 table: "Resistors".to_string(),
-                row_id: signex_library::RowId::new(),
+                row_id: oxide_library::RowId::new(),
             },
         );
 

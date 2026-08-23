@@ -87,7 +87,7 @@ pub(crate) fn detached_header<'a>(
 /// ignored, hence the leading underscore.
 pub(crate) fn close_x_button(
     message: Message,
-    theme_id: signex_types::theme::ThemeId,
+    theme_id: oxide_types::theme::ThemeId,
     _text_color: Color,
 ) -> Element<'static, Message> {
     // Use the same SVG and footprint as the main-window chrome close

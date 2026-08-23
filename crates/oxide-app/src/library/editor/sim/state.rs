@@ -1,7 +1,7 @@
 //! Sim tab state.
 //!
 //! All persistent state for the Sim tab lives on the typed
-//! [`signex_library::SimModel`] primitive bound through
+//! [`oxide_library::SimModel`] primitive bound through
 //! `ComponentRow::sim_ref`. The only piece of UI-only state — the
 //! live `text_editor::Content` mirror of the SPICE deck — sits on
 //! [`crate::library::state::ComponentPreviewState::sim_body`] so it

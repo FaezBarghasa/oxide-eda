@@ -5,7 +5,7 @@
 //! `to_lib_symbol`'s public surface (`Symbol::to_lib_symbol` itself) is
 //! exercised here, exactly what a real caller has.
 
-use signex_types::schematic::{
+use oxide_types::schematic::{
     FillType, Graphic, PinDirection as SchematicPinDirection, PinShapeStyle,
 };
 
@@ -109,11 +109,11 @@ fn positions_carry_over_unchanged_no_y_flip() {
 /// table (all four variants). The mapping is the identity on angle —
 /// `LibPin.pin.rotation` is read as the same y-up, CCW-from-+x,
 /// tip->body angle as the source `PinOrientation` by every real
-/// consumer: `signex_types::schematic::SymbolTransform::apply` (the
+/// consumer: `oxide_types::schematic::SymbolTransform::apply` (the
 /// single y-flip is applied there, not here), the autoplace pin-bbox
-/// walk (`crates/signex-engine/src/transform/autoplace.rs`), and the
+/// walk (`crates/oxide-engine/src/transform/autoplace.rs`), and the
 /// SVG/PDF exporter's `pin_direction`
-/// (`crates/signex-output/src/svg/symbols.rs`, `90 => (0.0, 1.0)`). See
+/// (`crates/oxide-output/src/svg/symbols.rs`, `90 => (0.0, 1.0)`). See
 /// `to_lib_symbol`'s module doc for the full derivation.
 #[test]
 fn pin_orientation_maps_to_rotation_degrees_for_all_four_variants() {
@@ -139,20 +139,20 @@ fn pin_orientation_maps_to_rotation_degrees_for_all_four_variants() {
 /// can't silently drift apart (the other rotation test above only
 /// checks self-consistency with the formula in this crate).
 ///
-/// `crates/signex-output/src/svg/symbols.rs`'s private `pin_direction(pin:
+/// `crates/oxide-output/src/svg/symbols.rs`'s private `pin_direction(pin:
 /// &Pin) -> (f64, f64)` is the real consumer that turns
 /// `LibPin.pin.rotation` into a draw direction: `0 => (1.0, 0.0)`, `90 =>
-/// (0.0, 1.0)`, `180 => (-1.0, 0.0)`, `270 => (0.0, -1.0)`. `signex-library`
+/// (0.0, 1.0)`, `180 => (-1.0, 0.0)`, `270 => (0.0, -1.0)`. `oxide-library`
 /// does not (and must not, per the workspace's dependency direction —
-/// `signex-output` depends on `signex_types`/`signex-library`, never the
-/// reverse) depend on `signex-output`, so that function cannot be called
+/// `oxide-output` depends on `oxide_types`/`oxide-library`, never the
+/// reverse) depend on `oxide-output`, so that function cannot be called
 /// from this test. Instead this re-derives the identical formula inline
 /// and asserts the resulting unit vector against the direction each
 /// `PinOrientation` is documented to mean: `Right -> +x`, `Up -> +y`,
 /// `Left -> -x`, `Down -> -y`.
 #[test]
-fn pin_rotation_matches_signex_output_pin_direction_convention() {
-    // Mirrors `crates/signex-output/src/svg/symbols.rs`'s `pin_direction`
+fn pin_rotation_matches_oxide_output_pin_direction_convention() {
+    // Mirrors `crates/oxide-output/src/svg/symbols.rs`'s `pin_direction`
     // exactly — same branches, same values — so this test fails the
     // instant either side's convention moves without the other.
     fn pin_direction_convention(deg: f64) -> (f64, f64) {

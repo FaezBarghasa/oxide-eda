@@ -19,7 +19,7 @@ use axum::{
     routing::get,
 };
 use serde::Deserialize;
-use signex_library::component::ComponentRow;
+use oxide_library::component::ComponentRow;
 use uuid::Uuid;
 
 use crate::db::AppState;

@@ -221,7 +221,7 @@ pub(in crate::panels::footprint_editor_properties) fn render_pad_form_pad_stack<
                     },
                 ),
                 pad_table_check_cell(
-                    !matches!(values.kind, signex_library::PadKind::NptHole),
+                    !matches!(values.kind, oxide_library::PadKind::NptHole),
                     move |v| pad_plated_msg(target, v),
                 ),
             ],

@@ -5,8 +5,8 @@
 //! Sources: IPC-2612-1, IEEE 315, IEC 60617, wgpu/WGSL public docs.
 
 use serde::Deserialize;
-use signex_gfx::style::ColorSlot;
-use signex_types::theme::{CanvasColors, Color, ThemeId, canvas_colors};
+use oxide_gfx::style::ColorSlot;
+use oxide_types::theme::{CanvasColors, Color, ThemeId, canvas_colors};
 use std::sync::OnceLock;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -124,8 +124,8 @@ fn to_rgba(color: Color) -> [f32; 4] {
 #[cfg(test)]
 mod tests {
     use super::ResolvedTheme;
-    use signex_gfx::style::ColorSlot;
-    use signex_types::theme::ThemeId;
+    use oxide_gfx::style::ColorSlot;
+    use oxide_types::theme::ThemeId;
 
     #[test]
     fn builtin_theme_exposes_wire_and_erc_slots() {

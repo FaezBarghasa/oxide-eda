@@ -252,7 +252,7 @@ impl Signex {
         let bar_items = crate::library::editor::footprint::unified_active_bar::bar_items(
             editor, theme_id, tokens,
         );
-        let bar = signex_widgets::active_bar::view(bar_items, tokens).map(Message::Library);
+        let bar = oxide_widgets::active_bar::view(bar_items, tokens).map(Message::Library);
         out.push(
             column![
                 iced::widget::Space::new().height(y_offset + 4.0),
@@ -444,7 +444,7 @@ impl Signex {
         let theme_id = self.ui_state.theme_id;
         let tokens = &document.panel_ctx.tokens;
         let bar_items = crate::library::editor::symbol::active_bar::bar_items(editor, theme_id);
-        let bar = signex_widgets::active_bar::view(bar_items, tokens).map(Message::Library);
+        let bar = oxide_widgets::active_bar::view(bar_items, tokens).map(Message::Library);
         out.push(
             column![
                 iced::widget::Space::new().height(y_offset + 4.0),
@@ -530,7 +530,7 @@ impl Signex {
         // Real card height = row count × one row's box + the panel's own
         // 4px top/bottom padding (`container(col).padding(4)`). One row is
         // a 13pt label in [5, 12] button padding, no icon at this level ≈
-        // 28 px — see signex_widgets::active_bar::dropdown::view. The
+        // 28 px — see oxide_widgets::active_bar::dropdown::view. The
         // collapsed menu is the stable 6-row top-level set (Place ▸, Join,
         // Delete, Select All, Deselect All, Fit — locked by
         // rows::tests::top_level_ids_are_stable); an expanded Place ▸ adds
@@ -748,7 +748,7 @@ mod tests {
             pages: Vec::new(),
             page_handles: Vec::new(),
             selected: 0,
-            pdf_options: signex_output::PdfOptions::default(),
+            pdf_options: oxide_output::PdfOptions::default(),
             specific_page_input: "1".to_string(),
             zoom: 1.0,
             active_tab: crate::app::state::PdfPreviewTab::Preview,

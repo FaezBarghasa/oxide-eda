@@ -286,7 +286,7 @@ pub(super) fn build_footprint_editor_panel_ctx(
         Some(id) => {
             use crate::library::editor::footprint::sketch_dispatch::current_role_of;
             use crate::library::messages::RoleTag;
-            use signex_sketch::entity::EntityKind;
+            use oxide_sketch::entity::EntityKind;
             editor
                 .primitive()
                 .sketch
@@ -411,7 +411,7 @@ pub(super) fn build_footprint_editor_panel_ctx(
     let selected_array = selected_sketch_entity_id.and_then(|sel_id| {
         let sketch = editor.primitive().sketch.as_ref()?;
         use crate::library::editor::footprint::state::ToolPending;
-        use signex_sketch::array::{ArrayKind, NumberingScheme};
+        use oxide_sketch::array::{ArrayKind, NumberingScheme};
         let array = sketch.arrays.iter().find(|a| match &a.kind {
             ArrayKind::Linear { source, .. }
             | ArrayKind::Grid { source, .. }
@@ -464,7 +464,7 @@ pub(super) fn build_footprint_editor_panel_ctx(
                         .iter()
                         .find(|e| e.id == *center)
                         .and_then(|e| match e.kind {
-                            signex_sketch::entity::EntityKind::Point { x, y } => Some([x, y]),
+                            oxide_sketch::entity::EntityKind::Point { x, y } => Some([x, y]),
                             _ => None,
                         });
                 let (mask_expr, suppressed_instances): (String, Vec<u32>) = depopulation
@@ -528,7 +528,7 @@ pub(super) fn build_footprint_editor_panel_ctx(
     let selected_silk_summary = editor.state.selected_silk_f.and_then(|idx| {
         let g = editor.primitive().silk_f.get(idx)?;
         use crate::panels::SilkKindGeometry;
-        use signex_library::primitive::footprint::FpGraphicKind;
+        use oxide_library::primitive::footprint::FpGraphicKind;
         let (kind_label, kind) = match &g.kind {
             FpGraphicKind::Line { from, to } => (
                 "Line",

@@ -17,7 +17,7 @@ pub fn meshes_to_gltf(
         let json = json!({
             "asset": {
                 "version": "2.0",
-                "generator": "signex-3d-model-importer",
+                "generator": "oxide-3d-model-importer",
                 "extras": {
                     "source_format": source_format,
                     "source_path": source_path,
@@ -140,7 +140,7 @@ pub fn meshes_to_gltf(
     let json = json!({
         "asset": {
             "version": "2.0",
-            "generator": "signex-3d-model-importer",
+            "generator": "oxide-3d-model-importer",
             "extras": {
                 "source_format": source_format,
                 "source_path": source_path,

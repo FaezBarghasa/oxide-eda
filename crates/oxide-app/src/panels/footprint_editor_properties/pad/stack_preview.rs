@@ -23,7 +23,7 @@ pub(super) fn pad_stack_preview<'a>(values: &PadFormValues) -> iced::Element<'a,
     struct Preview {
         size_x_mm: f64,
         size_y_mm: f64,
-        shape: signex_library::PadShape,
+        shape: oxide_library::PadShape,
         drill_diameter_mm: Option<f64>,
     }
 
@@ -107,7 +107,7 @@ pub(super) fn pad_stack_preview<'a>(values: &PadFormValues) -> iced::Element<'a,
             //   Custom / etc.  → fallback to rect corners
             let shape_for_outline = self.shape.clone();
             let perimeter_world = move |hw: f32, hh: f32, segments: usize| -> Vec<(f32, f32)> {
-                use signex_library::PadShape as PS;
+                use oxide_library::PadShape as PS;
                 use std::f32::consts::{FRAC_PI_2, PI, TAU};
                 match &shape_for_outline {
                     PS::Round | PS::Oval => (0..segments)
@@ -498,14 +498,14 @@ pub(super) fn pad_stack_tab_strip<'a>(
     .into()
 }
 
-/// v0.20 — pick_list-friendly proxy for `signex_library::PadShape`.
+/// v0.20 — pick_list-friendly proxy for `oxide_library::PadShape`.
 /// Mirrors Altium's COPPER → Shape dropdown verbatim minus
 /// "Custom Shape" (sketch mode owns freeform geometry):
 ///   Round / Rectangular / Octagonal / Rounded Rectangle /
 ///   Chamfered Rectangle / Donut.
 /// Schema-mapping notes:
 ///   - Octagonal / Donut have no native variant on
-///     `signex_library::PadShape` yet; both fall back to Round at
+///     `oxide_library::PadShape` yet; both fall back to Round at
 ///     bake. Round trip preserves the picker selection across
 ///     sessions once we add schema variants in v0.21.
 ///   - Chamfered Rectangle uses the existing `Chamfered` variant
@@ -530,12 +530,12 @@ impl PadShapeChoice {
         PadShapeChoice::Donut,
     ];
 
-    pub(super) fn from_lib(s: &signex_library::PadShape) -> Self {
+    pub(super) fn from_lib(s: &oxide_library::PadShape) -> Self {
         match s {
-            signex_library::PadShape::Round => PadShapeChoice::Round,
-            signex_library::PadShape::Rect => PadShapeChoice::Rectangular,
-            signex_library::PadShape::RoundRect { .. } => PadShapeChoice::RoundedRectangle,
-            signex_library::PadShape::Chamfered { .. } => PadShapeChoice::ChamferedRectangle,
+            oxide_library::PadShape::Round => PadShapeChoice::Round,
+            oxide_library::PadShape::Rect => PadShapeChoice::Rectangular,
+            oxide_library::PadShape::RoundRect { .. } => PadShapeChoice::RoundedRectangle,
+            oxide_library::PadShape::Chamfered { .. } => PadShapeChoice::ChamferedRectangle,
             // Oval / Custom / Octagonal / Donut have no 1:1 schema
             // home today; collapse to Round so the picker stays
             // consistent. Custom Shape is intentionally absent — use
@@ -543,23 +543,23 @@ impl PadShapeChoice {
             _ => PadShapeChoice::Round,
         }
     }
-    pub(super) fn to_lib(self) -> signex_library::PadShape {
-        use signex_library::primitive::footprint::ChamferedCorners;
+    pub(super) fn to_lib(self) -> oxide_library::PadShape {
+        use oxide_library::primitive::footprint::ChamferedCorners;
         match self {
-            PadShapeChoice::Round => signex_library::PadShape::Round,
-            PadShapeChoice::Rectangular => signex_library::PadShape::Rect,
+            PadShapeChoice::Round => oxide_library::PadShape::Round,
+            PadShapeChoice::Rectangular => oxide_library::PadShape::Rect,
             PadShapeChoice::RoundedRectangle => {
-                signex_library::PadShape::RoundRect { radius_ratio: 0.25 }
+                oxide_library::PadShape::RoundRect { radius_ratio: 0.25 }
             }
-            PadShapeChoice::ChamferedRectangle => signex_library::PadShape::Chamfered {
+            PadShapeChoice::ChamferedRectangle => oxide_library::PadShape::Chamfered {
                 chamfer_ratio: 0.25,
                 corners: ChamferedCorners::all(),
             },
             // v0.21 schema follow-up: native Octagonal + Donut. Until
             // then Round is the closest mappable shape (Donut's
             // hole comes from the drill anyway).
-            PadShapeChoice::Octagonal => signex_library::PadShape::Round,
-            PadShapeChoice::Donut => signex_library::PadShape::Round,
+            PadShapeChoice::Octagonal => oxide_library::PadShape::Round,
+            PadShapeChoice::Donut => oxide_library::PadShape::Round,
         }
     }
 }

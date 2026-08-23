@@ -136,7 +136,7 @@ pub(super) fn compare_cells(a: &str, b: &str) -> std::cmp::Ordering {
 pub(super) fn derive_columns(
     rows: &[ComponentRow],
     library_id: uuid::Uuid,
-    registry: &signex_library::TemplateRegistry,
+    registry: &oxide_library::TemplateRegistry,
     table_name: &str,
 ) -> Vec<GridColumn> {
     let mut columns: Vec<GridColumn> = Vec::with_capacity(4 + MAX_PARAM_COLUMNS);

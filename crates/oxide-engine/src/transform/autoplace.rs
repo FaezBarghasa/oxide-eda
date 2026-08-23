@@ -30,13 +30,13 @@ use super::*;
 /// already set. Used by callers that want to migrate stale layouts in
 /// bulk. User-placed fields are still respected.
 ///
-/// `pub(crate)` until a real caller lands; flip to `pub` when signex-app
+/// `pub(crate)` until a real caller lands; flip to `pub` when oxide-app
 /// wires it into the "Re-autoplace all fields" command.
 #[expect(
     dead_code,
-    reason = "waiting on signex-app to wire the Re-autoplace all fields command"
+    reason = "waiting on oxide-app to wire the Re-autoplace all fields command"
 )]
-pub(crate) fn autoplace_all_marked_fields(document: &mut signex_types::schematic::SchematicSheet) {
+pub(crate) fn autoplace_all_marked_fields(document: &mut oxide_types::schematic::SchematicSheet) {
     let lib_symbols = document.lib_symbols.clone();
     let snapshot = document.clone();
     for symbol in &mut document.symbols {
@@ -55,11 +55,11 @@ const ANCHOR_PENALTY: u32 = 1;
 /// Pick a free side for `symbol`'s reference / value fields and write
 /// new positions / justifies / rotation into the field `TextProp`s.
 pub(super) fn autoplace_fields(
-    symbol: &mut signex_types::schematic::Symbol,
-    lib: &signex_types::schematic::LibSymbol,
-    document: &signex_types::schematic::SchematicSheet,
+    symbol: &mut oxide_types::schematic::Symbol,
+    lib: &oxide_types::schematic::LibSymbol,
+    document: &oxide_types::schematic::SchematicSheet,
 ) {
-    use signex_types::schematic::{HAlign, VAlign};
+    use oxide_types::schematic::{HAlign, VAlign};
 
     if symbol.fields_user_placed {
         return;
@@ -173,7 +173,7 @@ pub(super) fn autoplace_fields(
         .unwrap_or(Side::Bottom);
 
     // 5. Collect visible fields, anchor + justify per chosen side.
-    let mut fields: Vec<&mut signex_types::schematic::TextProp> = Vec::new();
+    let mut fields: Vec<&mut oxide_types::schematic::TextProp> = Vec::new();
     if let Some(rt) = symbol.ref_text.as_mut()
         && !rt.hidden
     {
@@ -242,17 +242,17 @@ pub(super) fn autoplace_fields(
 /// library-space point, returning world-space coordinates.
 ///
 /// HI-19: thin wrapper over the shared `SymbolTransform::apply` so the
-/// math lives in exactly one place (`signex-types::schematic`). Kept
+/// math lives in exactly one place (`oxide-types::schematic`). Kept
 /// as a free function so existing call sites that pass `(lx, ly)`
 /// don't need to reshape into `Point`.
-fn transform_local_point(sym: &signex_types::schematic::Symbol, lx: f64, ly: f64) -> (f64, f64) {
-    let p = signex_types::schematic::SymbolTransform::from_symbol(sym)
-        .apply(signex_types::schematic::Point::new(lx, ly));
+fn transform_local_point(sym: &oxide_types::schematic::Symbol, lx: f64, ly: f64) -> (f64, f64) {
+    let p = oxide_types::schematic::SymbolTransform::from_symbol(sym)
+        .apply(oxide_types::schematic::Point::new(lx, ly));
     (p.x, p.y)
 }
 
-fn graphic_extent_points(g: &signex_types::schematic::Graphic) -> Vec<(f64, f64)> {
-    use signex_types::schematic::Graphic;
+fn graphic_extent_points(g: &oxide_types::schematic::Graphic) -> Vec<(f64, f64)> {
+    use oxide_types::schematic::Graphic;
     match g {
         Graphic::Polyline { points, .. } | Graphic::Bezier { points, .. } => {
             points.iter().map(|p| (p.x, p.y)).collect()
@@ -286,7 +286,7 @@ fn graphic_extent_points(g: &signex_types::schematic::Graphic) -> Vec<(f64, f64)
 fn anchor_obstacle_count(
     ax: f64,
     ay: f64,
-    document: &signex_types::schematic::SchematicSheet,
+    document: &oxide_types::schematic::SchematicSheet,
 ) -> u32 {
     let r2 = ANCHOR_AVOID_RADIUS_MM * ANCHOR_AVOID_RADIUS_MM;
     let close = |x: f64, y: f64| (x - ax).powi(2) + (y - ay).powi(2) < r2;
@@ -309,8 +309,8 @@ fn anchor_obstacle_count(
 // ---------------------------------------------------------------------------
 
 fn point_on_wire_interior(
-    point: signex_types::schematic::Point,
-    wire: &signex_types::schematic::Wire,
+    point: oxide_types::schematic::Point,
+    wire: &oxide_types::schematic::Wire,
     tolerance: f64,
 ) -> bool {
     let (ax, ay) = (wire.start.x, wire.start.y);
@@ -347,24 +347,24 @@ fn point_on_wire_interior(
 /// imported or legacy geometry — are exactly where the two metrics diverge, so
 /// every dot this module mints is gated on the netlist's own answer rather than
 /// on the float tolerance alone.
-fn junction_is_honoured(point: signex_types::schematic::Point, document: &SchematicSheet) -> bool {
-    let k = signex_net::pt_key(&point);
+fn junction_is_honoured(point: oxide_types::schematic::Point, document: &SchematicSheet) -> bool {
+    let k = oxide_net::pt_key(&point);
     document
         .wires
         .iter()
         .filter(|w| {
-            signex_net::point_on_segment(
+            oxide_net::point_on_segment(
                 k,
-                signex_net::pt_key(&w.start),
-                signex_net::pt_key(&w.end),
+                oxide_net::pt_key(&w.start),
+                oxide_net::pt_key(&w.end),
             )
         })
         .count()
         >= 2
 }
 
-fn junction_at(point: signex_types::schematic::Point) -> signex_types::schematic::Junction {
-    signex_types::schematic::Junction {
+fn junction_at(point: oxide_types::schematic::Point) -> oxide_types::schematic::Junction {
+    oxide_types::schematic::Junction {
         uuid: uuid::Uuid::new_v4(),
         position: point,
         diameter: 0.0,
@@ -383,11 +383,11 @@ fn junction_at(point: signex_types::schematic::Point) -> signex_types::schematic
 /// moves wire geometry must route through here; reconciling only the placement
 /// path leaves drag / rotate / mirror minting junction-less Ts (issue #402).
 pub(crate) fn junctions_for_wire(
-    wire: &signex_types::schematic::Wire,
+    wire: &oxide_types::schematic::Wire,
     document: &SchematicSheet,
     tolerance: f64,
-) -> Vec<signex_types::schematic::Junction> {
-    let mut placed: Vec<signex_types::schematic::Junction> = Vec::new();
+) -> Vec<oxide_types::schematic::Junction> {
+    let mut placed: Vec<oxide_types::schematic::Junction> = Vec::new();
     for point in [wire.start, wire.end] {
         if let Some(junction) = needed_junction(point, document, tolerance) {
             placed.push(junction);
@@ -408,11 +408,11 @@ pub(crate) fn junctions_for_wire(
 /// (issue #402). `document` may already contain the new wire; a wire endpoint
 /// can never sit on its own interior, so no self-exclusion is needed.
 pub(crate) fn junctions_under_new_wire(
-    wire: &signex_types::schematic::Wire,
+    wire: &oxide_types::schematic::Wire,
     document: &SchematicSheet,
     tolerance: f64,
-) -> Vec<signex_types::schematic::Junction> {
-    let mut placed: Vec<signex_types::schematic::Junction> = Vec::new();
+) -> Vec<oxide_types::schematic::Junction> {
+    let mut placed: Vec<oxide_types::schematic::Junction> = Vec::new();
     for point in document
         .wires
         .iter()
@@ -433,7 +433,7 @@ pub(crate) fn junctions_under_new_wire(
 
 /// Number of the sheet's wires that terminate (start or end) at `point`.
 fn wire_endpoint_count(
-    point: signex_types::schematic::Point,
+    point: oxide_types::schematic::Point,
     document: &SchematicSheet,
     tolerance: f64,
 ) -> usize {
@@ -464,7 +464,7 @@ fn wire_endpoint_count(
 /// cross the same point — silently merging two nets the user never
 /// connected (issue #422).
 pub(crate) fn wire_meeting_justifies_junction(
-    point: signex_types::schematic::Point,
+    point: oxide_types::schematic::Point,
     document: &SchematicSheet,
     tolerance: f64,
 ) -> bool {
@@ -482,10 +482,10 @@ pub(crate) fn wire_meeting_justifies_junction(
 }
 
 pub(crate) fn needed_junction(
-    point: signex_types::schematic::Point,
+    point: oxide_types::schematic::Point,
     document: &SchematicSheet,
     tolerance: f64,
-) -> Option<signex_types::schematic::Junction> {
+) -> Option<oxide_types::schematic::Junction> {
     let already_present = document.junctions.iter().any(|junction| {
         (junction.position.x - point.x).abs() < tolerance
             && (junction.position.y - point.y).abs() < tolerance

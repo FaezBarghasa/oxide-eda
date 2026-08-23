@@ -37,21 +37,21 @@ pub(in crate::panels::footprint_editor_properties) struct PadFormValues {
     pub(super) rotation_deg: f64,
     pub(super) template: String,
     pub(super) template_library: String,
-    pub(super) shape: signex_library::PadShape,
-    pub(super) kind: signex_library::PadKind,
+    pub(super) shape: oxide_library::PadShape,
+    pub(super) kind: oxide_library::PadKind,
     pub(super) size_x_mm: f64,
     pub(super) size_y_mm: f64,
     pub(super) drill_diameter_mm: Option<f64>,
     pub(super) drill_slot_length_mm: Option<f64>,
     pub(super) stack: crate::library::editor::footprint::state::PadStackUi,
-    pub(super) feature_top: signex_sketch::attr::PadFeature,
-    pub(super) feature_bottom: signex_sketch::attr::PadFeature,
-    pub(super) testpoint: signex_sketch::attr::TestpointFlags,
+    pub(super) feature_top: oxide_sketch::attr::PadFeature,
+    pub(super) feature_bottom: oxide_sketch::attr::PadFeature,
+    pub(super) testpoint: oxide_sketch::attr::TestpointFlags,
     /// Active Pad Stack tab. Drives the preview + which body the
     /// Pad Stack section renders.
     pub(super) pad_stack_tab: crate::library::editor::footprint::state::PadStackTab,
     /// v0.21 — Altium-parity electrical-type / net / locked.
-    pub(super) electrical_type: signex_sketch::attr::ElectricalType,
+    pub(super) electrical_type: oxide_sketch::attr::ElectricalType,
     pub(super) net: String,
     pub(super) locked: bool,
     /// v0.21 — Pad Hole detail fields (Multi-Layer only).
@@ -200,12 +200,12 @@ pad_msg_fns! {
     (pad_testpoint_bottom_assembly_msg, bool, FpEditorToggleNextPadTestpointBottomAssembly, FpEditorToggleSelectedPadTestpointBottomAssembly, value);
     (pad_testpoint_bottom_fab_msg, bool, FpEditorToggleNextPadTestpointBottomFab, FpEditorToggleSelectedPadTestpointBottomFab, value);
     // Enum-typed fields.
-    (pad_electrical_type_msg, signex_sketch::attr::ElectricalType, FpEditorSetNextPadElectricalType, FpEditorSetSelectedPadElectricalType, value);
-    (pad_feature_top_msg, signex_sketch::attr::PadFeature, FpEditorSetNextPadFeatureTop, FpEditorSetSelectedPadFeatureTop, value);
-    (pad_feature_bottom_msg, signex_sketch::attr::PadFeature, FpEditorSetNextPadFeatureBottom, FpEditorSetSelectedPadFeatureBottom, value);
+    (pad_electrical_type_msg, oxide_sketch::attr::ElectricalType, FpEditorSetNextPadElectricalType, FpEditorSetSelectedPadElectricalType, value);
+    (pad_feature_top_msg, oxide_sketch::attr::PadFeature, FpEditorSetNextPadFeatureTop, FpEditorSetSelectedPadFeatureTop, value);
+    (pad_feature_bottom_msg, oxide_sketch::attr::PadFeature, FpEditorSetNextPadFeatureBottom, FpEditorSetSelectedPadFeatureBottom, value);
     // Special-cased field names — `side:` and `shape:` instead of `value:`.
     (pad_side_msg, crate::library::editor::footprint::state::PadSide, FpEditorSetNextPadSide, FpEditorSetSelectedPadSide, side);
-    (pad_shape_msg, signex_library::PadShape, FpEditorSetNextPadShape, FpEditorSetSelectedPadShape, shape);
+    (pad_shape_msg, oxide_library::PadShape, FpEditorSetNextPadShape, FpEditorSetSelectedPadShape, shape);
 }
 
 /// v0.20 — single-line label + text-input row used by every Pad
@@ -386,9 +386,9 @@ pub(in crate::panels::footprint_editor_properties) fn render_pad_form_properties
 
     col = col.push(pad_pick_row(
         "Electrical Type",
-        signex_sketch::attr::ElectricalType::ALL,
+        oxide_sketch::attr::ElectricalType::ALL,
         values.electrical_type,
-        move |v: signex_sketch::attr::ElectricalType| pad_electrical_type_msg(target, v),
+        move |v: oxide_sketch::attr::ElectricalType| pad_electrical_type_msg(target, v),
         muted,
     ));
 
@@ -468,7 +468,7 @@ pub(in crate::panels::footprint_editor_properties) fn render_pad_form_pad_featur
         return col;
     }
 
-    use signex_sketch::attr::PadFeature;
+    use oxide_sketch::attr::PadFeature;
     col = col.push(pad_pick_row(
         "Top Side",
         PadFeature::ALL,

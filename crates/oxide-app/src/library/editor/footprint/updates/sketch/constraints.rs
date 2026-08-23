@@ -40,8 +40,8 @@ fn add_constraint_for_selection(
     use crate::library::editor::footprint::sketch_dispatch::apply_sketch_edit_with_warnings;
     use crate::library::editor::footprint::sketch_mode::SketchEdit;
     use crate::library::messages::SketchConstraintTag;
-    use signex_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
-    use signex_sketch::id::ConstraintId;
+    use oxide_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
+    use oxide_sketch::id::ConstraintId;
 
     let primary = editor.state.selected_sketch;
     let secondary = editor.state.selected_sketch_secondary;
@@ -55,8 +55,8 @@ fn add_constraint_for_selection(
 
     // Determine selected entity kinds (Point / Line / Arc / Circle)
     // by inspecting the sketch.
-    let kind_of = |id: signex_sketch::id::SketchEntityId| -> Option<&'static str> {
-        use signex_sketch::entity::EntityKind;
+    let kind_of = |id: oxide_sketch::id::SketchEntityId| -> Option<&'static str> {
+        use oxide_sketch::entity::EntityKind;
         editor
             .primitive()
             .sketch

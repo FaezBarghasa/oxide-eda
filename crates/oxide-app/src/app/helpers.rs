@@ -76,14 +76,14 @@ pub(super) fn list_standard_libraries(dir: &std::path::Path) -> Vec<String> {
 /// - Angle45: snap to nearest 45-degree angle (may produce one or two segments)
 /// - FreeAngle: single straight segment
 pub(super) fn constrain_segments(
-    start: signex_types::schematic::Point,
-    end: signex_types::schematic::Point,
+    start: oxide_types::schematic::Point,
+    end: oxide_types::schematic::Point,
     mode: DrawMode,
 ) -> Vec<(
-    signex_types::schematic::Point,
-    signex_types::schematic::Point,
+    oxide_types::schematic::Point,
+    oxide_types::schematic::Point,
 )> {
-    use signex_types::schematic::Point;
+    use oxide_types::schematic::Point;
 
     let dx = end.x - start.x;
     let dy = end.y - start.y;

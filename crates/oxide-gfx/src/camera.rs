@@ -120,13 +120,13 @@ pub struct CameraGpu {
 impl CameraGpu {
     pub fn new(device: &wgpu::Device, initial: CameraUniform) -> Self {
         let buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("signex_gfx_camera_uniform"),
+            label: Some("oxide_gfx_camera_uniform"),
             contents: bytemuck::bytes_of(&initial),
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         });
 
         let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-            label: Some("signex_gfx_camera_layout"),
+            label: Some("oxide_gfx_camera_layout"),
             entries: &[wgpu::BindGroupLayoutEntry {
                 binding: 0,
                 visibility: wgpu::ShaderStages::VERTEX_FRAGMENT,
@@ -140,7 +140,7 @@ impl CameraGpu {
         });
 
         let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            label: Some("signex_gfx_camera_bind_group"),
+            label: Some("oxide_gfx_camera_bind_group"),
             layout: &bind_group_layout,
             entries: &[wgpu::BindGroupEntry {
                 binding: 0,

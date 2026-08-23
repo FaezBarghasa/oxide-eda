@@ -15,12 +15,12 @@ use crate::library::editor::footprint::state::FootprintEditorState;
 pub(super) fn draw_constraint_icons(
     frame: &mut canvas::Frame,
     cstate: &FootprintCanvasState,
-    sketch: &signex_sketch::SketchData,
+    sketch: &oxide_sketch::SketchData,
     state: &FootprintEditorState,
 ) {
-    use signex_sketch::constraint::ConstraintKind;
-    use signex_sketch::entity::EntityKind;
-    use signex_sketch::id::{ConstraintId, SketchEntityId};
+    use oxide_sketch::constraint::ConstraintKind;
+    use oxide_sketch::entity::EntityKind;
+    use oxide_sketch::id::{ConstraintId, SketchEntityId};
 
     let over_set: std::collections::HashSet<ConstraintId> = state
         .last_solve
@@ -30,7 +30,7 @@ pub(super) fn draw_constraint_icons(
 
     let point_world_local = |id: SketchEntityId| -> Option<(f64, f64)> {
         if let Some(solve) = state.last_solve.as_ref()
-            && let Some(p) = signex_sketch::solver::state::point_xy(
+            && let Some(p) = oxide_sketch::solver::state::point_xy(
                 id,
                 &solve.result.state,
                 &solve.result.index,
@@ -59,12 +59,12 @@ pub(super) fn draw_constraint_icons(
             })
     };
     fn arc_refs_local(
-        sketch: &signex_sketch::SketchData,
-        id: signex_sketch::id::SketchEntityId,
+        sketch: &oxide_sketch::SketchData,
+        id: oxide_sketch::id::SketchEntityId,
     ) -> Option<(
-        signex_sketch::id::SketchEntityId,
-        signex_sketch::id::SketchEntityId,
-        signex_sketch::id::SketchEntityId,
+        oxide_sketch::id::SketchEntityId,
+        oxide_sketch::id::SketchEntityId,
+        oxide_sketch::id::SketchEntityId,
         bool,
     )> {
         sketch
@@ -72,7 +72,7 @@ pub(super) fn draw_constraint_icons(
             .iter()
             .find(|e| e.id == id)
             .and_then(|e| match e.kind {
-                signex_sketch::entity::EntityKind::Arc {
+                oxide_sketch::entity::EntityKind::Arc {
                     center,
                     start,
                     end,
@@ -82,15 +82,15 @@ pub(super) fn draw_constraint_icons(
             })
     }
     fn circle_center_local(
-        sketch: &signex_sketch::SketchData,
-        id: signex_sketch::id::SketchEntityId,
-    ) -> Option<signex_sketch::id::SketchEntityId> {
+        sketch: &oxide_sketch::SketchData,
+        id: oxide_sketch::id::SketchEntityId,
+    ) -> Option<oxide_sketch::id::SketchEntityId> {
         sketch
             .entities
             .iter()
             .find(|e| e.id == id)
             .and_then(|e| match e.kind {
-                signex_sketch::entity::EntityKind::Circle { center, .. } => Some(center),
+                oxide_sketch::entity::EntityKind::Circle { center, .. } => Some(center),
                 _ => None,
             })
     }

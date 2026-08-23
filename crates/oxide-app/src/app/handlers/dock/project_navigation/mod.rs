@@ -20,12 +20,12 @@ impl Signex {
         &mut self,
         panel_msg: &crate::panels::PanelMsg,
     ) -> Option<Task<Message>> {
-        use signex_widgets::tree_view::{TreeIcon, TreeMsg, get_node};
+        use oxide_widgets::tree_view::{TreeIcon, TreeMsg, get_node};
 
         let mut follow = Task::none();
         let handled = match panel_msg {
             crate::panels::PanelMsg::Tree(TreeMsg::Toggle(path)) => {
-                signex_widgets::tree_view::toggle(
+                oxide_widgets::tree_view::toggle(
                     &mut self.document_state.panel_ctx.project_tree,
                     path,
                 );
@@ -117,7 +117,7 @@ impl Signex {
         action: crate::app::ProjectTreeAction,
     ) -> Task<Message> {
         use crate::app::ProjectTreeAction;
-        use signex_widgets::tree_view::TreeMsg;
+        use oxide_widgets::tree_view::TreeMsg;
 
         // Dismiss the menu first — every action either takes effect
         // instantly or triggers a follow-up error, and a lingering
@@ -136,7 +136,7 @@ impl Signex {
                 }
             }
             ProjectTreeAction::ToggleNode(path) => {
-                signex_widgets::tree_view::toggle(
+                oxide_widgets::tree_view::toggle(
                     &mut self.document_state.panel_ctx.project_tree,
                     &path,
                 );
@@ -229,7 +229,7 @@ impl Signex {
 
 /// Recursively set every node's `expanded` state — used by
 /// Expand all / Collapse all menu items.
-fn set_expanded_recursive(nodes: &mut [signex_widgets::tree_view::TreeNode], expanded: bool) {
+fn set_expanded_recursive(nodes: &mut [oxide_widgets::tree_view::TreeNode], expanded: bool) {
     for node in nodes {
         node.expanded = expanded;
         set_expanded_recursive(&mut node.children, expanded);
@@ -296,7 +296,7 @@ fn reveal_in_file_manager(path: &std::path::Path) -> anyhow::Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_widgets::tree_view::TreeMsg;
+    use oxide_widgets::tree_view::TreeMsg;
 
     /// Regression (#99 part 1): `handle_dock_project_navigation_panel_message`
     /// used to return `bool` and its `TreeMsg::Select` double-click arm
@@ -323,7 +323,7 @@ mod tests {
     #[test]
     fn unrelated_panel_message_falls_through_as_none() {
         let (mut app, _bootstrap_task) = Signex::new();
-        let msg = crate::panels::PanelMsg::SetUnit(signex_types::coord::Unit::Mm);
+        let msg = crate::panels::PanelMsg::SetUnit(oxide_types::coord::Unit::Mm);
 
         let result = app.handle_dock_project_navigation_panel_message(&msg);
 

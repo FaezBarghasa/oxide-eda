@@ -7,7 +7,7 @@
 //!   `record_history` — it happens whatever the caller does with the
 //!   returned `CommandResult`;
 //! * the app's **marker stack** (`UndoStack` in the since-deleted
-//!   `crates/signex-app/src/undo.rs`), pushed only by
+//!   `crates/oxide-app/src/undo.rs`), pushed only by
 //!   `mutation_gateway.rs` from `CommandResult::changed`.
 //!
 //! `apply_engine_undo` was driven by the marker stack: it peeked how
@@ -35,8 +35,8 @@
 //! now without having been touched. The others are `modals.rs:325` and
 //! `erc/annotate.rs:77,268,296`.
 
-use signex_app::app::{EditMsg, Message, MoveSelectionMsg, Signex};
-use signex_types::schematic::{
+use oxide_app::app::{EditMsg, Message, MoveSelectionMsg, Signex};
+use oxide_types::schematic::{
     NoConnect, Point, SchematicSheet, SelectedItem, SelectedKind, Symbol,
 };
 use std::collections::HashMap;
@@ -102,17 +102,17 @@ fn sheet_with(symbols: Vec<Symbol>) -> SchematicSheet {
 /// Insert an engine for `path` and give it a matching `TabInfo`, which
 /// `finish_schematic_mutation` requires or it silently no-ops.
 fn add_tab(app: &mut Signex, path: &Path, sheet: SchematicSheet) {
-    let engine = signex_engine::Engine::new(sheet).expect("engine");
+    let engine = oxide_engine::Engine::new(sheet).expect("engine");
     app.document_state
         .engines
         .insert(path.to_path_buf(), engine);
-    app.document_state.tabs.push(signex_app::app::TabInfo {
+    app.document_state.tabs.push(oxide_app::app::TabInfo {
         title: path.to_string_lossy().to_string(),
         path: path.to_path_buf(),
         cached_document: None,
         dirty: false,
         project_id: None,
-        kind: signex_app::app::TabKind::Schematic,
+        kind: oxide_app::app::TabKind::Schematic,
     });
 }
 

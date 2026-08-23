@@ -28,9 +28,9 @@
 
 use iced::widget::{Space, button, column, container, pick_list, row, svg, text, text_input};
 use iced::{Background, Border, Color, Element, Length, Theme};
-use signex_library::{ComponentClass, PrimitiveKind};
-use signex_types::theme::{ThemeId, ThemeTokens};
-use signex_widgets::theme_ext;
+use oxide_library::{ComponentClass, PrimitiveKind};
+use oxide_types::theme::{ThemeId, ThemeTokens};
+use oxide_widgets::theme_ext;
 
 use super::messages::LibraryMessage;
 use super::state::{LibraryState, NewComponentState, PrimitivePickerTarget};

@@ -24,12 +24,12 @@ pub(in crate::library::editor::footprint::updates) fn apply(
 
 fn set_role(
     editor: &mut crate::app::FootprintEditorState,
-    id: signex_sketch::id::SketchEntityId,
+    id: oxide_sketch::id::SketchEntityId,
     role: crate::library::messages::RoleTag,
 ) {
     use crate::library::editor::footprint::sketch_dispatch::apply_sketch_role_with_warnings;
     use crate::library::editor::footprint::state::EditorPad;
-    use signex_library::primitive::footprint::{
+    use oxide_library::primitive::footprint::{
         LayerId, PadKind as LibPadKind, PadShape as LibPadShape,
     };
 
@@ -63,7 +63,7 @@ fn set_role(
         .position(|p| p.sketch_entity_id == Some(id));
     match (entity_has_pad, existing_idx) {
         (true, None) => {
-            use signex_sketch::entity::EntityKind;
+            use oxide_sketch::entity::EntityKind;
             let (x, y, number) = editor
                 .primitive()
                 .sketch
@@ -90,12 +90,12 @@ fn set_role(
                 rotation_deg: 0.0,
                 drill_diameter_mm: None,
                 stack: crate::library::editor::footprint::state::PadStackUi::default(),
-                feature_top: signex_sketch::attr::PadFeature::None,
-                feature_bottom: signex_sketch::attr::PadFeature::None,
-                testpoint: signex_sketch::attr::TestpointFlags::default(),
+                feature_top: oxide_sketch::attr::PadFeature::None,
+                feature_bottom: oxide_sketch::attr::PadFeature::None,
+                testpoint: oxide_sketch::attr::TestpointFlags::default(),
                 template: String::new(),
                 template_library: String::new(),
-                electrical_type: signex_sketch::attr::ElectricalType::Load,
+                electrical_type: oxide_sketch::attr::ElectricalType::Load,
                 net: String::new(),
                 locked: false,
                 hole_tolerance_plus_mm: None,
@@ -131,7 +131,7 @@ fn set_role(
 // currently-selected Line into a `PadShape::Custom(SketchProfile)` pad.
 //
 // Walk: start from the selected Line, use
-// `signex_bake::profile::trace_closed_profile` to chase the
+// `oxide_bake::profile::trace_closed_profile` to chase the
 // unique-incident-edge cycle in the sketch. On success, compute the
 // centroid of the traced vertices, mint a centre `Point` there, and
 // attach a `PadAttr` whose `shape` is
@@ -152,12 +152,12 @@ fn make_pad_from_profile(editor: &mut crate::app::FootprintEditorState) {
     editor.state.active_bar_menu = None;
     use crate::library::editor::footprint::sketch_dispatch::apply_sketch_edit_with_warnings;
     use crate::library::editor::footprint::sketch_mode::SketchEdit;
-    use signex_sketch::attr::{
+    use oxide_sketch::attr::{
         CustomPadShape, PadAttr, PadKind, PadShape, PadSide, PasteAperturePattern,
     };
-    use signex_sketch::entity::{Entity, EntityKind};
-    use signex_sketch::id::SketchEntityId;
-    use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
+    use oxide_sketch::entity::{Entity, EntityKind};
+    use oxide_sketch::id::SketchEntityId;
+    use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
 
     // v0.27 — walk the full sketch selection (primary +
     // secondary + extras) for the first Line. The
@@ -241,7 +241,7 @@ fn make_pad_from_profile(editor: &mut crate::app::FootprintEditorState) {
         None => return,
     };
 
-    let trace = signex_bake::profile::trace_closed_profile(sketch_for_walk, solve, line_id);
+    let trace = oxide_bake::profile::trace_closed_profile(sketch_for_walk, solve, line_id);
     let vertices = match trace {
         Ok(v) if v.len() >= 3 => v,
         Ok(_) => {
@@ -407,7 +407,7 @@ fn make_pad_from_profile(editor: &mut crate::app::FootprintEditorState) {
 // shared `corner_r` binding (e.g. legacy data) → tracing::warn + no-op.
 fn unlink_corner_radius(
     editor: &mut crate::app::FootprintEditorState,
-    arc_entity_id: signex_sketch::id::SketchEntityId,
+    arc_entity_id: oxide_sketch::id::SketchEntityId,
 ) {
     use crate::library::editor::footprint::sketch_dispatch::apply_sketch_edit_with_warnings;
     use crate::library::editor::footprint::sketch_mode::SketchEdit;

@@ -6,10 +6,10 @@
 //! bake skips them. Together these collapse ~30 near-identical
 //! 3-line blocks across the mint pipeline into single calls.
 
-use signex_sketch::entity::{Entity, EntityKind};
-use signex_sketch::id::SketchEntityId;
-use signex_sketch::plane::PlaneId;
-use signex_sketch::sketch::SketchData;
+use oxide_sketch::entity::{Entity, EntityKind};
+use oxide_sketch::id::SketchEntityId;
+use oxide_sketch::plane::PlaneId;
+use oxide_sketch::sketch::SketchData;
 
 use super::super::state::EditorPad;
 

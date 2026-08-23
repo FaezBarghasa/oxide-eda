@@ -373,7 +373,7 @@ mod tests {
             WindowKind::ComponentEditor {
                 library_path: std::path::PathBuf::from("/tmp/parts.snxlib"),
                 table: "Resistors".to_string(),
-                row_id: signex_library::RowId::new(),
+                row_id: oxide_library::RowId::new(),
             },
         );
 
@@ -531,7 +531,7 @@ mod tests {
             WindowKind::ComponentEditor {
                 library_path: std::path::PathBuf::from("/tmp/parts.snxlib"),
                 table: "Resistors".to_string(),
-                row_id: signex_library::RowId::new(),
+                row_id: oxide_library::RowId::new(),
             },
         );
 
@@ -563,7 +563,7 @@ mod tests {
         let mut app = quiet_app();
         let tab_window = iced::window::Id::unique();
 
-        let point = signex_types::schematic::Point { x: 1.0, y: 2.0 };
+        let point = oxide_types::schematic::Point { x: 1.0, y: 2.0 };
         app.interaction_state.wire_drawing = true;
         app.interaction_state.canvas.drawing_mode = true;
         app.interaction_state.canvas.wire_preview = vec![point];

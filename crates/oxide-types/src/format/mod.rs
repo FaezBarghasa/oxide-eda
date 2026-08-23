@@ -14,7 +14,7 @@
 //! format. Stays as-is.
 //!
 //! These types are the canonical Signex schema. Standard I/O — when it
-//! returns via the `signex-standard-import` companion repo (GPL-3.0) —
+//! returns via the `oxide-standard-import` companion repo (GPL-3.0) —
 //! translates to/from these types at the file-format boundary; no
 //! Standard-shaped types live in this Apache codebase.
 
@@ -37,7 +37,7 @@ mod units;
 mod tests;
 
 // Public API re-exports — preserve the `format::…` import paths that
-// signex-app / signex-engine / signex-output rely on.
+// oxide-app / oxide-engine / oxide-output rely on.
 pub use pcb_rows::{PcbFootprintRow, PcbPadRow, PcbTrackRow, PcbViaRow};
 pub use sch_rows::{SchComponentRow, SchJunctionRow, SchLabelRow, SchWireRow};
 pub use tsv::{parse_tsv_block, write_tsv_block};

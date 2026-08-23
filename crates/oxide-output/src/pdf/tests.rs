@@ -1,7 +1,7 @@
 //! Tests for the PDF exporter.
 use std::path::PathBuf;
 
-use signex_types::schematic::SchematicSheet;
+use oxide_types::schematic::SchematicSheet;
 
 use super::*;
 use crate::{ExportContext, ProjectMetadata, SheetSnapshot};
@@ -129,7 +129,7 @@ fn page_size_reflected_in_media_box() {
 
 #[test]
 fn exports_schematic_content() {
-    use signex_types::schematic::{Label, LabelType, Point, Symbol, Wire};
+    use oxide_types::schematic::{Label, LabelType, Point, Symbol, Wire};
     use std::collections::HashMap;
     use uuid::Uuid;
 
@@ -184,8 +184,8 @@ fn exports_schematic_content() {
         label_type: LabelType::Net,
         shape: String::new(),
         font_size: 0.0,
-        justify: signex_types::schematic::HAlign::Center,
-        justify_v: signex_types::schematic::VAlign::Bottom,
+        justify: oxide_types::schematic::HAlign::Center,
+        justify_v: oxide_types::schematic::VAlign::Bottom,
     });
 
     let mut ctx = sample_ctx(1);
@@ -240,7 +240,7 @@ fn colour_mode_bw_pushes_strokes_to_black() {
 
 #[test]
 fn fit_to_page_scales_large_content_down() {
-    use signex_types::schematic::{Point, Wire};
+    use oxide_types::schematic::{Point, Wire};
     use uuid::Uuid;
 
     let mut sheet = empty_sheet();
@@ -276,7 +276,7 @@ fn fit_to_page_scales_large_content_down() {
 
 #[test]
 fn fit_to_page_does_not_upscale_small_content() {
-    use signex_types::schematic::{Point, Wire};
+    use oxide_types::schematic::{Point, Wire};
     use uuid::Uuid;
 
     let mut sheet = empty_sheet();
@@ -384,7 +384,7 @@ fn page_paper_colour_is_filled_in_content_stream() {
 
 #[test]
 fn outlines_emitted_when_components_toggle_is_on() {
-    use signex_types::schematic::{Point, Symbol};
+    use oxide_types::schematic::{Point, Symbol};
     use std::collections::HashMap;
     use uuid::Uuid;
 

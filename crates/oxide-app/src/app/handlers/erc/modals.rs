@@ -18,8 +18,8 @@ impl Signex {
 
     pub(crate) fn handle_erc_severity_changed(
         &mut self,
-        rule: signex_erc::RuleKind,
-        severity: signex_erc::Severity,
+        rule: oxide_erc::RuleKind,
+        severity: oxide_erc::Severity,
     ) -> Task<Message> {
         if severity == rule.default_severity() {
             // Match default → remove override so the map stays minimal.
@@ -329,7 +329,7 @@ impl Signex {
         // and it re-derives the project netlist and invalidates only what
         // the move touched instead of the whole canvas.
         self.apply_engine_command(
-            signex_engine::Command::MoveSelection { items, dx, dy },
+            oxide_engine::Command::MoveSelection { items, dx, dy },
             true,
             true,
         );
@@ -348,7 +348,7 @@ impl Signex {
         // the overlay cache and the selection info were not touched before
         // and still are not.
         self.apply_engine_command(
-            signex_engine::Command::SetSymbolField {
+            oxide_engine::Command::SetSymbolField {
                 symbol_id: symbol_uuid,
                 key,
                 value,

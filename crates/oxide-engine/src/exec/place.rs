@@ -1,7 +1,7 @@
 //! `Engine::exec_place` — see `exec/mod.rs`.
 
 use crate::*;
-use signex_types::schematic::{SelectedItem, SelectedKind};
+use oxide_types::schematic::{SelectedItem, SelectedKind};
 
 impl Engine {
     /// Reconcile junction dots after a command mutated wire geometry (move /

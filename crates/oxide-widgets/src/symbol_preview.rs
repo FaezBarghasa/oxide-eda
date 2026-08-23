@@ -5,7 +5,7 @@
 
 use iced::widget::canvas::{self, Cache, Geometry, Path, Stroke, Text};
 use iced::{Color, Element, Length, Point, Rectangle, Size, Theme};
-use signex_types::schematic::{Graphic, LibSymbol};
+use oxide_types::schematic::{Graphic, LibSymbol};
 
 /// Canvas program that draws a LibSymbol preview.
 pub struct SymbolPreview {
@@ -17,9 +17,9 @@ pub struct SymbolPreview {
 /// extends from its anchor position toward this unit vector, scaled by
 /// `pin.length`. Rotation is in degrees.
 ///
-/// This is the same library-space convention as `signex-output`'s
-/// `pin_direction` (`crates/signex-output/src/svg/symbols.rs`) and
-/// `signex-engine`'s autoplace pass (`transform/autoplace.rs`): 90°
+/// This is the same library-space convention as `oxide-output`'s
+/// `pin_direction` (`crates/oxide-output/src/svg/symbols.rs`) and
+/// `oxide-engine`'s autoplace pass (`transform/autoplace.rs`): 90°
 /// points "up" (`+y`) in Y-up library space. [`library_to_screen`] then
 /// applies the single y-flip that turns that "up" into a smaller
 /// screen-space y, matching every other consumer of library coordinates.
@@ -36,8 +36,8 @@ fn pin_stub_direction(rotation: f64) -> (f64, f64) {
 /// Map a library-space point (Y-up) to frame/screen space (Y-down),
 /// centered and scaled to fit the preview box.
 ///
-/// Mirrors the single y-flip in `signex_types::schematic::SymbolTransform
-/// ::apply` / `signex-output`'s `symbol_world_point`: library Y grows
+/// Mirrors the single y-flip in `oxide_types::schematic::SymbolTransform
+/// ::apply` / `oxide-output`'s `symbol_world_point`: library Y grows
 /// up, frame Y grows down, so the y term must be negated (about the
 /// bounding-box midpoint) rather than passed through unchanged.
 fn library_to_screen(x: f64, y: f64, mid_x: f64, mid_y: f64, scale: f64, center: Point) -> Point {
@@ -319,7 +319,7 @@ pub fn symbol_preview(symbol: LibSymbol, height: f32) -> Element<'static, ()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_types::schematic::{LibPin, Pin, PinDirection, PinShapeStyle, Point as LibPoint};
+    use oxide_types::schematic::{LibPin, Pin, PinDirection, PinShapeStyle, Point as LibPoint};
 
     fn up_down_pin(rotation: f64) -> Pin {
         Pin {
@@ -364,8 +364,8 @@ mod tests {
 
     #[test]
     fn pin_stub_direction_matches_canonical_library_space_convention() {
-        // Must match `signex-output`'s `pin_direction` (svg/symbols.rs)
-        // and `signex-engine`'s autoplace pass -- 90 deg is "up" (+y) in
+        // Must match `oxide-output`'s `pin_direction` (svg/symbols.rs)
+        // and `oxide-engine`'s autoplace pass -- 90 deg is "up" (+y) in
         // library space, 270 deg is "down" (-y).
         assert_eq!(pin_stub_direction(0.0), (1.0, 0.0));
         assert_eq!(pin_stub_direction(90.0), (0.0, 1.0));

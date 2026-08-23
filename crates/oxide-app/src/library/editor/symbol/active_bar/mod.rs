@@ -11,13 +11,13 @@
 //! bar slim.
 //!
 //! Built on top of the unified
-//! `signex_widgets::active_bar::view_with_overlay` so a single call
+//! `oxide_widgets::active_bar::view_with_overlay` so a single call
 //! returns the bar + dropdown overlay + click-outside backstop —
 //! identical pattern across schematic / footprint / SchLib /
 //! upcoming PCB editors.
 
-use signex_types::theme::{ThemeId, ThemeTokens};
-use signex_widgets::active_bar::{ActiveBarButton, ActiveBarIcon, ActiveBarItem};
+use oxide_types::theme::{ThemeId, ThemeTokens};
+use oxide_widgets::active_bar::{ActiveBarButton, ActiveBarIcon, ActiveBarItem};
 
 use crate::app::SymbolEditorState;
 use crate::icons as ic;
@@ -28,7 +28,7 @@ use crate::library::messages::{LibraryMessage, PrimitiveEdit, SymbolEditorMsg, S
 mod dropdowns;
 
 /// Build the SchLib bar items only — caller mounts via
-/// `signex_widgets::active_bar::view(items, tokens)` so the chain is
+/// `oxide_widgets::active_bar::view(items, tokens)` so the chain is
 /// identical to the schematic.
 pub fn bar_items(
     editor: &SymbolEditorState,
@@ -96,7 +96,7 @@ pub fn dropdown_overlay<'a>(
         SymActiveBarMenu::Text => Some(180.0),
         SymActiveBarMenu::Shapes => Some(220.0),
     };
-    let panel = signex_widgets::active_bar_dropdown::view(entries, tokens, width_hint);
+    let panel = oxide_widgets::active_bar_dropdown::view(entries, tokens, width_hint);
     let panel_anchor = container(panel)
         .padding([top_padding_px, 10])
         .center_x(Length::Fill)
@@ -212,7 +212,7 @@ fn dropdown_trigger_items(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_library::{Symbol, SymbolFile};
+    use oxide_library::{Symbol, SymbolFile};
     use std::path::PathBuf;
 
     fn new_editor() -> SymbolEditorState {

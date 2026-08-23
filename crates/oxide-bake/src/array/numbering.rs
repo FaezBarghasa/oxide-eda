@@ -4,11 +4,11 @@
 
 use std::collections::BTreeMap;
 
-use signex_sketch::array::NumberingScheme;
-use signex_sketch::expr::ast::ExprNode;
-use signex_sketch::expr::eval::{EvalContext, eval};
-use signex_sketch::expr::parse::parse;
-use signex_sketch::id::SketchEntityId;
+use oxide_sketch::array::NumberingScheme;
+use oxide_sketch::expr::ast::ExprNode;
+use oxide_sketch::expr::eval::{EvalContext, eval};
+use oxide_sketch::expr::parse::parse;
+use oxide_sketch::id::SketchEntityId;
 
 /// Resolve the pad number for the i-th instance of a linear array.
 pub(super) fn derive_pad_number(
@@ -135,7 +135,7 @@ pub(super) fn derive_pad_number_2d(
     warnings: &mut Vec<String>,
     source: SketchEntityId,
 ) -> String {
-    use signex_sketch::array::bga_row_letter;
+    use oxide_sketch::array::bga_row_letter;
     match numbering {
         NumberingScheme::LinearIncrement {
             start_expr,

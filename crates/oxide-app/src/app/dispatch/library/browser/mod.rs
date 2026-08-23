@@ -190,7 +190,7 @@ impl Signex {
 
         // Resolve target table — explicit arg wins, else fall back to
         // the generic class default.
-        let generic = signex_library::ComponentClass::generic();
+        let generic = oxide_library::ComponentClass::generic();
         let resolved_table = match table {
             Some(t) if !t.trim().is_empty() => t,
             _ => match self
@@ -230,7 +230,7 @@ impl Signex {
                 let manifest = adapter.manifest();
                 resolved_table.strip_suffix('s').and_then(|stem| {
                     if manifest.table_for_class(stem) == resolved_table {
-                        Some(signex_library::ComponentClass::new(stem))
+                        Some(oxide_library::ComponentClass::new(stem))
                     } else {
                         None
                     }
@@ -414,14 +414,14 @@ impl Signex {
         let mut next: Option<Task<Message>> = None;
         // Save needs a separate path — we read the draft, drop the
         // borrow, run the adapter call, then resume.
-        let mut save_request: Option<(EditorAddress, signex_library::ComponentRow)> = None;
+        let mut save_request: Option<(EditorAddress, oxide_library::ComponentRow)> = None;
         let mut close_modal = false;
         if let Some(state) = self.library.library_browsers.get_mut(&library_path)
             && let Some(modal) = state.edit_modal.as_mut()
         {
             match msg {
                 BrowserEditMsg::SetInternalPn(s) => {
-                    modal.draft.internal_pn = signex_library::InternalPn::new(s);
+                    modal.draft.internal_pn = oxide_library::InternalPn::new(s);
                     modal.error = None;
                 }
                 BrowserEditMsg::SetClass(class) => {
@@ -433,7 +433,7 @@ impl Signex {
                     modal.error = None;
                 }
                 BrowserEditMsg::SetDatasheetUrl(s) => {
-                    modal.draft.datasheet = signex_library::DatasheetRef::url(s);
+                    modal.draft.datasheet = oxide_library::DatasheetRef::url(s);
                     modal.error = None;
                 }
                 BrowserEditMsg::SetManufacturer(s) => {
@@ -465,21 +465,21 @@ impl Signex {
                             value
                                 .parse::<f64>()
                                 .ok()
-                                .map(|n| signex_library::ParamValue::Measurement {
+                                .map(|n| oxide_library::ParamValue::Measurement {
                                     value: n,
                                     unit: unit.clone(),
                                 })
                                 .unwrap_or_else(|| {
-                                    signex_library::ParamValue::Text(format!("{value} {unit}"))
+                                    oxide_library::ParamValue::Text(format!("{value} {unit}"))
                                 })
                         } else if let Ok(n) = value.parse::<f64>() {
-                            signex_library::ParamValue::Number(n)
+                            oxide_library::ParamValue::Number(n)
                         } else if value.eq_ignore_ascii_case("true") {
-                            signex_library::ParamValue::Bool(true)
+                            oxide_library::ParamValue::Bool(true)
                         } else if value.eq_ignore_ascii_case("false") {
-                            signex_library::ParamValue::Bool(false)
+                            oxide_library::ParamValue::Bool(false)
                         } else {
-                            signex_library::ParamValue::Text(value)
+                            oxide_library::ParamValue::Text(value)
                         };
                         modal.draft.parameters.insert(key, pv);
                     }
@@ -497,7 +497,7 @@ impl Signex {
                     modal
                         .draft
                         .parameters
-                        .insert(key.clone(), signex_library::ParamValue::Text(String::new()));
+                        .insert(key.clone(), oxide_library::ParamValue::Text(String::new()));
                     modal.param_buf.insert(key, (String::new(), String::new()));
                 }
                 BrowserEditMsg::DeleteParam { key } => {
@@ -535,7 +535,7 @@ impl Signex {
                     } else {
                         modal.draft.parameters.insert(
                             "tags".to_string(),
-                            signex_library::ParamValue::Text(trimmed.to_string()),
+                            oxide_library::ParamValue::Text(trimmed.to_string()),
                         );
                     }
                     save_request = Some((modal.address.clone(), modal.draft.clone()));
@@ -550,7 +550,7 @@ impl Signex {
         }
         if let Some((address, mut draft)) = save_request {
             // Refresh content_hash before saving.
-            match signex_library::hash_row_content(&draft) {
+            match oxide_library::hash_row_content(&draft) {
                 Ok(h) => {
                     draft.content_hash = h;
                 }
@@ -569,7 +569,7 @@ impl Signex {
                 .map(|lib| lib.library_id);
             let result = match library_id.and_then(|id| self.library.set.get(id)) {
                 Some(adapter) => adapter.update_row(&address.table, draft, "edit row"),
-                None => Err(signex_library::LibraryError::NotFound(
+                None => Err(oxide_library::LibraryError::NotFound(
                     address.library_path.display().to_string(),
                 )),
             };
@@ -641,7 +641,7 @@ impl Signex {
         };
         match column.as_str() {
             "internal_pn" => {
-                row.internal_pn = signex_library::InternalPn::new(buf.clone());
+                row.internal_pn = oxide_library::InternalPn::new(buf.clone());
             }
             "manufacturer" => {
                 row.primary_mpn.manufacturer = buf.clone();
@@ -698,7 +698,7 @@ impl Signex {
                 return Task::none();
             }
         }
-        match signex_library::hash_row_content(&row) {
+        match oxide_library::hash_row_content(&row) {
             Ok(h) => row.content_hash = h,
             Err(e) => {
                 tracing::warn!(
@@ -718,7 +718,7 @@ impl Signex {
             .map(|lib| lib.library_id);
         let result = match library_id.and_then(|id| self.library.set.get(id)) {
             Some(adapter) => adapter.update_row(&table, row, "edit cell"),
-            None => Err(signex_library::LibraryError::NotFound(
+            None => Err(oxide_library::LibraryError::NotFound(
                 library_path.display().to_string(),
             )),
         };
@@ -787,7 +787,7 @@ impl Signex {
             .set
             .get(library_id)
             .ok_or_else(|| {
-                signex_library::LibraryError::NotFound(library_path.display().to_string())
+                oxide_library::LibraryError::NotFound(library_path.display().to_string())
             })
             .and_then(|adapter| adapter.read_row(&table, row_id));
         let row = match row_result {

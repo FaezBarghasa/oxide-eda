@@ -93,7 +93,7 @@ pub use adapters::local_git::LocalGitAdapter;
 /// tracking-scope picker unchecked, then stages every tracked file
 /// and creates the initial commit "chore: enable version control".
 ///
-/// Used by `signex-app` so the per-project Enable Version Control
+/// Used by `oxide-app` so the per-project Enable Version Control
 /// flow doesn't need to pull `git2` in directly. Errors propagate
 /// through the existing [`adapter::LibraryError`] variants so the UI
 /// can surface them in one place.
@@ -219,7 +219,7 @@ pub fn enable_project_version_control(
 ///
 /// Mirrors [`crate::adapters::local_git::LocalGitAdapter::history`]
 /// but works on **any** git repository — not just library-rooted
-/// ones. Used by `signex-app`'s right-dock History panel to show
+/// ones. Used by `oxide-app`'s right-dock History panel to show
 /// the active tab's file history regardless of whether the file
 /// lives inside a `.snxlib` or in a plain Signex project.
 ///

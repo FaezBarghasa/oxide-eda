@@ -2,7 +2,7 @@
 //!
 //! Each `FpActiveBarMenu` variant maps to a function that returns the
 //! list of `DropdownEntry<LibraryMessage>` rows. Rendering happens in
-//! `signex_widgets::active_bar_dropdown::view`; overlay positioning is
+//! `oxide_widgets::active_bar_dropdown::view`; overlay positioning is
 //! handled by the caller (`unified_active_bar`).
 //!
 //! Wiring philosophy: every dropdown item here maps to an existing
@@ -16,8 +16,8 @@
 
 use std::path::PathBuf;
 
-use signex_types::theme::ThemeId;
-use signex_widgets::active_bar_dropdown::{DropdownEntry, DropdownItem};
+use oxide_types::theme::ThemeId;
+use oxide_widgets::active_bar_dropdown::{DropdownEntry, DropdownItem};
 
 use crate::icons as ic;
 use crate::library::editor::footprint::state::{
@@ -215,7 +215,7 @@ fn filter_entries(
     use SelectionFilterKind as K;
     use iced::widget::{column, container, row};
     use iced::{Color, Length};
-    use signex_widgets::active_bar_dropdown::chip_btn;
+    use oxide_widgets::active_bar_dropdown::chip_btn;
 
     let f = state.selection_filter;
     // Theme accent — matches the schematic Filter dropdown chips.

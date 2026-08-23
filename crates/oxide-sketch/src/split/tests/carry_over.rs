@@ -10,7 +10,7 @@ use crate::attr::{
 };
 use crate::constraint::{Constraint, ConstraintKind, DimTarget};
 use crate::split::*;
-use signex_types::layer::SignexLayer;
+use oxide_types::layer::OxideLayer;
 
 // ─── Plain split ───
 
@@ -82,7 +82,7 @@ fn bake_attributes_and_flags_carry_onto_both_halves() {
         let e = sketch.entities.iter_mut().find(|e| e.id == line).unwrap();
         e.construction = true;
         e.silk = Some(SilkAttr {
-            layer: SignexLayer::TopSilk,
+            layer: OxideLayer::TopSilk,
         });
     }
     let result = split_line(&mut sketch, line, 0.5).unwrap();
@@ -111,7 +111,7 @@ fn closed_profile_seed_attrs_stay_on_line_a_only() {
         // Per-segment (must carry to BOTH halves — regression guard).
         e.construction = true;
         e.silk = Some(SilkAttr {
-            layer: SignexLayer::TopSilk,
+            layer: OxideLayer::TopSilk,
         });
         e.v_score = Some(VScoreHintAttr {
             depth_fraction_expr: "0.5".into(),
@@ -121,16 +121,16 @@ fn closed_profile_seed_attrs_stay_on_line_a_only() {
         // Closed-profile seed (must stay on line_a ONLY).
         e.courtyard = Some(CourtyardAttr);
         e.mask_opening = Some(MaskOpeningAttr {
-            layer: SignexLayer::TopSolderMask,
+            layer: OxideLayer::TopSolderMask,
         });
         e.mask_exclude = Some(MaskExcludeAttr {
-            layer: SignexLayer::BottomSolderMask,
+            layer: OxideLayer::BottomSolderMask,
         });
         e.paste_aperture = Some(PasteApertureAttr {
-            layer: SignexLayer::TopPaste,
+            layer: OxideLayer::TopPaste,
         });
         e.pour = Some(PourAttr {
-            layer: SignexLayer::TopCopper,
+            layer: OxideLayer::TopCopper,
             net: None,
             fill_type: PourFillType::Solid,
             thermal_relief: ThermalRelief::default(),
@@ -139,7 +139,7 @@ fn closed_profile_seed_attrs_stay_on_line_a_only() {
             priority: 0,
         });
         e.keepout = Some(KeepoutAttr {
-            layer: SignexLayer::TopCopper,
+            layer: OxideLayer::TopCopper,
             kinds: KeepoutKinds::default(),
         });
         e.board_cutout = Some(BoardCutoutAttr {

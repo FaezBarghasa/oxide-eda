@@ -1,6 +1,6 @@
 //! Phase-5 tests that span two tracks (undo + placement + geometry) at once — the Phase-5 counterparts of the Phase-3 `library_pad_geometry` tests.
 
-use signex_app::app::{EditMsg, Message, Signex};
+use oxide_app::app::{EditMsg, Message, Signex};
 
 use std::fs;
 use std::path::PathBuf;
@@ -31,12 +31,12 @@ use tempfile::TempDir;
 /// the sketch already has at least one entity (avoids auto-minting
 /// a sketch the user never visited).
 fn fixture_empty_footprint_editor(stem: &str) -> (Signex, std::path::PathBuf, TempDir) {
-    use signex_app::app::{FootprintEditorState, TabInfo, TabKind};
-    use signex_library::{Footprint, FootprintFile};
-    use signex_sketch::SketchData;
-    use signex_sketch::entity::{Entity, EntityKind};
-    use signex_sketch::id::SketchEntityId;
-    use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
+    use oxide_app::app::{FootprintEditorState, TabInfo, TabKind};
+    use oxide_library::{Footprint, FootprintFile};
+    use oxide_sketch::SketchData;
+    use oxide_sketch::entity::{Entity, EntityKind};
+    use oxide_sketch::id::SketchEntityId;
+    use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
 
     let tmp = TempDir::new().expect("tempdir");
     let path = tmp.path().join(format!("{stem}.snxfpt"));
@@ -113,7 +113,7 @@ fn editor_state_proj(app: &Signex, path: &std::path::Path) -> EditorStateProj {
 fn set_pad_defaults(
     app: &mut Signex,
     path: &std::path::Path,
-    shape: signex_library::PadShape,
+    shape: oxide_library::PadShape,
     size_mm: (f64, f64),
 ) {
     let editor = app
@@ -140,8 +140,8 @@ fn set_pad_defaults(
 /// projection again.
 #[test]
 fn place_round_rect_then_undo_restores_pre_place_state() {
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::PadShape;
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::PadShape;
 
     let (mut app, path, _tmp) = fixture_empty_footprint_editor("phase5-rrect-undo");
     set_pad_defaults(
@@ -211,16 +211,16 @@ fn place_round_rect_then_undo_restores_pre_place_state() {
 /// without disturbing the seed Line.
 #[test]
 fn ctrl_z_during_tangent_arc_undoes_last_segment() {
-    use signex_app::app::FootprintEditorState;
-    use signex_app::app::{TabInfo, TabKind};
-    use signex_app::library::editor::footprint::state::{SketchTool, ToolPending};
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::{Footprint, FootprintFile};
-    use signex_sketch::SketchData;
-    use signex_sketch::constraint::ConstraintKind;
-    use signex_sketch::entity::{Entity, EntityKind};
-    use signex_sketch::id::SketchEntityId;
-    use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
+    use oxide_app::app::FootprintEditorState;
+    use oxide_app::app::{TabInfo, TabKind};
+    use oxide_app::library::editor::footprint::state::{SketchTool, ToolPending};
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::{Footprint, FootprintFile};
+    use oxide_sketch::SketchData;
+    use oxide_sketch::constraint::ConstraintKind;
+    use oxide_sketch::entity::{Entity, EntityKind};
+    use oxide_sketch::id::SketchEntityId;
+    use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
 
     let path = PathBuf::from("phase5-tangent-arc-undo.snxfpt");
     let mut fp = Footprint::empty("test");
@@ -373,11 +373,11 @@ fn ctrl_z_during_tangent_arc_undoes_last_segment() {
 /// `state.placement_input` is `None` (not `Some("5")`).
 #[test]
 fn placement_input_does_not_corrupt_history_on_undo() {
-    use signex_app::library::editor::footprint::state::{
+    use oxide_app::library::editor::footprint::state::{
         EditorMode, PlacementInput, PlacementInputKind, SketchTool,
     };
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_sketch::entity::EntityKind;
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_sketch::entity::EntityKind;
 
     let (mut app, path, _tmp) = fixture_empty_footprint_editor("phase5-placement-undo");
     {
@@ -488,12 +488,12 @@ fn placement_input_does_not_corrupt_history_on_undo() {
 /// shared `corner_r` binding survives.
 #[test]
 fn place_round_rect_then_select_arc_unlink_then_undo_restores_link() {
-    use signex_app::app::{FootprintEditorState, TabInfo, TabKind};
-    use signex_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
-    use signex_app::library::editor::footprint::state::EditorPad;
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::{Footprint, FootprintFile, PadShape};
-    use signex_sketch::id::SketchEntityId;
+    use oxide_app::app::{FootprintEditorState, TabInfo, TabKind};
+    use oxide_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
+    use oxide_app::library::editor::footprint::state::EditorPad;
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::{Footprint, FootprintFile, PadShape};
+    use oxide_sketch::id::SketchEntityId;
 
     let path = PathBuf::from("phase5-rrect-unlink-undo.snxfpt");
     let mut fp = Footprint::empty("test");
@@ -618,12 +618,12 @@ fn place_round_rect_then_select_arc_unlink_then_undo_restores_link() {
 /// corner_radius_pct mirror.
 #[test]
 fn editing_corner_r_via_properties_updates_all_4_arcs() {
-    use signex_app::app::{FootprintEditorState, TabInfo, TabKind};
-    use signex_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
-    use signex_app::library::editor::footprint::state::EditorPad;
-    use signex_library::{Footprint, FootprintFile, PadShape};
-    use signex_sketch::entity::EntityKind;
-    use signex_sketch::parameter;
+    use oxide_app::app::{FootprintEditorState, TabInfo, TabKind};
+    use oxide_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
+    use oxide_app::library::editor::footprint::state::EditorPad;
+    use oxide_library::{Footprint, FootprintFile, PadShape};
+    use oxide_sketch::entity::EntityKind;
+    use oxide_sketch::parameter;
 
     let path = PathBuf::from("phase5-corner-r-all-4-arcs.snxfpt");
     let mut fp = Footprint::empty("test");
@@ -659,8 +659,8 @@ fn editing_corner_r_via_properties_updates_all_4_arcs() {
     // Edit corner_r via the Properties-panel dispatch path. PanelMsg
     // → DockMessage::Panel → handler routes to
     // FootprintSketchEditParameter under the hood.
-    let _ = app.update(Message::Dock(signex_app::dock::DockMessage::Panel(
-        signex_app::panels::PanelMsg::FpEditorEditPadShapeParam {
+    let _ = app.update(Message::Dock(oxide_app::dock::DockMessage::Panel(
+        oxide_app::panels::PanelMsg::FpEditorEditPadShapeParam {
             pad_idx: 0,
             key: "corner_r".into(),
             value: "0.5mm".into(),
@@ -751,12 +751,12 @@ fn editing_corner_r_via_properties_updates_all_4_arcs() {
 /// to Phase 6**, flagged in the report.
 #[test]
 fn unlink_one_corner_only_that_arc_reads_per_corner_param() {
-    use signex_app::app::{FootprintEditorState, TabInfo, TabKind};
-    use signex_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
-    use signex_app::library::editor::footprint::state::EditorPad;
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::{Footprint, FootprintFile, PadShape};
-    use signex_sketch::id::SketchEntityId;
+    use oxide_app::app::{FootprintEditorState, TabInfo, TabKind};
+    use oxide_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
+    use oxide_app::library::editor::footprint::state::EditorPad;
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::{Footprint, FootprintFile, PadShape};
+    use oxide_sketch::id::SketchEntityId;
 
     let path = PathBuf::from("phase5-unlink-one-corner.snxfpt");
     let mut fp = Footprint::empty("test");
@@ -853,8 +853,8 @@ fn unlink_one_corner_only_that_arc_reads_per_corner_param() {
 
     // Step 2 — Edit the shared corner_r parameter. Only the shared
     // parameter should rewrite; the per-corner override stays put.
-    let _ = app.update(Message::Dock(signex_app::dock::DockMessage::Panel(
-        signex_app::panels::PanelMsg::FpEditorEditPadShapeParam {
+    let _ = app.update(Message::Dock(oxide_app::dock::DockMessage::Panel(
+        oxide_app::panels::PanelMsg::FpEditorEditPadShapeParam {
             pad_idx: 0,
             key: "corner_r".into(),
             value: "0.4mm".into(),
@@ -873,8 +873,8 @@ fn unlink_one_corner_only_that_arc_reads_per_corner_param() {
 
     // Step 3 — Edit the per-corner override only it changes; shared
     // stays at 0.4mm.
-    let _ = app.update(Message::Dock(signex_app::dock::DockMessage::Panel(
-        signex_app::panels::PanelMsg::FpEditorEditPadShapeParam {
+    let _ = app.update(Message::Dock(oxide_app::dock::DockMessage::Panel(
+        oxide_app::panels::PanelMsg::FpEditorEditPadShapeParam {
             pad_idx: 0,
             key: "corner_r_ne".into(),
             value: "0.15mm".into(),
@@ -911,11 +911,11 @@ fn unlink_one_corner_only_that_arc_reads_per_corner_param() {
 /// future constraint-bound Point would see the new value.
 #[test]
 fn oval_width_edit_propagates_to_arc_centre_via_solve() {
-    use signex_app::app::{FootprintEditorState, TabInfo, TabKind};
-    use signex_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
-    use signex_app::library::editor::footprint::state::EditorPad;
-    use signex_library::{Footprint, FootprintFile, PadShape};
-    use signex_sketch::parameter;
+    use oxide_app::app::{FootprintEditorState, TabInfo, TabKind};
+    use oxide_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
+    use oxide_app::library::editor::footprint::state::EditorPad;
+    use oxide_library::{Footprint, FootprintFile, PadShape};
+    use oxide_sketch::parameter;
 
     let path = PathBuf::from("phase5-oval-width-edit.snxfpt");
     let mut fp = Footprint::empty("test");
@@ -956,8 +956,8 @@ fn oval_width_edit_propagates_to_arc_centre_via_solve() {
 
     // Edit width via Properties dispatch (the same path the panel's
     // "Width" row drives).
-    let _ = app.update(Message::Dock(signex_app::dock::DockMessage::Panel(
-        signex_app::panels::PanelMsg::FpEditorEditPadShapeParam {
+    let _ = app.update(Message::Dock(oxide_app::dock::DockMessage::Panel(
+        oxide_app::panels::PanelMsg::FpEditorEditPadShapeParam {
             pad_idx: 0,
             key: "width".into(),
             value: "3mm".into(),
@@ -1037,11 +1037,11 @@ fn oval_width_edit_propagates_to_arc_centre_via_solve() {
 /// machinery is wired in upstream phases.
 #[test]
 fn type_5_during_line_draw_commits_at_5mm() {
-    use signex_app::library::editor::footprint::state::{
+    use oxide_app::library::editor::footprint::state::{
         EditorMode, PlacementInput, PlacementInputKind, SketchTool,
     };
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_sketch::entity::EntityKind;
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_sketch::entity::EntityKind;
 
     let (mut app, path, _tmp) = fixture_empty_footprint_editor("phase5-type-5-line");
     {
@@ -1137,10 +1137,10 @@ fn type_5_during_line_draw_commits_at_5mm() {
 /// to commit).
 #[test]
 fn tangent_arc_after_line_creates_tangent_constraint() {
-    use signex_app::library::editor::footprint::state::{EditorMode, SketchTool, ToolPending};
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_sketch::constraint::ConstraintKind;
-    use signex_sketch::entity::EntityKind;
+    use oxide_app::library::editor::footprint::state::{EditorMode, SketchTool, ToolPending};
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_sketch::constraint::ConstraintKind;
+    use oxide_sketch::entity::EntityKind;
 
     let (mut app, path, _tmp) = fixture_empty_footprint_editor("phase5-tangent-after-line");
     {
@@ -1278,10 +1278,10 @@ fn tangent_arc_after_line_creates_tangent_constraint() {
 /// mirror branch + per-corner sidecar bookkeeping all run together.
 #[test]
 fn chamfered_pad_with_2_enabled_corners_has_2_chamfer_cuts() {
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::PadShape;
-    use signex_library::primitive::footprint::ChamferedCorners;
-    use signex_sketch::entity::EntityKind;
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::PadShape;
+    use oxide_library::primitive::footprint::ChamferedCorners;
+    use oxide_sketch::entity::EntityKind;
 
     let (mut app, path, _tmp) = fixture_empty_footprint_editor("phase5-chamfered-2-corners");
 

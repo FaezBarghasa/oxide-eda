@@ -1,15 +1,15 @@
 //! Editor-side `Pad` mirror, pad-stack overrides, side enum, and
 //! courtyard rect. Pure data types — no canvas state, no tool state.
 
-use signex_library::{LayerId, Pad, PadKind, PadShape};
-use signex_sketch::attr::{ElectricalType, PadFeature, TestpointFlags};
+use oxide_library::{LayerId, Pad, PadKind, PadShape};
+use oxide_sketch::attr::{ElectricalType, PadFeature, TestpointFlags};
 
 use super::super::layers::FpLayer;
 
 /// Default new-pad size in mm.
 pub(super) const NEW_PAD_SIZE_MM: f64 = 1.0;
 
-/// One pad in the editor canvas. A subset of [`signex_library::Pad`] —
+/// One pad in the editor canvas. A subset of [`oxide_library::Pad`] —
 /// we only carry the fields the canvas renders or hit-tests. Extra
 /// fields on `Pad` (drill, mask/paste margins, etc.) round-trip via
 /// [`super::FootprintEditorState::sync_pads_to_primitive`] without a UI yet.
@@ -24,10 +24,10 @@ pub struct EditorPad {
     /// primary layer for hit-test/visibility gating.
     pub layers: Vec<LayerId>,
     /// v0.15 — bidirectional sketch ↔ pads link.
-    pub sketch_entity_id: Option<signex_sketch::id::SketchEntityId>,
+    pub sketch_entity_id: Option<oxide_sketch::id::SketchEntityId>,
     /// v0.16 — outline-corner Points minted when the pad enters Sketch
     /// mode. Order: `[ne, se, sw, nw]`. Construction-flagged.
-    pub corner_entity_ids: Option<[signex_sketch::id::SketchEntityId; 4]>,
+    pub corner_entity_ids: Option<[oxide_sketch::id::SketchEntityId; 4]>,
     /// v0.16.6 — pad rotation in degrees.
     pub rotation_deg: f64,
     /// v0.18.12 — drill diameter (mm) for through-hole / NPT pads.
@@ -265,7 +265,7 @@ impl EditorPad {
     /// vertical axis (local `x → -x`). This is what moving a pad to
     /// the other side of the board does to its copper.
     ///
-    /// `signex_bake::pad` consumes each of these verbatim with no
+    /// `oxide_bake::pad` consumes each of these verbatim with no
     /// side-based mirroring of its own, so the stored data IS the
     /// baked geometry. Mirroring only a subset bakes a shape that is
     /// neither the front nor the back one — a Chamfered pad flipped
@@ -350,7 +350,7 @@ impl EditorPad {
     }
 
     pub(super) fn to_pad(&self) -> Pad {
-        let drill = self.drill_diameter_mm.map(|d| signex_library::Drill {
+        let drill = self.drill_diameter_mm.map(|d| oxide_library::Drill {
             diameter: d,
             slot_length: None,
         });
@@ -393,11 +393,11 @@ impl EditorPad {
 }
 
 /// Pad copper side mirror — UI-side label-bearing enum. The sketch
-/// crate has the same shape at `signex_sketch::attr::PadSide`; this
+/// crate has the same shape at `oxide_sketch::attr::PadSide`; this
 /// type wraps it for the app's panel/dispatcher boundary so the panel
 /// doesn't pull in the sketch crate's constraint-residual surface.
 ///
-/// HI-24: variants MUST stay in lockstep with `signex_sketch::attr::PadSide`.
+/// HI-24: variants MUST stay in lockstep with `oxide_sketch::attr::PadSide`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum PadSide {
     #[default]
@@ -423,22 +423,22 @@ impl std::fmt::Display for PadSide {
     }
 }
 
-impl From<signex_sketch::attr::PadSide> for PadSide {
-    fn from(value: signex_sketch::attr::PadSide) -> Self {
+impl From<oxide_sketch::attr::PadSide> for PadSide {
+    fn from(value: oxide_sketch::attr::PadSide) -> Self {
         match value {
-            signex_sketch::attr::PadSide::Top => PadSide::Top,
-            signex_sketch::attr::PadSide::Bottom => PadSide::Bottom,
-            signex_sketch::attr::PadSide::All => PadSide::All,
+            oxide_sketch::attr::PadSide::Top => PadSide::Top,
+            oxide_sketch::attr::PadSide::Bottom => PadSide::Bottom,
+            oxide_sketch::attr::PadSide::All => PadSide::All,
         }
     }
 }
 
-impl From<PadSide> for signex_sketch::attr::PadSide {
+impl From<PadSide> for oxide_sketch::attr::PadSide {
     fn from(value: PadSide) -> Self {
         match value {
-            PadSide::Top => signex_sketch::attr::PadSide::Top,
-            PadSide::Bottom => signex_sketch::attr::PadSide::Bottom,
-            PadSide::All => signex_sketch::attr::PadSide::All,
+            PadSide::Top => oxide_sketch::attr::PadSide::Top,
+            PadSide::Bottom => oxide_sketch::attr::PadSide::Bottom,
+            PadSide::All => oxide_sketch::attr::PadSide::All,
         }
     }
 }
@@ -459,8 +459,8 @@ pub struct NextPadDefaults {
     pub template_library: String,
     pub drill_diameter_mm: Option<f64>,
     pub drill_slot_length_mm: Option<f64>,
-    pub shape: signex_library::PadShape,
-    pub kind: signex_library::PadKind,
+    pub shape: oxide_library::PadShape,
+    pub kind: oxide_library::PadKind,
     pub electrical_type: ElectricalType,
     pub net: String,
     pub locked: bool,
@@ -487,8 +487,8 @@ impl Default for NextPadDefaults {
             template_library: String::new(),
             drill_diameter_mm: None,
             drill_slot_length_mm: None,
-            shape: signex_library::PadShape::Rect,
-            kind: signex_library::PadKind::Smd,
+            shape: oxide_library::PadShape::Rect,
+            kind: oxide_library::PadKind::Smd,
             electrical_type: ElectricalType::Load,
             net: String::new(),
             locked: false,
@@ -561,8 +561,8 @@ pub enum AlignOp {
 pub(super) fn carry_links_by_unique_number(old: &[EditorPad], new_pads: &mut [EditorPad]) {
     use std::collections::HashMap;
     type Link<'a> = (
-        Option<signex_sketch::id::SketchEntityId>,
-        Option<[signex_sketch::id::SketchEntityId; 4]>,
+        Option<oxide_sketch::id::SketchEntityId>,
+        Option<[oxide_sketch::id::SketchEntityId; 4]>,
         &'a ShapeParamMap,
     );
 
@@ -639,16 +639,16 @@ pub(super) fn carry_links_by_unique_number(old: &[EditorPad], new_pads: &mut [Ed
 /// the link is REFUSED: an unlinked pad makes both mirrors early-return,
 /// which is the pre-fix #142 behaviour — stale geometry, but never
 /// another pad's geometry destroyed.
-pub(super) fn relink_pads_to_sketch(pads: &mut [EditorPad], fp: &signex_library::Footprint) {
+pub(super) fn relink_pads_to_sketch(pads: &mut [EditorPad], fp: &oxide_library::Footprint) {
     use std::collections::HashMap;
 
     let Some(sketch) = fp.sketch.as_ref() else {
         return;
     };
-    let mut by_number: HashMap<&str, Vec<(PosKey, signex_sketch::id::SketchEntityId)>> =
+    let mut by_number: HashMap<&str, Vec<(PosKey, oxide_sketch::id::SketchEntityId)>> =
         HashMap::new();
     for e in &sketch.entities {
-        if let (Some(attr), signex_sketch::entity::EntityKind::Point { x, y }) =
+        if let (Some(attr), oxide_sketch::entity::EntityKind::Point { x, y }) =
             (e.pad.as_ref(), &e.kind)
         {
             by_number
@@ -698,10 +698,10 @@ fn pad_pos_key(pad: &EditorPad) -> PosKey {
 /// on [`relink_pads_to_sketch`] for why `None` is the safe answer.
 fn resolve_link(
     pad: &EditorPad,
-    candidates: &[(PosKey, signex_sketch::id::SketchEntityId)],
+    candidates: &[(PosKey, oxide_sketch::id::SketchEntityId)],
     number_claims: &std::collections::HashMap<String, usize>,
     exact_claims: &std::collections::HashMap<(String, PosKey), usize>,
-) -> Option<signex_sketch::id::SketchEntityId> {
+) -> Option<oxide_sketch::id::SketchEntityId> {
     let key = pad_pos_key(pad);
     // Fast path: the number identifies exactly one pad and exactly one
     // centre. No position involved, so a solver-nudged centre still

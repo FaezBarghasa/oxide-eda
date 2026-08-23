@@ -3,10 +3,10 @@
 //! Phase 7 Task 7.1 of the v0.13 sketch-mode plan. Walks every entity
 //! tagged with [`PadAttr`], evaluates its expression strings against
 //! the resolved parameter table, and emits one
-//! [`signex_library::primitive::footprint::Pad`] per entity.
+//! [`oxide_library::primitive::footprint::Pad`] per entity.
 //!
 //! Layer-name strings are produced by
-//! [`signex_types::layer::SignexLayer::altium_label`] so the baked
+//! [`oxide_types::layer::OxideLayer::altium_label`] so the baked
 //! footprint matches the Altium-style label set ("Top Layer", "Top
 //! Solder", "Top Paste", …) used by the rest of the Signex PCB
 //! taxonomy.
@@ -40,24 +40,24 @@
 
 use std::collections::{BTreeMap, HashMap};
 
-use signex_library::primitive::footprint::{
+use oxide_library::primitive::footprint::{
     ChamferedCorners as LibChamferedCorners, Drill as LibDrill, LayerId, Pad as LibPad,
     PadKind as LibPadKind, PadShape as LibPadShape, Polygon as LibPolygon,
 };
-use signex_sketch::SketchError;
-use signex_sketch::attr::{
+use oxide_sketch::SketchError;
+use oxide_sketch::attr::{
     ChamferedCorners as SkChamferedCorners, CustomPadShape, PadAttr, PadKind, PadShape, PadSide,
     PasteAperturePattern,
 };
-use signex_sketch::expr::ast::ExprNode;
-use signex_sketch::expr::eval::{EvalContext, eval};
-use signex_sketch::expr::parse::parse;
-use signex_sketch::id::SketchEntityId;
-use signex_sketch::sketch::SketchData;
-use signex_sketch::solver::FullSolveOutput;
-use signex_sketch::solver::state::point_xy;
-use signex_sketch::unit::{Quantity, UnitFamily};
-use signex_types::layer::SignexLayer;
+use oxide_sketch::expr::ast::ExprNode;
+use oxide_sketch::expr::eval::{EvalContext, eval};
+use oxide_sketch::expr::parse::parse;
+use oxide_sketch::id::SketchEntityId;
+use oxide_sketch::sketch::SketchData;
+use oxide_sketch::solver::FullSolveOutput;
+use oxide_sketch::solver::state::point_xy;
+use oxide_sketch::unit::{Quantity, UnitFamily};
+use oxide_types::layer::OxideLayer;
 
 /// Bake every entity tagged with [`PadAttr`] into a [`LibPad`]. Adds
 /// human-readable warnings to `warnings` for v0.14+ features.
@@ -278,8 +278,8 @@ pub(crate) fn bake_one_pad(
 
 /// Strip the optional Altium-style leading `=` and surrounding
 /// whitespace so authored expressions like `= pad_w` parse cleanly.
-/// Matches the convention used by [`signex_sketch::parameter`] and
-/// [`signex_sketch::solver::residual::resolve_dim`].
+/// Matches the convention used by [`oxide_sketch::parameter`] and
+/// [`oxide_sketch::solver::residual::resolve_dim`].
 fn strip_eq_prefix(src: &str) -> &str {
     let s = src.trim();
     s.strip_prefix('=').map(|s| s.trim_start()).unwrap_or(s)
@@ -333,9 +333,9 @@ fn lib_kind(k: PadKind, _warnings: &mut Vec<String>, _pad_number: &str) -> LibPa
     }
 }
 
-/// Build a `LayerId` from a `SignexLayer`, using its Altium-style
+/// Build a `LayerId` from a `OxideLayer`, using its Altium-style
 /// display label as the string-typed wrapper's content.
-fn signex_layer_id(l: SignexLayer) -> LayerId {
+fn signex_layer_id(l: OxideLayer) -> LayerId {
     LayerId::new(l.altium_label())
 }
 
@@ -353,54 +353,54 @@ fn map_corners(c: &SkChamferedCorners) -> LibChamferedCorners {
 fn fiducial_layers(side: PadSide) -> Vec<LayerId> {
     match side {
         PadSide::Top => vec![
-            signex_layer_id(SignexLayer::TopCopper),
-            signex_layer_id(SignexLayer::TopSolderMask),
+            signex_layer_id(OxideLayer::TopCopper),
+            signex_layer_id(OxideLayer::TopSolderMask),
         ],
         PadSide::Bottom => vec![
-            signex_layer_id(SignexLayer::BottomCopper),
-            signex_layer_id(SignexLayer::BottomSolderMask),
+            signex_layer_id(OxideLayer::BottomCopper),
+            signex_layer_id(OxideLayer::BottomSolderMask),
         ],
         PadSide::All => vec![
-            signex_layer_id(SignexLayer::TopCopper),
-            signex_layer_id(SignexLayer::BottomCopper),
-            signex_layer_id(SignexLayer::TopSolderMask),
-            signex_layer_id(SignexLayer::BottomSolderMask),
+            signex_layer_id(OxideLayer::TopCopper),
+            signex_layer_id(OxideLayer::BottomCopper),
+            signex_layer_id(OxideLayer::TopSolderMask),
+            signex_layer_id(OxideLayer::BottomSolderMask),
         ],
     }
 }
 
 /// Layer set for a normal pad based on mounting style + copper side.
 ///
-/// Names produced by [`SignexLayer::altium_label`].
+/// Names produced by [`OxideLayer::altium_label`].
 fn derive_layers(kind: PadKind, side: PadSide) -> Vec<LayerId> {
     match (kind, side) {
         (PadKind::Smd | PadKind::ConnectorPad, PadSide::Top) => vec![
-            signex_layer_id(SignexLayer::TopCopper),
-            signex_layer_id(SignexLayer::TopSolderMask),
-            signex_layer_id(SignexLayer::TopPaste),
+            signex_layer_id(OxideLayer::TopCopper),
+            signex_layer_id(OxideLayer::TopSolderMask),
+            signex_layer_id(OxideLayer::TopPaste),
         ],
         (PadKind::Smd | PadKind::ConnectorPad, PadSide::Bottom) => vec![
-            signex_layer_id(SignexLayer::BottomCopper),
-            signex_layer_id(SignexLayer::BottomSolderMask),
-            signex_layer_id(SignexLayer::BottomPaste),
+            signex_layer_id(OxideLayer::BottomCopper),
+            signex_layer_id(OxideLayer::BottomSolderMask),
+            signex_layer_id(OxideLayer::BottomPaste),
         ],
         (PadKind::Smd | PadKind::ConnectorPad, PadSide::All) => vec![
-            signex_layer_id(SignexLayer::TopCopper),
-            signex_layer_id(SignexLayer::BottomCopper),
-            signex_layer_id(SignexLayer::TopSolderMask),
-            signex_layer_id(SignexLayer::BottomSolderMask),
-            signex_layer_id(SignexLayer::TopPaste),
-            signex_layer_id(SignexLayer::BottomPaste),
+            signex_layer_id(OxideLayer::TopCopper),
+            signex_layer_id(OxideLayer::BottomCopper),
+            signex_layer_id(OxideLayer::TopSolderMask),
+            signex_layer_id(OxideLayer::BottomSolderMask),
+            signex_layer_id(OxideLayer::TopPaste),
+            signex_layer_id(OxideLayer::BottomPaste),
         ],
         (PadKind::Tht | PadKind::Castellated, _) => vec![
-            signex_layer_id(SignexLayer::TopCopper),
-            signex_layer_id(SignexLayer::BottomCopper),
-            signex_layer_id(SignexLayer::TopSolderMask),
-            signex_layer_id(SignexLayer::BottomSolderMask),
+            signex_layer_id(OxideLayer::TopCopper),
+            signex_layer_id(OxideLayer::BottomCopper),
+            signex_layer_id(OxideLayer::TopSolderMask),
+            signex_layer_id(OxideLayer::BottomSolderMask),
         ],
         (PadKind::NptHole, _) => vec![
-            signex_layer_id(SignexLayer::TopSolderMask),
-            signex_layer_id(SignexLayer::BottomSolderMask),
+            signex_layer_id(OxideLayer::TopSolderMask),
+            signex_layer_id(OxideLayer::BottomSolderMask),
         ],
         // Fiducial is handled by `fiducial_layers` before this fn is
         // called; defending against future callers that might forget

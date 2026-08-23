@@ -139,7 +139,7 @@ impl Signex {
                     // skips the flag flip so the user re-runs Enable
                     // VC after fixing the underlying issue.
                     let mut adapter_ok = false;
-                    match signex_library::adapters::local_git_project::LocalGitProjectAdapter::open_or_init(
+                    match oxide_library::adapters::local_git_project::LocalGitProjectAdapter::open_or_init(
                         state.project_dir.clone(),
                     ) {
                         Ok(adapter) => match adapter.write_gitattributes(state.use_lfs) {
@@ -213,7 +213,7 @@ impl Signex {
     }
 }
 
-/// Thin wrapper around `signex_library::enable_project_version_control`
+/// Thin wrapper around `oxide_library::enable_project_version_control`
 /// — kept here so the dispatch handler can stay synchronous and
 /// surface the `LibraryError` as a user-facing string. `gitignore`
 /// is the body of the `.gitignore` to write before init (one line
@@ -223,8 +223,8 @@ fn try_init_project_repo(
     project_dir: &std::path::Path,
     use_lfs: bool,
     gitignore: Option<&str>,
-) -> Result<(), signex_library::LibraryError> {
-    signex_library::enable_project_version_control(project_dir, use_lfs, gitignore)
+) -> Result<(), oxide_library::LibraryError> {
+    oxide_library::enable_project_version_control(project_dir, use_lfs, gitignore)
 }
 
 /// Build the per-row pick-list for the project-scope Enable Version

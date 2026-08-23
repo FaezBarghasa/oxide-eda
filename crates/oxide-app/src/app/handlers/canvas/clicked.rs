@@ -26,7 +26,7 @@ impl Signex {
             if !has_start {
                 // First click — anchor vertex 0.
                 if let Some(poly) = self.ui_state.lasso_polygon.as_mut() {
-                    poly.push(signex_types::schematic::Point::new(vx, vy));
+                    poly.push(oxide_types::schematic::Point::new(vx, vy));
                 }
                 self.sync_lasso_polygon_to_canvas();
                 return Task::none();
@@ -35,7 +35,7 @@ impl Signex {
             // click position as the final vertex so the
             // polygon lands exactly where the user clicked.
             let mut pts = self.ui_state.lasso_polygon.take().unwrap_or_default();
-            pts.push(signex_types::schematic::Point::new(vx, vy));
+            pts.push(oxide_types::schematic::Point::new(vx, vy));
             if pts.len() >= 3 {
                 let poly: Vec<(f64, f64)> = pts.iter().map(|p| (p.x, p.y)).collect();
                 if let Some(snapshot) = self.active_render_snapshot() {
@@ -124,7 +124,7 @@ impl Signex {
                         }
                     });
                     // Net membership comes from the authoritative
-                    // connectivity core (signex-net), the same one
+                    // connectivity core (oxide-net), the same one
                     // build_netlist / ERC read. It buckets at 1 µm and
                     // resolves T-junctions by an interior on-segment
                     // test, so the highlight follows the real net —
@@ -134,7 +134,7 @@ impl Signex {
                     // exactly on a wire endpoint (missing true Ts).
                     match hit {
                         Some(wire_uuid) => {
-                            match signex_net::flood_net_elements(snapshot, wire_uuid) {
+                            match oxide_net::flood_net_elements(snapshot, wire_uuid) {
                                 Some(f) => f.wires.into_iter().chain(f.junctions).collect(),
                                 None => Vec::new(),
                             }
@@ -202,15 +202,15 @@ impl Signex {
                 if let Some(reference) = hit {
                     let direction = match picker {
                         super::super::super::state::ReorderPicker::Above => {
-                            signex_engine::ReorderDirection::JustAbove(reference.uuid)
+                            oxide_engine::ReorderDirection::JustAbove(reference.uuid)
                         }
                         super::super::super::state::ReorderPicker::Below => {
-                            signex_engine::ReorderDirection::JustBelow(reference.uuid)
+                            oxide_engine::ReorderDirection::JustBelow(reference.uuid)
                         }
                     };
                     let items = self.interaction_state.active_canvas_mut().selected.clone();
                     self.apply_engine_command(
-                        signex_engine::Command::ReorderObjects { items, direction },
+                        oxide_engine::Command::ReorderObjects { items, direction },
                         false,
                         true,
                     );
@@ -243,15 +243,15 @@ impl Signex {
             if state.text != state.original_text {
                 let stored = crate::schematic_runtime::text::escape_for_standard(&state.text);
                 let cmd = match state.kind {
-                    signex_types::schematic::SelectedKind::Label => {
-                        Some(signex_engine::Command::UpdateText {
-                            target: signex_engine::TextTarget::Label(state.uuid),
+                    oxide_types::schematic::SelectedKind::Label => {
+                        Some(oxide_engine::Command::UpdateText {
+                            target: oxide_engine::TextTarget::Label(state.uuid),
                             value: stored,
                         })
                     }
-                    signex_types::schematic::SelectedKind::TextNote => {
-                        Some(signex_engine::Command::UpdateText {
-                            target: signex_engine::TextTarget::TextNote(state.uuid),
+                    oxide_types::schematic::SelectedKind::TextNote => {
+                        Some(oxide_engine::Command::UpdateText {
+                            target: oxide_engine::TextTarget::TextNote(state.uuid),
                             value: stored,
                         })
                     }
@@ -272,7 +272,7 @@ impl Signex {
 
         match self.interaction_state.current_tool {
             Tool::Wire => {
-                let pt = signex_types::schematic::Point::new(wx, wy);
+                let pt = oxide_types::schematic::Point::new(wx, wy);
                 if !self.interaction_state.wire_drawing {
                     self.interaction_state.wire_drawing = true;
                     self.interaction_state.wire_points.clear();
@@ -285,13 +285,13 @@ impl Signex {
                     let segments = constrain_segments(start, pt, self.interaction_state.draw_mode);
                     let mut wire_commands = Vec::new();
                     for seg in &segments {
-                        let wire = signex_types::schematic::Wire {
+                        let wire = oxide_types::schematic::Wire {
                             uuid: uuid::Uuid::new_v4(),
                             start: seg.0,
                             end: seg.1,
                             stroke_width: 0.0,
                         };
-                        wire_commands.push(signex_engine::Command::PlaceWireSegment { wire });
+                        wire_commands.push(oxide_engine::Command::PlaceWireSegment { wire });
                     }
                     if !wire_commands.is_empty() {
                         self.apply_engine_commands(wire_commands, false, false);
@@ -302,7 +302,7 @@ impl Signex {
                 }
             }
             Tool::Bus => {
-                let pt = signex_types::schematic::Point::new(wx, wy);
+                let pt = oxide_types::schematic::Point::new(wx, wy);
                 if !self.interaction_state.wire_drawing {
                     self.interaction_state.wire_drawing = true;
                     self.interaction_state.wire_points.clear();
@@ -315,12 +315,12 @@ impl Signex {
                     let segments = constrain_segments(start, pt, self.interaction_state.draw_mode);
                     let mut bus_commands = Vec::new();
                     for seg in &segments {
-                        let bus = signex_types::schematic::Bus {
+                        let bus = oxide_types::schematic::Bus {
                             uuid: uuid::Uuid::new_v4(),
                             start: seg.0,
                             end: seg.1,
                         };
-                        bus_commands.push(signex_engine::Command::PlaceBus { bus });
+                        bus_commands.push(oxide_engine::Command::PlaceBus { bus });
                     }
                     if !bus_commands.is_empty() {
                         self.apply_engine_commands(bus_commands, false, false);
@@ -332,26 +332,26 @@ impl Signex {
             }
             Tool::Component if self.interaction_state.pending_power.is_some() => {
                 if let Some((ref net_name, ref lib_id)) = self.interaction_state.pending_power {
-                    let sym = signex_types::schematic::Symbol {
+                    let sym = oxide_types::schematic::Symbol {
                         uuid: uuid::Uuid::new_v4(),
                         lib_id: lib_id.clone(),
                         reference: "#PWR?".to_string(),
                         value: net_name.clone(),
                         footprint: String::new(),
                         datasheet: String::new(),
-                        position: signex_types::schematic::Point::new(wx, wy),
+                        position: oxide_types::schematic::Point::new(wx, wy),
                         rotation: 0.0,
                         mirror_x: false,
                         mirror_y: false,
                         unit: 1,
                         is_power: true,
                         ref_text: None,
-                        val_text: Some(signex_types::schematic::TextProp {
-                            position: signex_types::schematic::Point::new(wx, wy - 1.27),
+                        val_text: Some(oxide_types::schematic::TextProp {
+                            position: oxide_types::schematic::Point::new(wx, wy - 1.27),
                             rotation: 0.0,
-                            font_size: signex_types::schematic::SCHEMATIC_TEXT_MM,
-                            justify_h: signex_types::schematic::HAlign::Center,
-                            justify_v: signex_types::schematic::VAlign::default(),
+                            font_size: oxide_types::schematic::SCHEMATIC_TEXT_MM,
+                            justify_h: oxide_types::schematic::HAlign::Center,
+                            justify_v: oxide_types::schematic::VAlign::default(),
                             hidden: false,
                         }),
                         fields_autoplaced: true,
@@ -370,7 +370,7 @@ impl Signex {
                         library_version: String::new(),
                     };
                     self.apply_engine_command(
-                        signex_engine::Command::PlaceSymbol { symbol: sym },
+                        oxide_engine::Command::PlaceSymbol { symbol: sym },
                         false,
                         false,
                     );
@@ -380,24 +380,24 @@ impl Signex {
                 let _ = self.place_selected_component(wx, wy);
             }
             Tool::NoConnect => {
-                let nc = signex_types::schematic::NoConnect {
+                let nc = oxide_types::schematic::NoConnect {
                     uuid: uuid::Uuid::new_v4(),
-                    position: signex_types::schematic::Point::new(wx, wy),
+                    position: oxide_types::schematic::Point::new(wx, wy),
                 };
                 self.apply_engine_command(
-                    signex_engine::Command::PlaceNoConnect { no_connect: nc },
+                    oxide_engine::Command::PlaceNoConnect { no_connect: nc },
                     false,
                     false,
                 );
             }
             Tool::BusEntry => {
-                let be = signex_types::schematic::BusEntry {
+                let be = oxide_types::schematic::BusEntry {
                     uuid: uuid::Uuid::new_v4(),
-                    position: signex_types::schematic::Point::new(wx, wy),
+                    position: oxide_types::schematic::Point::new(wx, wy),
                     size: (2.54, 2.54),
                 };
                 self.apply_engine_command(
-                    signex_engine::Command::PlaceBusEntry { bus_entry: be },
+                    oxide_engine::Command::PlaceBusEntry { bus_entry: be },
                     false,
                     false,
                 );
@@ -408,7 +408,7 @@ impl Signex {
                 // SchDrawing::Line and re-arms for the next
                 // line (matches Altium's stay-in-tool flow).
                 let (pp_w, _) = pre_placement_shape(&self.document_state);
-                let p = signex_types::schematic::Point::new(wx, wy);
+                let p = oxide_types::schematic::Point::new(wx, wy);
                 match self.interaction_state.shape_anchor.take() {
                     None => {
                         self.interaction_state.shape_anchor = Some(p);
@@ -419,7 +419,7 @@ impl Signex {
                             .clear_overlay_cache();
                     }
                     Some(start) => {
-                        let drawing = signex_types::schematic::SchDrawing::Line {
+                        let drawing = oxide_types::schematic::SchDrawing::Line {
                             uuid: uuid::Uuid::new_v4(),
                             start,
                             end: p,
@@ -427,7 +427,7 @@ impl Signex {
                             stroke_color: None,
                         };
                         self.apply_engine_command(
-                            signex_engine::Command::PlaceSchDrawing { drawing },
+                            oxide_engine::Command::PlaceSchDrawing { drawing },
                             false,
                             false,
                         );
@@ -448,7 +448,7 @@ impl Signex {
                 // SchDrawing::Rect. Rearms blank for the
                 // next rect.
                 let (pp_w, pp_fill) = pre_placement_shape(&self.document_state);
-                let p = signex_types::schematic::Point::new(wx, wy);
+                let p = oxide_types::schematic::Point::new(wx, wy);
                 match self.interaction_state.shape_anchor.take() {
                     None => {
                         self.interaction_state.shape_anchor = Some(p);
@@ -459,7 +459,7 @@ impl Signex {
                             .clear_overlay_cache();
                     }
                     Some(start) => {
-                        let drawing = signex_types::schematic::SchDrawing::Rect {
+                        let drawing = oxide_types::schematic::SchDrawing::Rect {
                             uuid: uuid::Uuid::new_v4(),
                             start,
                             end: p,
@@ -468,7 +468,7 @@ impl Signex {
                             stroke_color: None,
                         };
                         self.apply_engine_command(
-                            signex_engine::Command::PlaceSchDrawing { drawing },
+                            oxide_engine::Command::PlaceSchDrawing { drawing },
                             false,
                             false,
                         );
@@ -484,7 +484,7 @@ impl Signex {
                 // Two-click: center → edge-point → commit as
                 // SchDrawing::Circle with radius = |edge-center|.
                 let (pp_w, pp_fill) = pre_placement_shape(&self.document_state);
-                let p = signex_types::schematic::Point::new(wx, wy);
+                let p = oxide_types::schematic::Point::new(wx, wy);
                 match self.interaction_state.shape_anchor.take() {
                     None => {
                         self.interaction_state.shape_anchor = Some(p);
@@ -499,7 +499,7 @@ impl Signex {
                         let dy = p.y - center.y;
                         let radius = (dx * dx + dy * dy).sqrt();
                         if radius > 0.01 {
-                            let drawing = signex_types::schematic::SchDrawing::Circle {
+                            let drawing = oxide_types::schematic::SchDrawing::Circle {
                                 uuid: uuid::Uuid::new_v4(),
                                 center,
                                 radius,
@@ -508,7 +508,7 @@ impl Signex {
                                 stroke_color: None,
                             };
                             self.apply_engine_command(
-                                signex_engine::Command::PlaceSchDrawing { drawing },
+                                oxide_engine::Command::PlaceSchDrawing { drawing },
                                 false,
                                 false,
                             );
@@ -524,11 +524,11 @@ impl Signex {
             Tool::Arc => {
                 // 3-click arc: start → mid → end.
                 let (pp_w, pp_fill) = pre_placement_shape(&self.document_state);
-                let p = signex_types::schematic::Point::new(wx, wy);
+                let p = oxide_types::schematic::Point::new(wx, wy);
                 self.interaction_state.arc_points.push(p);
                 if self.interaction_state.arc_points.len() >= 3 {
                     let pts = std::mem::take(&mut self.interaction_state.arc_points);
-                    let drawing = signex_types::schematic::SchDrawing::Arc {
+                    let drawing = oxide_types::schematic::SchDrawing::Arc {
                         uuid: uuid::Uuid::new_v4(),
                         start: pts[0],
                         mid: pts[1],
@@ -538,7 +538,7 @@ impl Signex {
                         stroke_color: None,
                     };
                     self.apply_engine_command(
-                        signex_engine::Command::PlaceSchDrawing { drawing },
+                        oxide_engine::Command::PlaceSchDrawing { drawing },
                         false,
                         false,
                     );
@@ -551,7 +551,7 @@ impl Signex {
             }
             Tool::Polyline => {
                 // Click-by-click polyline. Enter / double-click commits.
-                let p = signex_types::schematic::Point::new(wx, wy);
+                let p = oxide_types::schematic::Point::new(wx, wy);
                 self.interaction_state.polyline_points.push(p);
                 self.interaction_state.active_canvas_mut().polyline_points =
                     self.interaction_state.polyline_points.clone();
@@ -567,17 +567,17 @@ impl Signex {
                     .as_ref()
                     .map(|pp| pp.label_text.clone())
                     .unwrap_or_else(|| "Text".to_string());
-                let tn = signex_types::schematic::TextNote {
+                let tn = oxide_types::schematic::TextNote {
                     uuid: uuid::Uuid::new_v4(),
                     text: note_text,
-                    position: signex_types::schematic::Point::new(wx, wy),
+                    position: oxide_types::schematic::Point::new(wx, wy),
                     rotation: 0.0,
-                    font_size: signex_types::schematic::SCHEMATIC_TEXT_MM,
-                    justify_h: signex_types::schematic::HAlign::Left,
-                    justify_v: signex_types::schematic::VAlign::default(),
+                    font_size: oxide_types::schematic::SCHEMATIC_TEXT_MM,
+                    justify_h: oxide_types::schematic::HAlign::Left,
+                    justify_v: oxide_types::schematic::VAlign::default(),
                 };
                 self.apply_engine_command(
-                    signex_engine::Command::PlaceTextNote { text_note: tn },
+                    oxide_engine::Command::PlaceTextNote { text_note: tn },
                     false,
                     false,
                 );
@@ -589,14 +589,14 @@ impl Signex {
                 let (label_type, shape, default_text) =
                     if let Some((lt, shape)) = self.interaction_state.pending_port.clone() {
                         let default = match lt {
-                            signex_types::schematic::LabelType::Global => "PORT",
-                            signex_types::schematic::LabelType::Hierarchical => "SHEET",
+                            oxide_types::schematic::LabelType::Global => "PORT",
+                            oxide_types::schematic::LabelType::Hierarchical => "SHEET",
                             _ => "NET",
                         };
                         (lt, shape, default.to_string())
                     } else {
                         (
-                            signex_types::schematic::LabelType::Net,
+                            oxide_types::schematic::LabelType::Net,
                             String::new(),
                             "NET".to_string(),
                         )
@@ -620,21 +620,21 @@ impl Signex {
                     .map(|pp| {
                         (
                             pp.rotation,
-                            pp.font_size_pt as f64 * signex_types::schematic::SCHEMATIC_PT_TO_MM,
+                            pp.font_size_pt as f64 * oxide_types::schematic::SCHEMATIC_PT_TO_MM,
                             pp.justify_h,
                             pp.justify_v,
                         )
                     })
                     .unwrap_or((
                         0.0,
-                        signex_types::schematic::SCHEMATIC_TEXT_MM,
-                        signex_types::schematic::HAlign::Left,
-                        signex_types::schematic::VAlign::Bottom,
+                        oxide_types::schematic::SCHEMATIC_TEXT_MM,
+                        oxide_types::schematic::HAlign::Left,
+                        oxide_types::schematic::VAlign::Bottom,
                     ));
-                let label = signex_types::schematic::Label {
+                let label = oxide_types::schematic::Label {
                     uuid: uuid::Uuid::new_v4(),
                     text,
-                    position: signex_types::schematic::Point::new(wx, wy),
+                    position: oxide_types::schematic::Point::new(wx, wy),
                     rotation: pp_rot,
                     label_type,
                     shape,
@@ -643,7 +643,7 @@ impl Signex {
                     justify_v: pp_justify_v,
                 };
                 self.apply_engine_command(
-                    signex_engine::Command::PlaceLabel { label },
+                    oxide_engine::Command::PlaceLabel { label },
                     false,
                     false,
                 );

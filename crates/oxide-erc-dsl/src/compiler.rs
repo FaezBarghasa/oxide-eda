@@ -3,12 +3,12 @@
 use std::sync::Arc;
 
 use regex::Regex;
-use signex_erc::engine::EvalFn;
-use signex_erc::{
+use oxide_erc::engine::EvalFn;
+use oxide_erc::{
     AnalysisScope, Applicability, Diagnostic, ErcContext, RuleDefinition, RuleId, RuleKind,
     RuleTarget, Severity,
 };
-use signex_types::schematic::{PinDirection, Point, SelectedItem, SelectedKind};
+use oxide_types::schematic::{PinDirection, Point, SelectedItem, SelectedKind};
 
 use crate::ast::*;
 use crate::error::DslError;
@@ -174,10 +174,10 @@ fn compile_expr(rule_id: &str, expr: &ExprAst) -> Result<CompiledExpr, DslError>
 }
 
 enum Subject<'a> {
-    Net(&'a signex_erc::context::ErcNet),
-    Pin(&'a signex_erc::context::ErcPin),
-    Component(&'a signex_erc::context::ErcSymbol),
-    Sheet(&'a signex_erc::context::ErcChildSheet),
+    Net(&'a oxide_erc::context::ErcNet),
+    Pin(&'a oxide_erc::context::ErcPin),
+    Component(&'a oxide_erc::context::ErcSymbol),
+    Sheet(&'a oxide_erc::context::ErcChildSheet),
 }
 
 fn evaluate_rule(

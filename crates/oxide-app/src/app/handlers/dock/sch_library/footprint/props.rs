@@ -48,7 +48,7 @@ impl Signex {
 
     pub(in crate::app::handlers::dock::sch_library) fn handle_fp_editor_set_role(
         &mut self,
-        id: &signex_sketch::id::SketchEntityId,
+        id: &oxide_sketch::id::SketchEntityId,
         role: &crate::library::messages::RoleTag,
     ) -> Task<Message> {
         let mut follow = Task::none();
@@ -103,7 +103,7 @@ impl Signex {
 
     pub(in crate::app::handlers::dock::sch_library) fn handle_fp_editor_set_footprint_component_type(
         &mut self,
-        t: &signex_library::primitive::footprint::ComponentType,
+        t: &oxide_library::primitive::footprint::ComponentType,
     ) -> bool {
         if let Some(editor) = self.active_footprint_editor_mut() {
             editor.primitive_mut().component_type = *t;

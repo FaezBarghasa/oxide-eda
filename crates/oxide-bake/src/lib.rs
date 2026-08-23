@@ -1,11 +1,11 @@
 //! Sketch → footprint primitive bake pipeline.
 //!
 //! Phase 7 of the v0.13 sketch-mode plan. Lives in its own crate
-//! (rather than inside `signex-sketch` or `signex-library`) so we can
-//! depend on both without a circular dependency: `signex-library`
-//! depends on `signex-sketch` for `SketchData`, and this crate
-//! depends on both to produce `signex-library::Pad` from
-//! `signex_sketch` data.
+//! (rather than inside `oxide-sketch` or `oxide-library`) so we can
+//! depend on both without a circular dependency: `oxide-library`
+//! depends on `oxide-sketch` for `SketchData`, and this crate
+//! depends on both to produce `oxide-library::Pad` from
+//! `oxide_sketch` data.
 //!
 //! Cleanroom: derived from first principles + the Phase 4 expression
 //! machinery. No third-party constraint-solver, footprint-generator,

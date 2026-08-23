@@ -3,7 +3,7 @@
 //! Real interactive 3D manipulation stays deferred (v2.x,
 //! docs/internal/docs/PCB_3D_RENDER_PLAN.md).
 
-use signex_library::primitive::footprint::{Body3D, BodyShape, Footprint};
+use oxide_library::primitive::footprint::{Body3D, BodyShape, Footprint};
 
 /// "3D Body" — extrude the courtyard outline into a solid box. Height and
 /// colours come from `Body3D::default()` (no magic constants).

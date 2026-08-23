@@ -305,7 +305,7 @@ pub(in crate::panels) fn view_selected_element_properties<'a>(
     }
 
     match selected_kind {
-        Some(signex_types::schematic::SelectedKind::Symbol) => {
+        Some(oxide_types::schematic::SelectedKind::Symbol) => {
             let reference = get("Reference");
             let value = get("Value");
             let description = get("Description");
@@ -474,8 +474,8 @@ pub(in crate::panels) fn view_selected_element_properties<'a>(
                 ));
             }
         }
-        Some(signex_types::schematic::SelectedKind::SymbolRefField)
-        | Some(signex_types::schematic::SelectedKind::SymbolValField) => {
+        Some(oxide_types::schematic::SelectedKind::SymbolRefField)
+        | Some(oxide_types::schematic::SelectedKind::SymbolValField) => {
             let text_value = get("Text");
             let position = get("Position");
             let rotation = get("Rotation");
@@ -486,7 +486,7 @@ pub(in crate::panels) fn view_selected_element_properties<'a>(
             let fields_autoplaced = get("Fields Autoplaced");
             let is_reference = matches!(
                 selected_kind,
-                Some(signex_types::schematic::SelectedKind::SymbolRefField)
+                Some(oxide_types::schematic::SelectedKind::SymbolRefField)
             );
 
             if let Some(id) = uuid {
@@ -566,7 +566,7 @@ pub(in crate::panels) fn view_selected_element_properties<'a>(
                 ));
             }
         }
-        Some(signex_types::schematic::SelectedKind::Label) => {
+        Some(oxide_types::schematic::SelectedKind::Label) => {
             // Net Name stored in Standard escapes `/` as `{slash}`. Show the
             // visible form in the panel; the edit handler re-escapes on save.
             let label_text = crate::schematic_runtime::text::expand_char_escapes(&get("Text"));
@@ -583,9 +583,9 @@ pub(in crate::panels) fn view_selected_element_properties<'a>(
                 .unwrap_or(0.0);
             let text_size_pt = text_size_str.parse::<u32>().unwrap_or(10);
             let justify_h = match justify_h_str.as_str() {
-                "Left" => signex_types::schematic::HAlign::Left,
-                "Right" => signex_types::schematic::HAlign::Right,
-                _ => signex_types::schematic::HAlign::Center,
+                "Left" => oxide_types::schematic::HAlign::Left,
+                "Right" => oxide_types::schematic::HAlign::Right,
+                _ => oxide_types::schematic::HAlign::Center,
             };
 
             if let Some(id) = uuid {
@@ -689,7 +689,7 @@ pub(in crate::panels) fn view_selected_element_properties<'a>(
                 ));
             }
         }
-        Some(signex_types::schematic::SelectedKind::TextNote) => {
+        Some(oxide_types::schematic::SelectedKind::TextNote) => {
             let note_text = get("Text");
             let position = get("Position");
             let rotation = get("Rotation");
@@ -753,10 +753,10 @@ pub(in crate::panels) fn view_selected_element_properties<'a>(
                 ));
             }
         }
-        Some(signex_types::schematic::SelectedKind::Drawing) => {
+        Some(oxide_types::schematic::SelectedKind::Drawing) => {
             col = col.push(view_drawing_properties(ctx, muted, primary, border_c));
         }
-        Some(signex_types::schematic::SelectedKind::ChildSheet) => {
+        Some(oxide_types::schematic::SelectedKind::ChildSheet) => {
             col = col.push(view_child_sheet_properties(ctx, muted, primary, border_c));
         }
         _ => {

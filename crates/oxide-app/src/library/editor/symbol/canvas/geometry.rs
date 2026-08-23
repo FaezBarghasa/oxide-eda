@@ -15,7 +15,7 @@ use super::*;
 /// the hit box silently keeps the old ones, and a click near a pin label
 /// starts landing where the text no longer is.
 pub(super) fn text_size_px_from_mm(size_mm: f32, scale: f32) -> f32 {
-    signex_gfx::primitive::text::text_px(size_mm, scale, SYMBOL_TEXT_SIZE)
+    oxide_gfx::primitive::text::text_px(size_mm, scale, SYMBOL_TEXT_SIZE)
 }
 
 pub(super) fn stroke_px_at_zoom(base_width_px_at_100: f32, _scale: f32) -> f32 {
@@ -41,7 +41,7 @@ pub(super) fn unwrap_angle(prev: f64, raw: f64) -> f64 {
 
 pub(super) fn stroke_world_mm(base_width_px_at_100: f32, scale: f32) -> f32 {
     (base_width_px_at_100 / scale.max(0.001))
-        .max(signex_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_MM as f32)
+        .max(oxide_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_MM as f32)
 }
 
 pub(super) fn screen_px_to_world_mm(px: f32, scale: f32) -> f32 {

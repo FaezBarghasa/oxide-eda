@@ -96,7 +96,7 @@ mod tests {
     use super::*;
     use crate::library::editor::symbol::state::SymbolSelection;
     use crate::library::messages::{SymbolContextSubmenuMsg, SymbolContextTargetMsg};
-    use signex_library::{Symbol, SymbolFile};
+    use oxide_library::{Symbol, SymbolFile};
     use std::path::PathBuf;
 
     fn new_editor() -> SymEditor {
@@ -309,7 +309,7 @@ mod tests {
         editor
             .primitive_mut()
             .pins
-            .push(signex_library::SymbolPin::new("1", "IN"));
+            .push(oxide_library::SymbolPin::new("1", "IN"));
         editor.selected = Some(SymbolSelection::Pin(0));
         apply_symbol_context_menu(
             &mut editor,

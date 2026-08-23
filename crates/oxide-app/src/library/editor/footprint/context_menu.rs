@@ -19,7 +19,7 @@
 use iced::widget::{button, column, container, row, text};
 use iced::{Background, Border, Element, Length, Padding};
 
-use signex_types::theme::ThemeTokens;
+use oxide_types::theme::ThemeTokens;
 
 use crate::app::FootprintEditorState;
 use crate::keymap::{AppCommandId, CompiledKeymap};
@@ -32,8 +32,8 @@ use crate::styles::ti;
 /// v0.26-C — surface the silk graphic''s kind in the menu header so
 /// the user can tell at a glance what they''re about to delete /
 /// inspect. Mirrors Altium''s naming.
-fn silk_kind_label(kind: &signex_library::FpGraphicKind) -> &'static str {
-    use signex_library::FpGraphicKind;
+fn silk_kind_label(kind: &oxide_library::FpGraphicKind) -> &'static str {
+    use oxide_library::FpGraphicKind;
     match kind {
         FpGraphicKind::Line { .. } => "Track",
         FpGraphicKind::Rectangle { .. } => "Rectangle",

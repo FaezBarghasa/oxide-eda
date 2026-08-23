@@ -10,7 +10,7 @@ use super::super::super::{FootprintEditorPanelContext, PanelMsg};
 pub(in crate::panels::footprint_editor_properties) fn render_cutout_subform<'a>(
     mut col: Column<'a, PanelMsg>,
     fp: &'a FootprintEditorPanelContext,
-    id: signex_sketch::id::SketchEntityId,
+    id: oxide_sketch::id::SketchEntityId,
     muted: Color,
     primary: Color,
     border_c: Color,

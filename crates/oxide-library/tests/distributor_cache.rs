@@ -6,9 +6,9 @@
 use std::time::Duration;
 
 use chrono::Utc;
-use signex_library::distributor::{DistributorPart, DistributorSource};
-use signex_library::distributors::cache::{DEFAULT_TTL, DistributorCache};
-use signex_library::param::ParamMap;
+use oxide_library::distributor::{DistributorPart, DistributorSource};
+use oxide_library::distributors::cache::{DEFAULT_TTL, DistributorCache};
+use oxide_library::param::ParamMap;
 
 fn sample_part(mpn: &str, source: DistributorSource) -> DistributorPart {
     DistributorPart {

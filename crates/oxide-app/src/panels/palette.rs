@@ -13,8 +13,8 @@
 //! compile error instead.
 
 use iced::Color;
-use signex_types::theme::ThemeTokens;
-use signex_widgets::theme_ext;
+use oxide_types::theme::ThemeTokens;
+use oxide_widgets::theme_ext;
 
 /// Hover-tint multiplier for the Custom Selection Filters preset chips.
 /// Brightens the accent colour without changing its alpha.

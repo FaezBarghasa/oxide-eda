@@ -94,10 +94,10 @@ impl Signex {
         let sch_path = dir.join(format!("{stem}.snxsch"));
         if !sch_path.exists() {
             let sheet = super::blank_schematic_sheet();
-            let serialised = signex_types::format::SnxSchematic::new(sheet)
+            let serialised = oxide_types::format::SnxSchematic::new(sheet)
                 .write_string()
                 .context("serialise blank schematic")?;
-            signex_types::atomic_io::atomic_write(&sch_path, serialised.as_bytes())
+            oxide_types::atomic_io::atomic_write(&sch_path, serialised.as_bytes())
                 .with_context(|| format!("write blank schematic {}", sch_path.display()))?;
         }
 
@@ -202,7 +202,7 @@ impl Signex {
             self.document_state.active_project = Some(id);
             return Ok((id, iced::Task::none()));
         }
-        let data = signex_types::project::parse_project(project_path)
+        let data = oxide_types::project::parse_project(project_path)
             .with_context(|| format!("parse project {}", project_path.display()))?;
         let id = self.document_state.mint_project_id();
         // Auto-mount every library referenced by `Project::libraries`
@@ -414,11 +414,11 @@ impl Signex {
 /// `Result<_, String>`.
 fn read_and_parse_schematic(
     path: &std::path::Path,
-) -> Result<signex_types::schematic::SchematicSheet, String> {
+) -> Result<oxide_types::schematic::SchematicSheet, String> {
     std::fs::read_to_string(path)
         .with_context(|| format!("read schematic {}", path.display()))
         .and_then(|text| {
-            signex_types::format::SnxSchematic::parse(&text)
+            oxide_types::format::SnxSchematic::parse(&text)
                 .with_context(|| format!("parse schematic {}", path.display()))
                 .map(|schematic| schematic.sheet)
         })
@@ -427,11 +427,11 @@ fn read_and_parse_schematic(
 
 /// Read + parse a `.snxpcb` off the UI thread — see
 /// `read_and_parse_schematic`.
-fn read_and_parse_pcb(path: &std::path::Path) -> Result<signex_types::pcb::PcbBoard, String> {
+fn read_and_parse_pcb(path: &std::path::Path) -> Result<oxide_types::pcb::PcbBoard, String> {
     std::fs::read_to_string(path)
         .with_context(|| format!("read pcb {}", path.display()))
         .and_then(|text| {
-            signex_types::format::SnxPcb::parse(&text)
+            oxide_types::format::SnxPcb::parse(&text)
                 .with_context(|| format!("parse pcb {}", path.display()))
                 .map(|pcb| pcb.board)
         })

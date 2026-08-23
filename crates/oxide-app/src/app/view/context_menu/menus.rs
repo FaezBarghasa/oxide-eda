@@ -4,7 +4,7 @@
 //!
 //! Data-to-view (#269): each menu is assembled as a pure
 //! `Vec<DropdownEntry<Message>>` and handed to the shared
-//! `signex_widgets::active_bar_dropdown` widget for rendering, so the
+//! `oxide_widgets::active_bar_dropdown` widget for rendering, so the
 //! canvas / project-tree / tab menus share ONE row renderer with the
 //! schematic + footprint active bars (ADR-0003). The pure `*_entries`
 //! builders carry the data (labels, actions, enable state) and are unit-
@@ -15,8 +15,8 @@ use super::*;
 
 use super::items::{dd_disabled, dd_kb, dd_msg, submenu_launcher};
 use crate::icons as ic;
-use signex_types::theme::{ThemeId, ThemeTokens};
-use signex_widgets::active_bar_dropdown::DropdownEntry;
+use oxide_types::theme::{ThemeId, ThemeTokens};
+use oxide_widgets::active_bar_dropdown::DropdownEntry;
 
 /// Keyboard-shortcut hints for the canvas menu, resolved from the active
 /// keymap profile (with the historic Altium defaults as fallbacks) before
@@ -36,10 +36,10 @@ impl Signex {
     pub(in crate::app::view) fn view_grid_picker_menu(&self) -> Element<'_, Message> {
         use iced::widget::{button, column, container, text};
         let tokens = &self.document_state.panel_ctx.tokens;
-        let primary = signex_widgets::theme_ext::text_primary(tokens);
-        let muted = signex_widgets::theme_ext::text_secondary(tokens);
-        let panel_bg = signex_widgets::theme_ext::to_color(&tokens.panel_bg);
-        let border_c = signex_widgets::theme_ext::border_color(tokens);
+        let primary = oxide_widgets::theme_ext::text_primary(tokens);
+        let muted = oxide_widgets::theme_ext::text_secondary(tokens);
+        let panel_bg = oxide_widgets::theme_ext::to_color(&tokens.panel_bg);
+        let border_c = oxide_widgets::theme_ext::border_color(tokens);
         let active_step = self
             .document_state
             .tabs
@@ -126,7 +126,7 @@ impl Signex {
         let child_sheet_selected = canvas
             .selected
             .iter()
-            .any(|item| item.kind == signex_types::schematic::SelectedKind::ChildSheet);
+            .any(|item| item.kind == oxide_types::schematic::SelectedKind::ChildSheet);
         let active_submenu = self.interaction_state.context_submenu;
         // Shortcut hints read from the active keymap profile, falling
         // back to the historic Altium defaults when a command is unbound.
@@ -146,7 +146,7 @@ impl Signex {
             active_submenu,
             &sc,
         );
-        signex_widgets::active_bar_dropdown::view(entries, tokens, Some(Self::CONTEXT_MENU_WIDTH))
+        oxide_widgets::active_bar_dropdown::view(entries, tokens, Some(Self::CONTEXT_MENU_WIDTH))
     }
 
     /// Build the document-tab right-click menu. Resolves the tab title and
@@ -173,7 +173,7 @@ impl Signex {
             already_undocked,
         );
         let tokens = &self.document_state.panel_ctx.tokens;
-        signex_widgets::active_bar_dropdown::view(entries, tokens, Some(Self::CONTEXT_MENU_WIDTH))
+        oxide_widgets::active_bar_dropdown::view(entries, tokens, Some(Self::CONTEXT_MENU_WIDTH))
     }
 }
 

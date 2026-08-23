@@ -1,8 +1,8 @@
 use iced::widget::{Space, button, column, container, row, scrollable, text, text_input};
 use iced::{Background, Border, Color, Element, Length, Theme};
-use signex_engine::TextTarget;
-use signex_types::schematic::SelectedItem;
-use signex_types::theme::ThemeTokens;
+use oxide_engine::TextTarget;
+use oxide_types::schematic::SelectedItem;
+use oxide_types::theme::ThemeTokens;
 
 #[derive(Debug, Clone)]
 pub struct FindMatch {

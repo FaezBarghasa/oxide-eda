@@ -15,7 +15,7 @@ impl Signex {
             && let Some(snapshot) = self.active_render_snapshot()
             && let Some(hit) =
                 crate::schematic_runtime::hit_test::hit_test(snapshot, world_x, world_y)
-            && hit.kind == signex_types::schematic::SelectedKind::ChildSheet
+            && hit.kind == oxide_types::schematic::SelectedKind::ChildSheet
         {
             snapshot
                 .child_sheets
@@ -44,9 +44,9 @@ impl Signex {
         // DoubleClicked into the same commit path as Clicked.
         match self.interaction_state.current_tool {
             Tool::Line => {
-                let p = signex_types::schematic::Point::new(world_x, world_y);
+                let p = oxide_types::schematic::Point::new(world_x, world_y);
                 if let Some(start) = self.interaction_state.shape_anchor.take() {
-                    let drawing = signex_types::schematic::SchDrawing::Line {
+                    let drawing = oxide_types::schematic::SchDrawing::Line {
                         uuid: uuid::Uuid::new_v4(),
                         start,
                         end: p,
@@ -54,7 +54,7 @@ impl Signex {
                         stroke_color: None,
                     };
                     self.apply_engine_command(
-                        signex_engine::Command::PlaceSchDrawing { drawing },
+                        oxide_engine::Command::PlaceSchDrawing { drawing },
                         false,
                         false,
                     );
@@ -69,9 +69,9 @@ impl Signex {
             }
             Tool::Rectangle => {
                 let (pp_w, pp_fill) = pre_placement_shape(&self.document_state);
-                let p = signex_types::schematic::Point::new(world_x, world_y);
+                let p = oxide_types::schematic::Point::new(world_x, world_y);
                 if let Some(start) = self.interaction_state.shape_anchor.take() {
-                    let drawing = signex_types::schematic::SchDrawing::Rect {
+                    let drawing = oxide_types::schematic::SchDrawing::Rect {
                         uuid: uuid::Uuid::new_v4(),
                         start,
                         end: p,
@@ -80,7 +80,7 @@ impl Signex {
                         stroke_color: None,
                     };
                     self.apply_engine_command(
-                        signex_engine::Command::PlaceSchDrawing { drawing },
+                        oxide_engine::Command::PlaceSchDrawing { drawing },
                         false,
                         false,
                     );
@@ -93,13 +93,13 @@ impl Signex {
             }
             Tool::Circle => {
                 let (pp_w, pp_fill) = pre_placement_shape(&self.document_state);
-                let p = signex_types::schematic::Point::new(world_x, world_y);
+                let p = oxide_types::schematic::Point::new(world_x, world_y);
                 if let Some(center) = self.interaction_state.shape_anchor.take() {
                     let dx = p.x - center.x;
                     let dy = p.y - center.y;
                     let radius = (dx * dx + dy * dy).sqrt();
                     if radius > 0.01 {
-                        let drawing = signex_types::schematic::SchDrawing::Circle {
+                        let drawing = oxide_types::schematic::SchDrawing::Circle {
                             uuid: uuid::Uuid::new_v4(),
                             center,
                             radius,
@@ -108,7 +108,7 @@ impl Signex {
                             stroke_color: None,
                         };
                         self.apply_engine_command(
-                            signex_engine::Command::PlaceSchDrawing { drawing },
+                            oxide_engine::Command::PlaceSchDrawing { drawing },
                             false,
                             false,
                         );
@@ -122,11 +122,11 @@ impl Signex {
             }
             Tool::Arc => {
                 let (pp_w, pp_fill) = pre_placement_shape(&self.document_state);
-                let p = signex_types::schematic::Point::new(world_x, world_y);
+                let p = oxide_types::schematic::Point::new(world_x, world_y);
                 self.interaction_state.arc_points.push(p);
                 if self.interaction_state.arc_points.len() >= 3 {
                     let pts = std::mem::take(&mut self.interaction_state.arc_points);
-                    let drawing = signex_types::schematic::SchDrawing::Arc {
+                    let drawing = oxide_types::schematic::SchDrawing::Arc {
                         uuid: uuid::Uuid::new_v4(),
                         start: pts[0],
                         mid: pts[1],
@@ -136,7 +136,7 @@ impl Signex {
                         stroke_color: None,
                     };
                     self.apply_engine_command(
-                        signex_engine::Command::PlaceSchDrawing { drawing },
+                        oxide_engine::Command::PlaceSchDrawing { drawing },
                         false,
                         false,
                     );
@@ -162,7 +162,7 @@ impl Signex {
         // vertex at this point. Append the cursor as the
         // final vertex, then commit if we now have >= 2.
         if self.interaction_state.current_tool == Tool::Polyline {
-            let p = signex_types::schematic::Point::new(world_x, world_y);
+            let p = oxide_types::schematic::Point::new(world_x, world_y);
             // Avoid appending a duplicate of the anchor when
             // the user double-clicks on the same spot.
             let is_dup = self
@@ -177,7 +177,7 @@ impl Signex {
             if self.interaction_state.polyline_points.len() >= 2 {
                 let (pp_w, pp_fill) = pre_placement_shape(&self.document_state);
                 let pts = std::mem::take(&mut self.interaction_state.polyline_points);
-                let drawing = signex_types::schematic::SchDrawing::Polyline {
+                let drawing = oxide_types::schematic::SchDrawing::Polyline {
                     uuid: uuid::Uuid::new_v4(),
                     points: pts,
                     width: pp_w,
@@ -185,7 +185,7 @@ impl Signex {
                     stroke_color: None,
                 };
                 self.apply_engine_command(
-                    signex_engine::Command::PlaceSchDrawing { drawing },
+                    oxide_engine::Command::PlaceSchDrawing { drawing },
                     false,
                     false,
                 );
@@ -208,7 +208,7 @@ impl Signex {
                 .clear();
             self.interaction_state.active_canvas_mut().drawing_mode = false;
         } else if let Some(snapshot) = self.active_render_snapshot() {
-            use signex_types::schematic::SelectedKind;
+            use oxide_types::schematic::SelectedKind;
             if let Some(hit) =
                 crate::schematic_runtime::hit_test::hit_test(snapshot, world_x, world_y)
             {

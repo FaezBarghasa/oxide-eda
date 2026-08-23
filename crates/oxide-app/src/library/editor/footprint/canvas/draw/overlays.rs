@@ -87,9 +87,9 @@ impl FootprintCanvas<'_> {
                 const LINE_HIT_TOL_PX: f32 = 6.0;
                 let world = cstate.screen_to_world(p);
                 let tol_mm = (LINE_HIT_TOL_PX / cstate.scale.max(1.0)) as f64;
-                let pos_of = |pid: signex_sketch::id::SketchEntityId| -> Option<(f64, f64)> {
+                let pos_of = |pid: oxide_sketch::id::SketchEntityId| -> Option<(f64, f64)> {
                     if let Some(solve) = self.state.last_solve.as_ref()
-                        && let Some(q) = signex_sketch::solver::state::point_xy(
+                        && let Some(q) = oxide_sketch::solver::state::point_xy(
                             pid,
                             &solve.result.state,
                             &solve.result.index,
@@ -103,13 +103,13 @@ impl FootprintCanvas<'_> {
                         .iter()
                         .find(|e| e.id == pid)
                         .and_then(|e| match e.kind {
-                            signex_sketch::entity::EntityKind::Point { x, y } => Some((x, y)),
+                            oxide_sketch::entity::EntityKind::Point { x, y } => Some((x, y)),
                             _ => None,
                         })
                 };
                 let mut hit: Option<f32> = None;
                 for ent in &sketch_ref.entities {
-                    if let signex_sketch::entity::EntityKind::Line { start, end } = ent.kind
+                    if let oxide_sketch::entity::EntityKind::Line { start, end } = ent.kind
                         && let (Some(a), Some(b)) = (pos_of(start), pos_of(end))
                     {
                         let line_dx = b.0 - a.0;

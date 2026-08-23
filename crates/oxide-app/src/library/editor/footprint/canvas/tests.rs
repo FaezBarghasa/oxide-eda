@@ -4,7 +4,7 @@
 
 use super::geometry::{point_in_polygon, point_to_segment_dist, polygon_outline_hit};
 use super::silk_f_hit_at;
-use signex_library::primitive::footprint::{FpGraphic, FpGraphicKind};
+use oxide_library::primitive::footprint::{FpGraphic, FpGraphicKind};
 
 fn line(from: [f64; 2], to: [f64; 2]) -> FpGraphic {
     FpGraphic {
@@ -100,23 +100,23 @@ fn point_to_segment_dist_zero_length() {
 
 /// Sketch with one arc of radius `r_mm` centred at the origin, plus
 /// its centre / start / end Points. Returns the arc's id.
-fn arc_sketch(r_mm: f64) -> (signex_sketch::SketchData, signex_sketch::id::SketchEntityId) {
-    use signex_sketch::entity::{Entity, EntityKind};
-    use signex_sketch::id::SketchEntityId;
-    use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
+fn arc_sketch(r_mm: f64) -> (oxide_sketch::SketchData, oxide_sketch::id::SketchEntityId) {
+    use oxide_sketch::entity::{Entity, EntityKind};
+    use oxide_sketch::id::SketchEntityId;
+    use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
 
     let plane_id = PlaneId::new();
-    let push = |sketch: &mut signex_sketch::SketchData, kind| {
+    let push = |sketch: &mut oxide_sketch::SketchData, kind| {
         let id = SketchEntityId::new();
         sketch.entities.push(Entity::new(id, plane_id, kind));
         id
     };
-    let mut sketch = signex_sketch::SketchData {
+    let mut sketch = oxide_sketch::SketchData {
         planes: vec![Plane {
             id: plane_id,
             kind: PlaneKind::BoardTop,
         }],
-        ..signex_sketch::SketchData::default()
+        ..oxide_sketch::SketchData::default()
     };
     let center = push(&mut sketch, EntityKind::Point { x: 0.0, y: 0.0 });
     let start = push(&mut sketch, EntityKind::Point { x: r_mm, y: 0.0 });
@@ -176,10 +176,10 @@ mod drag_track_end {
     use iced::widget::canvas;
     use iced::{Color, Point};
 
-    use signex_sketch::SketchData;
-    use signex_sketch::entity::{Entity, EntityKind};
-    use signex_sketch::id::SketchEntityId;
-    use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
+    use oxide_sketch::SketchData;
+    use oxide_sketch::entity::{Entity, EntityKind};
+    use oxide_sketch::id::SketchEntityId;
+    use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
 
     use crate::library::editor::footprint::state::{EditorMode, FootprintEditorState, SketchTool};
     use crate::library::state::EditorAddress;
@@ -232,7 +232,7 @@ mod drag_track_end {
             address: EditorAddress::new(
                 std::path::PathBuf::from("/tmp/lib.snxlib"),
                 "footprints".to_string(),
-                signex_library::RowId::new(),
+                oxide_library::RowId::new(),
             ),
             bg_color: Color::WHITE,
             grid_color: Color::BLACK,
@@ -401,8 +401,8 @@ mod drag_track_end {
         // (4,0) lies ON the SOLVED segment (0,0)–(5,0) but 3 mm PAST the
         // authored segment (0,0)–(1,0). The old raw-coords hit-test
         // (`sketch_hit_other`) missed it; the solve-aware one grabs p2.
-        use signex_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
-        use signex_sketch::id::ConstraintId;
+        use oxide_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
+        use oxide_sketch::id::ConstraintId;
 
         let plane = Plane {
             id: PlaneId::new(),
@@ -425,7 +425,7 @@ mod drag_track_end {
             }],
             ..SketchData::default()
         };
-        let mut fp = signex_library::primitive::footprint::Footprint::empty("t");
+        let mut fp = oxide_library::primitive::footprint::Footprint::empty("t");
         fp.sketch = Some(sketch);
         let mut state = FootprintEditorState::from_footprint(&fp);
 

@@ -5,8 +5,8 @@
 use std::future::Future;
 
 use serde_json::json;
-use signex_library::distributor::{DistributorAdapter, DistributorSource};
-use signex_library::distributors::jlcpcb::JlcpcbAdapter;
+use oxide_library::distributor::{DistributorAdapter, DistributorSource};
+use oxide_library::distributors::jlcpcb::JlcpcbAdapter;
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
@@ -109,9 +109,9 @@ fn lookup_by_mpn_handles_empty_list() {
 fn cache_hit_short_circuits_post() {
     let dir = tempfile::tempdir().unwrap();
     let cache =
-        signex_library::distributors::cache::DistributorCache::with_root(dir.path()).unwrap();
+        oxide_library::distributors::cache::DistributorCache::with_root(dir.path()).unwrap();
 
-    let pre = signex_library::distributor::DistributorPart {
+    let pre = oxide_library::distributor::DistributorPart {
         mpn: "RC0805FR-0710KL".into(),
         manufacturer: "Yageo".into(),
         description: "Pre-cached".into(),

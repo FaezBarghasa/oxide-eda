@@ -5,7 +5,7 @@ use iced::Task;
 use super::super::super::*;
 
 impl Signex {
-    pub(crate) fn handle_annotate(&mut self, mode: signex_engine::AnnotateMode) -> Task<Message> {
+    pub(crate) fn handle_annotate(&mut self, mode: oxide_engine::AnnotateMode) -> Task<Message> {
         // Share one per-prefix counter across every open sheet so designators
         // don't collide across sheets of the same project.
         let mut next_by_prefix: std::collections::HashMap<String, u32> =
@@ -122,7 +122,7 @@ impl Signex {
             let Some(sheet) = project_set.sheets.get(path).cloned() else {
                 continue;
             };
-            let Ok(mut engine) = signex_engine::Engine::new(sheet) else {
+            let Ok(mut engine) = oxide_engine::Engine::new(sheet) else {
                 continue;
             };
             engine.set_path(Some(path.clone()));
@@ -203,7 +203,7 @@ impl Signex {
         // each (non-power, non-hash) reference.
         let mut counts: HashMap<String, usize> = HashMap::new();
         let bump = |counts: &mut HashMap<String, usize>,
-                    sheet: &signex_types::schematic::SchematicSheet| {
+                    sheet: &oxide_types::schematic::SchematicSheet| {
             for sym in &sheet.symbols {
                 if sym.is_power || sym.reference.starts_with('#') {
                     continue;
@@ -228,7 +228,7 @@ impl Signex {
         // written straight back to disk. The already-parsed
         // `SchematicSheet` is kept for phase 2 so counting and reset
         // see the same state.
-        let mut unopened: Vec<(PathBuf, signex_types::schematic::SchematicSheet)> = Vec::new();
+        let mut unopened: Vec<(PathBuf, oxide_types::schematic::SchematicSheet)> = Vec::new();
         let mut project_paths: HashSet<PathBuf> = HashSet::new();
         for (path, sheet) in project_set.sheets {
             bump(&mut counts, &sheet);
@@ -261,7 +261,7 @@ impl Signex {
         // the duplicates set, reset to `{prefix}?`. Returns whether
         // anything changed in the sheet.
         fn reset_in(
-            sheet: &mut signex_types::schematic::SchematicSheet,
+            sheet: &mut oxide_types::schematic::SchematicSheet,
             dupes: &HashSet<String>,
         ) -> bool {
             let mut changed = false;
@@ -295,7 +295,7 @@ impl Signex {
         });
         if let Some(document) = reset_sheet {
             self.apply_engine_command(
-                signex_engine::Command::ReplaceDocument { document },
+                oxide_engine::Command::ReplaceDocument { document },
                 true,
                 false,
             );
@@ -329,7 +329,7 @@ impl Signex {
                 // the dirty bookkeeping is done by hand below. The result is
                 // still read rather than discarded — a failure here means the
                 // sheet was reported as reset when it was not (#585).
-                match engine.execute(signex_engine::Command::ReplaceDocument { document: sheet }) {
+                match engine.execute(oxide_engine::Command::ReplaceDocument { document: sheet }) {
                     Ok(result) => result.changed,
                     Err(error) => {
                         let error = anyhow::Error::new(error);
@@ -356,7 +356,7 @@ impl Signex {
             if !reset_in(&mut sheet, &duplicates) {
                 continue;
             }
-            let mut engine = match signex_engine::Engine::new(sheet) {
+            let mut engine = match oxide_engine::Engine::new(sheet) {
                 Ok(eng) => eng,
                 Err(err) => {
                     crate::diagnostics::log_info(format!(

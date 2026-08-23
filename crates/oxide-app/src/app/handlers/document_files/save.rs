@@ -238,7 +238,7 @@ impl Signex {
             Some(p) => p.data.clone(),
             None => anyhow::bail!("project {project_id} vanished before write"),
         };
-        signex_types::project::write_project(&project_path, &data)
+        oxide_types::project::write_project(&project_path, &data)
             .with_context(|| format!("write project {}", project_path.display()))?;
 
         self.document_state.dirty_paths.remove(&project_path);
@@ -454,12 +454,12 @@ impl Signex {
         // the project so a project move doesn't break the binding.
         let (kind, stored_path) = if let Ok(rel) = lib_dir.strip_prefix(&project_dir) {
             (
-                signex_types::project::LibraryEntryKind::ProjectLocal,
+                oxide_types::project::LibraryEntryKind::ProjectLocal,
                 rel.to_path_buf(),
             )
         } else {
             (
-                signex_types::project::LibraryEntryKind::Shared,
+                oxide_types::project::LibraryEntryKind::Shared,
                 lib_dir.to_path_buf(),
             )
         };
@@ -467,7 +467,7 @@ impl Signex {
         loaded
             .data
             .libraries
-            .push(signex_types::project::LibraryEntry {
+            .push(oxide_types::project::LibraryEntry {
                 path: stored_path,
                 kind,
                 library_id,

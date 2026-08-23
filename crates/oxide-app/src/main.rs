@@ -4,8 +4,8 @@
 //! library face (`lib.rs`) so integration tests can drive
 //! dispatchers without spinning up the iced runtime.
 
-use signex_app::app::Signex;
-use signex_app::{diagnostics, fonts};
+use oxide_app::app::Signex;
+use oxide_app::{diagnostics, fonts};
 
 const IOSEVKA_REGULAR: &[u8] = include_bytes!("../assets/fonts/Iosevka-Regular.ttf");
 const IOSEVKA_BOLD: &[u8] = include_bytes!("../assets/fonts/Iosevka-Bold.ttf");

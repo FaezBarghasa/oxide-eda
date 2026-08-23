@@ -4,13 +4,13 @@
 //! Run via:
 //!
 //! ```text
-//! cargo run --example build_stock_library -p signex-app
+//! cargo run --example build_stock_library -p oxide-app
 //! ```
 //!
 //! Each footprint authors a single `BoardTopPlane`, parameterises the
 //! interesting dimensions through `SketchData::parameters`, and lays
 //! down one Point per pad with the per-pad delta carried on
-//! `offset_x_expr` / `offset_y_expr`. The bake walker (signex-app's
+//! `offset_x_expr` / `offset_y_expr`. The bake walker (oxide-app's
 //! `apply_sketch_edit`) is the consumer; here we only emit the
 //! authored sketch — the bake fires the first time the user opens the
 //! file in the footprint editor.
@@ -22,12 +22,12 @@
 use std::error::Error;
 use std::path::Path;
 
-use signex_library::primitive::footprint::{Footprint, FootprintFile};
-use signex_sketch::SketchData;
-use signex_sketch::attr::{DrillSpec, PadAttr, PadKind, PadShape, PadSide, PasteAperturePattern};
-use signex_sketch::entity::{Entity, EntityKind};
-use signex_sketch::id::SketchEntityId;
-use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
+use oxide_library::primitive::footprint::{Footprint, FootprintFile};
+use oxide_sketch::SketchData;
+use oxide_sketch::attr::{DrillSpec, PadAttr, PadKind, PadShape, PadSide, PasteAperturePattern};
+use oxide_sketch::entity::{Entity, EntityKind};
+use oxide_sketch::id::SketchEntityId;
+use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
 
 /// One stock footprint to emit: the `.snxfpt` file name it is written
 /// to under `assets/stock-library/footprints/`, paired with the builder

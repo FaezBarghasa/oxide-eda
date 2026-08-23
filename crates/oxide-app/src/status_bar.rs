@@ -2,9 +2,9 @@
 
 use iced::widget::{button, container, row, space, text};
 use iced::{Element, Length};
-use signex_types::coord::Unit;
-use signex_types::schematic::{SelectedItem, SelectedKind};
-use signex_types::theme::ThemeTokens;
+use oxide_types::coord::Unit;
+use oxide_types::schematic::{SelectedItem, SelectedKind};
+use oxide_types::theme::ThemeTokens;
 
 use crate::app::{StatusBarRequest, Tool};
 use crate::styles;

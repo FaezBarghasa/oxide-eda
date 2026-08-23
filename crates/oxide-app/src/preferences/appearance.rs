@@ -11,7 +11,7 @@ use crate::render_config::{
 };
 use iced::widget::{Space, button, column, container, row, text};
 use iced::{Background, Border, Element, Length, Theme};
-use signex_types::theme::ThemeId;
+use oxide_types::theme::ThemeId;
 
 pub(super) fn content_appearance<'a>(v: PrefsView<'a>) -> Element<'a, PrefMsg> {
     let PrefsView {

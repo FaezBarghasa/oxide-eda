@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use signex_types::net::Netlist;
-use signex_types::schematic::SymbolInstance;
+use oxide_types::net::Netlist;
+use oxide_types::schematic::SymbolInstance;
 
 use crate::SheetSnapshot;
 
@@ -100,7 +100,7 @@ fn build_pin_net_lookup(netlist: Option<&Netlist>) -> HashMap<String, HashMap<St
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_types::net::{Net, NetId, Terminal};
+    use oxide_types::net::{Net, NetId, Terminal};
 
     #[test]
     fn no_netlist_yields_empty_lookup() {

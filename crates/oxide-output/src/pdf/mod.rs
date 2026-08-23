@@ -20,7 +20,7 @@
 //! intended Roboto/Iosevka typeface.
 
 use pdf_writer::{Finish, Name, Pdf, Rect, Ref};
-use signex_types::markup::{
+use oxide_types::markup::{
     ExpressionEvalContext, RichSegment, evaluate_expressions, parse_signex_markup,
 };
 use thiserror::Error;
@@ -80,10 +80,10 @@ pub struct PdfOptions {
     /// sheets expand to physical sheets named after the variant.
     /// Today it controls the title block's `${VARIANT}` token and
     /// the bookmark sheet titles; full per-instance sheet rewriting
-    /// lands once signex-types models per-variant component data.
+    /// lands once oxide-types models per-variant component data.
     pub use_physical_structure: bool,
     /// Per-instance designator/net-label/port rewriting. Today
-    /// signex-types stores variants as `Vec<String>` only — there's
+    /// oxide-types stores variants as `Vec<String>` only — there's
     /// no per-variant override map — so these toggles are accepted
     /// and round-tripped but produce no visible difference until
     /// the schema gains per-variant fields. Promote the gating
@@ -111,7 +111,7 @@ pub struct PdfOptions {
     /// `include_collapsed_notes` (Altium collapsed-note placards).
     /// Toggle them ahead of time so that round-tripping an Altium
     /// project keeps the user's intent — when the corresponding
-    /// signex-types feature lands the gating is one-line.
+    /// oxide-types feature lands the gating is one-line.
     pub include_no_erc_markers: bool,
     pub include_parameter_sets: bool,
     pub include_probes: bool,

@@ -11,7 +11,7 @@
 //! - the diff is symmetric (added/removed swap on reversal),
 //! - lifecycle transitions surface in `lifecycle_detail`.
 
-use signex_library::*;
+use oxide_library::*;
 use uuid::Uuid;
 
 fn fixed_uuid(seed: u8) -> Uuid {

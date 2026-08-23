@@ -53,7 +53,7 @@ impl Signex {
         &mut self,
         schematic_path: std::path::PathBuf,
     ) {
-        use signex_library::WorkflowMode;
+        use oxide_library::WorkflowMode;
         // Snapshot the placed-Symbol identity tuples first so we can
         // mutate the engine in the apply loop below without holding
         // the engine borrow across the library-set lookups.
@@ -127,7 +127,7 @@ impl Signex {
             let Ok(table_names) = adapter.list_tables() else {
                 continue;
             };
-            let mut found: Option<(String, signex_library::ComponentRow)> = None;
+            let mut found: Option<(String, oxide_library::ComponentRow)> = None;
             for name in &table_names {
                 if let Ok(row) = adapter.read_row(name, *row_id) {
                     found = Some((name.clone(), row));

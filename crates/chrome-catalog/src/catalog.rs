@@ -2,8 +2,8 @@
 
 use iced::widget::{column, container, scrollable};
 use iced::{Background, Element, Length, Theme};
-use signex_types::theme::{ThemeId, ThemeTokens, theme_tokens};
-use signex_widgets::passive_calculator::{CalculatorControl, CalculatorMessage};
+use oxide_types::theme::{ThemeId, ThemeTokens, theme_tokens};
+use oxide_widgets::passive_calculator::{CalculatorControl, CalculatorMessage};
 
 use crate::{bom_modal, modal_card, project_tree, section, tabs, theme, theme_picker};
 

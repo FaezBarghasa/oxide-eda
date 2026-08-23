@@ -45,39 +45,39 @@ impl Signex {
             ActiveBarAction::PlacePort => {
                 follow = self.update(Message::Tool(ToolMessage::SelectTool(Tool::Label)));
                 self.interaction_state.pending_port = Some((
-                    signex_types::schematic::LabelType::Global,
+                    oxide_types::schematic::LabelType::Global,
                     "bidirectional".to_string(),
                 ));
                 self.interaction_state.active_canvas_mut().ghost_label =
-                    Some(signex_types::schematic::Label {
+                    Some(oxide_types::schematic::Label {
                         uuid: uuid::Uuid::new_v4(),
                         text: "PORT".to_string(),
-                        position: signex_types::schematic::Point::new(0.0, 0.0),
+                        position: oxide_types::schematic::Point::new(0.0, 0.0),
                         rotation: 0.0,
-                        label_type: signex_types::schematic::LabelType::Global,
+                        label_type: oxide_types::schematic::LabelType::Global,
                         shape: "bidirectional".to_string(),
-                        font_size: signex_types::schematic::SCHEMATIC_TEXT_MM,
-                        justify: signex_types::schematic::HAlign::Left,
-                        justify_v: signex_types::schematic::VAlign::Bottom,
+                        font_size: oxide_types::schematic::SCHEMATIC_TEXT_MM,
+                        justify: oxide_types::schematic::HAlign::Left,
+                        justify_v: oxide_types::schematic::VAlign::Bottom,
                     });
             }
             ActiveBarAction::PlaceOffSheetConnector => {
                 follow = self.update(Message::Tool(ToolMessage::SelectTool(Tool::Label)));
                 self.interaction_state.pending_port = Some((
-                    signex_types::schematic::LabelType::Hierarchical,
+                    oxide_types::schematic::LabelType::Hierarchical,
                     String::new(),
                 ));
                 self.interaction_state.active_canvas_mut().ghost_label =
-                    Some(signex_types::schematic::Label {
+                    Some(oxide_types::schematic::Label {
                         uuid: uuid::Uuid::new_v4(),
                         text: "SHEET".to_string(),
-                        position: signex_types::schematic::Point::new(0.0, 0.0),
+                        position: oxide_types::schematic::Point::new(0.0, 0.0),
                         rotation: 0.0,
-                        label_type: signex_types::schematic::LabelType::Hierarchical,
+                        label_type: oxide_types::schematic::LabelType::Hierarchical,
                         shape: String::new(),
-                        font_size: signex_types::schematic::SCHEMATIC_TEXT_MM,
-                        justify: signex_types::schematic::HAlign::Left,
-                        justify_v: signex_types::schematic::VAlign::Bottom,
+                        font_size: oxide_types::schematic::SCHEMATIC_TEXT_MM,
+                        justify: oxide_types::schematic::HAlign::Left,
+                        justify_v: oxide_types::schematic::VAlign::Bottom,
                     });
             }
             ActiveBarAction::PlaceBusEntry => {
@@ -135,16 +135,16 @@ impl Signex {
                 follow = self.update(Message::Tool(ToolMessage::SelectTool(Tool::Label)));
                 self.interaction_state.pending_port = None;
                 self.interaction_state.active_canvas_mut().ghost_label =
-                    Some(signex_types::schematic::Label {
+                    Some(oxide_types::schematic::Label {
                         uuid: uuid::Uuid::new_v4(),
                         text: "PARAM=VALUE".to_string(),
-                        position: signex_types::schematic::Point::new(0.0, 0.0),
+                        position: oxide_types::schematic::Point::new(0.0, 0.0),
                         rotation: 0.0,
-                        label_type: signex_types::schematic::LabelType::Net,
+                        label_type: oxide_types::schematic::LabelType::Net,
                         shape: String::new(),
                         font_size: 1.8,
-                        justify: signex_types::schematic::HAlign::Left,
-                        justify_v: signex_types::schematic::VAlign::Bottom,
+                        justify: oxide_types::schematic::HAlign::Left,
+                        justify_v: oxide_types::schematic::VAlign::Bottom,
                     });
             }
             ActiveBarAction::PlaceDiffPair => {
@@ -153,14 +153,14 @@ impl Signex {
                 // model lands in v2.1.
                 follow = self.update(Message::Tool(ToolMessage::SelectTool(Tool::Text)));
                 self.interaction_state.active_canvas_mut().ghost_text =
-                    Some(signex_types::schematic::TextNote {
+                    Some(oxide_types::schematic::TextNote {
                         uuid: uuid::Uuid::new_v4(),
                         text: "DIFF_PAIR".to_string(),
-                        position: signex_types::schematic::Point::new(0.0, 0.0),
+                        position: oxide_types::schematic::Point::new(0.0, 0.0),
                         rotation: 0.0,
                         font_size: 1.8,
-                        justify_h: signex_types::schematic::HAlign::Left,
-                        justify_v: signex_types::schematic::VAlign::default(),
+                        justify_h: oxide_types::schematic::HAlign::Left,
+                        justify_v: oxide_types::schematic::VAlign::default(),
                     });
             }
             ActiveBarAction::PlaceBlanket | ActiveBarAction::PlaceCompileMask => {
@@ -191,7 +191,7 @@ impl Signex {
                     ActiveBarAction::NetColorDarkGreen => (0x16, 0xA3, 0x4A),
                     _ => (0xFF, 0xFF, 0xFF),
                 };
-                self.ui_state.pending_net_color = Some(signex_types::theme::Color {
+                self.ui_state.pending_net_color = Some(oxide_types::theme::Color {
                     r: c.0,
                     g: c.1,
                     b: c.2,
@@ -224,7 +224,7 @@ impl Signex {
                 // A distinct armed state: use a sentinel color (alpha 0)
                 // to mean "clear mode". Simpler than a second enum — we
                 // still read pending_net_color at click time.
-                self.ui_state.pending_net_color = Some(signex_types::theme::Color {
+                self.ui_state.pending_net_color = Some(oxide_types::theme::Color {
                     r: 0,
                     g: 0,
                     b: 0,
@@ -268,14 +268,14 @@ impl Signex {
         // cursor so the user sees the actual shape (bars / bar / triangle)
         // before committing to a click.
         self.interaction_state.active_canvas_mut().ghost_symbol =
-            Some(signex_types::schematic::Symbol {
+            Some(oxide_types::schematic::Symbol {
                 uuid: uuid::Uuid::new_v4(),
                 lib_id: lib_id.to_string(),
                 reference: String::new(),
                 value: net_name.to_string(),
                 footprint: String::new(),
                 datasheet: String::new(),
-                position: signex_types::schematic::Point::new(0.0, 0.0),
+                position: oxide_types::schematic::Point::new(0.0, 0.0),
                 rotation: 0.0,
                 mirror_x: false,
                 mirror_y: false,

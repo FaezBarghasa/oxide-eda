@@ -5,8 +5,8 @@
 //! so the types carry `pub(super)` visibility.
 
 use super::*;
-use signex_types::anchor2d::rotate_vec;
-use signex_types::rotation2d::Vec2d;
+use oxide_types::anchor2d::rotate_vec;
+use oxide_types::rotation2d::Vec2d;
 
 /// Palette derived from the active sheet colour — picks a content
 /// foreground that reads correctly on the sheet bg. Two flavours:
@@ -117,7 +117,7 @@ pub(super) struct PinRenderGeometry {
 
 impl PinRenderGeometry {
     pub(super) fn compute(pin: &SymbolPin) -> Self {
-        use signex_library::PinOrientation;
+        use oxide_library::PinOrientation;
         use std::f64::consts::FRAC_PI_2;
 
         // Orientation → angle (CCW from +x axis), tip → body direction.
@@ -206,7 +206,7 @@ impl PinRenderGeometry {
     /// on each axis, swapping width/height for vertical text. An empty
     /// label yields a degenerate box that never hits.
     pub(super) fn label_hit_boxes(&self, pin: &SymbolPin) -> [Aabb; 2] {
-        use signex_library::PinOrientation;
+        use oxide_library::PinOrientation;
 
         let horizontal = matches!(
             pin.orientation,

@@ -19,7 +19,7 @@
 use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
-use signex_library::DistributorSource;
+use oxide_library::DistributorSource;
 
 /// File name for the distributors config — kept as a constant so the
 /// install path tests can pin it.
@@ -168,7 +168,7 @@ pub fn save_preferred_order(order: &[DistributorSource]) -> Result<(), String> {
 
 /// Variant for tests / explicit paths.
 ///
-/// Crash-safe: [`signex_types::atomic_io::atomic_write`] writes to a temp
+/// Crash-safe: [`oxide_types::atomic_io::atomic_write`] writes to a temp
 /// sibling, fsyncs it and renames over the destination, so a crash mid-save
 /// leaves the previously persisted order intact rather than a truncated file.
 /// It also creates the parent directory, so no separate `create_dir_all`.
@@ -194,7 +194,7 @@ pub fn save_preferred_order_at(
         );
         format!("serialise distributors.toml: {e}")
     })?;
-    signex_types::atomic_io::atomic_write(path, text.as_bytes()).map_err(|e| {
+    oxide_types::atomic_io::atomic_write(path, text.as_bytes()).map_err(|e| {
         tracing::warn!(
             target: "signex::library",
             path = %path.display(),

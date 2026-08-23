@@ -19,8 +19,8 @@
 //! doesn't carry modifier state cleanly in 0.14, so a Shift-to-
 //! disable toggle is deferred.
 
-use signex_sketch::SketchData;
-use signex_sketch::id::SketchEntityId;
+use oxide_sketch::SketchData;
+use oxide_sketch::id::SketchEntityId;
 
 use super::state::{FootprintEditorState, ToolPending};
 
@@ -67,7 +67,7 @@ pub enum SnapKind {
     /// snap pins both axes.
     Guide,
     /// v0.27 — snapped onto the intersection of two sketch Line
-    /// entities. Powered by `signex_sketch::geom::segment_segment_intersection`.
+    /// entities. Powered by `oxide_sketch::geom::segment_segment_intersection`.
     Intersection,
     /// Fell through to grid snap.
     Grid,
@@ -141,7 +141,7 @@ pub fn point_pos(
 ) -> Option<(f64, f64)> {
     let sketch = sketch?;
     if let Some(solve) = state.last_solve.as_ref()
-        && let Some(p) = signex_sketch::solver::state::point_xy(
+        && let Some(p) = oxide_sketch::solver::state::point_xy(
             id,
             &solve.result.state,
             &solve.result.index,
@@ -155,7 +155,7 @@ pub fn point_pos(
         .iter()
         .find(|e| e.id == id)
         .and_then(|e| match e.kind {
-            signex_sketch::entity::EntityKind::Point { x, y } => Some((x, y)),
+            oxide_sketch::entity::EntityKind::Point { x, y } => Some((x, y)),
             _ => None,
         })
 }
@@ -247,8 +247,8 @@ pub fn snap_cursor(
     if opts.snap_intersections
         && let Some(sketch) = sketch
     {
-        use signex_sketch::entity::EntityKind;
-        use signex_sketch::geom::{
+        use oxide_sketch::entity::EntityKind;
+        use oxide_sketch::geom::{
             Arc2, Circle2, Point2, Segment2, SegmentIntersection, segment_arc_intersections,
             segment_circle_intersections, segment_segment_intersection,
         };
@@ -369,7 +369,7 @@ pub fn snap_cursor(
         // Arc × Circle. Round out the snap so any pair of
         // sketch curves yields a snap target at their
         // crossing.
-        use signex_sketch::geom::{
+        use oxide_sketch::geom::{
             arc_arc_intersections, arc_circle_intersections, circle_circle_intersections,
         };
         for i in 0..circles.len() {
@@ -503,10 +503,10 @@ pub fn snap_cursor(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_sketch::SketchData;
-    use signex_sketch::entity::{Entity, EntityKind};
-    use signex_sketch::id::SketchEntityId;
-    use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
+    use oxide_sketch::SketchData;
+    use oxide_sketch::entity::{Entity, EntityKind};
+    use oxide_sketch::id::SketchEntityId;
+    use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
 
     fn empty_state() -> FootprintEditorState {
         FootprintEditorState::empty()

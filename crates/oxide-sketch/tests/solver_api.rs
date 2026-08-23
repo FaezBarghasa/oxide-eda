@@ -10,13 +10,13 @@
 mod common;
 use common::Sketch;
 
-use signex_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
-use signex_sketch::error::SolveError;
-use signex_sketch::id::ConstraintId;
-use signex_sketch::solver::Solver;
-use signex_sketch::solver::dof::DofColor;
-use signex_sketch::solver::residual::ResolvedParams;
-use signex_sketch::solver::state::point_xy;
+use oxide_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
+use oxide_sketch::error::SolveError;
+use oxide_sketch::id::ConstraintId;
+use oxide_sketch::solver::Solver;
+use oxide_sketch::solver::dof::DofColor;
+use oxide_sketch::solver::residual::ResolvedParams;
+use oxide_sketch::solver::state::point_xy;
 
 fn empty_params() -> ResolvedParams {
     ResolvedParams::new()

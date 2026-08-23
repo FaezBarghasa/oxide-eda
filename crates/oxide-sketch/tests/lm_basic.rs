@@ -8,11 +8,11 @@
 mod common;
 use common::Sketch;
 
-use signex_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
-use signex_sketch::id::ConstraintId;
-use signex_sketch::solver::lm::solve_lm;
-use signex_sketch::solver::residual::ResolvedParams;
-use signex_sketch::solver::state::point_xy;
+use oxide_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
+use oxide_sketch::id::ConstraintId;
+use oxide_sketch::solver::lm::solve_lm;
+use oxide_sketch::solver::residual::ResolvedParams;
+use oxide_sketch::solver::state::point_xy;
 
 fn empty_params() -> ResolvedParams {
     ResolvedParams::new()
@@ -166,9 +166,9 @@ fn lm_solves_offset_circle_via_distance_pt_circle() {
     // DistancePtCircle(anchor, source, target=2) and
     // DistancePtCircle(anchor, new_circle, target=0) should drive
     // the new circle's radius to 7 (= 5 + 2).
-    use signex_sketch::entity::{Entity, EntityKind};
-    use signex_sketch::id::SketchEntityId;
-    use signex_sketch::solver::state::circle_radius;
+    use oxide_sketch::entity::{Entity, EntityKind};
+    use oxide_sketch::id::SketchEntityId;
+    use oxide_sketch::solver::state::circle_radius;
 
     let mut s = Sketch::new();
     let centre = s.add_point(0.0, 0.0);

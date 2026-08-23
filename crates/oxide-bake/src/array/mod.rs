@@ -2,7 +2,7 @@
 //!
 //! Phase 7 Task 7.2 of the v0.13 sketch-mode plan. Walks every
 //! `Array` in the sketch and produces baked
-//! [`signex_library::primitive::footprint::Pad`]s by re-using the
+//! [`oxide_library::primitive::footprint::Pad`]s by re-using the
 //! per-pad bake body from `crate::pad::bake_one_pad`.
 //!
 //! Cleanroom: derived from first principles + the Phase 4 expression
@@ -27,13 +27,13 @@
 
 use std::collections::{BTreeMap, HashMap};
 
-use signex_library::primitive::footprint::Pad as LibPad;
-use signex_sketch::SketchError;
-use signex_sketch::array::ArrayKind;
-use signex_sketch::expr::ast::ExprNode;
-use signex_sketch::sketch::SketchData;
-use signex_sketch::solver::FullSolveOutput;
-use signex_sketch::unit::Quantity;
+use oxide_library::primitive::footprint::Pad as LibPad;
+use oxide_sketch::SketchError;
+use oxide_sketch::array::ArrayKind;
+use oxide_sketch::expr::ast::ExprNode;
+use oxide_sketch::sketch::SketchData;
+use oxide_sketch::solver::FullSolveOutput;
+use oxide_sketch::unit::Quantity;
 
 mod grid;
 mod linear;
@@ -44,7 +44,7 @@ use grid::{GridSpec, bake_grid};
 use linear::bake_linear;
 use polar::bake_polar;
 
-/// Walk every [`signex_sketch::array::Array`] and append baked pads
+/// Walk every [`oxide_sketch::array::Array`] and append baked pads
 /// to `out`. Bakes `ArrayKind::Linear`, `Grid`, and `Polar` natively.
 pub fn bake_arrays(
     sketch: &SketchData,

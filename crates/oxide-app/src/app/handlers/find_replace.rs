@@ -54,7 +54,7 @@ impl Signex {
                     let replacement = self.ui_state.find_replace.replacement.clone();
                     let value = replace_all_ci(&hit.text, &query, &replacement);
                     self.apply_engine_command(
-                        signex_engine::Command::UpdateText {
+                        oxide_engine::Command::UpdateText {
                             target: hit.target,
                             value,
                         },
@@ -73,7 +73,7 @@ impl Signex {
                         .find_replace
                         .matches
                         .iter()
-                        .map(|hit| signex_engine::Command::UpdateText {
+                        .map(|hit| oxide_engine::Command::UpdateText {
                             target: hit.target,
                             value: replace_all_ci(&hit.text, &query, &replacement),
                         })
@@ -102,11 +102,11 @@ impl Signex {
             for label in &snapshot.labels {
                 if label.text.to_lowercase().contains(&needle) {
                     matches.push(crate::find_replace::FindMatch {
-                        item: signex_types::schematic::SelectedItem::new(
+                        item: oxide_types::schematic::SelectedItem::new(
                             label.uuid,
-                            signex_types::schematic::SelectedKind::Label,
+                            oxide_types::schematic::SelectedKind::Label,
                         ),
-                        target: signex_engine::TextTarget::Label(label.uuid),
+                        target: oxide_engine::TextTarget::Label(label.uuid),
                         kind_label: "Net Label".to_string(),
                         text: label.text.clone(),
                     });
@@ -115,11 +115,11 @@ impl Signex {
             for note in &snapshot.text_notes {
                 if note.text.to_lowercase().contains(&needle) {
                     matches.push(crate::find_replace::FindMatch {
-                        item: signex_types::schematic::SelectedItem::new(
+                        item: oxide_types::schematic::SelectedItem::new(
                             note.uuid,
-                            signex_types::schematic::SelectedKind::TextNote,
+                            oxide_types::schematic::SelectedKind::TextNote,
                         ),
-                        target: signex_engine::TextTarget::TextNote(note.uuid),
+                        target: oxide_engine::TextTarget::TextNote(note.uuid),
                         kind_label: "Text Note".to_string(),
                         text: note.text.clone(),
                     });
@@ -128,22 +128,22 @@ impl Signex {
             for symbol in &snapshot.symbols {
                 if symbol.reference.to_lowercase().contains(&needle) {
                     matches.push(crate::find_replace::FindMatch {
-                        item: signex_types::schematic::SelectedItem::new(
+                        item: oxide_types::schematic::SelectedItem::new(
                             symbol.uuid,
-                            signex_types::schematic::SelectedKind::SymbolRefField,
+                            oxide_types::schematic::SelectedKind::SymbolRefField,
                         ),
-                        target: signex_engine::TextTarget::SymbolReference(symbol.uuid),
+                        target: oxide_engine::TextTarget::SymbolReference(symbol.uuid),
                         kind_label: "Designator".to_string(),
                         text: symbol.reference.clone(),
                     });
                 }
                 if symbol.value.to_lowercase().contains(&needle) {
                     matches.push(crate::find_replace::FindMatch {
-                        item: signex_types::schematic::SelectedItem::new(
+                        item: oxide_types::schematic::SelectedItem::new(
                             symbol.uuid,
-                            signex_types::schematic::SelectedKind::SymbolValField,
+                            oxide_types::schematic::SelectedKind::SymbolValField,
                         ),
-                        target: signex_engine::TextTarget::SymbolValue(symbol.uuid),
+                        target: oxide_engine::TextTarget::SymbolValue(symbol.uuid),
                         kind_label: "Value".to_string(),
                         text: symbol.value.clone(),
                     });

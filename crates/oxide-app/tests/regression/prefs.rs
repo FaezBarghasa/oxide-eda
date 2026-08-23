@@ -1,8 +1,8 @@
 //! `prefs.json` migration plus the read/write round-trip sweep.
 
-use signex_app::render_config::{GridStyle, LabelStyle, MultisheetStyle, PowerPortStyle};
-use signex_types::coord::Unit;
-use signex_types::theme::ThemeId;
+use oxide_app::render_config::{GridStyle, LabelStyle, MultisheetStyle, PowerPortStyle};
+use oxide_types::coord::Unit;
+use oxide_types::theme::ThemeId;
 
 use std::fs;
 use std::path::PathBuf;
@@ -30,7 +30,7 @@ fn f1_legacy_prefs_path_copied_forward_when_canonical_empty() {
     .unwrap();
     assert!(!canonical.exists(), "canonical absent before migration");
 
-    signex_app::fonts::migrate_legacy_prefs(&canonical, &legacy);
+    oxide_app::fonts::migrate_legacy_prefs(&canonical, &legacy);
 
     assert!(canonical.exists(), "canonical now exists (F1 copy)");
     let copied = fs::read_to_string(&canonical).unwrap();
@@ -59,7 +59,7 @@ fn f1_canonical_present_blocks_legacy_copy() {
     fs::write(&canonical, br#"{"ui_font":"Iosevka"}"#).unwrap();
     fs::write(&legacy, br#"{"ui_font":"LegacyValue"}"#).unwrap();
 
-    signex_app::fonts::migrate_legacy_prefs(&canonical, &legacy);
+    oxide_app::fonts::migrate_legacy_prefs(&canonical, &legacy);
 
     let content = fs::read_to_string(&canonical).unwrap();
     assert!(
@@ -83,7 +83,7 @@ fn f1_no_legacy_no_canonical_is_a_clean_noop() {
     let legacy = tmp.path().join("legacy").join("signex").join("prefs.json");
 
     // Neither exists. Migration should not panic, not create anything.
-    signex_app::fonts::migrate_legacy_prefs(&canonical, &legacy);
+    oxide_app::fonts::migrate_legacy_prefs(&canonical, &legacy);
 
     assert!(!canonical.exists(), "no canonical created from nothing");
     assert!(!legacy.exists(), "no legacy created from nothing");
@@ -105,7 +105,7 @@ fn f3_stale_label_style_rewritten_to_standard() {
     });
     fs::write(&canonical, serde_json::to_string_pretty(&stale).unwrap()).unwrap();
 
-    signex_app::fonts::migrate_legacy_prefs(&canonical, &legacy);
+    oxide_app::fonts::migrate_legacy_prefs(&canonical, &legacy);
 
     let rewritten: serde_json::Value =
         serde_json::from_str(&fs::read_to_string(&canonical).unwrap()).unwrap();
@@ -133,7 +133,7 @@ fn f3_canonical_label_style_left_alone() {
     let original = serde_json::to_string_pretty(&canonical_pref).unwrap();
     fs::write(&canonical, &original).unwrap();
 
-    signex_app::fonts::migrate_legacy_prefs(&canonical, &legacy);
+    oxide_app::fonts::migrate_legacy_prefs(&canonical, &legacy);
 
     // Idempotent — file content unchanged.
     let after = fs::read_to_string(&canonical).unwrap();
@@ -157,7 +157,7 @@ fn f3_label_style_case_variants_all_normalise() {
         )
         .unwrap();
 
-        signex_app::fonts::migrate_legacy_prefs(&canonical, &legacy);
+        oxide_app::fonts::migrate_legacy_prefs(&canonical, &legacy);
 
         let parsed: serde_json::Value =
             serde_json::from_str(&fs::read_to_string(&canonical).unwrap()).unwrap();
@@ -178,7 +178,7 @@ fn f3_garbage_json_doesnt_corrupt_file() {
     let original = b"this is not valid json {{{";
     fs::write(&canonical, original).unwrap();
 
-    signex_app::fonts::migrate_legacy_prefs(&canonical, &legacy);
+    oxide_app::fonts::migrate_legacy_prefs(&canonical, &legacy);
 
     // Migration is best-effort; broken JSON returns early and leaves
     // the file alone (vs. e.g. emptying it).
@@ -212,15 +212,15 @@ fn prefs_theme_round_trip_through_json() {
     let (_tmp, path) = temp_prefs_path();
     // Default when missing.
     assert_eq!(
-        signex_app::fonts::read_theme_pref_at(&path),
+        oxide_app::fonts::read_theme_pref_at(&path),
         ThemeId::Signex
     );
 
     // Each builtin theme survives a write→read cycle.
     for &theme in ThemeId::BUILTINS {
-        signex_app::fonts::write_theme_pref_at(&path, theme);
+        oxide_app::fonts::write_theme_pref_at(&path, theme);
         assert_eq!(
-            signex_app::fonts::read_theme_pref_at(&path),
+            oxide_app::fonts::read_theme_pref_at(&path),
             theme,
             "theme {theme:?} must round-trip"
         );
@@ -231,12 +231,12 @@ fn prefs_theme_round_trip_through_json() {
 fn prefs_unit_round_trip_through_json() {
     let (_tmp, path) = temp_prefs_path();
     // Default when missing.
-    assert_eq!(signex_app::fonts::read_unit_pref_at(&path), Unit::Mm);
+    assert_eq!(oxide_app::fonts::read_unit_pref_at(&path), Unit::Mm);
 
     for unit in [Unit::Mm, Unit::Mil, Unit::Inch] {
-        signex_app::fonts::write_unit_pref_at(&path, unit);
+        oxide_app::fonts::write_unit_pref_at(&path, unit);
         assert_eq!(
-            signex_app::fonts::read_unit_pref_at(&path),
+            oxide_app::fonts::read_unit_pref_at(&path),
             unit,
             "unit {unit:?} must round-trip"
         );
@@ -247,23 +247,23 @@ fn prefs_unit_round_trip_through_json() {
 fn prefs_grid_visible_round_trip_through_json() {
     let (_tmp, path) = temp_prefs_path();
     // Default when missing.
-    assert!(signex_app::fonts::read_grid_visible_pref_at(&path));
+    assert!(oxide_app::fonts::read_grid_visible_pref_at(&path));
 
-    signex_app::fonts::write_grid_visible_pref_at(&path, false);
-    assert!(!signex_app::fonts::read_grid_visible_pref_at(&path));
+    oxide_app::fonts::write_grid_visible_pref_at(&path, false);
+    assert!(!oxide_app::fonts::read_grid_visible_pref_at(&path));
 
-    signex_app::fonts::write_grid_visible_pref_at(&path, true);
-    assert!(signex_app::fonts::read_grid_visible_pref_at(&path));
+    oxide_app::fonts::write_grid_visible_pref_at(&path, true);
+    assert!(oxide_app::fonts::read_grid_visible_pref_at(&path));
 }
 
 #[test]
 fn prefs_snap_enabled_round_trip_through_json() {
     let (_tmp, path) = temp_prefs_path();
     // Default when missing.
-    assert!(signex_app::fonts::read_snap_enabled_pref_at(&path));
+    assert!(oxide_app::fonts::read_snap_enabled_pref_at(&path));
 
-    signex_app::fonts::write_snap_enabled_pref_at(&path, false);
-    assert!(!signex_app::fonts::read_snap_enabled_pref_at(&path));
+    oxide_app::fonts::write_snap_enabled_pref_at(&path, false);
+    assert!(!oxide_app::fonts::read_snap_enabled_pref_at(&path));
 }
 
 #[test]
@@ -271,14 +271,14 @@ fn prefs_grid_size_round_trip_through_json() {
     let (_tmp, path) = temp_prefs_path();
     // Default when missing — `None` so the caller can fall back to
     // the engine's preferred default.
-    assert_eq!(signex_app::fonts::read_grid_size_mm_pref_at(&path), None);
+    assert_eq!(oxide_app::fonts::read_grid_size_mm_pref_at(&path), None);
 
-    signex_app::fonts::write_grid_size_mm_pref_at(&path, 1.27);
-    let v = signex_app::fonts::read_grid_size_mm_pref_at(&path).unwrap();
+    oxide_app::fonts::write_grid_size_mm_pref_at(&path, 1.27);
+    let v = oxide_app::fonts::read_grid_size_mm_pref_at(&path).unwrap();
     assert!((v - 1.27).abs() < 1e-5, "grid size round-trips, got {v}");
 
-    signex_app::fonts::write_grid_size_mm_pref_at(&path, 0.635);
-    let v = signex_app::fonts::read_grid_size_mm_pref_at(&path).unwrap();
+    oxide_app::fonts::write_grid_size_mm_pref_at(&path, 0.635);
+    let v = oxide_app::fonts::read_grid_size_mm_pref_at(&path).unwrap();
     assert!((v - 0.635).abs() < 1e-5);
 }
 
@@ -287,20 +287,20 @@ fn prefs_writes_dont_clobber_neighboring_keys() {
     let (_tmp, path) = temp_prefs_path();
 
     // Seed multiple keys.
-    signex_app::fonts::write_theme_pref_at(&path, ThemeId::Signex);
-    signex_app::fonts::write_unit_pref_at(&path, Unit::Mil);
-    signex_app::fonts::write_grid_visible_pref_at(&path, false);
+    oxide_app::fonts::write_theme_pref_at(&path, ThemeId::Signex);
+    oxide_app::fonts::write_unit_pref_at(&path, Unit::Mil);
+    oxide_app::fonts::write_grid_visible_pref_at(&path, false);
 
     // Write a different key — neighbouring values must survive.
-    signex_app::fonts::write_snap_enabled_pref_at(&path, false);
+    oxide_app::fonts::write_snap_enabled_pref_at(&path, false);
 
     assert_eq!(
-        signex_app::fonts::read_theme_pref_at(&path),
+        oxide_app::fonts::read_theme_pref_at(&path),
         ThemeId::Signex
     );
-    assert_eq!(signex_app::fonts::read_unit_pref_at(&path), Unit::Mil);
-    assert!(!signex_app::fonts::read_grid_visible_pref_at(&path));
-    assert!(!signex_app::fonts::read_snap_enabled_pref_at(&path));
+    assert_eq!(oxide_app::fonts::read_unit_pref_at(&path), Unit::Mil);
+    assert!(!oxide_app::fonts::read_grid_visible_pref_at(&path));
+    assert!(!oxide_app::fonts::read_snap_enabled_pref_at(&path));
 }
 
 #[test]
@@ -311,25 +311,25 @@ fn prefs_garbage_json_falls_back_to_defaults() {
 
     // Each read returns its default rather than panicking on parse error.
     assert_eq!(
-        signex_app::fonts::read_theme_pref_at(&path),
+        oxide_app::fonts::read_theme_pref_at(&path),
         ThemeId::Signex
     );
-    assert_eq!(signex_app::fonts::read_unit_pref_at(&path), Unit::Mm);
-    assert!(signex_app::fonts::read_grid_visible_pref_at(&path));
-    assert!(signex_app::fonts::read_snap_enabled_pref_at(&path));
-    assert_eq!(signex_app::fonts::read_grid_size_mm_pref_at(&path), None);
+    assert_eq!(oxide_app::fonts::read_unit_pref_at(&path), Unit::Mm);
+    assert!(oxide_app::fonts::read_grid_visible_pref_at(&path));
+    assert!(oxide_app::fonts::read_snap_enabled_pref_at(&path));
+    assert_eq!(oxide_app::fonts::read_grid_size_mm_pref_at(&path), None);
 }
 
 #[test]
 fn prefs_ui_font_round_trip_through_json() {
     let (_tmp, path) = temp_prefs_path();
     // Default when missing.
-    assert_eq!(signex_app::fonts::read_ui_font_pref_at(&path), "Roboto");
+    assert_eq!(oxide_app::fonts::read_ui_font_pref_at(&path), "Roboto");
 
     for font in ["Iosevka", "Helvetica Neue", "Inter", "Source Code Pro"] {
-        signex_app::fonts::write_ui_font_pref_at(&path, font);
+        oxide_app::fonts::write_ui_font_pref_at(&path, font);
         assert_eq!(
-            signex_app::fonts::read_ui_font_pref_at(&path),
+            oxide_app::fonts::read_ui_font_pref_at(&path),
             font,
             "ui_font {font} must round-trip"
         );
@@ -341,14 +341,14 @@ fn prefs_label_style_round_trip_through_json() {
     let (_tmp, path) = temp_prefs_path();
     // Default when missing.
     assert_eq!(
-        signex_app::fonts::read_label_style_pref_at(&path),
+        oxide_app::fonts::read_label_style_pref_at(&path),
         LabelStyle::Standard
     );
 
     for &style in &[LabelStyle::Standard, LabelStyle::Altium] {
-        signex_app::fonts::write_label_style_pref_at(&path, style);
+        oxide_app::fonts::write_label_style_pref_at(&path, style);
         assert_eq!(
-            signex_app::fonts::read_label_style_pref_at(&path),
+            oxide_app::fonts::read_label_style_pref_at(&path),
             style,
             "label_style {style:?} must round-trip"
         );
@@ -360,14 +360,14 @@ fn prefs_power_port_style_round_trip_through_json() {
     let (_tmp, path) = temp_prefs_path();
     // Default when missing.
     assert_eq!(
-        signex_app::fonts::read_power_port_style_pref_at(&path),
+        oxide_app::fonts::read_power_port_style_pref_at(&path),
         PowerPortStyle::Altium
     );
 
     for &style in &[PowerPortStyle::Standard, PowerPortStyle::Altium] {
-        signex_app::fonts::write_power_port_style_pref_at(&path, style);
+        oxide_app::fonts::write_power_port_style_pref_at(&path, style);
         assert_eq!(
-            signex_app::fonts::read_power_port_style_pref_at(&path),
+            oxide_app::fonts::read_power_port_style_pref_at(&path),
             style,
             "power_port_style {style:?} must round-trip"
         );
@@ -379,14 +379,14 @@ fn prefs_multisheet_style_round_trip_through_json() {
     let (_tmp, path) = temp_prefs_path();
     // Default when missing.
     assert_eq!(
-        signex_app::fonts::read_multisheet_style_pref_at(&path),
+        oxide_app::fonts::read_multisheet_style_pref_at(&path),
         MultisheetStyle::Standard
     );
 
     for &style in &[MultisheetStyle::Standard, MultisheetStyle::Altium] {
-        signex_app::fonts::write_multisheet_style_pref_at(&path, style);
+        oxide_app::fonts::write_multisheet_style_pref_at(&path, style);
         assert_eq!(
-            signex_app::fonts::read_multisheet_style_pref_at(&path),
+            oxide_app::fonts::read_multisheet_style_pref_at(&path),
             style
         );
     }
@@ -397,14 +397,14 @@ fn prefs_grid_style_round_trip_through_json() {
     let (_tmp, path) = temp_prefs_path();
     // Default when missing.
     assert_eq!(
-        signex_app::fonts::read_grid_style_pref_at(&path),
+        oxide_app::fonts::read_grid_style_pref_at(&path),
         GridStyle::Dots
     );
 
     for &style in &[GridStyle::Dots, GridStyle::Lines, GridStyle::SmallCrosses] {
-        signex_app::fonts::write_grid_style_pref_at(&path, style);
+        oxide_app::fonts::write_grid_style_pref_at(&path, style);
         assert_eq!(
-            signex_app::fonts::read_grid_style_pref_at(&path),
+            oxide_app::fonts::read_grid_style_pref_at(&path),
             style,
             "grid_style {style:?} must round-trip"
         );
@@ -428,19 +428,19 @@ fn prefs_enum_case_insensitive_decode() {
     fs::write(&path, serde_json::to_string_pretty(&raw).unwrap()).unwrap();
 
     assert_eq!(
-        signex_app::fonts::read_label_style_pref_at(&path),
+        oxide_app::fonts::read_label_style_pref_at(&path),
         LabelStyle::Altium
     );
     assert_eq!(
-        signex_app::fonts::read_power_port_style_pref_at(&path),
+        oxide_app::fonts::read_power_port_style_pref_at(&path),
         PowerPortStyle::Standard
     );
     assert_eq!(
-        signex_app::fonts::read_multisheet_style_pref_at(&path),
+        oxide_app::fonts::read_multisheet_style_pref_at(&path),
         MultisheetStyle::Altium
     );
     assert_eq!(
-        signex_app::fonts::read_grid_style_pref_at(&path),
+        oxide_app::fonts::read_grid_style_pref_at(&path),
         GridStyle::Lines
     );
 }
@@ -451,21 +451,21 @@ fn prefs_cross_pref_independence() {
 
     // Write each pref in a different "session" (sequential writes,
     // each through update_prefs_json which does read-modify-write).
-    signex_app::fonts::write_theme_pref_at(&path, ThemeId::Signex);
-    signex_app::fonts::write_grid_size_mm_pref_at(&path, 2.54);
-    signex_app::fonts::write_unit_pref_at(&path, Unit::Mil);
-    signex_app::fonts::write_grid_visible_pref_at(&path, false);
-    signex_app::fonts::write_snap_enabled_pref_at(&path, false);
+    oxide_app::fonts::write_theme_pref_at(&path, ThemeId::Signex);
+    oxide_app::fonts::write_grid_size_mm_pref_at(&path, 2.54);
+    oxide_app::fonts::write_unit_pref_at(&path, Unit::Mil);
+    oxide_app::fonts::write_grid_visible_pref_at(&path, false);
+    oxide_app::fonts::write_snap_enabled_pref_at(&path, false);
 
     // Read everything back — none should have been clobbered.
     assert_eq!(
-        signex_app::fonts::read_theme_pref_at(&path),
+        oxide_app::fonts::read_theme_pref_at(&path),
         ThemeId::Signex
     );
-    assert!((signex_app::fonts::read_grid_size_mm_pref_at(&path).unwrap() - 2.54).abs() < 1e-5);
-    assert_eq!(signex_app::fonts::read_unit_pref_at(&path), Unit::Mil);
-    assert!(!signex_app::fonts::read_grid_visible_pref_at(&path));
-    assert!(!signex_app::fonts::read_snap_enabled_pref_at(&path));
+    assert!((oxide_app::fonts::read_grid_size_mm_pref_at(&path).unwrap() - 2.54).abs() < 1e-5);
+    assert_eq!(oxide_app::fonts::read_unit_pref_at(&path), Unit::Mil);
+    assert!(!oxide_app::fonts::read_grid_visible_pref_at(&path));
+    assert!(!oxide_app::fonts::read_snap_enabled_pref_at(&path));
 
     // Pre-existing keys (label_style, ui_font, etc.) should remain
     // unset — we never wrote them — but absent ≠ default-failure.

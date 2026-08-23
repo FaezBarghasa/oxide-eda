@@ -2,7 +2,7 @@
 //!
 //! Gated behind the `distributors-community` Cargo feature so the core
 //! library crate stays free of `reqwest`/`oauth2`/`keyring` when consumers
-//! don't need vendor lookups (e.g. CI builds of `signex-app` that ship
+//! don't need vendor lookups (e.g. CI builds of `oxide-app` that ship
 //! without distributor integrations).
 //!
 //! See `docs/internal/docs/v0.9-library-plan.md` → §14a Distributor Data Sources.

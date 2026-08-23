@@ -10,9 +10,9 @@
 
 use iced::widget::{Space, button, column, container, row, text, text_input};
 use iced::{Border, Element, Length, Theme};
-use signex_library::DistributorSource;
-use signex_types::theme::ThemeTokens;
-use signex_widgets::theme_ext;
+use oxide_library::DistributorSource;
+use oxide_types::theme::ThemeTokens;
+use oxide_widgets::theme_ext;
 
 use super::super::messages::{LibraryMessage, SettingsMsg};
 use super::super::state::DistributorSettings;
@@ -72,7 +72,7 @@ pub fn view<'a>(
         Space::new().height(4),
         text(
             "OAuth2 PKCE flow — opens your browser, then stores the refresh token in the OS \
-             keyring. Set SIGNEX_DIGIKEY_CLIENT_ID + SIGNEX_DIGIKEY_CLIENT_SECRET first."
+             keyring. Set OXIDE_DIGIKEY_CLIENT_ID + OXIDE_DIGIKEY_CLIENT_SECRET first."
         )
         .size(10)
         .color(muted),

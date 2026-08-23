@@ -1,4 +1,4 @@
-use signex_types::schematic::{SelectedItem, SelectedKind};
+use oxide_types::schematic::{SelectedItem, SelectedKind};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SemanticPatch {

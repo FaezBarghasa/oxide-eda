@@ -1,7 +1,7 @@
 //! Mouser distributor adapter — API-key auth from OS keyring.
 //!
 //! - API key stored in OS keyring under service name
-//!   `signex-distributor-mouser`. Adapter accepts the key directly via
+//!   `oxide-distributor-mouser`. Adapter accepts the key directly via
 //!   `with_api_key` (test-friendly) or pulls it lazily from `KeyringStore`.
 //! - Mouser's Search API takes JSON POST bodies with an `apiKey` query
 //!   string parameter. We use that placement (vs header) for spec parity
@@ -46,7 +46,7 @@ pub struct MouserAdapter {
 }
 
 impl MouserAdapter {
-    /// Production constructor: pulls the API key from `signex-distributor-mouser`
+    /// Production constructor: pulls the API key from `oxide-distributor-mouser`
     /// at request time. The username slot defaults to `"default"` to match
     /// what the eventual UI will write.
     ///
@@ -62,7 +62,7 @@ impl MouserAdapter {
             cache,
             throttle: Mutex::new(None),
             http: reqwest::blocking::Client::builder()
-                .user_agent("signex-library/0.9 (+https://signex.dev)")
+                .user_agent("oxide-library/0.9 (+https://signex.dev)")
                 .build()
                 .expect("reqwest::blocking::Client::build is infallible with default opts"),
             auth: AuthSource::Keyring(KeyringStore::for_provider("mouser", "default")?),
@@ -80,7 +80,7 @@ impl MouserAdapter {
             cache,
             throttle: Mutex::new(None),
             http: reqwest::blocking::Client::builder()
-                .user_agent("signex-library/0.9 (+https://signex.dev)")
+                .user_agent("oxide-library/0.9 (+https://signex.dev)")
                 .build()
                 .expect("reqwest::blocking::Client::build is infallible with default opts"),
             auth: AuthSource::Inline(api_key.into()),
@@ -105,7 +105,7 @@ impl MouserAdapter {
             AuthSource::Inline(k) => Ok(k.clone()),
             AuthSource::Keyring(store) => store.get_secret().map_err(|e| match e {
                 KeyringError::NotFound => DistributorError::Auth(
-                    "no Mouser API key in keyring (signex-distributor-mouser/default)".into(),
+                    "no Mouser API key in keyring (oxide-distributor-mouser/default)".into(),
                 ),
                 KeyringError::Backend(msg) => DistributorError::Auth(msg),
             }),

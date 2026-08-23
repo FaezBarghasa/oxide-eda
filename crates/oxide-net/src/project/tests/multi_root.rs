@@ -17,7 +17,7 @@
 
 use std::collections::HashMap;
 
-use signex_types::schematic::LabelType;
+use oxide_types::schematic::LabelType;
 
 use super::super::StitchIssue;
 use super::{

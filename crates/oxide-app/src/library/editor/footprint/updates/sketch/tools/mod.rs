@@ -15,9 +15,9 @@ mod edit;
 mod transform;
 
 use crate::library::messages::FootprintEditorMsg;
-use signex_sketch::entity::Entity;
-use signex_sketch::id::SketchEntityId;
-use signex_sketch::plane::PlaneId;
+use oxide_sketch::entity::Entity;
+use oxide_sketch::id::SketchEntityId;
+use oxide_sketch::plane::PlaneId;
 
 /// The per-click state the tool sub-modules read: the sketch plane, the
 /// resolved (snapped or freshly-minted) click Point, the raw click position,
@@ -285,7 +285,7 @@ fn handle_tool_click(
 // v0.22 Phase A1 — ensure the sketch has at least one plane so a fresh
 // click has somewhere to mint its Point.
 fn resolve_sketch_plane(editor: &mut crate::app::FootprintEditorState) -> PlaneId {
-    use signex_sketch::plane::{Plane, PlaneKind};
+    use oxide_sketch::plane::{Plane, PlaneKind};
     match editor.primitive().sketch.as_ref() {
         Some(s) if !s.planes.is_empty() => s.planes[0].id,
         _ => {
@@ -293,7 +293,7 @@ fn resolve_sketch_plane(editor: &mut crate::app::FootprintEditorState) -> PlaneI
             let sketch = editor
                 .primitive_mut()
                 .sketch
-                .get_or_insert_with(signex_sketch::SketchData::default);
+                .get_or_insert_with(oxide_sketch::SketchData::default);
             sketch.planes.push(Plane {
                 id: pid,
                 kind: PlaneKind::BoardTop,
@@ -317,8 +317,8 @@ fn resolve_effective_click(
     y_mm: f64,
 ) -> (f64, f64, bool) {
     use crate::library::editor::footprint::state::{PlacementInputKind, SketchTool, ToolPending};
-    use signex_sketch::entity::EntityKind;
-    use signex_sketch::id::SketchEntityId;
+    use oxide_sketch::entity::EntityKind;
+    use oxide_sketch::id::SketchEntityId;
 
     let placement_input_kind = editor.state.placement_input.as_ref().map(|p| p.kind);
     let placement_input_value = editor
@@ -344,7 +344,7 @@ fn resolve_effective_click(
     let rect_w_typed = field_value(PlacementInputKind::RectWidth);
     let rect_h_typed = field_value(PlacementInputKind::RectHeight);
     let resolve_point_xy = |id: SketchEntityId,
-                            primitive: &signex_library::primitive::footprint::Footprint|
+                            primitive: &oxide_library::primitive::footprint::Footprint|
      -> Option<(f64, f64)> {
         primitive
             .sketch
@@ -537,7 +537,7 @@ fn resolve_click_point(
     use crate::library::editor::footprint::sketch_dispatch::apply_sketch_edit_with_warnings;
     use crate::library::editor::footprint::sketch_mode::SketchEdit;
     use crate::library::editor::footprint::state::SketchTool;
-    use signex_sketch::entity::EntityKind;
+    use oxide_sketch::entity::EntityKind;
 
     let flag = |mut e: Entity| -> Entity {
         e.construction = construction_mode;
@@ -547,8 +547,8 @@ fn resolve_click_point(
 
     match effective_snap_id {
         Some(target) if matches!(editor.state.active_tool, SketchTool::Point) => {
-            use signex_sketch::constraint::{Constraint, ConstraintKind};
-            use signex_sketch::id::ConstraintId;
+            use oxide_sketch::constraint::{Constraint, ConstraintKind};
+            use oxide_sketch::id::ConstraintId;
 
             let new_id = SketchEntityId::new();
             let entity = flag(Entity::new(
@@ -617,7 +617,7 @@ fn try_consume_repick_polar_center(
     };
     if let Some(sketch) = editor.primitive_mut().sketch.as_mut()
         && let Some(array) = sketch.arrays.iter_mut().find(|a| a.id == array_id)
-        && let signex_sketch::array::ArrayKind::Polar { center, .. } = &mut array.kind
+        && let oxide_sketch::array::ArrayKind::Polar { center, .. } = &mut array.kind
     {
         *center = resolved_id;
     }

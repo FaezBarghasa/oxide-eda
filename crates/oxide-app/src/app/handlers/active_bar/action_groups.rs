@@ -29,16 +29,16 @@ impl Signex {
                 let task = self.update(Message::Tool(ToolMessage::SelectTool(Tool::Label)));
                 self.interaction_state.pending_port = None;
                 self.interaction_state.active_canvas_mut().ghost_label =
-                    Some(signex_types::schematic::Label {
+                    Some(oxide_types::schematic::Label {
                         uuid: uuid::Uuid::new_v4(),
                         text: "NET".to_string(),
-                        position: signex_types::schematic::Point::new(0.0, 0.0),
+                        position: oxide_types::schematic::Point::new(0.0, 0.0),
                         rotation: 0.0,
-                        label_type: signex_types::schematic::LabelType::Net,
+                        label_type: oxide_types::schematic::LabelType::Net,
                         shape: String::new(),
-                        font_size: signex_types::schematic::SCHEMATIC_TEXT_MM,
-                        justify: signex_types::schematic::HAlign::Left,
-                        justify_v: signex_types::schematic::VAlign::Bottom,
+                        font_size: oxide_types::schematic::SCHEMATIC_TEXT_MM,
+                        justify: oxide_types::schematic::HAlign::Left,
+                        justify_v: oxide_types::schematic::VAlign::Bottom,
                     });
                 task
             }
@@ -67,14 +67,14 @@ impl Signex {
                 ));
                 let task = self.update(Message::Tool(ToolMessage::SelectTool(Tool::Text)));
                 self.interaction_state.active_canvas_mut().ghost_text =
-                    Some(signex_types::schematic::TextNote {
+                    Some(oxide_types::schematic::TextNote {
                         uuid: uuid::Uuid::new_v4(),
                         text: default_text.to_string(),
-                        position: signex_types::schematic::Point::new(0.0, 0.0),
+                        position: oxide_types::schematic::Point::new(0.0, 0.0),
                         rotation: 0.0,
-                        font_size: signex_types::schematic::SCHEMATIC_TEXT_MM,
-                        justify_h: signex_types::schematic::HAlign::Left,
-                        justify_v: signex_types::schematic::VAlign::default(),
+                        font_size: oxide_types::schematic::SCHEMATIC_TEXT_MM,
+                        justify_h: oxide_types::schematic::HAlign::Left,
+                        justify_v: oxide_types::schematic::VAlign::default(),
                     });
                 task
             }
@@ -97,7 +97,7 @@ impl Signex {
             // tool so the next click triggers the net walk via the hit-test
             // dispatched with SelectConnected.
             ActiveBarAction::SelectConnection => {
-                use signex_types::schematic::SelectedKind;
+                use oxide_types::schematic::SelectedKind;
                 let has_net_seed = self
                     .interaction_state
                     .active_canvas_mut()
@@ -209,9 +209,9 @@ impl Signex {
                 {
                     let items = self.interaction_state.active_canvas_mut().selected.clone();
                     self.apply_engine_command(
-                        signex_engine::Command::ReorderObjects {
+                        oxide_engine::Command::ReorderObjects {
                             items,
-                            direction: signex_engine::ReorderDirection::ToFront,
+                            direction: oxide_engine::ReorderDirection::ToFront,
                         },
                         false,
                         true,
@@ -228,9 +228,9 @@ impl Signex {
                 {
                     let items = self.interaction_state.active_canvas_mut().selected.clone();
                     self.apply_engine_command(
-                        signex_engine::Command::ReorderObjects {
+                        oxide_engine::Command::ReorderObjects {
                             items,
-                            direction: signex_engine::ReorderDirection::ToBack,
+                            direction: oxide_engine::ReorderDirection::ToBack,
                         },
                         false,
                         true,

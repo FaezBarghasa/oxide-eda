@@ -38,9 +38,9 @@ pub(in crate::library::editor::footprint::updates) fn apply(
 fn place_point(editor: &mut crate::app::FootprintEditorState, x_mm: f64, y_mm: f64) {
     use crate::library::editor::footprint::sketch_dispatch::apply_sketch_edit_with_warnings;
     use crate::library::editor::footprint::sketch_mode::SketchEdit;
-    use signex_sketch::entity::{Entity, EntityKind};
-    use signex_sketch::id::SketchEntityId;
-    use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
+    use oxide_sketch::entity::{Entity, EntityKind};
+    use oxide_sketch::id::SketchEntityId;
+    use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
     // Ensure the sketch has at least one plane so the entity has
     // somewhere to live.
     let plane_id = match editor.primitive().sketch.as_ref() {
@@ -50,7 +50,7 @@ fn place_point(editor: &mut crate::app::FootprintEditorState, x_mm: f64, y_mm: f
             let sketch = editor
                 .primitive_mut()
                 .sketch
-                .get_or_insert_with(signex_sketch::SketchData::default);
+                .get_or_insert_with(oxide_sketch::SketchData::default);
             sketch.planes.push(Plane {
                 id: pid,
                 kind: PlaneKind::BoardTop,
@@ -70,7 +70,7 @@ fn place_point(editor: &mut crate::app::FootprintEditorState, x_mm: f64, y_mm: f
 
 fn move_point(
     editor: &mut crate::app::FootprintEditorState,
-    id: signex_sketch::id::SketchEntityId,
+    id: oxide_sketch::id::SketchEntityId,
     dx: f64,
     dy: f64,
 ) {
@@ -128,7 +128,7 @@ fn move_point(
             .unwrap_or(false)
     });
     if let Some(pad_idx) = corner_pad_idx {
-        use signex_sketch::entity::EntityKind;
+        use oxide_sketch::entity::EntityKind;
         let Some(corners) = editor.state.pads[pad_idx].corner_entity_ids else {
             // `position()` above already required `is_some()`; this
             // arm is unreachable in practice but propagating via
@@ -193,13 +193,13 @@ fn move_point(
 // produce.
 fn move_line(
     editor: &mut crate::app::FootprintEditorState,
-    id: signex_sketch::id::SketchEntityId,
+    id: oxide_sketch::id::SketchEntityId,
     dx: f64,
     dy: f64,
 ) {
     use crate::library::editor::footprint::sketch_dispatch::apply_sketch_edit_with_warnings;
     use crate::library::editor::footprint::sketch_mode::SketchEdit;
-    use signex_sketch::entity::EntityKind;
+    use oxide_sketch::entity::EntityKind;
     let endpoints = editor
         .primitive()
         .sketch
@@ -218,7 +218,7 @@ fn move_line(
     // BEFORE the MovePoint passes shift these Points.
     let pre_drag_endpoints: Option<((f64, f64), (f64, f64))> =
         editor.primitive().sketch.as_ref().and_then(|s| {
-            let pos_of = |pid: signex_sketch::id::SketchEntityId| -> Option<(f64, f64)> {
+            let pos_of = |pid: oxide_sketch::id::SketchEntityId| -> Option<(f64, f64)> {
                 s.entities.iter().find(|e| e.id == pid).and_then(|e| {
                     if let EntityKind::Point { x, y } = e.kind {
                         Some((x, y))
@@ -238,7 +238,7 @@ fn move_line(
     // endpoints are handled separately below — they may
     // slide along an adjacent edge rather than translating
     // rigidly (Fusion-style "expand toward dragging").
-    let mut arc_victims: std::collections::HashSet<signex_sketch::id::SketchEntityId> =
+    let mut arc_victims: std::collections::HashSet<oxide_sketch::id::SketchEntityId> =
         std::collections::HashSet::new();
     if let Some(s) = editor.primitive().sketch.as_ref() {
         for e in &s.entities {
@@ -275,7 +275,7 @@ fn move_line(
     // vertex, arc tangent, T-junction), fall back to rigid
     // translate so the existing pad / arc-corner flows keep
     // working.
-    let read_pos = |pid: signex_sketch::id::SketchEntityId| -> Option<(f64, f64)> {
+    let read_pos = |pid: oxide_sketch::id::SketchEntityId| -> Option<(f64, f64)> {
         editor
             .primitive()
             .sketch
@@ -292,9 +292,9 @@ fn move_line(
     // slide pivot. Returns `None` when 0 or ≥2 other lines
     // meet at this endpoint.
     let find_far =
-        |endpoint: signex_sketch::id::SketchEntityId| -> Option<signex_sketch::id::SketchEntityId> {
+        |endpoint: oxide_sketch::id::SketchEntityId| -> Option<oxide_sketch::id::SketchEntityId> {
             let sketch = editor.primitive().sketch.as_ref()?;
-            let mut found: Option<signex_sketch::id::SketchEntityId> = None;
+            let mut found: Option<oxide_sketch::id::SketchEntityId> = None;
             for e in &sketch.entities {
                 if e.id == id {
                     continue;
@@ -328,7 +328,7 @@ fn move_line(
             let t = (d2.0 * (p2.1 - p1.1) - d2.1 * (p2.0 - p1.0)) / det;
             Some((p1.0 + t * d1.0, p1.1 + t * d1.1))
         };
-    let target_for = |endpoint: signex_sketch::id::SketchEntityId, pos: (f64, f64)| -> (f64, f64) {
+    let target_for = |endpoint: oxide_sketch::id::SketchEntityId, pos: (f64, f64)| -> (f64, f64) {
         let rigid = (pos.0 + dx, pos.1 + dy);
         let Some(far_id) = find_far(endpoint) else {
             return rigid;
@@ -546,7 +546,7 @@ fn resize_round_pad(
         pad.size_mm = (d, d);
     }
     if let Some(sketch) = editor.primitive_mut().sketch.as_mut() {
-        use signex_sketch::entity::EntityKind;
+        use oxide_sketch::entity::EntityKind;
         if let Some(cid) = centre_id {
             for entity in sketch.entities.iter_mut() {
                 if let EntityKind::Circle { center, radius } = &mut entity.kind

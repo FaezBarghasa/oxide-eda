@@ -18,7 +18,7 @@ impl Signex {
         label_text: &str,
     ) {
         use crate::panels::PrePlacementKind;
-        use signex_types::schematic as sch;
+        use oxide_types::schematic as sch;
         // Snap the cursor to grid so the new object lands on a grid dot.
         let (wx, wy) = {
             let x = self.ui_state.cursor_x;
@@ -53,12 +53,12 @@ impl Signex {
                     rotation: 0.0,
                     label_type,
                     shape,
-                    font_size: signex_types::schematic::SCHEMATIC_TEXT_MM,
+                    font_size: oxide_types::schematic::SCHEMATIC_TEXT_MM,
                     justify: sch::HAlign::Left,
                     justify_v: sch::VAlign::Bottom,
                 };
                 self.apply_engine_command(
-                    signex_engine::Command::PlaceLabel { label },
+                    oxide_engine::Command::PlaceLabel { label },
                     false,
                     false,
                 );
@@ -81,12 +81,12 @@ impl Signex {
                     },
                     position: sch::Point::new(wx, wy),
                     rotation: 0.0,
-                    font_size: signex_types::schematic::SCHEMATIC_TEXT_MM,
+                    font_size: oxide_types::schematic::SCHEMATIC_TEXT_MM,
                     justify_h: sch::HAlign::Left,
                     justify_v: sch::VAlign::default(),
                 };
                 self.apply_engine_command(
-                    signex_engine::Command::PlaceTextNote { text_note: tn },
+                    oxide_engine::Command::PlaceTextNote { text_note: tn },
                     false,
                     false,
                 );
@@ -136,7 +136,7 @@ impl Signex {
                     library_version: String::new(),
                 };
                 self.apply_engine_command(
-                    signex_engine::Command::PlaceSymbol { symbol },
+                    oxide_engine::Command::PlaceSymbol { symbol },
                     false,
                     false,
                 );
@@ -180,7 +180,7 @@ impl Signex {
                 }
                 if self.interaction_state.current_tool != Tool::Select {
                     use crate::panels::PrePlacementKind;
-                    use signex_types::schematic::LabelType;
+                    use oxide_types::schematic::LabelType;
                     // Figure out the exact placement flavor so the form
                     // shows fields relevant to what's being dropped. A
                     // Tool::Label with `pending_port` = Global is NOT the
@@ -342,7 +342,7 @@ impl Signex {
                         .pre_placement
                         .as_ref()
                         .map(|pp| pp.justify_h)
-                        .unwrap_or(signex_types::schematic::HAlign::Left);
+                        .unwrap_or(oxide_types::schematic::HAlign::Left);
                     let prev_jv = self
                         .document_state
                         .panel_ctx
@@ -363,7 +363,7 @@ impl Signex {
                         .pre_placement
                         .as_ref()
                         .map(|pp| pp.shape_fill)
-                        .unwrap_or(signex_types::schematic::FillType::None);
+                        .unwrap_or(oxide_types::schematic::FillType::None);
                     self.document_state.panel_ctx.pre_placement =
                         Some(crate::panels::PrePlacementData {
                             tool_name,
@@ -473,14 +473,14 @@ impl Signex {
                 // tools with ghosts arm them from their placement preset.
                 if tool == Tool::Text {
                     self.interaction_state.active_canvas_mut().ghost_text =
-                        Some(signex_types::schematic::TextNote {
+                        Some(oxide_types::schematic::TextNote {
                             uuid: uuid::Uuid::new_v4(),
                             text: "Text".to_string(),
-                            position: signex_types::schematic::Point::new(0.0, 0.0),
+                            position: oxide_types::schematic::Point::new(0.0, 0.0),
                             rotation: 0.0,
-                            font_size: signex_types::schematic::SCHEMATIC_TEXT_MM,
-                            justify_h: signex_types::schematic::HAlign::Left,
-                            justify_v: signex_types::schematic::VAlign::default(),
+                            font_size: oxide_types::schematic::SCHEMATIC_TEXT_MM,
+                            justify_h: oxide_types::schematic::HAlign::Left,
+                            justify_v: oxide_types::schematic::VAlign::default(),
                         });
                 }
                 if tool == Tool::Select {

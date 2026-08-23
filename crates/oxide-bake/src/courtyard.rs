@@ -12,14 +12,14 @@
 //! - One CourtyardAttr per footprint becomes the courtyard polygon.
 //! - Additional CourtyardAttr-tagged entities warn + skip.
 //! - Open / branching / arc-containing profiles surface a warning
-//!   from `signex_bake::trace_closed_profile` and skip.
+//!   from `oxide_bake::trace_closed_profile` and skip.
 //! - Construction entities are excluded from the trace by the walker.
 
-use signex_library::primitive::footprint::Polygon;
-use signex_sketch::SketchError;
-use signex_sketch::entity::EntityKind;
-use signex_sketch::sketch::SketchData;
-use signex_sketch::solver::FullSolveOutput;
+use oxide_library::primitive::footprint::Polygon;
+use oxide_sketch::SketchError;
+use oxide_sketch::entity::EntityKind;
+use oxide_sketch::sketch::SketchData;
+use oxide_sketch::solver::FullSolveOutput;
 
 use crate::profile::{TraceError, trace_closed_profile};
 
@@ -92,12 +92,12 @@ pub fn bake_courtyard(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_sketch::attr::CourtyardAttr;
-    use signex_sketch::entity::Entity;
-    use signex_sketch::id::SketchEntityId;
-    use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
-    use signex_sketch::solver::Solver;
-    use signex_sketch::solver::residual::ResolvedParams;
+    use oxide_sketch::attr::CourtyardAttr;
+    use oxide_sketch::entity::Entity;
+    use oxide_sketch::id::SketchEntityId;
+    use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
+    use oxide_sketch::solver::Solver;
+    use oxide_sketch::solver::residual::ResolvedParams;
 
     fn solve(sketch: &SketchData) -> FullSolveOutput {
         Solver::default()

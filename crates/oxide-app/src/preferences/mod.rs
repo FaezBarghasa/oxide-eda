@@ -9,7 +9,7 @@ use crate::render_config::{
 };
 use iced::widget::{Column, Space, button, column, container, row, scrollable, svg, text};
 use iced::{Background, Border, Color, Element, Length, Theme};
-use signex_types::theme::ThemeId;
+use oxide_types::theme::ThemeId;
 
 use crate::app::view::dialogs::{
     MODAL_CLOSE_X_HIT_H, MODAL_CLOSE_X_HIT_W, MODAL_CLOSE_X_HOVER, MODAL_CLOSE_X_ICON,
@@ -141,7 +141,7 @@ pub enum PrefMsg {
     ThemeFileLoaded(String),
     /// Set the severity override for an ERC rule. Setting the override
     /// to the default value clears the entry instead.
-    DraftErcSeverity(signex_erc::RuleKind, signex_erc::Severity),
+    DraftErcSeverity(oxide_erc::RuleKind, oxide_erc::Severity),
     /// Clear every ERC severity override — reset to defaults.
     ResetErcSeverities,
     /// Move an unloadable `prefs.json` aside so writes can resume from a
@@ -279,9 +279,9 @@ pub struct PrefsView<'a> {
     /// Appearance ▸ theme import/export status line. Empty renders nothing.
     pub theme_status: &'a str,
     pub dirty: bool,
-    pub erc_overrides: &'a std::collections::HashMap<signex_erc::RuleKind, signex_erc::Severity>,
+    pub erc_overrides: &'a std::collections::HashMap<oxide_erc::RuleKind, oxide_erc::Severity>,
     pub distributor_settings: &'a crate::library::state::DistributorSettings,
-    pub panel_tokens: &'a signex_types::theme::ThemeTokens,
+    pub panel_tokens: &'a oxide_types::theme::ThemeTokens,
     pub draft_component_classes: &'a [crate::fonts::ComponentClassEntry],
     pub keymap_editor: &'a crate::keymap::KeymapEditorModel,
     pub keymap_status: &'a str,

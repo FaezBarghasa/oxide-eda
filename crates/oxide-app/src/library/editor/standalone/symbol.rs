@@ -3,8 +3,8 @@
 
 use iced::widget::{Space, button, column, container, row, text};
 use iced::{Border, Element, Length, Theme};
-use signex_types::coord::Unit;
-use signex_widgets::theme_ext;
+use oxide_types::coord::Unit;
+use oxide_widgets::theme_ext;
 
 use crate::app::SymbolEditorState;
 use crate::library::editor::symbol::canvas::{self as sym_canvas, SymbolCanvas};

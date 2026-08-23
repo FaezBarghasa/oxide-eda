@@ -1,7 +1,7 @@
 //! Footprint editor in-memory state.
 //!
 //! The canvas state derives from a typed
-//! [`signex_library::Footprint`] primitive — pad geometry mirrors
+//! [`oxide_library::Footprint`] primitive — pad geometry mirrors
 //! `Footprint::pads: Vec<Pad>`. Two-way sync runs through
 //! [`FootprintEditorState::sync_pads_to_primitive`] so the dispatcher
 //! keeps the primitive authoritative.
@@ -46,7 +46,7 @@ pub use snap_options::{
 };
 pub use tool::{PadsTool, SketchTool, ToolPending};
 
-use signex_library::{Footprint, LayerId};
+use oxide_library::{Footprint, LayerId};
 
 use super::layers::LayerVisibility;
 
@@ -104,7 +104,7 @@ pub struct AlignModal {
 ///
 /// `PartialEq` is intentionally NOT derived: Phase 5.3 added
 /// `sketch_solver` / `last_solve` whose underlying types in
-/// `signex-sketch` don't implement `PartialEq`.
+/// `oxide-sketch` don't implement `PartialEq`.
 #[derive(Debug, Clone)]
 pub struct FootprintEditorState {
     pub pads: Vec<EditorPad>,
@@ -149,7 +149,7 @@ pub struct FootprintEditorState {
     /// v0.27 — outline-following courtyard polygon, world mm. Set
     /// by [`FootprintEditorState::recompute_courtyard_outline`]
     /// which runs the union-of-pad-bboxes through
-    /// `signex_sketch::geom::polygon_op` (Union) then offsets the
+    /// `oxide_sketch::geom::polygon_op` (Union) then offsets the
     /// result by `COURTYARD_SLACK_MM` via `offset_polygon`. Drawn
     /// in preference to the bbox-based `courtyard_mm` when present.
     /// Cleared whenever pads are added / moved / removed so the
@@ -161,28 +161,28 @@ pub struct FootprintEditorState {
     /// Phase 5.3: which editor mode the user has switched to.
     pub mode: EditorMode,
     /// Phase 5.3: shared LM solver config.
-    pub sketch_solver: signex_sketch::solver::Solver,
+    pub sketch_solver: oxide_sketch::solver::Solver,
     /// Output of the most recent solve.
-    pub last_solve: Option<signex_sketch::solver::FullSolveOutput>,
+    pub last_solve: Option<oxide_sketch::solver::FullSolveOutput>,
     /// Last solve's audit / over-constraint warnings.
     pub solve_warnings: Vec<String>,
     /// v0.22 Phase E3+E4 → v0.23 — `Some(id)` when the user is hovering
     /// a specific row in the Conflicts list.
-    pub conflicts_row_hovered: Option<signex_sketch::id::ConstraintId>,
+    pub conflicts_row_hovered: Option<oxide_sketch::id::ConstraintId>,
     /// v0.13.2 — currently-active sketch tool.
     pub active_tool: SketchTool,
     /// v0.13.2 — transient state for multi-click tools.
     pub tool_pending: ToolPending,
     /// v0.13.3 — currently-selected sketch entity.
-    pub selected_sketch: Option<signex_sketch::id::SketchEntityId>,
+    pub selected_sketch: Option<oxide_sketch::id::SketchEntityId>,
     /// v0.13.3 — secondary selected sketch entity.
-    pub selected_sketch_secondary: Option<signex_sketch::id::SketchEntityId>,
+    pub selected_sketch_secondary: Option<oxide_sketch::id::SketchEntityId>,
     /// v0.27 — Altium / Fusion-style multi-select for sketch
     /// entities. Populated by the sketch-mode rubber-band release +
     /// Ctrl/Shift modifier clicks. Drawn with the same selection
     /// highlight as `selected_sketch`. Cleared whenever a single-
     /// click select fires without a modifier.
-    pub selected_sketch_extra: Vec<signex_sketch::id::SketchEntityId>,
+    pub selected_sketch_extra: Vec<oxide_sketch::id::SketchEntityId>,
     /// v0.13.3 — Dimension tool's pending value (text input).
     pub dimension_input: String,
     /// v0.14 — typed-delta "Move Selection By" modal. `None` = closed.
@@ -299,7 +299,7 @@ impl FootprintEditorState {
             courtyard_outline_mm: None,
             cursor_mm: None,
             mode: EditorMode::Normal,
-            sketch_solver: signex_sketch::solver::Solver::default(),
+            sketch_solver: oxide_sketch::solver::Solver::default(),
             last_solve: None,
             solve_warnings: Vec::new(),
             conflicts_row_hovered: None,
@@ -551,7 +551,7 @@ impl FootprintEditorState {
     /// rectangle. Returns `true` when a polygon was produced;
     /// `false` when there are no pads or the boolean union failed.
     pub fn recompute_courtyard_outline(&mut self) -> bool {
-        use signex_sketch::geom::{BoolOp, CornerStyle, Point2, offset_polygon, polygon_op};
+        use oxide_sketch::geom::{BoolOp, CornerStyle, Point2, offset_polygon, polygon_op};
 
         if self.pads.is_empty() {
             self.courtyard_outline_mm = None;
@@ -678,7 +678,7 @@ impl FootprintEditorState {
     pub fn sync_pads_to_primitive(canvas: &Self, fp: &mut Footprint) {
         fp.pads = canvas.pads.iter().map(EditorPad::to_pad).collect();
         if let Some(c) = canvas.courtyard_mm {
-            fp.courtyard = signex_library::Polygon::new(vec![
+            fp.courtyard = oxide_library::Polygon::new(vec![
                 [c.min_x, c.min_y],
                 [c.max_x, c.min_y],
                 [c.max_x, c.max_y],
@@ -717,7 +717,7 @@ pub(crate) fn adjust_selection_after_remove(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_library::{LayerId, Pad, PadKind, PadShape};
+    use oxide_library::{LayerId, Pad, PadKind, PadShape};
 
     #[test]
     fn from_footprint_round_trips_pads() {
@@ -774,11 +774,11 @@ mod tests {
     /// entity whose `PadAttr.number` matches the pad.
     #[test]
     fn refresh_relinks_pad_from_sketch_pad_attr() {
-        use signex_sketch::attr::PadAttr;
-        use signex_sketch::entity::{Entity, EntityKind};
-        use signex_sketch::id::SketchEntityId;
-        use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
-        use signex_sketch::sketch::SketchData;
+        use oxide_sketch::attr::PadAttr;
+        use oxide_sketch::entity::{Entity, EntityKind};
+        use oxide_sketch::id::SketchEntityId;
+        use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
+        use oxide_sketch::sketch::SketchData;
 
         let mut fp = Footprint::empty("test");
         let plane_id = PlaneId::new();

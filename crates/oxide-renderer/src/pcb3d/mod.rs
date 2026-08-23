@@ -6,12 +6,12 @@
 
 use crate::theme::ResolvedTheme;
 use serde_json::Value;
-use signex_3d_model_importer::{
+use oxide_3d_model_importer::{
     ImportWarning as ModelImportWarning, ModelImportRequest, import_model as import_to_glb,
 };
-use signex_gfx::primitive::polygon::GpuPolygon;
-use signex_gfx::scene::Scene;
-use signex_gfx::style::ColorSlot;
+use oxide_gfx::primitive::polygon::GpuPolygon;
+use oxide_gfx::scene::Scene;
+use oxide_gfx::style::ColorSlot;
 use std::collections::HashSet;
 use std::fmt;
 use std::fs;

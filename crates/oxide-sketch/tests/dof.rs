@@ -12,19 +12,19 @@
 mod common;
 use common::Sketch;
 
-use signex_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
-use signex_sketch::error::SolveError;
-use signex_sketch::id::ConstraintId;
-use signex_sketch::solver::dof::{DofColor, entity_colours, over_constraint_ids};
-use signex_sketch::solver::jacobian::numerical_jacobian;
-use signex_sketch::solver::lm::{SolveResult, solve_lm};
+use oxide_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
+use oxide_sketch::error::SolveError;
+use oxide_sketch::id::ConstraintId;
+use oxide_sketch::solver::dof::{DofColor, entity_colours, over_constraint_ids};
+use oxide_sketch::solver::jacobian::numerical_jacobian;
+use oxide_sketch::solver::lm::{SolveResult, solve_lm};
 
 /// Default Solver tolerance + iteration cap, used by these tests.
 const TOL: f64 = 1e-12;
 const MAX_ITERS: usize = 100;
-use signex_sketch::solver::math::norm_vec;
-use signex_sketch::solver::residual::{ResolvedParams, total_residual};
-use signex_sketch::solver::state::pack;
+use oxide_sketch::solver::math::norm_vec;
+use oxide_sketch::solver::residual::{ResolvedParams, total_residual};
+use oxide_sketch::solver::state::pack;
 
 fn empty_params() -> ResolvedParams {
     ResolvedParams::new()

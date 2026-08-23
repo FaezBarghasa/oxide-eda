@@ -13,11 +13,11 @@
 //! `column!` / `text` / `container` primitives so the shape is easy
 //! to extend incrementally as later stages add affordances.
 //!
-//! The struct definition lives in `signex_library::HistoryEntry` so
+//! The struct definition lives in `oxide_library::HistoryEntry` so
 //! the trait method that produces it (`LibraryAdapter::history`)
 //! and the widget that consumes it agree on the data shape without
-//! crossing a circular dep — `signex-widgets` depends on
-//! `signex-types` only, so we re-declare the *shape* of an entry
+//! crossing a circular dep — `oxide-widgets` depends on
+//! `oxide-types` only, so we re-declare the *shape* of an entry
 //! locally as [`HistoryEntry`] and let callers convert at the
 //! boundary. Same reason `tab_pill::TabPillStyle` exists separate
 //! from any "real" tab type.
@@ -25,15 +25,15 @@
 use chrono::{DateTime, Duration, Utc};
 use iced::widget::{Column, Space, column, container, text};
 use iced::{Border, Element, Length};
-use signex_types::theme::ThemeTokens;
+use oxide_types::theme::ThemeTokens;
 
 use crate::theme_ext;
 
 /// Plain-data view of one commit row, decoupled from
-/// `signex_library::HistoryEntry` so the widget crate doesn't pull
+/// `oxide_library::HistoryEntry` so the widget crate doesn't pull
 /// the library crate as a dep.
 ///
-/// The library crate's [`signex_library::HistoryEntry`] is the
+/// The library crate's [`oxide_library::HistoryEntry`] is the
 /// canonical source — callers convert via `From<&_>` at the
 /// boundary (see the `From` impl wired up by callers when both
 /// crates are in scope).

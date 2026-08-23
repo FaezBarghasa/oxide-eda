@@ -1,5 +1,5 @@
-use signex_widgets::passive_calculator::control::format_difference;
-use signex_widgets::passive_calculator::{
+use oxide_widgets::passive_calculator::control::format_difference;
+use oxide_widgets::passive_calculator::{
     BoundaryCondition, CalculatorControl, CalculatorMessage, CalculatorTab, ComponentKind, ESeries,
     Network, ProductionDateCycle, ProductionMonth, RatedPower, RkmEncoderMessage, SiPrefix,
     TemperatureCoefficient, Tolerance,

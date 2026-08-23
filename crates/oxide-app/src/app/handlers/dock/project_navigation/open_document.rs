@@ -22,7 +22,7 @@ impl Signex {
     /// path doesn't exist and downstream remove / open paths bail
     /// silently.
     pub(super) fn tree_path_to_file_path(&self, tree_path: &[usize]) -> Option<std::path::PathBuf> {
-        let node = signex_widgets::tree_view::get_node(
+        let node = oxide_widgets::tree_view::get_node(
             self.document_state.panel_ctx.project_tree.as_slice(),
             tree_path,
         )?;
@@ -174,7 +174,7 @@ impl Signex {
             }
             let text = std::fs::read_to_string(&file_path)
                 .with_context(|| format!("read schematic {}", file_path.display()))?;
-            let schematic = signex_types::format::SnxSchematic::parse(&text)
+            let schematic = oxide_types::format::SnxSchematic::parse(&text)
                 .with_context(|| format!("parse schematic {}", file_path.display()))?
                 .sheet;
             self.open_schematic_tab(file_path, title, schematic);
@@ -184,7 +184,7 @@ impl Signex {
         if filename.ends_with(".snxpcb") {
             let text = std::fs::read_to_string(&file_path)
                 .with_context(|| format!("read pcb {}", file_path.display()))?;
-            let board = signex_types::format::SnxPcb::parse(&text)
+            let board = oxide_types::format::SnxPcb::parse(&text)
                 .with_context(|| format!("parse pcb {}", file_path.display()))?
                 .board;
             let title = filename.trim_end_matches(".snxpcb").to_string();

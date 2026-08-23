@@ -4,11 +4,11 @@
 //! and the matching shape parameters, and returns the bbox-corner IDs
 //! that go into `EditorPad.corner_entity_ids`.
 
-use signex_library::primitive::footprint::ChamferedCorners as LibChamferedCorners;
-use signex_sketch::entity::{Entity, EntityKind};
-use signex_sketch::id::SketchEntityId;
-use signex_sketch::plane::PlaneId;
-use signex_sketch::sketch::SketchData;
+use oxide_library::primitive::footprint::ChamferedCorners as LibChamferedCorners;
+use oxide_sketch::entity::{Entity, EntityKind};
+use oxide_sketch::id::SketchEntityId;
+use oxide_sketch::plane::PlaneId;
+use oxide_sketch::sketch::SketchData;
 
 use super::super::state::EditorPad;
 use super::helpers::{
@@ -35,7 +35,7 @@ type ChamferCornerSpec = (
 /// can store them on `EditorPad.corner_entity_ids` and reposition
 /// them on later pad moves. Both the corner Points and the Lines
 /// connecting them are flagged `construction = true` so
-/// `signex_bake::bake_pads` skips them and they don't double up the
+/// `oxide_bake::bake_pads` skips them and they don't double up the
 /// rendered pad geometry.
 pub(super) fn mint_pad_corner_outline(
     sketch: &mut SketchData,

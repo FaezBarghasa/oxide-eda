@@ -4,10 +4,10 @@
 mod common;
 use common::Sketch;
 
-use signex_sketch::constraint::{Constraint, ConstraintKind};
-use signex_sketch::id::ConstraintId;
-use signex_sketch::solver::residual::{ResolvedParams, residual};
-use signex_sketch::solver::state::pack;
+use oxide_sketch::constraint::{Constraint, ConstraintKind};
+use oxide_sketch::id::ConstraintId;
+use oxide_sketch::solver::residual::{ResolvedParams, residual};
+use oxide_sketch::solver::state::pack;
 
 fn empty_params() -> ResolvedParams {
     ResolvedParams::new()
@@ -421,7 +421,7 @@ fn tangent_arc_arc_internal_nonzero_on_mismatched_setup() {
 
 #[test]
 fn residual_count_is_one_for_all_task_2_6_kinds() {
-    use signex_sketch::id::SketchEntityId;
+    use oxide_sketch::id::SketchEntityId;
     let mut s = Sketch::new();
     let p1 = s.add_point(0.0, 0.0);
     let p2 = s.add_point(1.0, 0.0);

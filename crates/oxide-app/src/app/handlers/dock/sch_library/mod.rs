@@ -367,9 +367,9 @@ impl Signex {
             PanelMsg::FpEditorToggleSelectedPadPlated { idx, value } => {
                 self.with_selected_pad(*idx, |pad| {
                     pad.kind = if *value {
-                        signex_library::PadKind::Tht
+                        oxide_library::PadKind::Tht
                     } else {
-                        signex_library::PadKind::NptHole
+                        oxide_library::PadKind::NptHole
                     }
                 })
             }
@@ -685,7 +685,7 @@ impl Signex {
             }
             PanelMsg::SymEditorSetGraphicText { idx, value } => {
                 self.sym_editor_mutate_graphic(*idx, |g| {
-                    if let signex_library::SymbolGraphicKind::Text { content, .. } = &mut g.kind {
+                    if let oxide_library::SymbolGraphicKind::Text { content, .. } = &mut g.kind {
                         *content = value.clone();
                     }
                 })
@@ -750,7 +750,7 @@ impl Signex {
                 d.grid_size_mm = sizes[(i + 1) % sizes.len()];
             }),
             PanelMsg::SymEditorCycleDisplayUnit => self.sym_editor_mutate_display(|d| {
-                use signex_types::coord::Unit;
+                use oxide_types::coord::Unit;
                 d.unit = match d.unit {
                     Unit::Mm => Unit::Mil,
                     Unit::Mil => Unit::Inch,
@@ -777,12 +777,12 @@ pub(super) fn fp_parse_optional_mm(value: &str) -> Option<f64> {
 }
 
 fn apply_graphic_field(
-    g: &mut signex_library::SymbolGraphic,
+    g: &mut oxide_library::SymbolGraphic,
     field: crate::panels::GraphicFieldId,
     value: f64,
 ) {
     use crate::panels::GraphicFieldId;
-    use signex_library::SymbolGraphicKind;
+    use oxide_library::SymbolGraphicKind;
     if matches!(field, GraphicFieldId::StrokeWidth) {
         g.stroke_width = value.max(0.0);
         return;
@@ -850,7 +850,7 @@ fn apply_graphic_field(
 mod arc_field_edit_tests {
     use super::apply_graphic_field;
     use crate::panels::GraphicFieldId;
-    use signex_library::{SymbolGraphic, SymbolGraphicKind};
+    use oxide_library::{SymbolGraphic, SymbolGraphicKind};
 
     // Regression: a Properties-panel arc-degree edit must persist endpoints
     // already reduced into [0, 360). A raw negative endpoint reaching disk

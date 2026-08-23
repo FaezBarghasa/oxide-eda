@@ -14,7 +14,7 @@ pub(super) fn view_sections<'a>(
     fp: &'a FootprintEditorPanelContext,
     palette: PanelPalette,
     collapsed_sections: &'a CollapsedSections,
-    unit: signex_types::coord::Unit,
+    unit: oxide_types::coord::Unit,
 ) -> Column<'a, PanelMsg> {
     let PanelPalette {
         muted,

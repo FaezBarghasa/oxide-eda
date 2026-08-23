@@ -80,7 +80,7 @@ pub async fn run_line_circle_smoke_pass(scale_px_per_mm: f32) -> Result<SmokePas
 
     let (device, queue) = adapter
         .request_device(&wgpu::DeviceDescriptor {
-            label: Some("signex_gfx_smoke_device"),
+            label: Some("oxide_gfx_smoke_device"),
             required_features: wgpu::Features::empty(),
             required_limits: wgpu::Limits::downlevel_defaults(),
             experimental_features: wgpu::ExperimentalFeatures::disabled(),
@@ -129,7 +129,7 @@ pub async fn run_line_circle_smoke_pass(scale_px_per_mm: f32) -> Result<SmokePas
     circle_pipeline.upload(&device, &queue, &circles);
 
     let target = device.create_texture(&wgpu::TextureDescriptor {
-        label: Some("signex_gfx_smoke_target"),
+        label: Some("oxide_gfx_smoke_target"),
         size: wgpu::Extent3d {
             width: 128,
             height: 128,
@@ -146,12 +146,12 @@ pub async fn run_line_circle_smoke_pass(scale_px_per_mm: f32) -> Result<SmokePas
     let target_view = target.create_view(&wgpu::TextureViewDescriptor::default());
 
     let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-        label: Some("signex_gfx_smoke_encoder"),
+        label: Some("oxide_gfx_smoke_encoder"),
     });
 
     {
         let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-            label: Some("signex_gfx_smoke_render_pass"),
+            label: Some("oxide_gfx_smoke_render_pass"),
             color_attachments: &[Some(wgpu::RenderPassColorAttachment {
                 view: &target_view,
                 depth_slice: None,
@@ -217,7 +217,7 @@ async fn run_line_readback_smoke_pass(
 
     let (device, queue) = adapter
         .request_device(&wgpu::DeviceDescriptor {
-            label: Some("signex_gfx_dash_readback_device"),
+            label: Some("oxide_gfx_dash_readback_device"),
             required_features: wgpu::Features::empty(),
             required_limits: wgpu::Limits::downlevel_defaults(),
             experimental_features: wgpu::ExperimentalFeatures::disabled(),
@@ -241,7 +241,7 @@ async fn run_line_readback_smoke_pass(
     line_pipeline.upload(&device, &queue, &[line]);
 
     let target = device.create_texture(&wgpu::TextureDescriptor {
-        label: Some("signex_gfx_dash_readback_target"),
+        label: Some("oxide_gfx_dash_readback_target"),
         size: wgpu::Extent3d {
             width: WIDTH,
             height: HEIGHT,
@@ -257,11 +257,11 @@ async fn run_line_readback_smoke_pass(
     let target_view = target.create_view(&wgpu::TextureViewDescriptor::default());
 
     let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-        label: Some("signex_gfx_dash_readback_encoder"),
+        label: Some("oxide_gfx_dash_readback_encoder"),
     });
     {
         let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-            label: Some("signex_gfx_dash_readback_render_pass"),
+            label: Some("oxide_gfx_dash_readback_render_pass"),
             color_attachments: &[Some(wgpu::RenderPassColorAttachment {
                 view: &target_view,
                 depth_slice: None,
@@ -283,7 +283,7 @@ async fn run_line_readback_smoke_pass(
     let bytes_per_row = WIDTH * 4;
     let buffer_size = (bytes_per_row * HEIGHT) as wgpu::BufferAddress;
     let readback = device.create_buffer(&wgpu::BufferDescriptor {
-        label: Some("signex_gfx_dash_readback_buffer"),
+        label: Some("oxide_gfx_dash_readback_buffer"),
         size: buffer_size,
         usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::MAP_READ,
         mapped_at_creation: false,
@@ -349,7 +349,7 @@ async fn run_arc_smoke_pass_with(scale_px_per_mm: f32, arcs: &[Arc]) -> Result<u
 
     let (device, queue) = adapter
         .request_device(&wgpu::DeviceDescriptor {
-            label: Some("signex_gfx_arc_smoke_device"),
+            label: Some("oxide_gfx_arc_smoke_device"),
             required_features: wgpu::Features::empty(),
             required_limits: wgpu::Limits::downlevel_defaults(),
             experimental_features: wgpu::ExperimentalFeatures::disabled(),
@@ -368,7 +368,7 @@ async fn run_arc_smoke_pass_with(scale_px_per_mm: f32, arcs: &[Arc]) -> Result<u
     arc_pipeline.upload(&device, &queue, arcs);
 
     let target = device.create_texture(&wgpu::TextureDescriptor {
-        label: Some("signex_gfx_arc_smoke_target"),
+        label: Some("oxide_gfx_arc_smoke_target"),
         size: wgpu::Extent3d {
             width: 128,
             height: 128,
@@ -384,11 +384,11 @@ async fn run_arc_smoke_pass_with(scale_px_per_mm: f32, arcs: &[Arc]) -> Result<u
     let target_view = target.create_view(&wgpu::TextureViewDescriptor::default());
 
     let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-        label: Some("signex_gfx_arc_smoke_encoder"),
+        label: Some("oxide_gfx_arc_smoke_encoder"),
     });
     {
         let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-            label: Some("signex_gfx_arc_smoke_render_pass"),
+            label: Some("oxide_gfx_arc_smoke_render_pass"),
             color_attachments: &[Some(wgpu::RenderPassColorAttachment {
                 view: &target_view,
                 depth_slice: None,
@@ -443,7 +443,7 @@ async fn run_polygon_smoke_pass_with(
 
     let (device, queue) = adapter
         .request_device(&wgpu::DeviceDescriptor {
-            label: Some("signex_gfx_polygon_smoke_device"),
+            label: Some("oxide_gfx_polygon_smoke_device"),
             required_features: wgpu::Features::empty(),
             required_limits: wgpu::Limits::downlevel_defaults(),
             experimental_features: wgpu::ExperimentalFeatures::disabled(),
@@ -462,7 +462,7 @@ async fn run_polygon_smoke_pass_with(
     polygon_pipeline.upload(&device, &queue, polygons);
 
     let target = device.create_texture(&wgpu::TextureDescriptor {
-        label: Some("signex_gfx_polygon_smoke_target"),
+        label: Some("oxide_gfx_polygon_smoke_target"),
         size: wgpu::Extent3d {
             width: 128,
             height: 128,
@@ -478,11 +478,11 @@ async fn run_polygon_smoke_pass_with(
     let target_view = target.create_view(&wgpu::TextureViewDescriptor::default());
 
     let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-        label: Some("signex_gfx_polygon_smoke_encoder"),
+        label: Some("oxide_gfx_polygon_smoke_encoder"),
     });
     {
         let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-            label: Some("signex_gfx_polygon_smoke_render_pass"),
+            label: Some("oxide_gfx_polygon_smoke_render_pass"),
             color_attachments: &[Some(wgpu::RenderPassColorAttachment {
                 view: &target_view,
                 depth_slice: None,
@@ -531,7 +531,7 @@ async fn run_grid_smoke_pass_with(scale_px_per_mm: f32) -> Result<GridSmokeRepor
 
     let (device, queue) = adapter
         .request_device(&wgpu::DeviceDescriptor {
-            label: Some("signex_gfx_grid_smoke_device"),
+            label: Some("oxide_gfx_grid_smoke_device"),
             required_features: wgpu::Features::empty(),
             required_limits: wgpu::Limits::downlevel_defaults(),
             experimental_features: wgpu::ExperimentalFeatures::disabled(),
@@ -547,7 +547,7 @@ async fn run_grid_smoke_pass_with(scale_px_per_mm: f32) -> Result<GridSmokeRepor
     let grid_pipeline = GridPipeline::new(&device, target_format, camera_gpu.bind_group_layout());
 
     let target = device.create_texture(&wgpu::TextureDescriptor {
-        label: Some("signex_gfx_grid_smoke_target"),
+        label: Some("oxide_gfx_grid_smoke_target"),
         size: wgpu::Extent3d {
             width: 128,
             height: 128,
@@ -563,11 +563,11 @@ async fn run_grid_smoke_pass_with(scale_px_per_mm: f32) -> Result<GridSmokeRepor
     let target_view = target.create_view(&wgpu::TextureViewDescriptor::default());
 
     let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-        label: Some("signex_gfx_grid_smoke_encoder"),
+        label: Some("oxide_gfx_grid_smoke_encoder"),
     });
     {
         let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-            label: Some("signex_gfx_grid_smoke_render_pass"),
+            label: Some("oxide_gfx_grid_smoke_render_pass"),
             color_attachments: &[Some(wgpu::RenderPassColorAttachment {
                 view: &target_view,
                 depth_slice: None,
@@ -618,7 +618,7 @@ async fn run_text_smoke_pass_with(scale_px_per_mm: f32, texts: &[TextItem]) -> R
 
     let (device, queue) = adapter
         .request_device(&wgpu::DeviceDescriptor {
-            label: Some("signex_gfx_text_smoke_device"),
+            label: Some("oxide_gfx_text_smoke_device"),
             required_features: wgpu::Features::empty(),
             required_limits: wgpu::Limits::downlevel_defaults(),
             experimental_features: wgpu::ExperimentalFeatures::disabled(),
@@ -651,7 +651,7 @@ async fn run_text_smoke_pass_with(scale_px_per_mm: f32, texts: &[TextItem]) -> R
         .map_err(|err| format!("failed to prepare text: {err}"))?;
 
     let target = device.create_texture(&wgpu::TextureDescriptor {
-        label: Some("signex_gfx_text_smoke_target"),
+        label: Some("oxide_gfx_text_smoke_target"),
         size: wgpu::Extent3d {
             width: 128,
             height: 128,
@@ -667,11 +667,11 @@ async fn run_text_smoke_pass_with(scale_px_per_mm: f32, texts: &[TextItem]) -> R
     let target_view = target.create_view(&wgpu::TextureViewDescriptor::default());
 
     let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-        label: Some("signex_gfx_text_smoke_encoder"),
+        label: Some("oxide_gfx_text_smoke_encoder"),
     });
     {
         let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-            label: Some("signex_gfx_text_smoke_render_pass"),
+            label: Some("oxide_gfx_text_smoke_render_pass"),
             color_attachments: &[Some(wgpu::RenderPassColorAttachment {
                 view: &target_view,
                 depth_slice: None,

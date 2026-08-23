@@ -1,6 +1,6 @@
 //! Where-used reverse index — keyed by `RowId` for the DBLib model.
 //!
-//! Pure data structure. The consumer (signex-app) pushes references in via
+//! Pure data structure. The consumer (oxide-app) pushes references in via
 //! `ingest_sheet` whenever a sheet is opened or saved, and drops a project's
 //! entries via `drop_project` when the project closes. There is no filesystem
 //! walking here — that is the consumer's job.

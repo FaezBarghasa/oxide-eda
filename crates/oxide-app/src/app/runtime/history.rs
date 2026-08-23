@@ -68,11 +68,11 @@ impl Signex {
                 Task::perform(
                     async move {
                         tokio::task::spawn_blocking(move || {
-                            signex_library::project_file_history(&project_dir, &rel_path)
+                            oxide_library::project_file_history(&project_dir, &rel_path)
                         })
                         .await
                         .unwrap_or_else(|e| {
-                            Err(signex_library::adapter::LibraryError::Backend(format!(
+                            Err(oxide_library::adapter::LibraryError::Backend(format!(
                                 "spawn_blocking: {e}"
                             )))
                         })
@@ -81,7 +81,7 @@ impl Signex {
                         let mapped = match res {
                             Ok(entries) => Ok(entries
                                 .into_iter()
-                                .map(|e| signex_widgets::HistoryEntry {
+                                .map(|e| oxide_widgets::HistoryEntry {
                                     sha: e.sha,
                                     author_name: e.author_name,
                                     author_email: e.author_email,
@@ -131,7 +131,7 @@ impl HistoryTarget {
 }
 
 /// Resolve the active tab into a `(project_dir, rel_path)` pair the
-/// History panel can hand to `signex_library::project_file_history`.
+/// History panel can hand to `oxide_library::project_file_history`.
 ///
 /// Discovery walks parent directories looking for a `.git/`. We stop
 /// at the first ancestor that has one — that's the git working tree

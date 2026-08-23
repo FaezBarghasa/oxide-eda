@@ -249,7 +249,7 @@ impl SymbolCanvas<'_> {
                     let (start_deg, end_deg) =
                         super::super::super::updates::normalize_arc_commit_deg(start_deg, end_deg);
                     let start_rad = -(start_deg as f32).to_radians();
-                    let sweep = signex_gfx::primitive::arc::ccw_wrapped_sweep_rad(
+                    let sweep = oxide_gfx::primitive::arc::ccw_wrapped_sweep_rad(
                         (start_deg as f32).to_radians(),
                         (end_deg as f32).to_radians(),
                     );

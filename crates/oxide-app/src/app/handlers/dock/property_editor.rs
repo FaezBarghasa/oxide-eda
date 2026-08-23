@@ -8,8 +8,8 @@ impl Signex {
         match panel_msg {
             crate::panels::PanelMsg::EditSymbolDesignator(uuid, new_value) => {
                 self.apply_engine_command(
-                    signex_engine::Command::UpdateText {
-                        target: signex_engine::TextTarget::SymbolReference(*uuid),
+                    oxide_engine::Command::UpdateText {
+                        target: oxide_engine::TextTarget::SymbolReference(*uuid),
                         value: new_value.clone(),
                     },
                     true,
@@ -18,8 +18,8 @@ impl Signex {
             }
             crate::panels::PanelMsg::EditSymbolValue(uuid, new_value) => {
                 self.apply_engine_command(
-                    signex_engine::Command::UpdateText {
-                        target: signex_engine::TextTarget::SymbolValue(*uuid),
+                    oxide_engine::Command::UpdateText {
+                        target: oxide_engine::TextTarget::SymbolValue(*uuid),
                         value: new_value.clone(),
                     },
                     true,
@@ -28,7 +28,7 @@ impl Signex {
             }
             crate::panels::PanelMsg::EditSymbolFootprint(uuid, new_value) => {
                 self.apply_engine_command(
-                    signex_engine::Command::UpdateSymbolFootprint {
+                    oxide_engine::Command::UpdateSymbolFootprint {
                         symbol_id: *uuid,
                         footprint: new_value.clone(),
                     },
@@ -38,12 +38,12 @@ impl Signex {
             }
             crate::panels::PanelMsg::ToggleSymbolMirrorX(uuid) => {
                 self.apply_engine_command(
-                    signex_engine::Command::MirrorSelection {
-                        items: vec![signex_types::schematic::SelectedItem::new(
+                    oxide_engine::Command::MirrorSelection {
+                        items: vec![oxide_types::schematic::SelectedItem::new(
                             *uuid,
-                            signex_types::schematic::SelectedKind::Symbol,
+                            oxide_types::schematic::SelectedKind::Symbol,
                         )],
-                        axis: signex_engine::MirrorAxis::Vertical,
+                        axis: oxide_engine::MirrorAxis::Vertical,
                     },
                     true,
                     true,
@@ -51,18 +51,18 @@ impl Signex {
             }
             crate::panels::PanelMsg::ToggleSymbolMirrorY(uuid) => {
                 self.apply_engine_command(
-                    signex_engine::Command::MirrorSelection {
-                        items: vec![signex_types::schematic::SelectedItem::new(
+                    oxide_engine::Command::MirrorSelection {
+                        items: vec![oxide_types::schematic::SelectedItem::new(
                             *uuid,
-                            signex_types::schematic::SelectedKind::Symbol,
+                            oxide_types::schematic::SelectedKind::Symbol,
                         )],
-                        axis: signex_engine::MirrorAxis::Horizontal,
+                        axis: oxide_engine::MirrorAxis::Horizontal,
                     },
                     true,
                     true,
                 );
             }
-            // KNOWN GAP — both toggles are inert. `signex_engine::Command`
+            // KNOWN GAP — both toggles are inert. `oxide_engine::Command`
             // has no variant that writes `Symbol::locked` / `Symbol::dnp`
             // (only `selection.rs` reads them, for the info table), so the
             // symbol id these messages carry has nothing to apply to.
@@ -75,7 +75,7 @@ impl Signex {
             | crate::panels::PanelMsg::ToggleSymbolDnp(_) => {}
             crate::panels::PanelMsg::EditSymbolRotation(uuid, deg) => {
                 self.apply_engine_command(
-                    signex_engine::Command::SetSymbolRotation {
+                    oxide_engine::Command::SetSymbolRotation {
                         symbol_id: *uuid,
                         rotation_degrees: *deg,
                     },
@@ -89,7 +89,7 @@ impl Signex {
                 rotation_degrees,
             } => {
                 self.apply_engine_command(
-                    signex_engine::Command::UpdateSymbolLibId {
+                    oxide_engine::Command::UpdateSymbolLibId {
                         symbol_id: *symbol_id,
                         lib_id: new_lib_id.clone(),
                     },
@@ -97,7 +97,7 @@ impl Signex {
                     false,
                 );
                 self.apply_engine_command(
-                    signex_engine::Command::SetSymbolRotation {
+                    oxide_engine::Command::SetSymbolRotation {
                         symbol_id: *symbol_id,
                         rotation_degrees: *rotation_degrees,
                     },
@@ -107,7 +107,7 @@ impl Signex {
             }
             crate::panels::PanelMsg::EditSymbolLibId(uuid, new_lib) => {
                 self.apply_engine_command(
-                    signex_engine::Command::UpdateSymbolLibId {
+                    oxide_engine::Command::UpdateSymbolLibId {
                         symbol_id: *uuid,
                         lib_id: new_lib.clone(),
                     },
@@ -117,10 +117,10 @@ impl Signex {
             }
             crate::panels::PanelMsg::EditSymbolValueFontSizePt(uuid, pt) => {
                 self.apply_engine_command(
-                    signex_engine::Command::UpdateSymbolTextSize {
+                    oxide_engine::Command::UpdateSymbolTextSize {
                         symbol_id: *uuid,
-                        field: signex_engine::SymbolTextField::Value,
-                        font_size_mm: (*pt as f64) * signex_types::schematic::SCHEMATIC_PT_TO_MM,
+                        field: oxide_engine::SymbolTextField::Value,
+                        font_size_mm: (*pt as f64) * oxide_types::schematic::SCHEMATIC_PT_TO_MM,
                     },
                     true,
                     true,
@@ -131,8 +131,8 @@ impl Signex {
                 // escape token so the stored schematic round-trips cleanly.
                 let stored = crate::schematic_runtime::text::escape_for_standard(new_text);
                 self.apply_engine_command(
-                    signex_engine::Command::UpdateText {
-                        target: signex_engine::TextTarget::Label(*uuid),
+                    oxide_engine::Command::UpdateText {
+                        target: oxide_engine::TextTarget::Label(*uuid),
                         value: stored,
                     },
                     true,
@@ -142,8 +142,8 @@ impl Signex {
             crate::panels::PanelMsg::EditTextNoteText(uuid, new_text) => {
                 let stored = crate::schematic_runtime::text::escape_for_standard(new_text);
                 self.apply_engine_command(
-                    signex_engine::Command::UpdateText {
-                        target: signex_engine::TextTarget::TextNote(*uuid),
+                    oxide_engine::Command::UpdateText {
+                        target: oxide_engine::TextTarget::TextNote(*uuid),
                         value: stored,
                     },
                     true,
@@ -152,7 +152,7 @@ impl Signex {
             }
             crate::panels::PanelMsg::EditLabelJustifyH(uuid, h) => {
                 self.apply_engine_command(
-                    signex_engine::Command::UpdateLabelProps {
+                    oxide_engine::Command::UpdateLabelProps {
                         label_id: *uuid,
                         font_size_mm: None,
                         justify: Some(*h),
@@ -164,7 +164,7 @@ impl Signex {
             }
             crate::panels::PanelMsg::EditLabelDirection(uuid, deg, h) => {
                 self.apply_engine_command(
-                    signex_engine::Command::UpdateLabelProps {
+                    oxide_engine::Command::UpdateLabelProps {
                         label_id: *uuid,
                         font_size_mm: None,
                         justify: Some(*h),
@@ -176,7 +176,7 @@ impl Signex {
             }
             crate::panels::PanelMsg::EditLabelRotation(uuid, deg) => {
                 self.apply_engine_command(
-                    signex_engine::Command::UpdateLabelProps {
+                    oxide_engine::Command::UpdateLabelProps {
                         label_id: *uuid,
                         font_size_mm: None,
                         justify: None,
@@ -187,9 +187,9 @@ impl Signex {
                 );
             }
             crate::panels::PanelMsg::EditLabelFontSizePt(uuid, pt) => {
-                let mm = (*pt as f64) * signex_types::schematic::SCHEMATIC_PT_TO_MM;
+                let mm = (*pt as f64) * oxide_types::schematic::SCHEMATIC_PT_TO_MM;
                 self.apply_engine_command(
-                    signex_engine::Command::UpdateLabelProps {
+                    oxide_engine::Command::UpdateLabelProps {
                         label_id: *uuid,
                         font_size_mm: Some(mm),
                         justify: None,
@@ -245,7 +245,7 @@ impl Signex {
                     .panel_ctx
                     .child_sheet_border_advanced_open = false;
                 self.apply_engine_command(
-                    signex_engine::Command::UpdateChildSheetStyle {
+                    oxide_engine::Command::UpdateChildSheetStyle {
                         sheet_id: *uuid,
                         stroke_width: None,
                         stroke_color: Some(Some(stroke)),
@@ -260,7 +260,7 @@ impl Signex {
                 self.document_state.panel_ctx.child_sheet_fill_picker_open = false;
                 self.document_state.panel_ctx.child_sheet_fill_advanced_open = false;
                 self.apply_engine_command(
-                    signex_engine::Command::UpdateChildSheetStyle {
+                    oxide_engine::Command::UpdateChildSheetStyle {
                         sheet_id: *uuid,
                         stroke_width: None,
                         stroke_color: None,
@@ -285,7 +285,7 @@ impl Signex {
                     && width >= 0.0
                 {
                     self.apply_engine_command(
-                        signex_engine::Command::UpdateChildSheetStyle {
+                        oxide_engine::Command::UpdateChildSheetStyle {
                             sheet_id: *uuid,
                             stroke_width: Some(width),
                             stroke_color: None,
@@ -305,7 +305,7 @@ impl Signex {
                 self.document_state.panel_ctx.child_sheet_fill_advanced_open = false;
                 self.document_state.panel_ctx.child_sheet_stroke_width_buf = None;
                 self.apply_engine_command(
-                    signex_engine::Command::UpdateChildSheetStyle {
+                    oxide_engine::Command::UpdateChildSheetStyle {
                         sheet_id: *uuid,
                         stroke_width: Some(0.0),
                         stroke_color: Some(None),
@@ -322,8 +322,8 @@ impl Signex {
     }
 }
 
-fn iced_color_to_stroke(c: iced::Color) -> signex_types::schematic::StrokeColor {
-    signex_types::schematic::StrokeColor {
+fn iced_color_to_stroke(c: iced::Color) -> oxide_types::schematic::StrokeColor {
+    oxide_types::schematic::StrokeColor {
         r: (c.r.clamp(0.0, 1.0) * 255.0).round() as u8,
         g: (c.g.clamp(0.0, 1.0) * 255.0).round() as u8,
         b: (c.b.clamp(0.0, 1.0) * 255.0).round() as u8,

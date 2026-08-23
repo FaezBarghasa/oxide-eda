@@ -68,7 +68,7 @@ pub struct FootprintEditorPanelContext {
     /// v0.16.2 — sketch-entity ID of the primary selection. Wired
     /// through so the Properties panel's Role pick_list can emit
     /// `FootprintSketchSetRole` with the right id.
-    pub selected_sketch_entity_id: Option<signex_sketch::id::SketchEntityId>,
+    pub selected_sketch_entity_id: Option<oxide_sketch::id::SketchEntityId>,
     /// v0.16.2 — current role of the primary selected sketch entity
     /// (or `Unassigned` when no entity is selected). Inspected via
     /// `current_role_of` against the entity's `*Attr` slots.
@@ -105,7 +105,7 @@ pub struct FootprintEditorPanelContext {
     pub next_pad_stack: crate::library::editor::footprint::state::PadStackUi,
     /// v0.20 — pad shape for the next placed pad (read out of
     /// `EditorPad::shape` after mint). Defaults to `Rect`.
-    pub next_pad_shape: signex_library::PadShape,
+    pub next_pad_shape: oxide_library::PadShape,
     /// v0.20 — drill diameter for the next placed pad in mm. `None`
     /// = SMD pad (no hole). Drives the HOLE → Hole size row.
     pub next_pad_drill_diameter_mm: Option<f64>,
@@ -121,29 +121,29 @@ pub struct FootprintEditorPanelContext {
     /// pad. Empty = local.
     pub next_pad_template_library: String,
     /// v0.20 — top-side surface feature for the next placed pad.
-    pub next_pad_feature_top: signex_sketch::attr::PadFeature,
+    pub next_pad_feature_top: oxide_sketch::attr::PadFeature,
     /// v0.20 — bottom-side surface feature for the next placed pad.
-    pub next_pad_feature_bottom: signex_sketch::attr::PadFeature,
+    pub next_pad_feature_bottom: oxide_sketch::attr::PadFeature,
     /// v0.20 — test-point participation flags for the next placed
     /// pad. All `false` = not a test point.
-    pub next_pad_testpoint: signex_sketch::attr::TestpointFlags,
+    pub next_pad_testpoint: oxide_sketch::attr::TestpointFlags,
     /// v0.20 — currently-active Pad Stack tab (Simple / Top-Middle-
     /// Bottom / Full Stack). Drives which body the Pad Stack section
     /// renders. UI-only state; not persisted to disk.
     pub pad_stack_tab: crate::library::editor::footprint::state::PadStackTab,
     /// v0.21 — Altium-parity electrical-type for the next placed pad.
-    pub next_pad_electrical_type: signex_sketch::attr::ElectricalType,
+    pub next_pad_electrical_type: oxide_sketch::attr::ElectricalType,
     /// v0.21 — net assignment for the next placed pad.
     pub next_pad_net: String,
     /// v0.21 — locked flag for the next placed pad.
     pub next_pad_locked: bool,
     /// v0.21 — Pad mounting kind for the next placed pad.
-    pub next_pad_kind: signex_library::PadKind,
+    pub next_pad_kind: oxide_library::PadKind,
     /// v0.21 — Altium-parity component-level fields. Surface in the
     /// empty-canvas Footprint summary form.
     pub footprint_description: String,
     pub footprint_default_designator: String,
-    pub footprint_component_type: signex_library::primitive::footprint::ComponentType,
+    pub footprint_component_type: oxide_library::primitive::footprint::ComponentType,
     pub footprint_height_mm: Option<f64>,
     /// v0.21 — Pad Hole detail fields surfaced for the Multi-Layer
     /// pad placement form.
@@ -236,7 +236,7 @@ pub struct PadShapeParamSummary {
 #[derive(Debug, Clone)]
 pub struct PourSummary {
     pub net: Option<String>,
-    pub fill_type: signex_sketch::attr::PourFillType,
+    pub fill_type: oxide_sketch::attr::PourFillType,
     pub priority: u32,
 }
 
@@ -260,11 +260,11 @@ pub struct CutoutSummary {
 
 /// v0.23 — Array (Pattern) properties surfaced on the Properties panel
 /// when the selected sketch entity is the source of an
-/// [`signex_sketch::array::Array`]. The handler resolves the array by
+/// [`oxide_sketch::array::Array`]. The handler resolves the array by
 /// `array_id`, mutates the matching field, then runs solve+bake.
 #[derive(Debug, Clone)]
 pub struct ArraySummary {
-    pub array_id: signex_sketch::array::ArrayId,
+    pub array_id: oxide_sketch::array::ArrayId,
     pub kind: ArrayKindSummary,
     pub numbering: NumberingSchemeKindUi,
     /// `true` when the polar centre re-pick is active — the next
@@ -278,7 +278,7 @@ pub struct ArraySummary {
 }
 
 /// v0.25 polish — surface for BGA numbering scheme parameters.
-/// Mirror of [`signex_sketch::array::NumberingScheme::BgaRowCol`].
+/// Mirror of [`oxide_sketch::array::NumberingScheme::BgaRowCol`].
 #[derive(Debug, Clone)]
 pub struct BgaConfigSummary {
     /// IPC-7351 letter-skip convention (omits I/O/Q/S/X/Z to avoid
@@ -333,7 +333,7 @@ pub enum ArrayKindSummary {
 }
 
 /// v0.23 — Numbering scheme kind for the Properties panel pick_list.
-/// Mirrors [`signex_sketch::array::NumberingScheme`]'s tag. The handler
+/// Mirrors [`oxide_sketch::array::NumberingScheme`]'s tag. The handler
 /// preserves the inner expression fields when flipping kinds where
 /// possible (e.g. switching to LinearIncrement keeps any prior
 /// start/step expressions; switching to Explicit clears them).
@@ -481,7 +481,7 @@ pub struct OverConstraintSummary {
     /// specific row at full red while everything else (including
     /// other over-constraints) dims. Drives per-row hover precision
     /// in the Properties panel "Conflicts" list.
-    pub constraint_id: signex_sketch::id::ConstraintId,
+    pub constraint_id: oxide_sketch::id::ConstraintId,
     /// Kind label — "Coincident", "DistancePtPt", "Horizontal", etc.
     /// Static string avoids allocating per-row.
     pub kind_label: &'static str,
@@ -501,7 +501,7 @@ pub struct OverConstraintSummary {
     /// this Point so the canvas pans and the constraint icon
     /// rendered in red sits in view. `None` for constraints with
     /// no Point endpoints (rare — Fixed pseudo-rows).
-    pub focus_entity_id: Option<signex_sketch::id::SketchEntityId>,
+    pub focus_entity_id: Option<oxide_sketch::id::SketchEntityId>,
 }
 
 #[derive(Debug, Clone)]
@@ -520,17 +520,17 @@ pub struct FootprintPadSummary {
     /// next-pad form binds to so the selected-pad branch can render
     /// the same Properties / Pad Stack / Pad Features sections.
     pub side: crate::library::editor::footprint::state::PadSide,
-    pub shape: signex_library::PadShape,
-    pub kind: signex_library::PadKind,
+    pub shape: oxide_library::PadShape,
+    pub kind: oxide_library::PadKind,
     pub drill_diameter_mm: Option<f64>,
     pub stack: crate::library::editor::footprint::state::PadStackUi,
-    pub feature_top: signex_sketch::attr::PadFeature,
-    pub feature_bottom: signex_sketch::attr::PadFeature,
-    pub testpoint: signex_sketch::attr::TestpointFlags,
+    pub feature_top: oxide_sketch::attr::PadFeature,
+    pub feature_bottom: oxide_sketch::attr::PadFeature,
+    pub testpoint: oxide_sketch::attr::TestpointFlags,
     pub template: String,
     pub template_library: String,
     /// v0.21 — Altium-parity electrical-type.
-    pub electrical_type: signex_sketch::attr::ElectricalType,
+    pub electrical_type: oxide_sketch::attr::ElectricalType,
     /// v0.21 — net assignment.
     pub net: String,
     /// v0.21 — locked flag.
@@ -549,15 +549,15 @@ pub struct FootprintPadSummary {
 /// branch can render an editable Pad Attributes section.
 #[derive(Debug, Clone)]
 pub struct SketchPadAttrSummary {
-    pub id: signex_sketch::id::SketchEntityId,
-    pub electrical_type: signex_sketch::attr::ElectricalType,
+    pub id: oxide_sketch::id::SketchEntityId,
+    pub electrical_type: oxide_sketch::attr::ElectricalType,
     pub net: String,
     pub locked: bool,
     pub template: String,
     pub template_library: String,
-    pub feature_top: signex_sketch::attr::PadFeature,
-    pub feature_bottom: signex_sketch::attr::PadFeature,
-    pub testpoint: signex_sketch::attr::TestpointFlags,
+    pub feature_top: oxide_sketch::attr::PadFeature,
+    pub feature_bottom: oxide_sketch::attr::PadFeature,
+    pub testpoint: oxide_sketch::attr::TestpointFlags,
     pub thermal_relief: bool,
     pub mask_top_tented: bool,
     pub mask_bottom_tented: bool,
@@ -627,5 +627,5 @@ pub struct FootprintSketchEntitySummary {
     /// Points (looked up in `last_solve.colours`); `None` for other
     /// entity kinds whose DOF state is implicitly the min of their
     /// endpoints'. Drives the "DOF" row in the Properties panel.
-    pub dof_state: Option<signex_sketch::solver::dof::DofColor>,
+    pub dof_state: Option<oxide_sketch::solver::dof::DofColor>,
 }

@@ -12,7 +12,7 @@ use axum::{
     routing::get,
 };
 use serde::Deserialize;
-use signex_library::primitive::SimModel;
+use oxide_library::primitive::SimModel;
 use uuid::Uuid;
 
 use crate::db::{AppState, PrimitiveSummary};

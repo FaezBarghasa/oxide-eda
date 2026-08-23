@@ -1,15 +1,15 @@
-//! Misfiled: these two exercise `signex-sketch` state directly with no `Signex`/`app.update` involved. True home is `crates/signex-sketch/tests/`; kept here as-is per the split (see issue #432).
+//! Misfiled: these two exercise `oxide-sketch` state directly with no `Signex`/`app.update` involved. True home is `crates/oxide-sketch/tests/`; kept here as-is per the split (see issue #432).
 
 // ─────────────────────────────────────────────────────────────────
-// v0.23 — sketch-mode pattern dispatchers (signex-sketch state side)
+// v0.23 — sketch-mode pattern dispatchers (oxide-sketch state side)
 // ─────────────────────────────────────────────────────────────────
 
 #[test]
 fn array_kind_residual_count_is_one_per_kind_for_distance_pt_circle() {
     // Spot-check the new ConstraintKind variant integrates with
     // the residual_count machinery the panel relies on.
-    use signex_sketch::constraint::{ConstraintKind, DimTarget};
-    use signex_sketch::id::SketchEntityId;
+    use oxide_sketch::constraint::{ConstraintKind, DimTarget};
+    use oxide_sketch::id::SketchEntityId;
 
     let kind = ConstraintKind::DistancePtCircle {
         point: SketchEntityId::new(),
@@ -22,12 +22,12 @@ fn array_kind_residual_count_is_one_per_kind_for_distance_pt_circle() {
 #[test]
 fn grid_depopulation_round_trips_suppressed_instances_through_app_layer() {
     // App layer never authors GridDepopulation directly — but
-    // .snxfpt files load through signex-library and into the
+    // .snxfpt files load through oxide-library and into the
     // FootprintEditorState's primitive. This test pins the schema:
     // empty mask + non-empty suppression list survives a TOML
-    // round trip via signex-sketch.
-    use signex_sketch::array::{Array, ArrayId, ArrayKind, GridDepopulation, NumberingScheme};
-    use signex_sketch::id::SketchEntityId;
+    // round trip via oxide-sketch.
+    use oxide_sketch::array::{Array, ArrayId, ArrayKind, GridDepopulation, NumberingScheme};
+    use oxide_sketch::id::SketchEntityId;
 
     let a = Array {
         id: ArrayId::new(),

@@ -95,7 +95,7 @@ mod tests {
     use super::*;
     use crate::app::{GraphicFillPicker, SymbolEditorState};
     use crate::library::editor::symbol::state::SymbolSelection;
-    use signex_library::{Symbol, SymbolFile, SymbolGraphic, SymbolGraphicKind};
+    use oxide_library::{Symbol, SymbolFile, SymbolGraphic, SymbolGraphicKind};
     use std::path::PathBuf;
 
     /// Deleting the selected graphic must close a fill picker that was

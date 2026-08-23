@@ -30,9 +30,9 @@ use iced::widget::{
     text_input,
 };
 use iced::{Border, Element, Length, Theme};
-use signex_library::{ComponentRow, LifecycleState, RowId};
-use signex_types::theme::ThemeTokens;
-use signex_widgets::theme_ext;
+use oxide_library::{ComponentRow, LifecycleState, RowId};
+use oxide_types::theme::ThemeTokens;
+use oxide_widgets::theme_ext;
 
 use super::messages::LibraryMessage;
 use super::state::{LibraryBrowserState, LibraryState, LifecycleFilter, OpenLibrary};

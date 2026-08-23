@@ -350,11 +350,11 @@ pub struct Footprint {
     #[serde(default = "default_schema_v2")]
     pub schema_version: u32,
     /// Optional 2D parametric sketch — drives pad layout via the
-    /// signex-sketch solver in v0.13+. v1 footprints (no
+    /// oxide-sketch solver in v0.13+. v1 footprints (no
     /// `schema_version`) deserialise with `sketch == None` and
     /// preserve their literal pad-list authoring.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub sketch: Option<signex_sketch::SketchData>,
+    pub sketch: Option<oxide_sketch::SketchData>,
     /// Copper pour / region polygons. v0.14+; fill generation is v0.15.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub pours: Vec<FpPour>,
@@ -512,7 +512,7 @@ const PAD_TSV_COLUMNS: &[&str] = &[
 /// Sentinel string substituted for each footprint's `pads_tsv` field
 /// before TOML serialise; replaced post-emit with the literal multi-
 /// line `'''…'''` block.
-const PADS_TSV_PLACEHOLDER_PREFIX: &str = "__SIGNEX_PADS_TSV_a1b2c3d4_";
+const PADS_TSV_PLACEHOLDER_PREFIX: &str = "__OXIDE_PADS_TSV_a1b2c3d4_";
 
 fn default_footprint_format() -> String {
     FOOTPRINT_FILE_FORMAT_TOKEN.to_string()
@@ -566,7 +566,7 @@ struct FootprintWire {
     #[serde(default = "default_schema_v2")]
     schema_version: u32,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    sketch: Option<signex_sketch::SketchData>,
+    sketch: Option<oxide_sketch::SketchData>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pours: Vec<FpPour>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]

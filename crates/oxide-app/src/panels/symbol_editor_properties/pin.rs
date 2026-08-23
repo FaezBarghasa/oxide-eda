@@ -10,12 +10,12 @@ use super::super::{PanelMsg, SymbolPinSummary};
 /// matches the `SymEditorSetPinSymbol::slot` numbering: 0 / 1 / 2 / 3.
 fn view_pin_symbol_picker<'a>(
     label: &str,
-    current: signex_library::PinSymbolKind,
+    current: oxide_library::PinSymbolKind,
     pin_idx: usize,
     slot: u8,
     muted: Color,
 ) -> Element<'a, PanelMsg> {
-    use signex_library::PinSymbolKind as K;
+    use oxide_library::PinSymbolKind as K;
     let options = [
         ("None", K::None),
         ("Dot (active-low bubble)", K::Dot),
@@ -125,19 +125,19 @@ pub(super) fn view_pin_selection<'a>(
 
     // ── Electrical Type (pick_list) ──
     let electrical_options = [
-        ("Input", signex_library::PinDirection::Input),
-        ("I/O", signex_library::PinDirection::Bidirectional),
-        ("Output", signex_library::PinDirection::Output),
+        ("Input", oxide_library::PinDirection::Input),
+        ("I/O", oxide_library::PinDirection::Bidirectional),
+        ("Output", oxide_library::PinDirection::Output),
         (
             "Open Collector",
-            signex_library::PinDirection::OpenCollector,
+            oxide_library::PinDirection::OpenCollector,
         ),
-        ("Passive", signex_library::PinDirection::Passive),
-        ("HiZ", signex_library::PinDirection::Tristate),
-        ("Open Emitter", signex_library::PinDirection::OpenEmitter),
-        ("Power", signex_library::PinDirection::Power),
-        ("Not Connected", signex_library::PinDirection::NotConnected),
-        ("Unspecified", signex_library::PinDirection::Unspecified),
+        ("Passive", oxide_library::PinDirection::Passive),
+        ("HiZ", oxide_library::PinDirection::Tristate),
+        ("Open Emitter", oxide_library::PinDirection::OpenEmitter),
+        ("Power", oxide_library::PinDirection::Power),
+        ("Not Connected", oxide_library::PinDirection::NotConnected),
+        ("Unspecified", oxide_library::PinDirection::Unspecified),
     ];
     let current_label = electrical_options
         .iter()
@@ -148,7 +148,7 @@ pub(super) fn view_pin_selection<'a>(
         .iter()
         .map(|(label, _)| label.to_string())
         .collect();
-    let labels_for_msg: Vec<(String, signex_library::PinDirection)> = electrical_options
+    let labels_for_msg: Vec<(String, oxide_library::PinDirection)> = electrical_options
         .iter()
         .map(|(label, v)| (label.to_string(), *v))
         .collect();
@@ -158,7 +158,7 @@ pub(super) fn view_pin_selection<'a>(
                 .iter()
                 .find(|(label, _)| label == &chosen)
                 .map(|(_, v)| *v)
-                .unwrap_or(signex_library::PinDirection::Unspecified);
+                .unwrap_or(oxide_library::PinDirection::Unspecified);
             PanelMsg::SymEditorSetPinElectrical { pin_idx, value }
         })
         .padding([2, 4])
@@ -236,10 +236,10 @@ pub(super) fn view_pin_selection<'a>(
 
     // ── Orientation (pick_list) ──
     let orientation_options = [
-        ("Right", signex_library::PinOrientation::Right),
-        ("Up", signex_library::PinOrientation::Up),
-        ("Left", signex_library::PinOrientation::Left),
-        ("Down", signex_library::PinOrientation::Down),
+        ("Right", oxide_library::PinOrientation::Right),
+        ("Up", oxide_library::PinOrientation::Up),
+        ("Left", oxide_library::PinOrientation::Left),
+        ("Down", oxide_library::PinOrientation::Down),
     ];
     let current_orient = orientation_options
         .iter()
@@ -250,7 +250,7 @@ pub(super) fn view_pin_selection<'a>(
         .iter()
         .map(|(label, _)| label.to_string())
         .collect();
-    let orient_msg_lookup: Vec<(String, signex_library::PinOrientation)> = orientation_options
+    let orient_msg_lookup: Vec<(String, oxide_library::PinOrientation)> = orientation_options
         .iter()
         .map(|(label, v)| (label.to_string(), *v))
         .collect();
@@ -262,7 +262,7 @@ pub(super) fn view_pin_selection<'a>(
                 .iter()
                 .find(|(label, _)| label == &chosen)
                 .map(|(_, v)| *v)
-                .unwrap_or(signex_library::PinOrientation::Right);
+                .unwrap_or(oxide_library::PinOrientation::Right);
             PanelMsg::SymEditorSetPinOrientation { pin_idx, value }
         },
     )

@@ -1,6 +1,6 @@
 //! Symbol-tab editor state.
 //!
-//! The editor mutates a typed [`signex_library::Symbol`] primitive
+//! The editor mutates a typed [`oxide_library::Symbol`] primitive
 //! in-place. Helpers below operate on a `&mut Symbol` so the
 //! dispatcher can call them directly off the active editor state.
 //!
@@ -9,9 +9,9 @@
 //! had.
 
 use iced::mouse;
-use signex_library::{PinOrientation, Symbol, SymbolGraphicKind, SymbolPin};
-use signex_types::anchor2d::rotate_vec;
-use signex_types::rotation2d::{
+use oxide_library::{PinOrientation, Symbol, SymbolGraphicKind, SymbolPin};
+use oxide_types::anchor2d::rotate_vec;
+use oxide_types::rotation2d::{
     Pose2d, Rotatable2d, RotationPivot, RotationSpace, Vec2d, normalize_angle_rad, rotate_object,
 };
 
@@ -53,7 +53,7 @@ pub enum FieldKey {
 pub enum SymbolSelection {
     Pin(usize),
     Field(FieldKey),
-    /// A placed [`signex_library::SymbolGraphic`] at the given index
+    /// A placed [`oxide_library::SymbolGraphic`] at the given index
     /// in the active symbol's `graphics` vector. Picked up by the
     /// canvas hit-test on Select-tool clicks that miss every pin and
     /// every graphic resize handle but land inside a graphic body.
@@ -330,7 +330,7 @@ pub fn delete_unit(sym: &mut Symbol, part: u8) -> u8 {
 
 /// A graphic is visible/editable on `active_part` when it is shared
 /// (part 0) or scoped to that exact unit — mirrors pin part visibility.
-pub fn graphic_on_part(g: &signex_library::SymbolGraphic, active_part: u8) -> bool {
+pub fn graphic_on_part(g: &oxide_library::SymbolGraphic, active_part: u8) -> bool {
     g.part_number == 0 || g.part_number == active_part
 }
 

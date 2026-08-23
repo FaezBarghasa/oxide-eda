@@ -1,7 +1,7 @@
 //! Iterative path-compression union-find, generic over the node key.
 //!
-//! Shared by `signex-net`'s netlist builder / cross-sheet stitcher and
-//! `signex-erc`'s rules / context. Both used to keep their own recursive copy —
+//! Shared by `oxide-net`'s netlist builder / cross-sheet stitcher and
+//! `oxide-erc`'s rules / context. Both used to keep their own recursive copy —
 //! the recursive form was a real stack-overflow vector on degenerate wire
 //! chains >10K segments (HI-17). This is the single canonical implementation.
 //!

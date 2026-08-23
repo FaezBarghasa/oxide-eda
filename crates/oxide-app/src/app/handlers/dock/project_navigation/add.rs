@@ -213,7 +213,7 @@ impl Signex {
         // Build a blank sheet through the same helper File ▸ New
         // Project uses so the on-disk format stays in lockstep.
         let sheet = blank_schematic_sheet_for_new_doc();
-        let serialised = match signex_types::format::SnxSchematic::new(sheet).write_string() {
+        let serialised = match oxide_types::format::SnxSchematic::new(sheet).write_string() {
             Ok(s) => s,
             Err(e) => {
                 crate::diagnostics::log_error(
@@ -223,7 +223,7 @@ impl Signex {
                 return;
             }
         };
-        if let Err(e) = signex_types::atomic_io::atomic_write(&path, serialised.as_bytes()) {
+        if let Err(e) = oxide_types::atomic_io::atomic_write(&path, serialised.as_bytes()) {
             crate::diagnostics::log_error(
                 "Add New Schematic: write blank sheet",
                 &anyhow::anyhow!("{}", e),
@@ -318,7 +318,7 @@ impl Signex {
                 if loaded.data.sheets.iter().any(|s| s.filename == filename) {
                     return false;
                 }
-                loaded.data.sheets.push(signex_types::project::SheetEntry {
+                loaded.data.sheets.push(oxide_types::project::SheetEntry {
                     name: stem,
                     filename,
                     symbols_count: 0,
@@ -357,9 +357,9 @@ impl Signex {
                 loaded
                     .data
                     .libraries
-                    .push(signex_types::project::LibraryEntry {
+                    .push(oxide_types::project::LibraryEntry {
                         path: entry_path,
-                        kind: signex_types::project::LibraryEntryKind::ProjectLocal,
+                        kind: oxide_types::project::LibraryEntryKind::ProjectLocal,
                         library_id: None,
                     });
                 true
@@ -399,6 +399,6 @@ fn unique_name_in(dir: &std::path::Path, base: &str, ext: &str) -> String {
     primary
 }
 
-fn blank_schematic_sheet_for_new_doc() -> signex_types::schematic::SchematicSheet {
+fn blank_schematic_sheet_for_new_doc() -> oxide_types::schematic::SchematicSheet {
     super::super::super::document_files::blank_schematic_sheet_for_new_doc()
 }

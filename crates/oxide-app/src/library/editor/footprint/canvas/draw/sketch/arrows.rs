@@ -36,11 +36,11 @@ use crate::library::editor::footprint::state::FootprintEditorState;
 pub(in crate::library::editor::footprint::canvas::draw) fn draw_dof_direction_arrows(
     frame: &mut canvas::Frame,
     cstate: &FootprintCanvasState,
-    sketch: &signex_sketch::SketchData,
+    sketch: &oxide_sketch::SketchData,
     state: &FootprintEditorState,
 ) {
-    use signex_sketch::entity::EntityKind;
-    use signex_sketch::solver::dof::DofColor;
+    use oxide_sketch::entity::EntityKind;
+    use oxide_sketch::solver::dof::DofColor;
 
     let solve = match state.last_solve.as_ref() {
         Some(s) => s,
@@ -116,7 +116,7 @@ pub(in crate::library::editor::footprint::canvas::draw) fn draw_dof_direction_ar
 
         // Resolve world position via the solved state (preferring) or
         // the authored entity coords.
-        let world = if let Some(p) = signex_sketch::solver::state::point_xy(
+        let world = if let Some(p) = oxide_sketch::solver::state::point_xy(
             pt_id,
             &solve.result.state,
             &solve.result.index,

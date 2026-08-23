@@ -44,7 +44,7 @@ pub const FOOTPRINT_EDITOR_ENABLED: bool = true;
 
 /// **Factory default, not a gate** — see the module docs.
 ///
-/// Route the PCB editor canvas content through the GPU (`signex_gfx`
+/// Route the PCB editor canvas content through the GPU (`oxide_gfx`
 /// pipelines via iced's shader widget, [`crate::scene_shader`]) instead of
 /// CPU `canvas::Frame` tessellation. When ON, the PCB view mounts a `stack!`
 /// of an opaque background+grid `canvas` beneath a `shader` that draws the
@@ -69,5 +69,5 @@ pub const FOOTPRINT_EDITOR_ENABLED: bool = true;
 /// Still `false` because GPU visual parity is unconfirmed on hardware
 /// (background clear colour, ortho Y-orientation) and the base-bucket draw
 /// order deliberately diverges from the CPU path — see
-/// `signex_gfx::scene::order` and issue #645.
+/// `oxide_gfx::scene::order` and issue #645.
 pub const PCB_GPU_RENDER_DEFAULT: bool = false;

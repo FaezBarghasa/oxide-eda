@@ -1,6 +1,6 @@
 //! Parametric pad-shape mirror into sketch entities (round, round-rect, oval, chamfered pads).
 
-use signex_app::app::{Message, Signex};
+use oxide_app::app::{Message, Signex};
 
 use std::path::PathBuf;
 
@@ -16,10 +16,10 @@ fn mirror_add_round_pad_mints_circle_with_diameter_param() {
     // recording the pad's diameter literal. `pad.shape_params` should
     // record `"diameter" -> param_name` so the Phase 3 Properties row
     // can look up the binding.
-    use signex_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
-    use signex_app::library::editor::footprint::state::EditorPad;
-    use signex_library::primitive::footprint::{Footprint, PadShape};
-    use signex_sketch::entity::EntityKind;
+    use oxide_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
+    use oxide_app::library::editor::footprint::state::EditorPad;
+    use oxide_library::primitive::footprint::{Footprint, PadShape};
+    use oxide_sketch::entity::EntityKind;
 
     let mut pad = EditorPad::new_default("1".into(), (2.0, 3.0));
     pad.shape = PadShape::Round;
@@ -108,10 +108,10 @@ fn mirror_add_round_rect_pad_mints_4_arcs_linked_to_corner_r() {
     // All 4 Arcs must read from the same `corner_r_<slug>` parameter
     // so they stay linked implicitly. `pad.shape_params` should
     // record `"corner_r" -> param_name`.
-    use signex_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
-    use signex_app::library::editor::footprint::state::EditorPad;
-    use signex_library::primitive::footprint::{Footprint, PadShape};
-    use signex_sketch::entity::EntityKind;
+    use oxide_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
+    use oxide_app::library::editor::footprint::state::EditorPad;
+    use oxide_library::primitive::footprint::{Footprint, PadShape};
+    use oxide_sketch::entity::EntityKind;
 
     let mut pad = EditorPad::new_default("1".into(), (0.0, 0.0));
     pad.shape = PadShape::RoundRect { radius_ratio: 0.25 };
@@ -231,11 +231,11 @@ fn mirror_add_round_rect_pad_mints_4_arcs_linked_to_corner_r() {
 /// panel can render an editable "Corner radius" row.
 #[test]
 fn properties_panel_shows_corner_radius_for_round_rect_pad() {
-    use signex_app::app::FootprintEditorState;
-    use signex_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
-    use signex_app::library::editor::footprint::state::EditorPad;
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::{Footprint, FootprintFile, PadShape};
+    use oxide_app::app::FootprintEditorState;
+    use oxide_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
+    use oxide_app::library::editor::footprint::state::EditorPad;
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::{Footprint, FootprintFile, PadShape};
 
     let path = PathBuf::from("test-a2-corner-radius-row.snxfpt");
     let mut fp = Footprint::empty("test");
@@ -261,13 +261,13 @@ fn properties_panel_shows_corner_radius_for_round_rect_pad() {
     // Open a tab pointing at the editor so build_footprint_editor_panel_ctx
     // resolves it. Using TabKind::FootprintEditor matches what the
     // app does when the user double-clicks a .snxfpt in the tree.
-    app.document_state.tabs.push(signex_app::app::TabInfo {
+    app.document_state.tabs.push(oxide_app::app::TabInfo {
         title: "test".into(),
         path: path.clone(),
         cached_document: None,
         dirty: false,
         project_id: None,
-        kind: signex_app::app::TabKind::FootprintEditor(path.clone()),
+        kind: oxide_app::app::TabKind::FootprintEditor(path.clone()),
     });
     app.document_state.active_tab = 0;
 
@@ -311,10 +311,10 @@ fn properties_panel_shows_corner_radius_for_round_rect_pad() {
 /// (warnings list stays empty).
 #[test]
 fn editing_corner_radius_updates_all_4_arcs() {
-    use signex_app::app::FootprintEditorState;
-    use signex_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
-    use signex_app::library::editor::footprint::state::EditorPad;
-    use signex_library::{Footprint, FootprintFile, PadShape};
+    use oxide_app::app::FootprintEditorState;
+    use oxide_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
+    use oxide_app::library::editor::footprint::state::EditorPad;
+    use oxide_library::{Footprint, FootprintFile, PadShape};
 
     let path = PathBuf::from("test-a2-edit-corner-radius.snxfpt");
     let mut fp = Footprint::empty("test");
@@ -338,20 +338,20 @@ fn editing_corner_radius_updates_all_4_arcs() {
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
-    app.document_state.tabs.push(signex_app::app::TabInfo {
+    app.document_state.tabs.push(oxide_app::app::TabInfo {
         title: "test".into(),
         path: path.clone(),
         cached_document: None,
         dirty: false,
         project_id: None,
-        kind: signex_app::app::TabKind::FootprintEditor(path.clone()),
+        kind: oxide_app::app::TabKind::FootprintEditor(path.clone()),
     });
     app.document_state.active_tab = 0;
 
     // Dispatch the Properties-panel edit. PanelMsg flows through the
     // dock dispatcher which forwards to FootprintSketchEditParameter.
-    let _ = app.update(Message::Dock(signex_app::dock::DockMessage::Panel(
-        signex_app::panels::PanelMsg::FpEditorEditPadShapeParam {
+    let _ = app.update(Message::Dock(oxide_app::dock::DockMessage::Panel(
+        oxide_app::panels::PanelMsg::FpEditorEditPadShapeParam {
             pad_idx: 0,
             key: "corner_r".into(),
             value: "0.5mm".into(),
@@ -388,13 +388,13 @@ fn editing_corner_radius_updates_all_4_arcs() {
 /// binding stays in place so the other 3 corners follow it.
 #[test]
 fn unlink_corner_radius_mints_per_corner_param() {
-    use signex_app::app::FootprintEditorState;
-    use signex_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
-    use signex_app::library::editor::footprint::state::EditorPad;
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::{Footprint, FootprintFile, PadShape};
-    use signex_sketch::entity::EntityKind;
-    use signex_sketch::id::SketchEntityId;
+    use oxide_app::app::FootprintEditorState;
+    use oxide_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
+    use oxide_app::library::editor::footprint::state::EditorPad;
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::{Footprint, FootprintFile, PadShape};
+    use oxide_sketch::entity::EntityKind;
+    use oxide_sketch::id::SketchEntityId;
 
     let path = PathBuf::from("test-a3-unlink.snxfpt");
     let mut fp = Footprint::empty("test");
@@ -434,13 +434,13 @@ fn unlink_corner_radius_mints_per_corner_param() {
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
-    app.document_state.tabs.push(signex_app::app::TabInfo {
+    app.document_state.tabs.push(oxide_app::app::TabInfo {
         title: "test".into(),
         path: path.clone(),
         cached_document: None,
         dirty: false,
         project_id: None,
-        kind: signex_app::app::TabKind::FootprintEditor(path.clone()),
+        kind: oxide_app::app::TabKind::FootprintEditor(path.clone()),
     });
     app.document_state.active_tab = 0;
 
@@ -493,11 +493,11 @@ fn unlink_corner_radius_mints_per_corner_param() {
 /// in sync with sketch-side edits.
 #[test]
 fn reverse_mirror_updates_pad_stack_corner_radius_pct() {
-    use signex_app::app::FootprintEditorState;
-    use signex_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
-    use signex_app::library::editor::footprint::state::EditorPad;
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::{Footprint, FootprintFile, PadShape};
+    use oxide_app::app::FootprintEditorState;
+    use oxide_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
+    use oxide_app::library::editor::footprint::state::EditorPad;
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::{Footprint, FootprintFile, PadShape};
 
     let path = PathBuf::from("test-a4-reverse-mirror.snxfpt");
     let mut fp = Footprint::empty("test");
@@ -514,13 +514,13 @@ fn reverse_mirror_updates_pad_stack_corner_radius_pct() {
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
-    app.document_state.tabs.push(signex_app::app::TabInfo {
+    app.document_state.tabs.push(oxide_app::app::TabInfo {
         title: "test".into(),
         path: path.clone(),
         cached_document: None,
         dirty: false,
         project_id: None,
-        kind: signex_app::app::TabKind::FootprintEditor(path.clone()),
+        kind: oxide_app::app::TabKind::FootprintEditor(path.clone()),
     });
     app.document_state.active_tab = 0;
 
@@ -582,10 +582,10 @@ fn reverse_mirror_updates_pad_stack_corner_radius_pct() {
 ///     both as editable rows.
 #[test]
 fn mirror_add_oval_pad_mints_2_arcs_2_lines_with_w_and_h_params() {
-    use signex_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
-    use signex_app::library::editor::footprint::state::EditorPad;
-    use signex_library::primitive::footprint::{Footprint, PadShape};
-    use signex_sketch::entity::EntityKind;
+    use oxide_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
+    use oxide_app::library::editor::footprint::state::EditorPad;
+    use oxide_library::primitive::footprint::{Footprint, PadShape};
+    use oxide_sketch::entity::EntityKind;
 
     // Wide oval: W=2mm, H=1mm. Rounded ends on the left + right
     // edges; arc radius = H/2 = 0.5mm.
@@ -728,12 +728,12 @@ fn mirror_add_oval_pad_mints_2_arcs_2_lines_with_w_and_h_params() {
 /// proxy for "endpoint reflects the new width".
 #[test]
 fn editing_oval_width_param_propagates_through_solve() {
-    use signex_app::app::FootprintEditorState;
-    use signex_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
-    use signex_app::library::editor::footprint::state::EditorPad;
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::{Footprint, FootprintFile, PadShape};
-    use signex_sketch::parameter;
+    use oxide_app::app::FootprintEditorState;
+    use oxide_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
+    use oxide_app::library::editor::footprint::state::EditorPad;
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::{Footprint, FootprintFile, PadShape};
+    use oxide_sketch::parameter;
 
     let path = PathBuf::from("test-a5-oval-edit-width.snxfpt");
     let mut fp = Footprint::empty("test");
@@ -757,13 +757,13 @@ fn editing_oval_width_param_propagates_through_solve() {
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
-    app.document_state.tabs.push(signex_app::app::TabInfo {
+    app.document_state.tabs.push(oxide_app::app::TabInfo {
         title: "test".into(),
         path: path.clone(),
         cached_document: None,
         dirty: false,
         project_id: None,
-        kind: signex_app::app::TabKind::FootprintEditor(path.clone()),
+        kind: oxide_app::app::TabKind::FootprintEditor(path.clone()),
     });
     app.document_state.active_tab = 0;
 
@@ -836,10 +836,10 @@ fn editing_oval_width_param_propagates_through_solve() {
 ///     future Unlink-chamfer-length action can resolve them.
 #[test]
 fn mirror_add_chamfered_pad_mints_anchors_per_enabled_corner() {
-    use signex_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
-    use signex_app::library::editor::footprint::state::EditorPad;
-    use signex_library::primitive::footprint::{ChamferedCorners, Footprint, PadShape};
-    use signex_sketch::entity::EntityKind;
+    use oxide_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
+    use oxide_app::library::editor::footprint::state::EditorPad;
+    use oxide_library::primitive::footprint::{ChamferedCorners, Footprint, PadShape};
+    use oxide_sketch::entity::EntityKind;
 
     let mut pad = EditorPad::new_default("1".into(), (0.0, 0.0));
     pad.shape = PadShape::Chamfered {
@@ -972,15 +972,15 @@ fn mirror_add_chamfered_pad_mints_anchors_per_enabled_corner() {
 /// rewrite → solve → entity-position update).
 #[test]
 fn editing_chamfer_len_propagates_through_solve() {
-    use signex_app::app::FootprintEditorState;
-    use signex_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
-    use signex_app::library::editor::footprint::state::EditorPad;
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::primitive::footprint::{
+    use oxide_app::app::FootprintEditorState;
+    use oxide_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
+    use oxide_app::library::editor::footprint::state::EditorPad;
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::primitive::footprint::{
         ChamferedCorners, Footprint, FootprintFile, PadShape,
     };
-    use signex_sketch::entity::EntityKind;
-    use signex_sketch::id::SketchEntityId;
+    use oxide_sketch::entity::EntityKind;
+    use oxide_sketch::id::SketchEntityId;
 
     let path = PathBuf::from("test-a6-edit-chamfer-len.snxfpt");
     let mut fp = Footprint::empty("test");
@@ -1042,13 +1042,13 @@ fn editing_chamfer_len_propagates_through_solve() {
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
-    app.document_state.tabs.push(signex_app::app::TabInfo {
+    app.document_state.tabs.push(oxide_app::app::TabInfo {
         title: "test".into(),
         path: path.clone(),
         cached_document: None,
         dirty: false,
         project_id: None,
-        kind: signex_app::app::TabKind::FootprintEditor(path.clone()),
+        kind: oxide_app::app::TabKind::FootprintEditor(path.clone()),
     });
     app.document_state.active_tab = 0;
 
@@ -1152,10 +1152,10 @@ fn editing_chamfer_len_propagates_through_solve() {
 
 #[test]
 fn v025_oval_width_edit_mirrors_back_to_pad_size_mm() {
-    use signex_app::app::{FootprintEditorState, TabInfo, TabKind};
-    use signex_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
-    use signex_app::library::editor::footprint::state::EditorPad;
-    use signex_library::{Footprint, FootprintFile, PadShape};
+    use oxide_app::app::{FootprintEditorState, TabInfo, TabKind};
+    use oxide_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
+    use oxide_app::library::editor::footprint::state::EditorPad;
+    use oxide_library::{Footprint, FootprintFile, PadShape};
     let path = PathBuf::from("v025-oval-mirror-size.snxfpt");
     let mut fp = Footprint::empty("v025-oval");
     let mut pad = EditorPad::new_default("1".into(), (0.0, 0.0));
@@ -1181,8 +1181,8 @@ fn v025_oval_width_edit_mirrors_back_to_pad_size_mm() {
     app.document_state.active_tab = 0;
     // Edit width via the Properties dispatch (same path the panel's
     // "Width" row drives).
-    let _ = app.update(Message::Dock(signex_app::dock::DockMessage::Panel(
-        signex_app::panels::PanelMsg::FpEditorEditPadShapeParam {
+    let _ = app.update(Message::Dock(oxide_app::dock::DockMessage::Panel(
+        oxide_app::panels::PanelMsg::FpEditorEditPadShapeParam {
             pad_idx: 0,
             key: "width".into(),
             value: "3mm".into(),

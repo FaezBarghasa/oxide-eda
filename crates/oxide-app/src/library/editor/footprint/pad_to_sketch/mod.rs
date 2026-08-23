@@ -27,10 +27,10 @@ mod solve;
 #[cfg(test)]
 mod tests;
 
-use signex_library::primitive::footprint::{Footprint, PadShape as LibPadShape};
-use signex_sketch::entity::{Entity, EntityKind};
-use signex_sketch::id::SketchEntityId;
-use signex_sketch::sketch::SketchData;
+use oxide_library::primitive::footprint::{Footprint, PadShape as LibPadShape};
+use oxide_sketch::entity::{Entity, EntityKind};
+use oxide_sketch::id::SketchEntityId;
+use oxide_sketch::sketch::SketchData;
 use std::collections::HashSet;
 
 use super::state::EditorPad;
@@ -45,7 +45,7 @@ use mint::{
 /// mint path (`pad_attr_from_editor_pad`) and the Pads→Sketch
 /// attribute mirror in `sync_pads_to_primitive`, so both write the
 /// identical string and the two persistence paths cannot drift.
-/// Emits an explicit `deg` unit; `signex_bake::pad` reads it back
+/// Emits an explicit `deg` unit; `oxide_bake::pad` reads it back
 /// through the Angle unit family.
 pub fn rotation_expr(deg: f64) -> String {
     format!("{}deg", attr::format_f64(deg))
@@ -178,7 +178,7 @@ fn mint_pad_entities(pad: &mut EditorPad, footprint: &mut Footprint, entity_id: 
 /// re-minting keeps one.
 ///
 /// Re-minting also rewrites the `PadAttr` via `pad_attr_from_editor_pad`,
-/// which is what keeps `attr.shape` — the field `signex_bake::pad`
+/// which is what keeps `attr.shape` — the field `oxide_bake::pad`
 /// reads — in step with the editor's `pad.shape` after a flip swaps
 /// the chamfer corners.
 ///
@@ -223,7 +223,7 @@ pub fn remint_pad_geometry(pad: &mut EditorPad, footprint: &mut Footprint) -> bo
 /// one corner just deformed the outline without resizing the pad.
 fn mint_shape_geometry_for(
     sketch: &mut SketchData,
-    plane_id: signex_sketch::plane::PlaneId,
+    plane_id: oxide_sketch::plane::PlaneId,
     pad: &mut EditorPad,
     entity_id: SketchEntityId,
 ) {
@@ -285,7 +285,7 @@ fn mint_shape_geometry_for(
 /// `corner_entity_ids` `None`. Moving such a pad therefore has to
 /// translate the profile itself, or the loop stays where it was drawn
 /// — visibly the sketch shape doesn't follow the pad, and silently the
-/// bake (`local_pts = world_pts - pad_position`, `signex-bake`
+/// bake (`local_pts = world_pts - pad_position`, `oxide-bake`
 /// `pad.rs`) resolves the copper back to the ORIGINAL location, so the
 /// exported footprint has the pad in the wrong place.
 ///
@@ -450,7 +450,7 @@ fn point_xy_of(sketch: &SketchData, id: SketchEntityId) -> Option<(f64, f64)> {
 /// carried by its centre `Point`. `None` for every other shape — those
 /// pads own their geometry through `corner_entity_ids` instead.
 fn profile_seed_line(sketch: &SketchData, centre: SketchEntityId) -> Option<SketchEntityId> {
-    use signex_sketch::attr::{CustomPadShape, PadShape as SkPadShape};
+    use oxide_sketch::attr::{CustomPadShape, PadShape as SkPadShape};
 
     let attr = sketch
         .entities
@@ -496,7 +496,7 @@ fn translate_profile_with_pad(
     if dx == 0.0 && dy == 0.0 {
         return moved;
     }
-    let Ok(traced) = signex_bake::profile::trace_closed_profile_entities(sketch, seed) else {
+    let Ok(traced) = oxide_bake::profile::trace_closed_profile_entities(sketch, seed) else {
         return moved;
     };
     // `traced.points` is already deduplicated and includes Arc centres,

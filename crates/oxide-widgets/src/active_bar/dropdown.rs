@@ -13,7 +13,7 @@
 //!    `entries(menu, state, path, theme_id, ...) ->
 //!    Vec<DropdownEntry<EditorMessage>>` with one match arm per menu.
 //! 4. In the editor's active-bar `view` function, render the open
-//!    dropdown via `signex_widgets::active_bar_dropdown::view(entries,
+//!    dropdown via `oxide_widgets::active_bar_dropdown::view(entries,
 //!    tokens, width_hint)` and stack it in a `Stack` overlay layer
 //!    above the bar with a transparent backstop layer for click-
 //!    outside-to-dismiss.
@@ -35,7 +35,7 @@
 //!
 //! ## NOT included here
 //!
-//! - The trigger button (`signex_widgets::active_bar::ActiveBarButton`
+//! - The trigger button (`oxide_widgets::active_bar::ActiveBarButton`
 //!   handles that — left-click action + right-click dropdown +
 //!   chevron indicator).
 //! - The toggle state (each editor's state owns it).
@@ -44,7 +44,7 @@
 use iced::widget::svg;
 use iced::widget::{Column, Space, button, container, row, text};
 use iced::{Background, Border, Color, Element, Length, Theme};
-use signex_types::theme::ThemeTokens;
+use oxide_types::theme::ThemeTokens;
 
 use crate::theme_ext;
 

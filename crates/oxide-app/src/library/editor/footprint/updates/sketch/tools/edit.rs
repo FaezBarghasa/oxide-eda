@@ -20,8 +20,8 @@ use super::ToolClickCtx;
 use crate::library::editor::footprint::sketch_dispatch::apply_sketch_edit_with_warnings;
 use crate::library::editor::footprint::sketch_mode::SketchEdit;
 use crate::library::editor::footprint::state::{PlacementInputKind, SketchTool, ToolPending};
-use signex_sketch::entity::{Entity, EntityKind};
-use signex_sketch::id::SketchEntityId;
+use oxide_sketch::entity::{Entity, EntityKind};
+use oxide_sketch::id::SketchEntityId;
 
 pub(super) fn apply(
     editor: &mut crate::app::FootprintEditorState,
@@ -39,7 +39,7 @@ pub(super) fn apply(
 /// Hit-test the click against every sketch Line (0.30 mm tolerance,
 /// nearest stroke wins). Shared by both curve-edit tools that pick a
 /// Line by click.
-fn pick_line_at(sketch: &signex_sketch::SketchData, x: f64, y: f64) -> Option<SketchEntityId> {
+fn pick_line_at(sketch: &oxide_sketch::SketchData, x: f64, y: f64) -> Option<SketchEntityId> {
     const TOL_MM: f64 = 0.30;
     let pos_of = |id: SketchEntityId| -> Option<(f64, f64)> {
         sketch
@@ -376,7 +376,7 @@ fn fillet_second_click(
 // nothing" is a useful EDA fallback for stripping a stray overlap).
 fn trim(editor: &mut crate::app::FootprintEditorState, ctx: &ToolClickCtx) {
     fn line_xy(
-        sketch: &signex_sketch::SketchData,
+        sketch: &oxide_sketch::SketchData,
         id: SketchEntityId,
     ) -> Option<((f64, f64), (f64, f64))> {
         let pos_of = |pid: SketchEntityId| -> Option<(f64, f64)> {
@@ -399,7 +399,7 @@ fn trim(editor: &mut crate::app::FootprintEditorState, ctx: &ToolClickCtx) {
             })
     }
     fn pick_line_at_for_trim(
-        sketch: &signex_sketch::SketchData,
+        sketch: &oxide_sketch::SketchData,
         x: f64,
         y: f64,
     ) -> Option<SketchEntityId> {
@@ -660,7 +660,7 @@ fn trim(editor: &mut crate::app::FootprintEditorState, ctx: &ToolClickCtx) {
 // leave the tool armed, and mutate nothing.
 fn break_track(editor: &mut crate::app::FootprintEditorState, ctx: &ToolClickCtx) {
     fn pick_line_and_param(
-        sketch: &signex_sketch::SketchData,
+        sketch: &oxide_sketch::SketchData,
         x: f64,
         y: f64,
     ) -> Option<(SketchEntityId, f64)> {
@@ -728,7 +728,7 @@ fn break_track(editor: &mut crate::app::FootprintEditorState, ctx: &ToolClickCtx
         .primitive_mut()
         .sketch
         .as_mut()
-        .map(|s| signex_sketch::split_line(s, line_id, t));
+        .map(|s| oxide_sketch::split_line(s, line_id, t));
     match outcome {
         Some(Ok(result)) => {
             // Re-select `line_a`. Only it keeps the original

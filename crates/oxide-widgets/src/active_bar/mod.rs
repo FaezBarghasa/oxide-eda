@@ -21,7 +21,7 @@
 //! # Example
 //!
 //! ```ignore
-//! use signex_widgets::active_bar::{view, ActiveBarItem, ActiveBarButton, ActiveBarIcon};
+//! use oxide_widgets::active_bar::{view, ActiveBarItem, ActiveBarButton, ActiveBarIcon};
 //!
 //! let items = vec![
 //!     ActiveBarItem::Button(ActiveBarButton {
@@ -46,7 +46,7 @@ pub mod dropdown;
 
 use iced::widget::{button, container, image, mouse_area, row, svg, text, tooltip};
 use iced::{Border, Color, Element, Length, Theme};
-use signex_types::theme::ThemeTokens;
+use oxide_types::theme::ThemeTokens;
 
 use crate::theme_ext;
 

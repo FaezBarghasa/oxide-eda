@@ -93,9 +93,9 @@ impl Signex {
                         .pre_placement
                         .as_ref()
                         .map(|pp| pp.shape_fill)
-                        .unwrap_or(signex_types::schematic::FillType::None);
+                        .unwrap_or(oxide_types::schematic::FillType::None);
                     let pts = std::mem::take(&mut self.interaction_state.polyline_points);
-                    let drawing = signex_types::schematic::SchDrawing::Polyline {
+                    let drawing = oxide_types::schematic::SchDrawing::Polyline {
                         uuid: uuid::Uuid::new_v4(),
                         points: pts,
                         width: pp_w,
@@ -103,7 +103,7 @@ impl Signex {
                         stroke_color: None,
                     };
                     self.apply_engine_command(
-                        signex_engine::Command::PlaceSchDrawing { drawing },
+                        oxide_engine::Command::PlaceSchDrawing { drawing },
                         false,
                         false,
                     );
@@ -594,7 +594,7 @@ impl Signex {
             NetColorMsg::CustomSubmit(c) => {
                 self.ui_state.net_color_custom.show = false;
                 self.ui_state.net_color_custom.draft = c;
-                let color = signex_types::theme::Color {
+                let color = oxide_types::theme::Color {
                     r: (c.r * 255.0).round() as u8,
                     g: (c.g * 255.0).round() as u8,
                     b: (c.b * 255.0).round() as u8,

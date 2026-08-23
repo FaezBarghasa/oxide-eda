@@ -132,7 +132,7 @@ impl Signex {
     /// non-interactive; it just shows what the user is carrying.
     fn view_tab_drag_ghost(&self, title: &str) -> Element<'_, Message> {
         use iced::widget::{container, row, text};
-        use signex_widgets::tab_pill::{AccentPosition, TabPill, TabPillStyle};
+        use oxide_widgets::tab_pill::{AccentPosition, TabPill, TabPillStyle};
         let tokens = &self.document_state.panel_ctx.tokens;
         let text_c = crate::styles::ti(tokens.text);
         let active_bg = crate::styles::ti(tokens.hover);

@@ -24,7 +24,7 @@ use std::path::Path;
 use iced::widget::{button, column, container, row, text};
 use iced::{Background, Border, Color, Element, Length};
 
-use signex_types::theme::ThemeTokens;
+use oxide_types::theme::ThemeTokens;
 
 use crate::app::FootprintEditorState;
 use crate::library::editor::footprint::state::AlignOp;

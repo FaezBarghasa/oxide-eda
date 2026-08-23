@@ -3,7 +3,7 @@
 //! Mirrors `library::editor::footprint::context_menu`'s mounting
 //! contract 1:1 (window-absolute coords, dismiss-layer overlay — see
 //! that module's doc comment for the rationale) but renders through
-//! the generic `signex_widgets::active_bar_dropdown` row renderer
+//! the generic `oxide_widgets::active_bar_dropdown` row renderer
 //! (already shared by the app-level context menus and every editor's
 //! active-bar dropdown — see `app/view/context_menu/items.rs`)
 //! instead of a hand-built widget tree. `rows` is the declarative row
@@ -14,8 +14,8 @@ mod rows;
 
 use std::path::Path;
 
-use signex_types::theme::ThemeTokens;
-use signex_widgets::active_bar_dropdown::{DropdownEntry, DropdownItem};
+use oxide_types::theme::ThemeTokens;
+use oxide_widgets::active_bar_dropdown::{DropdownEntry, DropdownItem};
 
 use crate::app::SymbolEditorState;
 use crate::library::editor::symbol::state::SymbolContextSubmenu;
@@ -44,7 +44,7 @@ pub fn view_context_menu<'a>(
     let rows =
         build_symbol_context_menu_rows(editor.primitive(), editor.active_part, &editor.selected);
     let entries = flatten(rows, menu_state.open_submenu, path, false);
-    Some(signex_widgets::active_bar_dropdown::view(
+    Some(oxide_widgets::active_bar_dropdown::view(
         entries,
         tokens,
         Some(MENU_WIDTH),

@@ -1,6 +1,6 @@
 use iced::widget::{button, column, container, pick_list, row, scrollable, text, text_input};
 use iced::{Alignment, Background, Border, Element, Length, Theme};
-use signex_types::theme::ThemeTokens;
+use oxide_types::theme::ThemeTokens;
 
 use super::component_card::{ComponentCard, ComponentCardMessage};
 use super::domain::{ComponentKind, ESeries, SiPrefix, Tolerance};
@@ -503,7 +503,7 @@ pub fn format_difference(value: f64, target: f64) -> String {
     )
 }
 
-fn token_color(color: signex_types::theme::Color) -> iced::Color {
+fn token_color(color: oxide_types::theme::Color) -> iced::Color {
     iced::Color::from_rgba8(color.r, color.g, color.b, f32::from(color.a) / 255.0)
 }
 

@@ -1,7 +1,7 @@
 //! #602 — the Preferences prefs-file banner and its recovery action must
 //! actually be wired to the handler.
 //!
-//! `crates/signex-app/src/fonts/prefs_file.rs` owns the filesystem
+//! `crates/oxide-app/src/fonts/prefs_file.rs` owns the filesystem
 //! behaviour (rename, `.bak` laddering, the `{}` re-seed, writes resuming)
 //! and tests it hermetically against tempdirs. What no test covered
 //! anywhere was the wiring: opening Preferences re-probes the file, saving
@@ -34,8 +34,8 @@
 
 use std::sync::Mutex;
 
-use signex_app::app::{Message, PreferencesMsg, Signex};
-use signex_app::preferences::PrefMsg;
+use oxide_app::app::{Message, PreferencesMsg, Signex};
+use oxide_app::preferences::PrefMsg;
 
 fn inner(msg: PrefMsg) -> Message {
     Message::Preferences(PreferencesMsg::Inner(msg))
@@ -76,9 +76,9 @@ struct PrefsPathGuard {
 
 impl PrefsPathGuard {
     fn capture() -> Self {
-        let path = signex_app::fonts::prefs_file_path();
+        let path = oxide_app::fonts::prefs_file_path();
         let before = std::fs::read(&path).ok();
-        let keymap_path = signex_app::keymap::config_path();
+        let keymap_path = oxide_app::keymap::config_path();
         let keymap_before = keymap_path.as_ref().and_then(|p| std::fs::read(p).ok());
         Self {
             path,

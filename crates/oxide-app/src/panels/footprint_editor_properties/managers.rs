@@ -158,7 +158,7 @@ pub(super) fn render_other_section<'a>(
     mut col: Column<'a, PanelMsg>,
     _fp: &'a FootprintEditorPanelContext,
     palette: PanelPalette,
-    unit: signex_types::coord::Unit,
+    unit: oxide_types::coord::Unit,
 ) -> Column<'a, PanelMsg> {
     let PanelPalette {
         muted,
@@ -168,7 +168,7 @@ pub(super) fn render_other_section<'a>(
         seg_hover,
         ..
     } = palette;
-    use signex_types::coord::Unit;
+    use oxide_types::coord::Unit;
     // Units row — mm/mils segmented selector (Altium parity). Reuses
     // the schematic Properties panel's `seg_btn` widget so the chrome
     // matches byte-for-byte.

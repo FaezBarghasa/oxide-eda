@@ -4,15 +4,15 @@
 
 use std::collections::BTreeMap;
 
-use signex_library::primitive::footprint::Pad as LibPad;
-use signex_sketch::SketchError;
-use signex_sketch::array::NumberingScheme;
-use signex_sketch::expr::ast::ExprNode;
-use signex_sketch::expr::eval::{EvalContext, eval};
-use signex_sketch::expr::parse::parse;
-use signex_sketch::id::SketchEntityId;
-use signex_sketch::sketch::SketchData;
-use signex_sketch::solver::FullSolveOutput;
+use oxide_library::primitive::footprint::Pad as LibPad;
+use oxide_sketch::SketchError;
+use oxide_sketch::array::NumberingScheme;
+use oxide_sketch::expr::ast::ExprNode;
+use oxide_sketch::expr::eval::{EvalContext, eval};
+use oxide_sketch::expr::parse::parse;
+use oxide_sketch::id::SketchEntityId;
+use oxide_sketch::sketch::SketchData;
+use oxide_sketch::solver::FullSolveOutput;
 
 use crate::pad::bake_one_pad;
 
@@ -36,7 +36,7 @@ pub(super) fn bake_polar(
     center: SketchEntityId,
     count_expr: &str,
     sweep_angle_expr: &str,
-    depopulation: Option<&signex_sketch::array::GridDepopulation>,
+    depopulation: Option<&oxide_sketch::array::GridDepopulation>,
     numbering: &NumberingScheme,
     params_ast: &BTreeMap<String, ExprNode>,
     sketch: &SketchData,
@@ -44,7 +44,7 @@ pub(super) fn bake_polar(
     out: &mut Vec<LibPad>,
     warnings: &mut Vec<String>,
 ) -> Result<(), SketchError> {
-    use signex_sketch::solver::state::point_xy;
+    use oxide_sketch::solver::state::point_xy;
 
     let source_entity = match sketch.entities.iter().find(|e| e.id == source) {
         Some(e) => e,
@@ -108,7 +108,7 @@ pub(super) fn bake_polar(
     // resolves `deg` → rad). On unit error, surface and skip.
     let sweep_q = eval(&sweep_ast, &setup_ctx).map_err(SketchError::Expr)?;
     let sweep_rad = match sweep_q.unit.family() {
-        signex_sketch::unit::UnitFamily::Angle => sweep_q.value,
+        oxide_sketch::unit::UnitFamily::Angle => sweep_q.value,
         _ => {
             warnings.push(format!(
                 "polar array source {source}: sweep_angle_expr did not resolve to an angle — array skipped"

@@ -156,9 +156,9 @@ impl Signex {
                 .custom_theme
                 .as_ref()
                 .map(|c| c.tokens)
-                .unwrap_or_else(|| signex_types::theme::theme_tokens(ThemeId::Signex))
+                .unwrap_or_else(|| oxide_types::theme::theme_tokens(ThemeId::Signex))
         } else {
-            signex_types::theme::theme_tokens(self.ui_state.theme_id)
+            oxide_types::theme::theme_tokens(self.ui_state.theme_id)
         };
         self.document_state.panel_ctx.tokens = tokens;
         // #630 — the schematic grid style previewed live, so push the
@@ -238,9 +238,9 @@ impl Signex {
                         .custom_theme
                         .as_ref()
                         .map(|c| c.tokens)
-                        .unwrap_or_else(|| signex_types::theme::theme_tokens(ThemeId::Signex))
+                        .unwrap_or_else(|| oxide_types::theme::theme_tokens(ThemeId::Signex))
                 } else {
-                    signex_types::theme::theme_tokens(self.ui_state.theme_id)
+                    oxide_types::theme::theme_tokens(self.ui_state.theme_id)
                 };
                 self.document_state.panel_ctx.tokens = tokens;
                 self.document_state.panel_ctx.ui_font_name = self.ui_state.ui_font_name.clone();
@@ -379,9 +379,9 @@ impl Signex {
                         .custom_theme
                         .as_ref()
                         .map(|c| c.tokens)
-                        .unwrap_or_else(|| signex_types::theme::theme_tokens(ThemeId::Signex))
+                        .unwrap_or_else(|| oxide_types::theme::theme_tokens(ThemeId::Signex))
                 } else {
-                    signex_types::theme::theme_tokens(id)
+                    oxide_types::theme::theme_tokens(id)
                 };
                 self.document_state.panel_ctx.tokens = tokens;
                 // #631 — the canvas colours used to be computed here and
@@ -491,20 +491,20 @@ impl Signex {
                         .custom_theme
                         .as_ref()
                         .map(|c| c.tokens)
-                        .unwrap_or_else(|| signex_types::theme::theme_tokens(ThemeId::Signex))
+                        .unwrap_or_else(|| oxide_types::theme::theme_tokens(ThemeId::Signex))
                 } else {
-                    signex_types::theme::theme_tokens(id)
+                    oxide_types::theme::theme_tokens(id)
                 };
                 let canvas = if id == ThemeId::Custom {
                     self.ui_state
                         .custom_theme
                         .as_ref()
                         .map(|c| c.canvas)
-                        .unwrap_or_else(|| signex_types::theme::canvas_colors(ThemeId::Signex))
+                        .unwrap_or_else(|| oxide_types::theme::canvas_colors(ThemeId::Signex))
                 } else {
-                    signex_types::theme::canvas_colors(id)
+                    oxide_types::theme::canvas_colors(id)
                 };
-                let export = signex_types::theme::CustomThemeFile {
+                let export = oxide_types::theme::CustomThemeFile {
                     name,
                     tokens,
                     canvas,
@@ -550,7 +550,7 @@ impl Signex {
             }
             PrefMsg::ThemeFileLoaded(content) => {
                 if let Ok(custom) =
-                    serde_json::from_str::<signex_types::theme::CustomThemeFile>(&content)
+                    serde_json::from_str::<oxide_types::theme::CustomThemeFile>(&content)
                 {
                     self.ui_state.custom_theme = Some(custom);
                     self.ui_state.preferences_draft_theme = ThemeId::Custom;

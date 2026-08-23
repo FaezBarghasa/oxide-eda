@@ -1,5 +1,5 @@
 //! `split_line` tests, grouped by concern (kept under the ~800-line
-//! file cap — `signex-domain` §5):
+//! file cap — `oxide-domain` §5):
 //! - `carry_over` — attribute / flag / constraint / array / pad
 //!   profile-seed carry-over onto the two replacement halves.
 //! - `errors` — validation + the degenerate-input error taxonomy.

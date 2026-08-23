@@ -18,12 +18,12 @@
     reason = "integration tests discard Results with `let _ = ...` routinely; this is test scaffolding, not a production `iced::Task` being dropped, and `[lints]` in Cargo.toml is package-scoped so each integration-test crate root needs its own"
 )]
 
-use signex_app::library::editor::footprint::pad_to_sketch;
-use signex_app::library::editor::footprint::state::FootprintEditorState;
-use signex_library::primitive::footprint::{Footprint, PadShape};
-use signex_sketch::entity::{Entity, EntityKind};
-use signex_sketch::id::SketchEntityId;
-use signex_sketch::sketch::SketchData;
+use oxide_app::library::editor::footprint::pad_to_sketch;
+use oxide_app::library::editor::footprint::state::FootprintEditorState;
+use oxide_library::primitive::footprint::{Footprint, PadShape};
+use oxide_sketch::entity::{Entity, EntityKind};
+use oxide_sketch::id::SketchEntityId;
+use oxide_sketch::sketch::SketchData;
 use std::path::PathBuf;
 
 /// Mint one pad of `shape` at `pos` into a fresh footprint and return
@@ -391,10 +391,10 @@ fn issue142_owned_ledger_survives_a_real_serde_round_trip() {
 /// One app with `count` default pads on a footprint editor — the
 /// local twin of `regression.rs`'s `fixture_footprint_with_pads`,
 /// carried along with the test that needs it.
-fn app_with_footprint_pads(stem: &str, count: usize) -> (signex_app::app::Signex, PathBuf) {
-    use signex_app::app::FootprintEditorState as EditorTab;
-    use signex_app::library::editor::footprint::state::EditorPad;
-    use signex_library::FootprintFile;
+fn app_with_footprint_pads(stem: &str, count: usize) -> (oxide_app::app::Signex, PathBuf) {
+    use oxide_app::app::FootprintEditorState as EditorTab;
+    use oxide_app::library::editor::footprint::state::EditorPad;
+    use oxide_library::FootprintFile;
 
     let path = PathBuf::from(format!("{stem}.snxfpt"));
     let file = FootprintFile::from_footprint(Footprint::empty(stem));
@@ -405,7 +405,7 @@ fn app_with_footprint_pads(stem: &str, count: usize) -> (signex_app::app::Signex
             (i as f64 * 2.0, 0.0),
         ));
     }
-    let (mut app, _initial_task) = signex_app::app::Signex::new();
+    let (mut app, _initial_task) = oxide_app::app::Signex::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
@@ -425,8 +425,8 @@ fn app_with_footprint_pads(stem: &str, count: usize) -> (signex_app::app::Signex
 /// old links, preserving the stale ledger indefinitely.
 #[test]
 fn v026e_paste_does_not_alias_template_shape_params() {
-    use signex_app::app::Message;
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_app::app::Message;
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
 
     let (mut app, path) = app_with_footprint_pads("v026e-paste-shape-params", 1);
     // Give the single pad a RoundRect shape and mint its sketch

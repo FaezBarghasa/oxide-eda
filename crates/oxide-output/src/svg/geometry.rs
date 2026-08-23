@@ -104,13 +104,13 @@ pub(super) fn arc_path_commands(
 }
 
 /// Circle through three SVG-space points. Delegates to the canonical
-/// `signex_types::schematic::circumcircle` (#483) so the SVG arc exporter
+/// `oxide_types::schematic::circumcircle` (#483) so the SVG arc exporter
 /// shares the one collinearity epsilon instead of carrying a 5th copy of
 /// the formula. SVG geometry is `f32`; the math runs in `f64` (as it
 /// already did inline here) and casts back — byte-identical to the former
 /// hand-rolled version.
 fn circle_from_three_points(a: SvgPoint, b: SvgPoint, c: SvgPoint) -> Option<(f32, f32, f32)> {
-    use signex_types::schematic::{Point, circumcircle};
+    use oxide_types::schematic::{Point, circumcircle};
     let (cx, cy, r) = circumcircle(
         Point::new(a.x as f64, a.y as f64),
         Point::new(b.x as f64, b.y as f64),

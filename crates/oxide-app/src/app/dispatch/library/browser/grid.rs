@@ -150,7 +150,7 @@ impl Signex {
         row_id: RowId,
     ) -> Task<Message> {
         // Stage 18 stub — the real adapter dispatch lands once
-        // `signex_library::DistributorAdapter::refresh_pricing`
+        // `oxide_library::DistributorAdapter::refresh_pricing`
         // gets a row-binding loop. For now we log so the wiring
         // path is observable when the user clicks the menu item.
         tracing::info!(

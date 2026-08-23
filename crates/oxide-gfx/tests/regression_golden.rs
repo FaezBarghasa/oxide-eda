@@ -5,17 +5,17 @@
 //! Sources: IPC-2612-1, IEEE 315, IEC 60617, wgpu/WGSL public docs.
 
 use serde::Deserialize;
-use signex_gfx::debug_pass::{
+use oxide_gfx::debug_pass::{
     CompositeStage, run_arc_smoke_pass, run_grid_overlay_text_composite_smoke_pass,
     run_grid_smoke_pass, run_line_circle_smoke_pass, run_polygon_smoke_pass,
     run_text_geometry_composite_smoke_pass, run_text_smoke_pass,
 };
-use signex_gfx::primitive::arc::Arc;
-use signex_gfx::primitive::circle::Circle;
-use signex_gfx::primitive::line::LineSegment;
-use signex_gfx::primitive::polygon::GpuPolygon;
-use signex_gfx::primitive::text::{TextHAlign, TextItem, TextVAlign};
-use signex_gfx::scene::{
+use oxide_gfx::primitive::arc::Arc;
+use oxide_gfx::primitive::circle::Circle;
+use oxide_gfx::primitive::line::LineSegment;
+use oxide_gfx::primitive::polygon::GpuPolygon;
+use oxide_gfx::primitive::text::{TextHAlign, TextItem, TextVAlign};
+use oxide_gfx::scene::{
     DirtyFlags, Scene, SceneUploadTarget, TextUploadParams, UploadCounters, UploadCulling,
     ViewportAabbMm, apply_dirty_uploads, apply_dirty_uploads_with_culling,
 };

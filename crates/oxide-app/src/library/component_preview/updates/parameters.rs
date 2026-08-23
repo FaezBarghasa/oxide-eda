@@ -14,7 +14,7 @@ pub(super) fn set_text(state: &mut ComponentPreviewState, name: String, value: S
         state
             .row
             .parameters
-            .insert(name, signex_library::ParamValue::Text(value));
+            .insert(name, oxide_library::ParamValue::Text(value));
         state.dirty = true;
     }
 }
@@ -33,7 +33,7 @@ pub(super) fn commit_number(state: &mut ComponentPreviewState, name: String) {
         state
             .row
             .parameters
-            .insert(name, signex_library::ParamValue::Number(value));
+            .insert(name, oxide_library::ParamValue::Number(value));
         state.dirty = true;
     }
 }
@@ -51,7 +51,7 @@ pub(super) fn commit_measurement(state: &mut ComponentPreviewState, name: String
     {
         state.row.parameters.insert(
             name,
-            signex_library::ParamValue::Measurement { value, unit },
+            oxide_library::ParamValue::Measurement { value, unit },
         );
         state.dirty = true;
     }
@@ -62,7 +62,7 @@ pub(super) fn set_bool(state: &mut ComponentPreviewState, name: String, value: b
     state
         .row
         .parameters
-        .insert(name, signex_library::ParamValue::Bool(value));
+        .insert(name, oxide_library::ParamValue::Bool(value));
     state.dirty = true;
 }
 
@@ -80,11 +80,11 @@ pub(super) fn add_custom(state: &mut ComponentPreviewState, name: String, kind: 
         return;
     }
     let value = match kind {
-        ParamKindMsg::Text => signex_library::ParamValue::Text(String::new()),
-        ParamKindMsg::Number => signex_library::ParamValue::Number(0.0),
-        ParamKindMsg::Bool => signex_library::ParamValue::Bool(false),
+        ParamKindMsg::Text => oxide_library::ParamValue::Text(String::new()),
+        ParamKindMsg::Number => oxide_library::ParamValue::Number(0.0),
+        ParamKindMsg::Bool => oxide_library::ParamValue::Bool(false),
         ParamKindMsg::Measurement(unit) => {
-            signex_library::ParamValue::Measurement { value: 0.0, unit }
+            oxide_library::ParamValue::Measurement { value: 0.0, unit }
         }
     };
     state.row.parameters.insert(trimmed.to_string(), value);

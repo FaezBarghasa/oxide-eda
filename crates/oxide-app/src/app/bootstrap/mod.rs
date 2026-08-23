@@ -7,7 +7,7 @@ use super::*;
 fn bundled_window_icon() -> Option<iced::window::Icon> {
     #[cfg(has_bundled_icon)]
     {
-        let bytes: &[u8] = include_bytes!("../../../assets/brand/generated/signex-256.png");
+        let bytes: &[u8] = include_bytes!("../../../assets/brand/generated/oxide-256.png");
         let img = image::load_from_memory(bytes).ok()?.to_rgba8();
         let (w, h) = img.dimensions();
         iced::window::icon::from_rgba(img.into_raw(), w, h).ok()
@@ -59,7 +59,7 @@ impl Signex {
     /// Map a ThemeId to an iced::Theme with a properly tuned palette.
     fn id_to_iced_theme(
         id: ThemeId,
-        custom: Option<&signex_types::theme::CustomThemeFile>,
+        custom: Option<&oxide_types::theme::CustomThemeFile>,
     ) -> Theme {
         use crate::render_config::to_iced;
         match id {

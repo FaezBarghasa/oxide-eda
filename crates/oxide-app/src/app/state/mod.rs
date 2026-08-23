@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use signex_types::project::ProjectData;
+use oxide_types::project::ProjectData;
 
 use crate::dock::DockArea;
 
@@ -100,7 +100,7 @@ pub enum WindowKind {
     ComponentEditor {
         library_path: std::path::PathBuf,
         table: String,
-        row_id: signex_library::RowId,
+        row_id: oxide_library::RowId,
     },
 }
 
@@ -310,7 +310,7 @@ pub struct NetlistIncompletePrompt {
     /// the INCOMPLETE header (drawn from `messages`, the same derivation) always
     /// describe the same project state, even if the document changes while the
     /// modal is up (#431 review).
-    pub ctx: signex_output::ExportContext,
+    pub ctx: oxide_output::ExportContext,
 }
 
 pub struct DocumentState {
@@ -324,7 +324,7 @@ pub struct DocumentState {
     /// to; undocked windows look up their own entry via
     /// `engine_for_window`. Save-as rekeys an entry via
     /// `rekey_engine(old, new)`.
-    pub engines: std::collections::HashMap<PathBuf, signex_engine::Engine>,
+    pub engines: std::collections::HashMap<PathBuf, oxide_engine::Engine>,
     /// Per-tab state for open `.snxsym` document tabs. Keyed by the
     /// file path stored on `TabInfo.path` for matching
     /// `TabKind::SymbolEditor(path)` tabs. Insert on
@@ -375,7 +375,7 @@ pub struct DocumentState {
     pub next_project_id: u32,
     pub panel_ctx: crate::panels::PanelContext,
     pub standard_lib_dir: Option<PathBuf>,
-    pub loaded_lib: std::collections::HashMap<String, signex_types::schematic::LibSymbol>,
+    pub loaded_lib: std::collections::HashMap<String, oxide_types::schematic::LibSymbol>,
     /// Print-preview overlay state. `Some` while the preview dialog is
     /// open. Doubles as the unified PDF Export modal — `File → Export
     /// PDF` and `File → Print Preview` both populate this field.
@@ -384,7 +384,7 @@ pub struct DocumentState {
     /// while the file picker is running. Used by
     /// `handle_export_pdf_finished` to apply user-selected options
     /// instead of defaults. Cleared after export.
-    pub pending_pdf_options: Option<signex_output::PdfOptions>,
+    pub pending_pdf_options: Option<oxide_output::PdfOptions>,
     /// Companion to `pending_pdf_options` — sheet paths to include in
     /// the export, copied from the preview's file picker. Empty set
     /// (after a Clear) means "no files chosen" and the export is
@@ -397,7 +397,7 @@ pub struct DocumentState {
     /// grouping / variant / include-DNP picks in the preview would
     /// be dropped on export and the actual file would be a default
     /// 6-column Grouped Base BOM. Cleared after export.
-    pub pending_bom_options: Option<signex_output::BomOptions>,
+    pub pending_bom_options: Option<oxide_output::BomOptions>,
     /// The app's one user-visible error card. `Some` while it is shown;
     /// cleared by `OverlayMsg::DismissErrorNotice`.
     ///
@@ -465,8 +465,8 @@ pub enum BomSidebarTab {
 /// plus the user-editable options that drive the next rollup. Re-rolled
 /// whenever an option toggle fires.
 pub struct BomPreviewState {
-    pub options: signex_output::BomOptions,
-    pub table: signex_output::BomTable,
+    pub options: oxide_output::BomOptions,
+    pub table: oxide_output::BomTable,
     /// Available variants for the active project. Reserved for the
     /// variant picker dropdown — empty when no variants are defined.
     /// Currently only seeded; the picker UI lands in v0.8.1.
@@ -573,20 +573,20 @@ impl std::fmt::Display for PdfQuality {
 }
 
 /// Open-print-preview state — rasterised pages + which one is currently
-/// shown full-size. Pages are produced by `signex_output::PreviewRasterizer`
+/// shown full-size. Pages are produced by `oxide_output::PreviewRasterizer`
 /// when the user invokes File → Print Preview (Ctrl+P).
 ///
 /// **Single source of truth.** Every option that's also on
-/// `signex_output::PdfOptions` lives ONLY on `pdf_options`; the
+/// `oxide_output::PdfOptions` lives ONLY on `pdf_options`; the
 /// dispatcher mutates that struct directly so the rasterizer and
 /// exporter see one consistent view. Fields on this struct itself are
 /// the leftovers — UI presentation (active tab, quality enum), the
 /// rasterised pages, and pan/zoom interaction state.
 pub struct PreviewState {
-    pub pages: Vec<signex_output::PreviewPage>,
+    pub pages: Vec<oxide_output::PreviewPage>,
     pub page_handles: Vec<iced::widget::image::Handle>,
     pub selected: usize,
-    pub pdf_options: signex_output::PdfOptions,
+    pub pdf_options: oxide_output::PdfOptions,
     pub specific_page_input: String,
     /// Multiplicative zoom for the preview image. 1.0 = fit-to-viewport;
     /// scroll wheel multiplies by `1.10`/`1/1.10`. Clamped to
@@ -717,11 +717,11 @@ impl DocumentState {
             .collect()
     }
 
-    pub fn active_engine(&self) -> Option<&signex_engine::Engine> {
+    pub fn active_engine(&self) -> Option<&oxide_engine::Engine> {
         self.engines.get(self.active_path.as_ref()?)
     }
 
-    pub fn active_engine_mut(&mut self) -> Option<&mut signex_engine::Engine> {
+    pub fn active_engine_mut(&mut self) -> Option<&mut oxide_engine::Engine> {
         let path = self.active_path.as_ref()?.clone();
         self.engines.get_mut(&path)
     }
@@ -749,7 +749,7 @@ impl DocumentState {
         &self,
         window_id: iced::window::Id,
         ui: &UiState,
-    ) -> Option<&signex_engine::Engine> {
+    ) -> Option<&oxide_engine::Engine> {
         let target_path = if ui.main_window_id == Some(window_id) {
             self.active_path.as_ref()?
         } else {

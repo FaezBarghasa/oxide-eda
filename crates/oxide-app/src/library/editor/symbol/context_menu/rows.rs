@@ -13,7 +13,7 @@ use crate::library::editor::symbol::state::{
     SymbolSelection, selected_is_deletable, selection_is_join_eligible,
 };
 use crate::library::messages::{SymbolEditorMsg, SymbolSelectionMsg, SymbolToolMsg};
-use signex_library::Symbol;
+use oxide_library::Symbol;
 
 /// One row of the symbol context menu. `id` is a stable, kebab-case,
 /// `symbol.`-namespaced command id (the command-registry epic will
@@ -135,7 +135,7 @@ fn place_submenu() -> SymbolMenuRow {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_library::{SymbolGraphic, SymbolGraphicKind};
+    use oxide_library::{SymbolGraphic, SymbolGraphicKind};
 
     fn row_ids(rows: &[SymbolMenuRow]) -> Vec<&'static str> {
         rows.iter().map(|r| r.id).collect()

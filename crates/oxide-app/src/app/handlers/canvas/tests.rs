@@ -10,7 +10,7 @@ use std::path::PathBuf;
 
 use crate::app::state::LoadedProject;
 use crate::app::{Signex, TabInfo, TabKind};
-use signex_types::project::{ProjectData, SheetEntry};
+use oxide_types::project::{ProjectData, SheetEntry};
 
 /// An app with one loaded project whose `.snxprj` is at `/w/a`, listing both
 /// `top.snxsch` and `sub/mid.snxsch`, and one tab focused on `focused`.

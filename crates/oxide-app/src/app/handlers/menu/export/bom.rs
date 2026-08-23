@@ -3,7 +3,7 @@
 use std::path::PathBuf;
 
 use iced::Task;
-use signex_output::{BomColumn, BomExporter, BomFormat, BomGrouping, BomOptions, Exporter};
+use oxide_output::{BomColumn, BomExporter, BomFormat, BomGrouping, BomOptions, Exporter};
 
 use super::super::super::super::*;
 
@@ -48,7 +48,7 @@ impl Signex {
         let default_sort = opts
             .columns
             .iter()
-            .position(|c| matches!(c, signex_output::BomColumn::Designator))
+            .position(|c| matches!(c, oxide_output::BomColumn::Designator))
             .map(|idx| (idx, true));
         self.document_state.bom_preview = Some(crate::app::state::BomPreviewState {
             options: opts,
@@ -255,9 +255,9 @@ impl Signex {
     /// Build (or rebuild) the BomTable from the current document
     /// state and the supplied options. Returns `None` when there's
     /// no active schematic to roll up.
-    fn rebuild_bom_table(&self, opts: &BomOptions) -> Option<signex_output::BomTable> {
+    fn rebuild_bom_table(&self, opts: &BomOptions) -> Option<oxide_output::BomTable> {
         let ctx = super::build_export_context(&self.document_state)?;
-        Some(signex_output::bom::rollup(&ctx, opts))
+        Some(oxide_output::bom::rollup(&ctx, opts))
     }
 
     fn rerollup_bom_preview(&mut self) {

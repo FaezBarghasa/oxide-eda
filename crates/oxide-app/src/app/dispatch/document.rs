@@ -236,7 +236,7 @@ impl Signex {
                     let start_width = p.column_widths.get(&idx).copied().unwrap_or_else(|| {
                         // Fall back to the per-BomColumn default
                         // table the view function uses.
-                        use signex_output::BomColumn;
+                        use oxide_output::BomColumn;
                         match p.options.columns.get(idx) {
                             Some(BomColumn::Name) => 140.0,
                             Some(BomColumn::Description) => 220.0,

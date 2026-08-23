@@ -3,7 +3,7 @@
 
 use crate::library::ComponentPreviewState;
 use crate::library::editor::supply::distributor_source_to_string;
-use signex_library::DistributorSource;
+use oxide_library::DistributorSource;
 
 // ── Primary manufacturer part ───────────────────────────────────────
 
@@ -22,7 +22,7 @@ pub(super) fn set_primary_mpn(state: &mut ComponentPreviewState, value: String) 
 /// Set the primary part's lifecycle status.
 pub(super) fn set_primary_status(
     state: &mut ComponentPreviewState,
-    value: signex_library::AlternateStatus,
+    value: oxide_library::AlternateStatus,
 ) {
     state.row.primary_mpn.status = value;
     state.dirty = true;
@@ -42,8 +42,8 @@ pub(super) fn set_primary_notes(state: &mut ComponentPreviewState, value: String
 
 /// Append a new, approved alternate part draft.
 pub(super) fn add_alternate(state: &mut ComponentPreviewState) {
-    let mut alt = signex_library::ManufacturerPart::draft("", "");
-    alt.status = signex_library::AlternateStatus::Approved;
+    let mut alt = oxide_library::ManufacturerPart::draft("", "");
+    alt.status = oxide_library::AlternateStatus::Approved;
     state.row.alternates.push(alt);
     state.dirty = true;
 }
@@ -72,7 +72,7 @@ pub(super) fn set_alternate_mpn(state: &mut ComponentPreviewState, idx: usize, v
 pub(super) fn set_alternate_status(
     state: &mut ComponentPreviewState,
     idx: usize,
-    value: signex_library::AlternateStatus,
+    value: oxide_library::AlternateStatus,
 ) {
     if let Some(alt) = state.row.alternates.get_mut(idx) {
         alt.status = value;
@@ -104,7 +104,7 @@ pub(super) fn remove_alternate(state: &mut ComponentPreviewState, idx: usize) {
 
 /// Append a new, empty distributor listing.
 pub(super) fn add_listing(state: &mut ComponentPreviewState) {
-    state.row.supply.push(signex_library::DistributorListing {
+    state.row.supply.push(oxide_library::DistributorListing {
         distributor: String::new(),
         sku: String::new(),
         url: None,

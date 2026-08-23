@@ -2,7 +2,7 @@
 //!
 //! - Uses the `oauth2` crate (v5) for the authorization-code + PKCE flow.
 //! - Refresh token persisted in OS keyring under
-//!   `signex-distributor-digikey` (username slot `"refresh"`).
+//!   `oxide-distributor-digikey` (username slot `"refresh"`).
 //! - No real auth in tests; the refresh-token → access-token exchange is
 //!   mocked with `wiremock`. Live API tests are `#[ignore]`d.
 //!
@@ -93,7 +93,7 @@ pub struct DigiKeyAuth {
 
 impl DigiKeyAuth {
     /// Production constructor: real DigiKey endpoints, refresh token in
-    /// `signex-distributor-digikey/refresh`.
+    /// `oxide-distributor-digikey/refresh`.
     pub fn new(
         client_id: impl Into<String>,
         client_secret: impl Into<String>,
@@ -251,7 +251,7 @@ impl DigiKeyAuth {
 
 fn build_http_client() -> reqwest::blocking::Client {
     reqwest::blocking::Client::builder()
-        .user_agent("signex-library/0.9 (+https://signex.dev)")
+        .user_agent("oxide-library/0.9 (+https://signex.dev)")
         .redirect(reqwest::redirect::Policy::none())
         .build()
         .expect("reqwest::blocking::Client::build is infallible with default opts")

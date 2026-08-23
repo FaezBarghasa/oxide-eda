@@ -18,9 +18,9 @@ use iced::widget::{
     Space, checkbox, column, container, pick_list, row, scrollable, text, text_editor, text_input,
 };
 use iced::{Border, Element, Length, Theme};
-use signex_library::SimKind;
-use signex_types::theme::ThemeTokens;
-use signex_widgets::theme_ext;
+use oxide_library::SimKind;
+use oxide_types::theme::ThemeTokens;
+use oxide_widgets::theme_ext;
 
 use super::super::messages::{EditorMsg, LibraryMessage};
 use super::super::state::{ComponentPreviewState, EditorAddress};
@@ -40,7 +40,7 @@ struct SimKindPick(SimKind);
 impl std::fmt::Display for SimKindPick {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // SimKind is `#[non_exhaustive]` — fall through to `Debug`
-        // for any new dialect added by signex-library so the picker
+        // for any new dialect added by oxide-library so the picker
         // doesn't regress into "fail to compile" the moment a new
         // variant lands.
         let s = match self.0 {
@@ -206,8 +206,8 @@ pub fn view<'a>(
 }
 
 fn view_pin_node_table<'a>(
-    sim: &'a signex_library::SimModel,
-    pins: &'a [signex_library::SymbolPin],
+    sim: &'a oxide_library::SimModel,
+    pins: &'a [oxide_library::SymbolPin],
     tokens: &'a ThemeTokens,
     address: &EditorAddress,
 ) -> Element<'a, LibraryMessage> {
@@ -253,8 +253,8 @@ fn view_pin_node_table<'a>(
 }
 
 fn pin_node_row<'a>(
-    sim: &'a signex_library::SimModel,
-    pin: &'a signex_library::SymbolPin,
+    sim: &'a oxide_library::SimModel,
+    pin: &'a oxide_library::SymbolPin,
     tokens: &'a ThemeTokens,
     address: &EditorAddress,
 ) -> Element<'a, LibraryMessage> {
@@ -322,7 +322,7 @@ mod tests {
     use super::*;
     use crate::library::messages::EditorMsg;
     use crate::library::state::ComponentPreviewState;
-    use signex_library::{
+    use oxide_library::{
         ComponentClass, ComponentRow, DatasheetRef, InternalPn, LifecycleState, ManufacturerPart,
         ParamMap, PlmReserved, PrimitiveRef,
     };

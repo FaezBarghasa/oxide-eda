@@ -1,11 +1,11 @@
-//! Theme bridge layer — converts `signex_types::theme::ThemeTokens` to Iced styles.
+//! Theme bridge layer — converts `oxide_types::theme::ThemeTokens` to Iced styles.
 //!
 //! All colors in the widget crate flow through this module so that
 //! no hardcoded color values leak into widget code.
 
 use iced::widget::container;
 use iced::{Border, Color};
-use signex_types::theme::{Color as SxColor, ThemeTokens};
+use oxide_types::theme::{Color as SxColor, ThemeTokens};
 
 // ---------------------------------------------------------------------------
 // Core color conversion

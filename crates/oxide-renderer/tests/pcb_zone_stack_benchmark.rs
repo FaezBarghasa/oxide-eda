@@ -1,7 +1,7 @@
 //! Benchmark fixture guardrails for PCB zone stack compositing order.
 
-use signex_renderer::pcb::PcbSnapshot;
-use signex_types::pcb::PcbBoard;
+use oxide_renderer::pcb::PcbSnapshot;
+use oxide_types::pcb::PcbBoard;
 
 fn benchmark_fixture_board() -> PcbBoard {
     serde_json::from_str(include_str!(

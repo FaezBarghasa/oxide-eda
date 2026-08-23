@@ -19,8 +19,8 @@
 
 use iced::widget::{Space, button, column, container, row, scrollable, text, text_input};
 use iced::{Border, Element, Length, Theme};
-use signex_types::theme::ThemeTokens;
-use signex_widgets::theme_ext;
+use oxide_types::theme::ThemeTokens;
+use oxide_widgets::theme_ext;
 
 use super::commands::list_components_filtered;
 use super::messages::{LibraryMessage, PickerMsg};

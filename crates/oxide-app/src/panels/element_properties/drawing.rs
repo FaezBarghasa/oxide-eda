@@ -12,7 +12,7 @@ pub(in crate::panels) fn view_drawing_properties<'a>(
     _primary: Color,
     border_c: Color,
 ) -> Element<'a, PanelMsg> {
-    use signex_types::schematic::FillType;
+    use oxide_types::schematic::FillType;
     let get = |key: &str| -> String {
         ctx.selection_info
             .iter()
@@ -370,11 +370,11 @@ pub(in crate::panels) fn view_drawing_properties<'a>(
         "Line" | "Rectangle" | "Circle" | "Arc" | "Polygon"
     ) {
         let current_color = ctx.selected_drawing.as_ref().and_then(|d| match d {
-            signex_types::schematic::SchDrawing::Line { stroke_color, .. }
-            | signex_types::schematic::SchDrawing::Rect { stroke_color, .. }
-            | signex_types::schematic::SchDrawing::Circle { stroke_color, .. }
-            | signex_types::schematic::SchDrawing::Arc { stroke_color, .. }
-            | signex_types::schematic::SchDrawing::Polyline { stroke_color, .. } => *stroke_color,
+            oxide_types::schematic::SchDrawing::Line { stroke_color, .. }
+            | oxide_types::schematic::SchDrawing::Rect { stroke_color, .. }
+            | oxide_types::schematic::SchDrawing::Circle { stroke_color, .. }
+            | oxide_types::schematic::SchDrawing::Arc { stroke_color, .. }
+            | oxide_types::schematic::SchDrawing::Polyline { stroke_color, .. } => *stroke_color,
         });
         col = col.push(drawing_stroke_color_row(current_color, muted));
     }
@@ -418,12 +418,12 @@ fn drawing_num_row<'a>(
 /// recolour a placed shape without committing to a full colour
 /// picker. Each tile dispatches UpdateDrawingEdit::StrokeColor.
 fn drawing_stroke_color_row<'a>(
-    current: Option<signex_types::schematic::StrokeColor>,
+    current: Option<oxide_types::schematic::StrokeColor>,
     muted: Color,
 ) -> Element<'a, PanelMsg> {
     use crate::app::contracts::DrawingFieldEdit as E;
     use iced::widget::{button, row, text};
-    use signex_types::schematic::StrokeColor;
+    use oxide_types::schematic::StrokeColor;
     let rgb = |r: u8, g: u8, b: u8| -> StrokeColor { StrokeColor { r, g, b, a: 255 } };
     let tile = |label: &'static str,
                 stored: Option<StrokeColor>,
@@ -510,12 +510,12 @@ fn drawing_stroke_color_row<'a>(
 }
 
 fn drawing_fill_row<'a>(
-    current: signex_types::schematic::FillType,
+    current: oxide_types::schematic::FillType,
     muted: Color,
     _border_c: Color,
 ) -> Element<'a, PanelMsg> {
     use crate::app::contracts::DrawingFieldEdit as E;
-    use signex_types::schematic::FillType;
+    use oxide_types::schematic::FillType;
     let tile = |label: &'static str, ft: FillType, active: bool| -> Element<'a, PanelMsg> {
         iced::widget::button(text(label).size(10))
             .padding([3, 8])

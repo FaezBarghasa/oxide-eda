@@ -225,11 +225,11 @@ mod circumcircle_tests {
 // SymbolTransform — Y-up library → Y-down schematic placement
 // ---------------------------------------------------------------------------
 //
-// HI-19: shared between `signex-render` (folds parent transform into pin /
-// field positions at draw time) and `signex-engine` (computes per-symbol
+// HI-19: shared between `oxide-render` (folds parent transform into pin /
+// field positions at draw time) and `oxide-engine` (computes per-symbol
 // world-space coordinates for hit-testing, autoplace, ERC). Lives here so
-// both crates use ONE implementation; previously `signex-render` had a
-// public `SymbolTransform::apply` and `signex-engine` had a private
+// both crates use ONE implementation; previously `oxide-render` had a
+// public `SymbolTransform::apply` and `oxide-engine` had a private
 // `transform_local_point` that recomputed the same math, opening the door
 // to silent divergence on any future handedness or mirror-compose change.
 
@@ -332,7 +332,7 @@ pub enum FillType {
 
 // ---------------------------------------------------------------------------
 // Pin types — Signex-curated, not derived from any specific EDA enum.
-// See crates/signex-types/docs/pin-design.md for the rationale behind
+// See crates/oxide-types/docs/pin-design.md for the rationale behind
 // every variant choice (size, boundaries, names).
 // ---------------------------------------------------------------------------
 

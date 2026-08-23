@@ -5,8 +5,8 @@
 use std::future::Future;
 
 use serde_json::json;
-use signex_library::distributor::{DistributorAdapter, DistributorSource};
-use signex_library::distributors::mouser::MouserAdapter;
+use oxide_library::distributor::{DistributorAdapter, DistributorSource};
+use oxide_library::distributors::mouser::MouserAdapter;
 use wiremock::matchers::{header, method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
@@ -133,7 +133,7 @@ fn empty_search_results_returns_empty_vec() {
 #[test]
 #[ignore = "live API — requires Mouser API key + network"]
 fn live_lookup_smoke() {
-    use signex_library::distributors::keyring::KeyringStore;
+    use oxide_library::distributors::keyring::KeyringStore;
     let store = KeyringStore::for_provider("mouser", "default").expect("keyring backend available");
     let _key = store.get_secret().expect("Mouser API key in keyring");
     let adapter = MouserAdapter::from_keyring(None).expect("keyring backend available");

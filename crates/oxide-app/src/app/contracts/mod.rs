@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
-use signex_types::schematic::SchematicSheet;
-use signex_types::theme::ThemeId;
+use oxide_types::schematic::SchematicSheet;
+use oxide_types::theme::ThemeId;
 
 use crate::canvas::CanvasEvent;
 use crate::dock::DockMessage;
@@ -22,7 +22,7 @@ pub enum DragTarget {
 #[derive(Debug, Clone)]
 pub enum Message {
     Menu(MenuMessage),
-    PassiveCalculator(signex_widgets::passive_calculator::CalculatorMessage),
+    PassiveCalculator(oxide_widgets::passive_calculator::CalculatorMessage),
     Tool(ToolMessage),
     /// Tab-bar message carrying the id of the window whose tab bar emitted
     /// it. Lets the handler distinguish main-window tab reorder/select
@@ -153,7 +153,7 @@ pub enum Message {
     HistoryLoaded {
         generation: u32,
         path: std::path::PathBuf,
-        result: Result<Vec<signex_widgets::HistoryEntry>, String>,
+        result: Result<Vec<oxide_widgets::HistoryEntry>, String>,
     },
     /// v0.14.2 — keyboard shortcut for footprint editor mode switch.
     /// Routed from the global `1` / `2` / `3` key handler in

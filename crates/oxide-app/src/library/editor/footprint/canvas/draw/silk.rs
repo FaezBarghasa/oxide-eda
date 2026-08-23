@@ -13,11 +13,11 @@ use super::super::FootprintCanvasState;
 pub(super) fn draw_silk_graphics(
     frame: &mut canvas::Frame,
     cstate: &FootprintCanvasState,
-    graphics: &[signex_library::primitive::footprint::FpGraphic],
+    graphics: &[oxide_library::primitive::footprint::FpGraphic],
     layer: FpLayer,
     selected_idx: Option<usize>,
 ) {
-    use signex_library::primitive::footprint::FpGraphicKind;
+    use oxide_library::primitive::footprint::FpGraphicKind;
     let base_colour = layer.color();
     let highlight = Color::from_rgb(1.0, 1.0, 1.0);
     let stroke_default_px: f32 = 1.0;

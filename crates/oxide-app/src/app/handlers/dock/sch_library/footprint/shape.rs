@@ -13,7 +13,7 @@ impl Signex {
     /// v0.16.4 — mutate the selected entity's pour `net` and re-bake.
     pub(crate) fn fp_editor_set_pour_net(
         &mut self,
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: String,
     ) -> bool {
         let net = if value.trim().is_empty() {
@@ -42,8 +42,8 @@ impl Signex {
 
     pub(crate) fn fp_editor_set_pour_fill_type(
         &mut self,
-        id: signex_sketch::id::SketchEntityId,
-        value: signex_sketch::attr::PourFillType,
+        id: oxide_sketch::id::SketchEntityId,
+        value: oxide_sketch::attr::PourFillType,
     ) -> bool {
         if let Some(editor) = self.active_footprint_editor_mut() {
             if let Some(sketch) = editor.primitive_mut().sketch.as_mut()
@@ -66,7 +66,7 @@ impl Signex {
 
     pub(crate) fn fp_editor_set_pour_priority(
         &mut self,
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: String,
     ) -> bool {
         let parsed = value.trim().parse::<u32>().ok();
@@ -92,7 +92,7 @@ impl Signex {
 
     pub(crate) fn fp_editor_set_keepout_kind(
         &mut self,
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         kind: crate::panels::KeepoutKindFlag,
         value: bool,
     ) -> bool {
@@ -125,7 +125,7 @@ impl Signex {
 
     pub(crate) fn fp_editor_set_cutout_edge_radius(
         &mut self,
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: String,
     ) -> bool {
         let edge_radius = if value.trim().is_empty() {
@@ -248,7 +248,7 @@ impl Signex {
 
     pub(crate) fn fp_editor_set_cutout_through(
         &mut self,
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         value: bool,
     ) -> bool {
         if let Some(editor) = self.active_footprint_editor_mut() {
@@ -278,12 +278,12 @@ impl Signex {
     /// that blocks re-enabling instances later).
     pub(crate) fn fp_editor_edit_array_param(
         &mut self,
-        array_id: signex_sketch::array::ArrayId,
+        array_id: oxide_sketch::array::ArrayId,
         field: crate::panels::ArrayParamField,
         value: String,
     ) -> bool {
         use crate::panels::ArrayParamField;
-        use signex_sketch::array::{ArrayKind, GridDepopulation};
+        use oxide_sketch::array::{ArrayKind, GridDepopulation};
         if let Some(editor) = self.active_footprint_editor_mut() {
             if let Some(sketch) = editor.primitive_mut().sketch.as_mut()
                 && let Some(array) = sketch.arrays.iter_mut().find(|a| a.id == array_id)
@@ -362,17 +362,17 @@ impl Signex {
     }
 
     /// v0.23 — Switch numbering scheme. Maps the panel's enum onto
-    /// [`signex_sketch::array::NumberingScheme`] using sensible
+    /// [`oxide_sketch::array::NumberingScheme`] using sensible
     /// defaults (1-step LinearIncrement, BGA `A1`-rooted, empty
     /// Explicit list). Existing inner state isn't preserved across
     /// kind flips — switching numbering schemes is a discrete edit.
     pub(crate) fn fp_editor_set_array_numbering_scheme(
         &mut self,
-        array_id: signex_sketch::array::ArrayId,
+        array_id: oxide_sketch::array::ArrayId,
         scheme: crate::panels::NumberingSchemeKindUi,
     ) -> bool {
         use crate::panels::NumberingSchemeKindUi;
-        use signex_sketch::array::NumberingScheme;
+        use oxide_sketch::array::NumberingScheme;
         if let Some(editor) = self.active_footprint_editor_mut() {
             if let Some(sketch) = editor.primitive_mut().sketch.as_mut()
                 && let Some(array) = sketch.arrays.iter_mut().find(|a| a.id == array_id)
@@ -406,10 +406,10 @@ impl Signex {
 
     pub(crate) fn fp_editor_set_bga_skip_letters(
         &mut self,
-        array_id: signex_sketch::array::ArrayId,
+        array_id: oxide_sketch::array::ArrayId,
         skip_letters: bool,
     ) -> bool {
-        use signex_sketch::array::NumberingScheme;
+        use oxide_sketch::array::NumberingScheme;
         if let Some(editor) = self.active_footprint_editor_mut() {
             if let Some(sketch) = editor.primitive_mut().sketch.as_mut()
                 && let Some(array) = sketch.arrays.iter_mut().find(|a| a.id == array_id)
@@ -438,10 +438,10 @@ impl Signex {
     /// not the start point).
     pub(crate) fn fp_editor_set_bga_start_row(
         &mut self,
-        array_id: signex_sketch::array::ArrayId,
+        array_id: oxide_sketch::array::ArrayId,
         value: String,
     ) -> bool {
-        use signex_sketch::array::NumberingScheme;
+        use oxide_sketch::array::NumberingScheme;
         let Some(first_char) = value.chars().next() else {
             return true;
         };
@@ -473,10 +473,10 @@ impl Signex {
     /// the parse.
     pub(crate) fn fp_editor_set_bga_start_col(
         &mut self,
-        array_id: signex_sketch::array::ArrayId,
+        array_id: oxide_sketch::array::ArrayId,
         value: String,
     ) -> bool {
-        use signex_sketch::array::NumberingScheme;
+        use oxide_sketch::array::NumberingScheme;
         let trimmed = value.trim();
         let Ok(parsed) = trimmed.parse::<u32>() else {
             return true;
@@ -505,7 +505,7 @@ impl Signex {
     /// the source survive intact.
     pub(crate) fn fp_editor_delete_array(
         &mut self,
-        array_id: signex_sketch::array::ArrayId,
+        array_id: oxide_sketch::array::ArrayId,
     ) -> bool {
         if let Some(editor) = self.active_footprint_editor_mut() {
             if let Some(sketch) = editor.primitive_mut().sketch.as_mut() {
@@ -530,7 +530,7 @@ impl Signex {
     /// resets to `Idle`.
     pub(crate) fn fp_editor_begin_repick_polar_center(
         &mut self,
-        array_id: signex_sketch::array::ArrayId,
+        array_id: oxide_sketch::array::ArrayId,
     ) -> bool {
         if let Some(editor) = self.active_footprint_editor_mut() {
             use crate::library::editor::footprint::state::ToolPending;
@@ -553,12 +553,12 @@ impl Signex {
     /// returns to its parametric-only state.
     pub(crate) fn fp_editor_toggle_array_instance(
         &mut self,
-        array_id: signex_sketch::array::ArrayId,
+        array_id: oxide_sketch::array::ArrayId,
         i: u32,
         j: u32,
         value: bool,
     ) -> bool {
-        use signex_sketch::array::{ArrayKind, GridDepopulation};
+        use oxide_sketch::array::{ArrayKind, GridDepopulation};
         if let Some(editor) = self.active_footprint_editor_mut() {
             if let Some(sketch) = editor.primitive_mut().sketch.as_mut()
                 && let Some(array) = sketch.arrays.iter_mut().find(|a| a.id == array_id)

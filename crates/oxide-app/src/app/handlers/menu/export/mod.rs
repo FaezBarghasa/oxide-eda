@@ -2,7 +2,7 @@
 
 use std::path::PathBuf;
 
-use signex_output::{ExportContext, ProjectMetadata, SheetSnapshot};
+use oxide_output::{ExportContext, ProjectMetadata, SheetSnapshot};
 
 mod bom;
 mod pdf_netlist;
@@ -31,7 +31,7 @@ fn build_export_context(
 #[derive(Default)]
 pub(crate) struct ExportIssues {
     /// What the stitcher reported in-band.
-    pub(crate) stitch: Vec<signex_net::StitchIssue>,
+    pub(crate) stitch: Vec<oxide_net::StitchIssue>,
     /// Declared pages with no file at their path at all. A page that does not
     /// exist is also dropped from the exported page set, so the PDF comes out
     /// short a page.
@@ -70,9 +70,9 @@ impl ExportIssues {
             || self.stitch.iter().any(|issue| {
                 matches!(
                     issue,
-                    signex_net::StitchIssue::MissingChild { .. }
-                        | signex_net::StitchIssue::SheetCycle { .. }
-                        | signex_net::StitchIssue::SheetKeyCollision { .. }
+                    oxide_net::StitchIssue::MissingChild { .. }
+                        | oxide_net::StitchIssue::SheetCycle { .. }
+                        | oxide_net::StitchIssue::SheetKeyCollision { .. }
                 )
             })
     }
@@ -117,7 +117,7 @@ fn log_stitch_issues(
         // No root sheet in the exported set at all — the netlist exporter has
         // nothing to write (it returns `NetlistError::NoNetlist`) and every
         // `NET_NAME()` annotation in the PDF falls back to the literal token.
-        // Raised here rather than in `signex-output`: that crate already
+        // Raised here rather than in `oxide-output`: that crate already
         // *errors* on a missing netlist where a netlist is the deliverable;
         // what it cannot do is warn about the silently-degraded PDF, and it is
         // a dependency-light domain crate that neither logs nor knows which
@@ -207,7 +207,7 @@ fn loose_pages(
 
 /// Title-block metadata for the export, plus the project's active variant.
 fn export_metadata(
-    active_engine: &signex_engine::Engine,
+    active_engine: &oxide_engine::Engine,
     owning_project: Option<&crate::app::state::LoadedProject>,
 ) -> ProjectMetadata {
     let tb = &active_engine.document().title_block;
@@ -328,7 +328,7 @@ fn build_export_scope(
         // it could not stitch in-band. The issues are returned to the caller
         // rather than acted on here, because severity is a per-deliverable
         // policy: the .net refuses on a hole, the PDF proceeds and warns.
-        let result = signex_net::build_project_netlist(&signex_net::ProjectGraph {
+        let result = oxide_net::build_project_netlist(&oxide_net::ProjectGraph {
             sheets: &graph.sheets,
             resolved: &graph.resolved,
             roots: &roots,

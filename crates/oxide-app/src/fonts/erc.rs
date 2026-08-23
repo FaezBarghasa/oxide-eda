@@ -7,7 +7,7 @@ use super::*;
 /// entry" as "use the rule's default severity", matching the ui_state
 /// semantic used throughout the app.
 pub fn read_erc_severity_overrides()
--> std::collections::HashMap<signex_erc::RuleKind, signex_erc::Severity> {
+-> std::collections::HashMap<oxide_erc::RuleKind, oxide_erc::Severity> {
     let path = prefs_path();
     let Ok(bytes) = std::fs::read(&path) else {
         return std::collections::HashMap::new();
@@ -35,7 +35,7 @@ pub fn read_erc_severity_overrides()
 /// rule name so the file stays human-readable when the user edits it by
 /// hand.
 pub fn write_erc_severity_overrides(
-    overrides: &std::collections::HashMap<signex_erc::RuleKind, signex_erc::Severity>,
+    overrides: &std::collections::HashMap<oxide_erc::RuleKind, oxide_erc::Severity>,
 ) {
     update_prefs_json(&prefs_path(), "erc_severity", |prefs| {
         let mut obj = serde_json::Map::new();
@@ -49,8 +49,8 @@ pub fn write_erc_severity_overrides(
     })
 }
 
-fn erc_rule_kind_key(rule: signex_erc::RuleKind) -> &'static str {
-    use signex_erc::RuleKind::*;
+fn erc_rule_kind_key(rule: oxide_erc::RuleKind) -> &'static str {
+    use oxide_erc::RuleKind::*;
     match rule {
         UnusedPin => "unused_pin",
         DuplicateRefDesignator => "duplicate_ref_designator",
@@ -67,8 +67,8 @@ fn erc_rule_kind_key(rule: signex_erc::RuleKind) -> &'static str {
     }
 }
 
-fn parse_erc_rule_kind(s: &str) -> Option<signex_erc::RuleKind> {
-    use signex_erc::RuleKind::*;
+fn parse_erc_rule_kind(s: &str) -> Option<oxide_erc::RuleKind> {
+    use oxide_erc::RuleKind::*;
     Some(match s {
         "unused_pin" => UnusedPin,
         "duplicate_ref_designator" => DuplicateRefDesignator,
@@ -86,28 +86,28 @@ fn parse_erc_rule_kind(s: &str) -> Option<signex_erc::RuleKind> {
     })
 }
 
-fn erc_severity_key(sev: signex_erc::Severity) -> &'static str {
+fn erc_severity_key(sev: oxide_erc::Severity) -> &'static str {
     match sev {
-        signex_erc::Severity::Error => "error",
-        signex_erc::Severity::Warning => "warning",
-        signex_erc::Severity::Info => "info",
-        signex_erc::Severity::Off => "off",
+        oxide_erc::Severity::Error => "error",
+        oxide_erc::Severity::Warning => "warning",
+        oxide_erc::Severity::Info => "info",
+        oxide_erc::Severity::Off => "off",
     }
 }
 
-fn parse_erc_severity(s: &str) -> Option<signex_erc::Severity> {
+fn parse_erc_severity(s: &str) -> Option<oxide_erc::Severity> {
     Some(match s {
-        "error" => signex_erc::Severity::Error,
-        "warning" => signex_erc::Severity::Warning,
-        "info" => signex_erc::Severity::Info,
-        "off" => signex_erc::Severity::Off,
+        "error" => oxide_erc::Severity::Error,
+        "warning" => oxide_erc::Severity::Warning,
+        "info" => oxide_erc::Severity::Info,
+        "off" => oxide_erc::Severity::Off,
         _ => return None,
     })
 }
 
 /// Read the pin-connection matrix overrides. Keys stored as `"row,col"`
 /// strings and values as the same severity strings as ERC overrides.
-pub fn read_pin_matrix_overrides() -> std::collections::HashMap<(u8, u8), signex_erc::Severity> {
+pub fn read_pin_matrix_overrides() -> std::collections::HashMap<(u8, u8), oxide_erc::Severity> {
     let path = prefs_path();
     let Ok(bytes) = std::fs::read(&path) else {
         return std::collections::HashMap::new();
@@ -139,7 +139,7 @@ pub fn read_pin_matrix_overrides() -> std::collections::HashMap<(u8, u8), signex
 
 /// Persist pin-connection matrix overrides.
 pub fn write_pin_matrix_overrides(
-    overrides: &std::collections::HashMap<(u8, u8), signex_erc::Severity>,
+    overrides: &std::collections::HashMap<(u8, u8), oxide_erc::Severity>,
 ) {
     update_prefs_json(&prefs_path(), "pin_matrix", |prefs| {
         let mut obj = serde_json::Map::new();

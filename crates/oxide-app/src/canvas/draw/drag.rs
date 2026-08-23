@@ -24,15 +24,15 @@ impl SchematicCanvas<'_> {
                 for sel in &self.selected {
                     if matches!(
                         sel.kind,
-                        signex_types::schematic::SelectedKind::SymbolRefField
-                            | signex_types::schematic::SelectedKind::SymbolValField
+                        oxide_types::schematic::SelectedKind::SymbolRefField
+                            | oxide_types::schematic::SelectedKind::SymbolValField
                     ) {
                         let anchor_pos = preview.symbol_position(sel.uuid);
                         let moved_pos = match sel.kind {
-                            signex_types::schematic::SelectedKind::SymbolRefField => {
+                            oxide_types::schematic::SelectedKind::SymbolRefField => {
                                 preview.symbol_reference_position(sel.uuid)
                             }
-                            signex_types::schematic::SelectedKind::SymbolValField => {
+                            oxide_types::schematic::SelectedKind::SymbolValField => {
                                 preview.symbol_value_position(sel.uuid)
                             }
                             _ => None,
@@ -91,7 +91,7 @@ impl SchematicCanvas<'_> {
                     );
                 };
                 for sel in &self.selected {
-                    use signex_types::schematic::{Point, SelectedKind};
+                    use oxide_types::schematic::{Point, SelectedKind};
                     let dxf = dx as f64;
                     let dyf = dy as f64;
                     match sel.kind {

@@ -28,7 +28,7 @@ pub(in crate::library::editor::footprint::updates) fn apply(
 // the rest land in extras. Empty list deselects everything.
 fn select_many(
     editor: &mut crate::app::FootprintEditorState,
-    ids: Vec<signex_sketch::id::SketchEntityId>,
+    ids: Vec<oxide_sketch::id::SketchEntityId>,
 ) {
     if ids.is_empty() {
         editor.state.selected_sketch = None;
@@ -86,7 +86,7 @@ fn tool_escape(editor: &mut crate::app::FootprintEditorState) {
 
 fn select(
     editor: &mut crate::app::FootprintEditorState,
-    id: Option<signex_sketch::id::SketchEntityId>,
+    id: Option<oxide_sketch::id::SketchEntityId>,
     shift: bool,
 ) {
     // None clears every selection slot. Some(id) without

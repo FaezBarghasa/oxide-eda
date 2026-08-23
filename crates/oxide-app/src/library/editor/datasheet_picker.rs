@@ -11,9 +11,9 @@
 
 use iced::widget::{Space, button, column, container, pick_list, row, text, text_input};
 use iced::{Border, Element, Length, Theme};
-use signex_library::DatasheetRef;
-use signex_types::theme::ThemeTokens;
-use signex_widgets::theme_ext;
+use oxide_library::DatasheetRef;
+use oxide_types::theme::ThemeTokens;
+use oxide_widgets::theme_ext;
 
 use super::super::messages::{EditorMsg, LibraryMessage};
 use super::super::state::{ComponentPreviewState, EditorAddress};

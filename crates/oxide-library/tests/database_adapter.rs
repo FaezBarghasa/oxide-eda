@@ -13,14 +13,14 @@
 
 use std::future::Future;
 
-use signex_library::adapter::{LibraryAdapter, PrimitiveSummary};
-use signex_library::adapters::database::DatabaseAdapter;
-use signex_library::component::{ComponentRow, DatasheetRef, PlmReserved};
-use signex_library::identity::{ComponentClass, InternalPn, RowId};
-use signex_library::lifecycle::LifecycleState;
-use signex_library::manufacturer::ManufacturerPart;
-use signex_library::param::ParamMap;
-use signex_library::primitive::{
+use oxide_library::adapter::{LibraryAdapter, PrimitiveSummary};
+use oxide_library::adapters::database::DatabaseAdapter;
+use oxide_library::component::{ComponentRow, DatasheetRef, PlmReserved};
+use oxide_library::identity::{ComponentClass, InternalPn, RowId};
+use oxide_library::lifecycle::LifecycleState;
+use oxide_library::manufacturer::ManufacturerPart;
+use oxide_library::param::ParamMap;
+use oxide_library::primitive::{
     PinDirection, PrimitiveKind, PrimitiveRef, SimKind, SimModel, Symbol, SymbolPin,
 };
 use uuid::Uuid;
@@ -113,7 +113,7 @@ fn save_symbol_posts_to_symbols_with_message_header() {
                         "authorization",
                         format!("Bearer {TEST_TOKEN}").as_str(),
                     ))
-                    .and(header("x-signex-message", "add OPAMP-DUAL-8"))
+                    .and(header("x-oxide-message", "add OPAMP-DUAL-8"))
                     .respond_with(ResponseTemplate::new(201))
                     .expect(1)
                     .mount(server)
@@ -227,7 +227,7 @@ fn get_symbol_404_maps_to_not_found() {
         },
         move |adapter| {
             let err = adapter.get_symbol(uuid).unwrap_err();
-            assert!(matches!(err, signex_library::LibraryError::NotFound(_)));
+            assert!(matches!(err, oxide_library::LibraryError::NotFound(_)));
         },
     );
 }
@@ -236,7 +236,7 @@ fn get_symbol_404_maps_to_not_found() {
 //
 // `DatabaseAdapter::with_token` fabricates a manifest whose `library_id` is
 // `Uuid::nil()`; the wiremock expectations match that nil-uuid query string.
-// The matching server-side routes live in `signex-library-server`.
+// The matching server-side routes live in `oxide-library-server`.
 
 /// Build a `ComponentRow` fixture — same shape as `component::tests::fixture_row`
 /// but with controllable PN + class so the assertions in each test don't
@@ -299,7 +299,7 @@ fn database_round_trip_row() {
                         "authorization",
                         format!("Bearer {TEST_TOKEN}").as_str(),
                     ))
-                    .and(header("x-signex-message", "create R0805_10k"))
+                    .and(header("x-oxide-message", "create R0805_10k"))
                     .respond_with(ResponseTemplate::new(201))
                     .expect(1)
                     .mount(server)
@@ -316,7 +316,7 @@ fn database_round_trip_row() {
                 Mock::given(method("PUT"))
                     .and(path(put_path_for_mock.as_str()))
                     .and(query_param("library_id", nil_for_mock.as_str()))
-                    .and(header("x-signex-message", "update R0805_10k"))
+                    .and(header("x-oxide-message", "update R0805_10k"))
                     .respond_with(ResponseTemplate::new(200))
                     .expect(1)
                     .mount(server)
@@ -325,7 +325,7 @@ fn database_round_trip_row() {
                 Mock::given(method("DELETE"))
                     .and(path(del_path_for_mock.as_str()))
                     .and(query_param("library_id", nil_for_mock.as_str()))
-                    .and(header("x-signex-message", "drop R0805_10k"))
+                    .and(header("x-oxide-message", "drop R0805_10k"))
                     .respond_with(ResponseTemplate::new(204))
                     .expect(1)
                     .mount(server)
@@ -477,7 +477,7 @@ fn database_read_row_by_pn_404_maps_to_not_found() {
             let err = adapter
                 .read_row_by_pn(&InternalPn::new("UNKNOWN"))
                 .unwrap_err();
-            assert!(matches!(err, signex_library::LibraryError::NotFound(_)));
+            assert!(matches!(err, oxide_library::LibraryError::NotFound(_)));
         },
     );
 }
@@ -512,7 +512,7 @@ fn database_update_row_modifies_payload() {
                         "authorization",
                         format!("Bearer {TEST_TOKEN}").as_str(),
                     ))
-                    .and(header("x-signex-message", "bump R10K"))
+                    .and(header("x-oxide-message", "bump R10K"))
                     .and(wiremock::matchers::body_json(body_for_mock))
                     .respond_with(ResponseTemplate::new(200))
                     .expect(1)
@@ -611,7 +611,7 @@ fn database_read_row_404_maps_to_not_found() {
             let err = adapter
                 .read_row("resistors", RowId::from_uuid(row_id))
                 .unwrap_err();
-            assert!(matches!(err, signex_library::LibraryError::NotFound(_)));
+            assert!(matches!(err, oxide_library::LibraryError::NotFound(_)));
         },
     );
 }

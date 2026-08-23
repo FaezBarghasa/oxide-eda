@@ -1,10 +1,10 @@
 use super::*;
-use signex_library::primitive::footprint::Footprint;
-use signex_library::primitive::footprint::PadShape as LibPadShape;
-use signex_sketch::entity::{Entity, EntityKind};
-use signex_sketch::id::SketchEntityId;
-use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
-use signex_sketch::sketch::SketchData;
+use oxide_library::primitive::footprint::Footprint;
+use oxide_library::primitive::footprint::PadShape as LibPadShape;
+use oxide_sketch::entity::{Entity, EntityKind};
+use oxide_sketch::id::SketchEntityId;
+use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
+use oxide_sketch::sketch::SketchData;
 
 fn editor_pad(number: &str, x: f64, y: f64) -> EditorPad {
     let mut p = EditorPad::new_default(number.into(), (x, y));
@@ -176,7 +176,7 @@ fn mirror_delete_pad_drops_sketch_entity() {
 /// Returns the pad (linked to the centre) and the four profile-corner ids
 /// in sw, se, ne, nw order.
 fn footprint_with_profile_pad() -> (Footprint, EditorPad, [SketchEntityId; 4]) {
-    use signex_sketch::attr::{CustomPadShape, PadAttr, PadShape};
+    use oxide_sketch::attr::{CustomPadShape, PadAttr, PadShape};
 
     let mut fp = Footprint::empty("test");
     let plane_id = PlaneId::new();
@@ -242,7 +242,7 @@ fn footprint_with_profile_pad() -> (Footprint, EditorPad, [SketchEntityId; 4]) {
 /// centre Point and the `corner_entity_ids` bbox outline. A SketchProfile pad
 /// has `corner_entity_ids: None`, so the profile stayed at its original
 /// coordinates — visibly, the sketch rectangle did not follow the pad. The
-/// silent half was worse: `signex_bake` bakes the profile as
+/// silent half was worse: `oxide_bake` bakes the profile as
 /// `world_pts - pad_position`, so the copper resolved back to the ORIGINAL
 /// location and the exported footprint had the pad in the wrong place.
 #[test]
@@ -401,8 +401,8 @@ fn mirror_move_oval_translates_anchor_sidecars() {
 /// just the ones naming its centre Point.
 #[test]
 fn mirror_delete_drops_constraints_on_owned_corners() {
-    use signex_sketch::constraint::{Constraint, ConstraintKind};
-    use signex_sketch::id::ConstraintId;
+    use oxide_sketch::constraint::{Constraint, ConstraintKind};
+    use oxide_sketch::id::ConstraintId;
 
     let mut fp = Footprint::empty("test");
     let mut pad = editor_pad("1", 0.0, 0.0);
@@ -526,7 +526,7 @@ fn shape_change_preserves_corner_positions() {
 //
 // `pad_attr_from_editor_pad` hardcoded `rotation_expr: None` and
 // `sync_pads_to_primitive` never wrote the field, so
-// `signex_bake::pad::rotation_deg` mapped `None -> 0.0` while
+// `oxide_bake::pad::rotation_deg` mapped `None -> 0.0` while
 // `EditorPad::to_pad` wrote the true angle onto the literal `Pad`.
 // Two persistence paths, two answers for the same pad.
 // ─────────────────────────────────────────────────────────────────
@@ -557,8 +557,8 @@ fn minted_pad_attr_carries_the_rotation() {
 
 #[test]
 fn rotation_survives_a_bake_round_trip() {
-    use signex_sketch::solver::Solver;
-    use signex_sketch::solver::residual::ResolvedParams;
+    use oxide_sketch::solver::Solver;
+    use oxide_sketch::solver::residual::ResolvedParams;
 
     let mut fp = Footprint::empty("test");
     let mut pad = editor_pad("1", 0.0, 0.0);
@@ -571,7 +571,7 @@ fn rotation_survives_a_bake_round_trip() {
         .expect("solve");
     let mut out = Vec::new();
     let mut warnings = Vec::new();
-    signex_bake::bake_pads(
+    oxide_bake::bake_pads(
         sketch,
         &solve,
         &std::collections::HashMap::new(),
@@ -710,7 +710,7 @@ fn rotated_oval_mints_geometry_that_closes() {
 
 #[test]
 fn rotated_chamfered_mints_geometry_that_closes() {
-    use signex_library::primitive::footprint::ChamferedCorners;
+    use oxide_library::primitive::footprint::ChamferedCorners;
     assert_minted_geometry_stays_inside_the_turned_copper(LibPadShape::Chamfered {
         chamfer_ratio: 0.25,
         corners: ChamferedCorners {
@@ -727,7 +727,7 @@ fn sync_preserves_a_bare_parameter_binding_with_no_eq_prefix() {
     use crate::library::editor::footprint::state::FootprintEditorState;
 
     // The `=` prefix is OPTIONAL — `resolve_dim` strips it before
-    // parsing and `signex_bake::pad::rotation_deg` does the same — so
+    // parsing and `oxide_bake::pad::rotation_deg` does the same — so
     // a bare `leg_angle` is a fully valid authored binding. Keying the
     // data-loss guard on the prefix destroyed exactly these.
     let mut fp = Footprint::empty("test");
@@ -822,9 +822,9 @@ fn sync_overwrites_every_bare_literal_form() {
 /// row on every rotate and flip, not once on a pad delete.
 #[test]
 fn mirror_delete_pad_drops_constraints_on_the_whole_entity_set() {
-    use signex_library::primitive::footprint::ChamferedCorners;
-    use signex_sketch::constraint::{Constraint, ConstraintKind};
-    use signex_sketch::id::ConstraintId;
+    use oxide_library::primitive::footprint::ChamferedCorners;
+    use oxide_sketch::constraint::{Constraint, ConstraintKind};
+    use oxide_sketch::id::ConstraintId;
 
     let mut fp = Footprint::empty("test");
     let mut pad = editor_pad("X", 0.0, 0.0);
@@ -916,7 +916,7 @@ fn owned_set_excludes_ids_with_no_live_entity() {
 /// against the real sketch; every owned id must be a live entity.
 #[test]
 fn in_place_remint_records_the_ledger_against_the_real_sketch() {
-    use signex_library::primitive::footprint::ChamferedCorners;
+    use oxide_library::primitive::footprint::ChamferedCorners;
 
     let mut fp = Footprint::empty("test");
     let mut pad = editor_pad("X", 0.0, 0.0);
@@ -980,7 +980,7 @@ fn in_place_remint_records_the_ledger_against_the_real_sketch() {
 /// to a full re-mint under fresh ids.
 #[test]
 fn in_place_remint_matches_a_fresh_mint_for_every_shape() {
-    use signex_library::primitive::footprint::ChamferedCorners;
+    use oxide_library::primitive::footprint::ChamferedCorners;
 
     for shape in [
         LibPadShape::Rect,

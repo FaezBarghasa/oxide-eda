@@ -8,14 +8,14 @@
 //! holds the drawing palette (wire, junction, body, pad, silk, …). Nothing
 //! else defines colours — every surface *consumes* these tokens:
 //!
-//! - `signex-widgets` (`theme_ext.rs`) bridges tokens into per-widget iced
+//! - `oxide-widgets` (`theme_ext.rs`) bridges tokens into per-widget iced
 //!   [`Style`](https://docs.rs/iced/0.14/iced/widget/container/struct.Style.html)
 //!   values — the iced 0.14 Catalog route. iced's own `Theme`/`Palette` is
 //!   therefore just *one consumer* of these tokens, not a second source.
-//! - `signex-renderer` / the `signex-gfx` wgpu path read the same tokens for
+//! - `oxide-renderer` / the `oxide-gfx` wgpu path read the same tokens for
 //!   the GPU/canvas draw colours.
-//! - `signex-output` reads them for SVG / PDF export.
-//! - `signex-app` and `chrome-catalog` read them for the shell UI.
+//! - `oxide-output` reads them for SVG / PDF export.
+//! - `oxide-app` and `chrome-catalog` read them for the shell UI.
 //!
 //! This crate has **zero `iced` / `wgpu` dependency** on purpose (ADR: separate
 //! types from rendering): because the tokens live in the domain layer, the
@@ -261,7 +261,7 @@ const VSCODE_DARK_CANVAS: CanvasColors = CanvasColors {
 
 // ===== Signex =====
 
-const SIGNEX_TOKENS: ThemeTokens = ThemeTokens {
+const OXIDE_TOKENS: ThemeTokens = ThemeTokens {
     bg: c(0x2D, 0x2D, 0x30),
     paper: c(0x1E, 0x1E, 0x1E),
     text: c(0xDC, 0xDC, 0xDC),
@@ -278,9 +278,9 @@ const SIGNEX_TOKENS: ThemeTokens = ThemeTokens {
     success: c(0x57, 0xA6, 0x4A),
 };
 
-const SIGNEX_CANVAS: CanvasColors = CanvasColors {
+const OXIDE_CANVAS: CanvasColors = CanvasColors {
     // Classic schematic palette — cream sheet, dark elements. The workspace
-    // OUTSIDE the sheet follows the chrome (`SIGNEX_TOKENS.bg`) so the canvas
+    // OUTSIDE the sheet follows the chrome (`OXIDE_TOKENS.bg`) so the canvas
     // backdrop reads as part of the dark UI instead of a detached gray slab.
     background: c(0x2D, 0x2D, 0x30), // Chrome-aligned workspace outside sheet
     paper: c(0xFF, 0xFF, 0xE0),      // Pale cream/yellow sheet (255,255,224)
@@ -308,7 +308,7 @@ const SIGNEX_CANVAS: CanvasColors = CanvasColors {
 // Lab brand cyan. The icon tree in `assets/icons/alplab/` pre-tints the
 // SVG fills to this same cyan; keeping the accent aligned so dropdown
 // chevrons, focus rings and button highlights read as one palette.
-// Canvas colours reuse SIGNEX_CANVAS for now — the schematic sheet
+// Canvas colours reuse OXIDE_CANVAS for now — the schematic sheet
 // keeps the Altium-style cream background regardless of chrome theme.
 
 const ALPLAB_TOKENS: ThemeTokens = ThemeTokens {
@@ -456,12 +456,12 @@ pub fn theme_tokens(id: ThemeId) -> ThemeTokens {
     match id {
         ThemeId::CatppuccinMocha => CATPPUCCIN_MOCHA_TOKENS,
         ThemeId::VsCodeDark => VSCODE_DARK_TOKENS,
-        ThemeId::Signex => SIGNEX_TOKENS,
+        ThemeId::Signex => OXIDE_TOKENS,
         ThemeId::Alplab => ALPLAB_TOKENS,
         ThemeId::GitHubDark => GITHUB_DARK_TOKENS,
         ThemeId::SolarizedLight => SOLARIZED_LIGHT_TOKENS,
         ThemeId::Nord => NORD_TOKENS,
-        ThemeId::Custom => SIGNEX_TOKENS, // caller must use CustomThemeFile directly
+        ThemeId::Custom => OXIDE_TOKENS, // caller must use CustomThemeFile directly
     }
 }
 
@@ -469,13 +469,13 @@ pub fn canvas_colors(id: ThemeId) -> CanvasColors {
     match id {
         ThemeId::CatppuccinMocha => CATPPUCCIN_MOCHA_CANVAS,
         ThemeId::VsCodeDark => VSCODE_DARK_CANVAS,
-        ThemeId::Signex => SIGNEX_CANVAS,
+        ThemeId::Signex => OXIDE_CANVAS,
         // Alp Lab reuses the Altium-style cream schematic palette; only
         // the chrome accent differs.
-        ThemeId::Alplab => SIGNEX_CANVAS,
+        ThemeId::Alplab => OXIDE_CANVAS,
         ThemeId::GitHubDark => GITHUB_DARK_CANVAS,
         ThemeId::SolarizedLight => SOLARIZED_LIGHT_CANVAS,
         ThemeId::Nord => NORD_CANVAS,
-        ThemeId::Custom => SIGNEX_CANVAS, // caller must use CustomThemeFile directly
+        ThemeId::Custom => OXIDE_CANVAS, // caller must use CustomThemeFile directly
     }
 }

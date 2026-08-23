@@ -20,15 +20,15 @@ impl Signex {
                     // engine persists the change.
                     let stored = crate::schematic_runtime::text::escape_for_standard(&state.text);
                     let engine_command = match state.kind {
-                        signex_types::schematic::SelectedKind::Label => {
-                            signex_engine::Command::UpdateText {
-                                target: signex_engine::TextTarget::Label(state.uuid),
+                        oxide_types::schematic::SelectedKind::Label => {
+                            oxide_engine::Command::UpdateText {
+                                target: oxide_engine::TextTarget::Label(state.uuid),
                                 value: stored,
                             }
                         }
-                        signex_types::schematic::SelectedKind::TextNote => {
-                            signex_engine::Command::UpdateText {
-                                target: signex_engine::TextTarget::TextNote(state.uuid),
+                        oxide_types::schematic::SelectedKind::TextNote => {
+                            oxide_engine::Command::UpdateText {
+                                target: oxide_engine::TextTarget::TextNote(state.uuid),
                                 value: stored,
                             }
                         }

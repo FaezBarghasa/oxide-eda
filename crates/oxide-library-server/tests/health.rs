@@ -1,6 +1,6 @@
 use axum::body::Body;
 use axum::http::{Request, StatusCode};
-use signex_library_server::router;
+use oxide_library_server::router;
 use tower::ServiceExt;
 
 #[tokio::test]
@@ -35,5 +35,5 @@ async fn version_returns_crate_version() {
         .await
         .unwrap();
     let body: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
-    assert_eq!(body["name"], "signex-library-server");
+    assert_eq!(body["name"], "oxide-library-server");
 }

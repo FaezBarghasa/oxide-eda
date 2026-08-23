@@ -9,8 +9,8 @@ use super::ToolClickCtx;
 use crate::library::editor::footprint::sketch_dispatch::apply_sketch_edit_with_warnings;
 use crate::library::editor::footprint::sketch_mode::SketchEdit;
 use crate::library::editor::footprint::state::{PlacementInputKind, SketchTool, ToolPending};
-use signex_sketch::entity::{Entity, EntityKind};
-use signex_sketch::id::SketchEntityId;
+use oxide_sketch::entity::{Entity, EntityKind};
+use oxide_sketch::id::SketchEntityId;
 
 /// What the Tangent Arc's second click resolves out of the sketch:
 /// the stashed first endpoint's world-mm position, the clicked end
@@ -72,8 +72,8 @@ fn line(editor: &mut crate::app::FootprintEditorState, ctx: &ToolClickCtx) {
             // to an explicit constraint visible in the
             // constraint list.
             {
-                use signex_sketch::constraint::{Constraint, ConstraintKind};
-                use signex_sketch::id::ConstraintId;
+                use oxide_sketch::constraint::{Constraint, ConstraintKind};
+                use oxide_sketch::id::ConstraintId;
                 const AXIS_THRESHOLD_DEG: f64 = 5.0;
                 let pos_of = |id: SketchEntityId| -> Option<(f64, f64)> {
                     editor
@@ -488,8 +488,8 @@ fn edge_arc(editor: &mut crate::app::FootprintEditorState, ctx: &ToolClickCtx) {
             };
         }
         ToolPending::EdgeArcEnd { start, end } => {
-            use signex_sketch::geom::{Sign, orient2d};
-            use signex_types::schematic::{Point as SchPoint, circumcircle};
+            use oxide_sketch::geom::{Sign, orient2d};
+            use oxide_types::schematic::{Point as SchPoint, circumcircle};
 
             let pos_of = |id: SketchEntityId| -> Option<(f64, f64)> {
                 editor
@@ -592,8 +592,8 @@ fn edge_arc(editor: &mut crate::app::FootprintEditorState, ctx: &ToolClickCtx) {
 // Arc still appears in the sketch so the user can constrain it manually
 // if desired.
 fn tangent_arc(editor: &mut crate::app::FootprintEditorState, ctx: &ToolClickCtx) {
-    use signex_sketch::constraint::{Constraint, ConstraintKind};
-    use signex_sketch::id::ConstraintId;
+    use oxide_sketch::constraint::{Constraint, ConstraintKind};
+    use oxide_sketch::id::ConstraintId;
 
     match editor.state.tool_pending {
         ToolPending::TangentArcFirst { first } => {

@@ -1,11 +1,11 @@
 mod common;
 use common::Sketch;
 
-use signex_sketch::SketchData;
-use signex_sketch::entity::{Entity, EntityKind};
-use signex_sketch::id::SketchEntityId;
-use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
-use signex_sketch::solver::state::{circle_radius, pack, point_xy};
+use oxide_sketch::SketchData;
+use oxide_sketch::entity::{Entity, EntityKind};
+use oxide_sketch::id::SketchEntityId;
+use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
+use oxide_sketch::solver::state::{circle_radius, pack, point_xy};
 
 fn make_plane() -> Plane {
     Plane {
@@ -39,8 +39,8 @@ fn pack_two_points_lays_out_xy_in_order() {
 
 #[test]
 fn pack_excludes_fixed_points() {
-    use signex_sketch::constraint::{Constraint, ConstraintKind};
-    use signex_sketch::id::ConstraintId;
+    use oxide_sketch::constraint::{Constraint, ConstraintKind};
+    use oxide_sketch::id::ConstraintId;
 
     let plane = make_plane();
     let p_fixed = SketchEntityId::new();
@@ -107,10 +107,10 @@ fn pack_circle_radius_is_a_free_var() {
 // (O(h^2) ≈ 1e-14) plus double-precision roundoff (~ε/h ≈ 1.7e-9
 // scaled by residual magnitude) sit well inside the bound.
 
-use signex_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
-use signex_sketch::id::ConstraintId;
-use signex_sketch::solver::jacobian::numerical_jacobian;
-use signex_sketch::solver::residual::ResolvedParams;
+use oxide_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
+use oxide_sketch::id::ConstraintId;
+use oxide_sketch::solver::jacobian::numerical_jacobian;
+use oxide_sketch::solver::residual::ResolvedParams;
 
 fn empty_params() -> ResolvedParams {
     ResolvedParams::new()

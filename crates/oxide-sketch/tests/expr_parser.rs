@@ -1,11 +1,11 @@
 //! Integration tests for the recursive-descent expression parser
-//! (`crates/signex-sketch/src/expr/parse.rs`).
+//! (`crates/oxide-sketch/src/expr/parse.rs`).
 //!
 //! Covers Task 4.3 of `docs/internal/SKETCH_MODE_v0.13_PLAN.md`.
 
-use signex_sketch::expr::ast::{ArrayIndex, BinOp, ExprNode, UnaryOp};
-use signex_sketch::expr::parse::parse;
-use signex_sketch::unit::{Quantity, Unit};
+use oxide_sketch::expr::ast::{ArrayIndex, BinOp, ExprNode, UnaryOp};
+use oxide_sketch::expr::parse::parse;
+use oxide_sketch::unit::{Quantity, Unit};
 
 const EPS: f64 = 1e-12;
 

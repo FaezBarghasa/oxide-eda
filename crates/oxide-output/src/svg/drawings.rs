@@ -10,7 +10,7 @@ use super::geometry::{arc_path_commands, circle_path, rect_path};
 use super::*;
 use crate::pdf::layout::PageTransform;
 use crate::pdf::palette::SchematicPalette;
-use signex_types::schematic::{FillType, SchDrawing};
+use oxide_types::schematic::{FillType, SchDrawing};
 
 pub(super) fn push_sch_drawing_path(
     out: &mut Vec<SvgElement>,

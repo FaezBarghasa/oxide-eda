@@ -22,7 +22,7 @@ fn empty_sheet() -> SchematicSheet {
     SchematicSheet {
         uuid: Uuid::nil(),
         version: 1,
-        generator: "signex-test".into(),
+        generator: "oxide-test".into(),
         generator_version: "0.9".into(),
         paper_size: "A4".into(),
         root_sheet_page: "1".into(),
@@ -46,7 +46,7 @@ fn empty_board() -> PcbBoard {
     PcbBoard {
         uuid: Uuid::nil(),
         version: 1,
-        generator: "signex-test".into(),
+        generator: "oxide-test".into(),
         thickness: 1.6,
         outline: vec![],
         layers: vec![],

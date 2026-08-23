@@ -507,7 +507,7 @@ impl FootprintCanvas<'_> {
     fn drag_tick_point(
         &self,
         drag: &mut DragState,
-        point_id: signex_sketch::id::SketchEntityId,
+        point_id: oxide_sketch::id::SketchEntityId,
         world: (f64, f64),
     ) -> Option<canvas::Action<LibraryMessage>> {
         let dx_mm = world.0 - drag.last_world.0;
@@ -532,8 +532,8 @@ impl FootprintCanvas<'_> {
     fn drag_tick_line(
         &self,
         drag: &mut DragState,
-        line_id: signex_sketch::id::SketchEntityId,
-        sketch_ref: &signex_sketch::SketchData,
+        line_id: oxide_sketch::id::SketchEntityId,
+        sketch_ref: &oxide_sketch::SketchData,
         world: (f64, f64),
     ) -> Option<canvas::Action<LibraryMessage>> {
         let raw_dx = world.0 - drag.last_world.0;
@@ -545,12 +545,12 @@ impl FootprintCanvas<'_> {
             .iter()
             .find(|e| e.id == line_id)
             .and_then(|e| match e.kind {
-                signex_sketch::entity::EntityKind::Line { start, end } => Some((start, end)),
+                oxide_sketch::entity::EntityKind::Line { start, end } => Some((start, end)),
                 _ => None,
             });
-        let pos_of = |id: signex_sketch::id::SketchEntityId| -> Option<(f64, f64)> {
+        let pos_of = |id: oxide_sketch::id::SketchEntityId| -> Option<(f64, f64)> {
             if let Some(solve) = self.state.last_solve.as_ref()
-                && let Some(p) = signex_sketch::solver::state::point_xy(
+                && let Some(p) = oxide_sketch::solver::state::point_xy(
                     id,
                     &solve.result.state,
                     &solve.result.index,
@@ -564,7 +564,7 @@ impl FootprintCanvas<'_> {
                 .iter()
                 .find(|e| e.id == id)
                 .and_then(|e| match e.kind {
-                    signex_sketch::entity::EntityKind::Point { x, y } => Some((x, y)),
+                    oxide_sketch::entity::EntityKind::Point { x, y } => Some((x, y)),
                     _ => None,
                 })
         };

@@ -21,11 +21,11 @@ use ttf_parser::Face;
 use crate::template::FontStyle;
 
 // Embed font bytes at compile time
-const ROBOTO_REGULAR: &[u8] = include_bytes!("../../../signex-app/assets/fonts/Roboto-Regular.ttf");
-const ROBOTO_BOLD: &[u8] = include_bytes!("../../../signex-app/assets/fonts/Roboto-Bold.ttf");
+const ROBOTO_REGULAR: &[u8] = include_bytes!("../../../oxide-app/assets/fonts/Roboto-Regular.ttf");
+const ROBOTO_BOLD: &[u8] = include_bytes!("../../../oxide-app/assets/fonts/Roboto-Bold.ttf");
 const IOSEVKA_REGULAR: &[u8] =
-    include_bytes!("../../../signex-app/assets/fonts/Iosevka-Regular.ttf");
-const IOSEVKA_BOLD: &[u8] = include_bytes!("../../../signex-app/assets/fonts/Iosevka-Bold.ttf");
+    include_bytes!("../../../oxide-app/assets/fonts/Iosevka-Regular.ttf");
+const IOSEVKA_BOLD: &[u8] = include_bytes!("../../../oxide-app/assets/fonts/Iosevka-Bold.ttf");
 
 /// Embedded font variants, backed by TTF bytes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

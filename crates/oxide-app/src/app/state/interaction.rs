@@ -25,24 +25,24 @@ pub struct InteractionState {
     pub drag_start_pos: Option<f32>,
     pub drag_start_size: f32,
     pub tab_drag_origin: Option<(f32, f32)>,
-    pub wire_points: Vec<signex_types::schematic::Point>,
+    pub wire_points: Vec<oxide_types::schematic::Point>,
     pub wire_drawing: bool,
     /// 3-click arc placement buffer. Holds the first two clicks
     /// (start, mid); the third click commits as SchDrawing::Arc.
-    pub arc_points: Vec<signex_types::schematic::Point>,
+    pub arc_points: Vec<oxide_types::schematic::Point>,
     /// Freehand polygon placement buffer. Accumulates clicks until
     /// the user presses Enter / double-clicks / right-clicks.
-    pub polyline_points: Vec<signex_types::schematic::Point>,
+    pub polyline_points: Vec<oxide_types::schematic::Point>,
     /// Two-click shape placement: first click sets the anchor, second
     /// click commits. Used by Tool::Line, Tool::Rectangle, Tool::Circle.
-    pub shape_anchor: Option<signex_types::schematic::Point>,
-    pub clipboard_wires: Vec<signex_types::schematic::Wire>,
-    pub clipboard_buses: Vec<signex_types::schematic::Bus>,
-    pub clipboard_labels: Vec<signex_types::schematic::Label>,
-    pub clipboard_symbols: Vec<signex_types::schematic::Symbol>,
-    pub clipboard_junctions: Vec<signex_types::schematic::Junction>,
-    pub clipboard_no_connects: Vec<signex_types::schematic::NoConnect>,
-    pub clipboard_text_notes: Vec<signex_types::schematic::TextNote>,
+    pub shape_anchor: Option<oxide_types::schematic::Point>,
+    pub clipboard_wires: Vec<oxide_types::schematic::Wire>,
+    pub clipboard_buses: Vec<oxide_types::schematic::Bus>,
+    pub clipboard_labels: Vec<oxide_types::schematic::Label>,
+    pub clipboard_symbols: Vec<oxide_types::schematic::Symbol>,
+    pub clipboard_junctions: Vec<oxide_types::schematic::Junction>,
+    pub clipboard_no_connects: Vec<oxide_types::schematic::NoConnect>,
+    pub clipboard_text_notes: Vec<oxide_types::schematic::TextNote>,
     pub draw_mode: DrawMode,
     pub editing_text: Option<TextEditState>,
     pub context_menu: Option<ContextMenuState>,
@@ -112,10 +112,10 @@ pub struct InteractionState {
     /// (footprint categories) instead of the schematic
     /// `SelectionFilter` (Task 6).
     pub footprint_filter_presets: Vec<crate::active_bar::FootprintFilterPreset>,
-    pub selection_slots: [Vec<signex_types::schematic::SelectedItem>; 8],
+    pub selection_slots: [Vec<oxide_types::schematic::SelectedItem>; 8],
     pub last_tool: std::collections::HashMap<String, crate::active_bar::ActiveBarAction>,
     pub pending_power: Option<(String, String)>,
-    pub pending_port: Option<(signex_types::schematic::LabelType, String)>,
+    pub pending_port: Option<(oxide_types::schematic::LabelType, String)>,
     /// Uuid of the placed symbol the cursor is currently hovering over,
     /// if any. Set/cleared by the canvas `CursorAt` handler. Drives the
     /// hover tooltip overlay (designator + value + footprint + lib_id).

@@ -9,14 +9,14 @@
 //! v0.14 scope: Lines only (walker limitation). Arcs / Circles in a
 //! profile surface a warning and skip. Construction entities skipped.
 
-use signex_library::primitive::footprint::{
+use oxide_library::primitive::footprint::{
     FpMaskExclude, FpMaskOpening, FpPasteAperture, LayerId, Polygon,
 };
-use signex_sketch::SketchError;
-use signex_sketch::entity::EntityKind;
-use signex_sketch::sketch::SketchData;
-use signex_sketch::solver::FullSolveOutput;
-use signex_types::layer::SignexLayer;
+use oxide_sketch::SketchError;
+use oxide_sketch::entity::EntityKind;
+use oxide_sketch::sketch::SketchData;
+use oxide_sketch::solver::FullSolveOutput;
+use oxide_types::layer::OxideLayer;
 
 use crate::profile::{TraceError, trace_closed_profile};
 
@@ -83,14 +83,14 @@ fn bake_layered<O, F>(
     solve: &FullSolveOutput,
     out: &mut Vec<O>,
     warnings: &mut Vec<String>,
-    attr_extract: impl Fn(&signex_sketch::entity::Entity) -> Option<SignexLayer>,
+    attr_extract: impl Fn(&oxide_sketch::entity::Entity) -> Option<OxideLayer>,
     make: F,
     attr_name: &'static str,
 ) -> Result<(), SketchError>
 where
     F: Fn(Polygon, LayerId) -> O,
 {
-    let mut visited_seeds: std::collections::HashSet<signex_sketch::id::SketchEntityId> =
+    let mut visited_seeds: std::collections::HashSet<oxide_sketch::id::SketchEntityId> =
         std::collections::HashSet::new();
     for entity in &sketch.entities {
         if entity.bake_skipped() {
@@ -140,12 +140,12 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_sketch::attr::{MaskExcludeAttr, MaskOpeningAttr, PasteApertureAttr};
-    use signex_sketch::entity::Entity;
-    use signex_sketch::id::SketchEntityId;
-    use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
-    use signex_sketch::solver::Solver;
-    use signex_sketch::solver::residual::ResolvedParams;
+    use oxide_sketch::attr::{MaskExcludeAttr, MaskOpeningAttr, PasteApertureAttr};
+    use oxide_sketch::entity::Entity;
+    use oxide_sketch::id::SketchEntityId;
+    use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
+    use oxide_sketch::solver::Solver;
+    use oxide_sketch::solver::residual::ResolvedParams;
 
     fn solve(sketch: &SketchData) -> FullSolveOutput {
         Solver::default()
@@ -204,7 +204,7 @@ mod tests {
         let l1 = rectangle(plane, &mut data);
         let l1_entity = data.entities.iter_mut().find(|e| e.id == l1).unwrap();
         l1_entity.mask_opening = Some(MaskOpeningAttr {
-            layer: SignexLayer::TopSolderMask,
+            layer: OxideLayer::TopSolderMask,
         });
 
         let solved = solve(&data);
@@ -228,7 +228,7 @@ mod tests {
         let l1 = rectangle(plane, &mut data);
         let l1_entity = data.entities.iter_mut().find(|e| e.id == l1).unwrap();
         l1_entity.mask_exclude = Some(MaskExcludeAttr {
-            layer: SignexLayer::BottomSolderMask,
+            layer: OxideLayer::BottomSolderMask,
         });
 
         let solved = solve(&data);
@@ -251,7 +251,7 @@ mod tests {
         let l1 = rectangle(plane, &mut data);
         let l1_entity = data.entities.iter_mut().find(|e| e.id == l1).unwrap();
         l1_entity.paste_aperture = Some(PasteApertureAttr {
-            layer: SignexLayer::TopPaste,
+            layer: OxideLayer::TopPaste,
         });
 
         let solved = solve(&data);

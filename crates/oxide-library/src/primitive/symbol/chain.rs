@@ -16,7 +16,7 @@
 //! - The point at angle `a` (degrees) on the circle is
 //!   `center + radius * (cos(a), sin(a))` — standard math convention, no
 //!   axis flips. Authoritative reference:
-//!   `crates/signex-app/src/library/editor/symbol/state/hit_test.rs`'s
+//!   `crates/oxide-app/src/library/editor/symbol/state/hit_test.rs`'s
 //!   `graphic_contains_point` `Arc` arm and its `ArcStart`/`ArcEnd`
 //!   handle-position arms just below it.
 //! - The arc always sweeps **counter-clockwise** (increasing angle) from
@@ -24,7 +24,7 @@
 //!   `start_deg > end_deg`. Corroborated by two independent runtime
 //!   consumers computing the identical wraparound: `hit_test.rs:131-135`
 //!   (`if s <= e { a >= s && a <= e } else { a >= s || a <= e }`) and
-//!   `crates/signex-gfx/src/shader/arc.wgsl:52-54`'s `normalize_angle`
+//!   `crates/oxide-gfx/src/shader/arc.wgsl:52-54`'s `normalize_angle`
 //!   (`sweep = normalize_angle(end_angle - start_angle)`, `in_sweep = a
 //!   <= sweep`).
 //!
@@ -53,7 +53,7 @@
 //! (CCW-always, wraparound-normalised), which is the one every other
 //! reader of `SymbolGraphicKind::Arc` should also treat as authoritative.
 //!
-//! `crates/signex-bake/src/profile.rs`'s `push_arc_interior_if_arc` uses
+//! `crates/oxide-bake/src/profile.rs`'s `push_arc_interior_if_arc` uses
 //! a *different* arc representation (`center`/`start`/`end` points plus
 //! an explicit `sweep_ccw` flag) for PCB sketch profiles — it is not the
 //! convention this module follows; `SymbolGraphicKind::Arc` carries no
@@ -67,7 +67,7 @@ use std::collections::{HashMap, HashSet};
 pub const CHAIN_ENDPOINT_EPSILON_MM: f64 = 0.01;
 
 /// Number of straight segments an [`ChainSegment::Arc`] is tessellated
-/// into. Matches `signex-bake::profile::ARC_SAMPLES`.
+/// into. Matches `oxide-bake::profile::ARC_SAMPLES`.
 pub const CHAIN_ARC_SAMPLES: usize = 16;
 
 /// Perpendicular-distance threshold (mm) below which a ring vertex is

@@ -23,7 +23,7 @@ pub struct PanelContext {
     pub tokens: ThemeTokens,
     /// Active theme id. Feeds the icon registry so dock/panel SVGs tint
     /// to the theme's accent (see `crate::icons`).
-    pub theme_id: signex_types::theme::ThemeId,
+    pub theme_id: oxide_types::theme::ThemeId,
     // Live settings (synced from Signex on every update)
     pub unit: Unit,
     pub grid_visible: bool,
@@ -66,7 +66,7 @@ pub struct PanelContext {
     /// (pin_number, pin_name, pin_type) for the selected component.
     pub selected_pins: Vec<(String, String, String)>,
     /// Full LibSymbol data for canvas preview.
-    pub selected_lib_symbol: Option<signex_types::schematic::LibSymbol>,
+    pub selected_lib_symbol: Option<oxide_types::schematic::LibSymbol>,
     /// Height in px for the Components list section (details gets the rest).
     pub components_split: f32,
     /// Persistent project tree — toggle state survives across renders.
@@ -89,7 +89,7 @@ pub struct PanelContext {
     /// UUID of the single selected item (for property editing).
     pub selected_uuid: Option<uuid::Uuid>,
     /// Kind of the single selected item.
-    pub selected_kind: Option<signex_types::schematic::SelectedKind>,
+    pub selected_kind: Option<oxide_types::schematic::SelectedKind>,
     /// Description of the selected item (for single selection).
     pub selection_info: Vec<(String, String)>,
     /// Transient numeric-input buffers for the drawing properties
@@ -103,11 +103,11 @@ pub struct PanelContext {
     /// The live SchDrawing matching `selected_uuid` when a single
     /// drawing is selected. Feeds the mini preview canvas in the
     /// Properties panel so the shape renders true-to-life.
-    pub selected_drawing: Option<signex_types::schematic::SchDrawing>,
+    pub selected_drawing: Option<oxide_types::schematic::SchDrawing>,
     /// The live ChildSheet matching `selected_uuid` when a single
     /// hierarchical sheet is selected. Powers the editable
     /// border/fill colour pickers and stroke-width input.
-    pub selected_child_sheet: Option<signex_types::schematic::ChildSheet>,
+    pub selected_child_sheet: Option<oxide_types::schematic::ChildSheet>,
     /// Whether the border-colour picker overlay is open for the
     /// currently-selected child sheet.
     pub child_sheet_border_picker_open: bool,
@@ -130,7 +130,7 @@ pub struct PanelContext {
     pub collapsed_sections: CollapsedSections,
     /// Pre-placement configuration (shown when Tab pressed during placement tool).
     pub pre_placement: Option<PrePlacementData>,
-    /// Current diagnostics level resolved from SIGNEX_LOG / RUST_LOG.
+    /// Current diagnostics level resolved from OXIDE_LOG / RUST_LOG.
     /// Flattened ERC diagnostics from the most recent Run-ERC pass.
     pub erc_diagnostics: Vec<ErcDiagnosticEntry>,
     /// Focused ERC diagnostic index used by prev/next navigation arrows.

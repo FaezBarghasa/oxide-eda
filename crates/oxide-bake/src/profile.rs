@@ -26,11 +26,11 @@
 
 use std::collections::{HashMap, HashSet};
 
-use signex_sketch::entity::{Entity, EntityKind};
-use signex_sketch::id::SketchEntityId;
-use signex_sketch::sketch::SketchData;
-use signex_sketch::solver::FullSolveOutput;
-use signex_sketch::solver::state::point_xy;
+use oxide_sketch::entity::{Entity, EntityKind};
+use oxide_sketch::id::SketchEntityId;
+use oxide_sketch::sketch::SketchData;
+use oxide_sketch::solver::FullSolveOutput;
+use oxide_sketch::solver::state::point_xy;
 
 /// Trace failure modes — the bake site decides whether to warn or
 /// error per-attr.
@@ -377,12 +377,12 @@ fn edge_endpoints(entity: &Entity) -> Option<(SketchEntityId, SketchEntityId)> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_sketch::entity::{Entity, EntityKind};
-    use signex_sketch::id::SketchEntityId;
-    use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
-    use signex_sketch::sketch::SketchData;
-    use signex_sketch::solver::Solver;
-    use signex_sketch::solver::residual::ResolvedParams;
+    use oxide_sketch::entity::{Entity, EntityKind};
+    use oxide_sketch::id::SketchEntityId;
+    use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
+    use oxide_sketch::sketch::SketchData;
+    use oxide_sketch::solver::Solver;
+    use oxide_sketch::solver::residual::ResolvedParams;
 
     /// Build a sketch with one rectangle (4 Points + 4 Lines), solve,
     /// trace from the first Line, expect a 4-vertex polygon.

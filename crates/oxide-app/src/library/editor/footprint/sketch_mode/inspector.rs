@@ -21,8 +21,8 @@ use iced::{
     Border, Color, Element, Length, Theme,
     widget::{Space, button, column, container, pick_list, row, scrollable, text, text_input},
 };
-use signex_types::theme::ThemeTokens;
-use signex_widgets::theme_ext;
+use oxide_types::theme::ThemeTokens;
+use oxide_widgets::theme_ext;
 
 use crate::app::FootprintEditorState;
 use crate::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
@@ -227,11 +227,11 @@ fn view_constraint_submenu<'a>(
     border: Color,
 ) -> Element<'a, LibraryMessage> {
     use crate::library::messages::SketchConstraintTag;
-    use signex_sketch::entity::EntityKind;
+    use oxide_sketch::entity::EntityKind;
 
     let primary = editor.state.selected_sketch;
     let secondary = editor.state.selected_sketch_secondary;
-    let kind_of = |id: signex_sketch::id::SketchEntityId| -> Option<&'static str> {
+    let kind_of = |id: oxide_sketch::id::SketchEntityId| -> Option<&'static str> {
         editor
             .primitive()
             .sketch
@@ -524,7 +524,7 @@ fn view_role<'a>(
 ) -> Element<'a, LibraryMessage> {
     use crate::library::editor::footprint::sketch_dispatch::current_role_of;
     use crate::library::messages::RoleTag;
-    use signex_sketch::entity::EntityKind;
+    use oxide_sketch::entity::EntityKind;
 
     let primary = editor.state.selected_sketch;
     let selected_entity = primary.and_then(|id| {

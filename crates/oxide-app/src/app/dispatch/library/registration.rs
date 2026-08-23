@@ -276,8 +276,8 @@ impl Signex {
             .and_then(|s| s.to_str())
             .unwrap_or("NewSymbol")
             .to_string();
-        let symbol = signex_library::Symbol::empty(stem);
-        let file = signex_library::SymbolFile::from_symbol(symbol);
+        let symbol = oxide_library::Symbol::empty(stem);
+        let file = oxide_library::SymbolFile::from_symbol(symbol);
         // v0.18.4 — emit TOML envelope (mirror of v0.18.2 .snxfpt).
         let text = match file.to_toml_string() {
             Ok(s) => s,
@@ -302,7 +302,7 @@ impl Signex {
             );
             return Task::none();
         }
-        if let Err(e) = signex_types::atomic_io::atomic_write(&path, text.as_bytes()) {
+        if let Err(e) = oxide_types::atomic_io::atomic_write(&path, text.as_bytes()) {
             tracing::warn!(
                 target: "signex::library",
                 path = %path.display(),
@@ -329,9 +329,9 @@ impl Signex {
             .and_then(|s| s.to_str())
             .unwrap_or("NewFootprint")
             .to_string();
-        let footprint = signex_library::Footprint::empty(stem);
+        let footprint = oxide_library::Footprint::empty(stem);
         // v0.18.4 — emit TOML+TSV envelope.
-        let file = signex_library::FootprintFile::from_footprint(footprint);
+        let file = oxide_library::FootprintFile::from_footprint(footprint);
         let text = match file.to_toml_string() {
             Ok(s) => s,
             Err(e) => {
@@ -355,7 +355,7 @@ impl Signex {
             );
             return Task::none();
         }
-        if let Err(e) = signex_types::atomic_io::atomic_write(&path, text.as_bytes()) {
+        if let Err(e) = oxide_types::atomic_io::atomic_write(&path, text.as_bytes()) {
             tracing::warn!(
                 target: "signex::library",
                 path = %path.display(),
@@ -375,7 +375,7 @@ impl Signex {
     /// entry shows immediately. No-op when the path is already
     /// registered, or when no loaded project owns the file's parent.
     fn register_standalone_library_on_project(&mut self, path: &std::path::Path) {
-        use signex_types::project::{LibraryEntry, LibraryEntryKind};
+        use oxide_types::project::{LibraryEntry, LibraryEntryKind};
         // Resolve the target project index first so the mutable borrow
         // of `projects` is short-lived (the active-project fallback
         // chained on iter_mut tripped E0500).

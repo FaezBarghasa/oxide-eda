@@ -5,7 +5,7 @@
 //! `library_node_path_from_tree`).
 //!
 //! Data-to-view (#269): every context menu is a `Vec<DropdownEntry>` that
-//! the shared `signex_widgets::active_bar_dropdown` widget renders, so the
+//! the shared `oxide_widgets::active_bar_dropdown` widget renders, so the
 //! canvas / project-tree / tab menus share ONE row renderer with the
 //! schematic + footprint active bars (ADR-0003). The widget owns all row
 //! chrome (icon column, label, shortcut, hover, disabled greying), so the
@@ -14,8 +14,8 @@
 use super::*;
 
 use iced::widget::svg::Handle;
-use signex_types::theme::ThemeTokens;
-use signex_widgets::active_bar_dropdown::{DropdownEntry, DropdownItem};
+use oxide_types::theme::ThemeTokens;
+use oxide_widgets::active_bar_dropdown::{DropdownEntry, DropdownItem};
 
 /// A keyboard-command row: clicking it dispatches `action` through the
 /// context-menu message bridge. `shortcut` renders right-aligned (empty

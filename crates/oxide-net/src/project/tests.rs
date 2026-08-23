@@ -1,7 +1,7 @@
 //! Tests for project-level netlist stitching.
 use super::*;
 use crate::build_netlist;
-use signex_types::schematic::{
+use oxide_types::schematic::{
     ChildSheet, FillType, HAlign, Junction, LibPin, LibSymbol, Pin, PinDirection, PinShapeStyle,
     Point, SheetPin, Symbol, VAlign, Wire,
 };

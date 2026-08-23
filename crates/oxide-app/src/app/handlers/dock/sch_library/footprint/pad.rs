@@ -138,7 +138,7 @@ impl Signex {
     // configuration. None of these are dirty-marking on their own —
     // they're "pre-placement defaults" — but the panel `refresh` runs
     // so the form re-reads the new value.
-    pub(crate) fn fp_editor_set_next_pad_shape(&mut self, shape: signex_library::PadShape) -> bool {
+    pub(crate) fn fp_editor_set_next_pad_shape(&mut self, shape: oxide_library::PadShape) -> bool {
         if let Some(editor) = self.active_footprint_editor_mut() {
             editor.state.next_pad_defaults.shape = shape;
             editor.canvas_cache.clear();
@@ -146,7 +146,7 @@ impl Signex {
         self.refresh_panel_ctx();
         true
     }
-    pub(crate) fn fp_editor_set_next_pad_kind(&mut self, kind: signex_library::PadKind) -> bool {
+    pub(crate) fn fp_editor_set_next_pad_kind(&mut self, kind: oxide_library::PadKind) -> bool {
         if let Some(editor) = self.active_footprint_editor_mut() {
             editor.state.next_pad_defaults.kind = kind;
             editor.canvas_cache.clear();
@@ -266,7 +266,7 @@ impl Signex {
     }
     pub(crate) fn fp_editor_set_next_pad_feature_top(
         &mut self,
-        f: signex_sketch::attr::PadFeature,
+        f: oxide_sketch::attr::PadFeature,
     ) -> bool {
         if let Some(editor) = self.active_footprint_editor_mut() {
             editor.state.next_pad_defaults.feature_top = f;
@@ -276,7 +276,7 @@ impl Signex {
     }
     pub(crate) fn fp_editor_set_next_pad_feature_bottom(
         &mut self,
-        f: signex_sketch::attr::PadFeature,
+        f: oxide_sketch::attr::PadFeature,
     ) -> bool {
         if let Some(editor) = self.active_footprint_editor_mut() {
             editor.state.next_pad_defaults.feature_bottom = f;
@@ -377,11 +377,11 @@ impl Signex {
     /// canvas cache. Solve+bake is queued on the next mutation cycle.
     pub(in crate::app::handlers::dock::sch_library) fn with_selected_sketch_pad<F>(
         &mut self,
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         f: F,
     ) -> bool
     where
-        F: FnOnce(&mut signex_sketch::attr::PadAttr),
+        F: FnOnce(&mut oxide_sketch::attr::PadAttr),
     {
         if let Some(editor) = self.active_footprint_editor_mut() {
             let sketch = editor.primitive_mut().sketch.as_mut();
@@ -411,7 +411,7 @@ impl Signex {
         side: crate::library::editor::footprint::state::PadSide,
     ) -> bool {
         use crate::library::editor::footprint::state::PadSide;
-        use signex_library::LayerId;
+        use oxide_library::LayerId;
         let layers = match side {
             PadSide::Top => vec![
                 LayerId::new("F.Cu"),
@@ -435,7 +435,7 @@ impl Signex {
     pub(crate) fn fp_editor_set_selected_pad_shape(
         &mut self,
         idx: usize,
-        shape: signex_library::PadShape,
+        shape: oxide_library::PadShape,
     ) -> bool {
         self.with_selected_pad(idx, |pad| pad.shape = shape);
         true
@@ -443,7 +443,7 @@ impl Signex {
     pub(crate) fn fp_editor_set_selected_pad_kind(
         &mut self,
         idx: usize,
-        kind: signex_library::PadKind,
+        kind: oxide_library::PadKind,
     ) -> bool {
         self.with_selected_pad(idx, |pad| pad.kind = kind);
         true
@@ -603,7 +603,7 @@ impl Signex {
     pub(crate) fn fp_editor_set_selected_pad_feature_top(
         &mut self,
         idx: usize,
-        value: signex_sketch::attr::PadFeature,
+        value: oxide_sketch::attr::PadFeature,
     ) -> bool {
         self.with_selected_pad(idx, |pad| pad.feature_top = value);
         true
@@ -611,7 +611,7 @@ impl Signex {
     pub(crate) fn fp_editor_set_selected_pad_feature_bottom(
         &mut self,
         idx: usize,
-        value: signex_sketch::attr::PadFeature,
+        value: oxide_sketch::attr::PadFeature,
     ) -> bool {
         self.with_selected_pad(idx, |pad| pad.feature_bottom = value);
         true
@@ -667,7 +667,7 @@ impl Signex {
 
     pub(in crate::app::handlers::dock::sch_library) fn handle_fp_editor_set_next_pad_electrical_type(
         &mut self,
-        v: &signex_sketch::attr::ElectricalType,
+        v: &oxide_sketch::attr::ElectricalType,
     ) -> bool {
         if let Some(editor) = self.active_footprint_editor_mut() {
             editor.state.next_pad_defaults.electrical_type = *v;
@@ -763,7 +763,7 @@ impl Signex {
         &mut self,
         plated: &bool,
     ) -> bool {
-        use signex_library::PadKind as Pk;
+        use oxide_library::PadKind as Pk;
         if let Some(editor) = self.active_footprint_editor_mut() {
             editor.state.next_pad_defaults.kind = if *plated { Pk::Tht } else { Pk::NptHole };
         }

@@ -25,11 +25,11 @@ impl Signex {
             // already have `&mut self` in scope to mutate
             // `self.library.primitive_picker` directly.
             crate::panels::PanelMsg::LibraryRowPickSymbol => {
-                self.open_library_row_primitive_picker(signex_library::PrimitiveKind::Symbol);
+                self.open_library_row_primitive_picker(oxide_library::PrimitiveKind::Symbol);
                 true
             }
             crate::panels::PanelMsg::LibraryRowPickFootprint => {
-                self.open_library_row_primitive_picker(signex_library::PrimitiveKind::Footprint);
+                self.open_library_row_primitive_picker(oxide_library::PrimitiveKind::Footprint);
                 true
             }
             _ => false,
@@ -39,14 +39,14 @@ impl Signex {
     /// Open the primitive picker for the row described by the active
     /// `panel_ctx.library_row_detail`. Wired by the Properties-panel
     /// Pick Symbol / Pick Footprint buttons.
-    fn open_library_row_primitive_picker(&mut self, kind: signex_library::PrimitiveKind) {
+    fn open_library_row_primitive_picker(&mut self, kind: oxide_library::PrimitiveKind) {
         let Some(detail) = self.document_state.panel_ctx.library_row_detail.clone() else {
             return;
         };
         let address = crate::library::state::EditorAddress::new(
             detail.library_path,
             detail.table,
-            signex_library::RowId::from_uuid(detail.row_id),
+            oxide_library::RowId::from_uuid(detail.row_id),
         );
         self.library.primitive_picker = Some(crate::library::state::PrimitivePickerState {
             kind,
@@ -110,14 +110,14 @@ impl Signex {
         library_path: &std::path::Path,
         library_name: &str,
         _library_entries: &mut Vec<crate::panels::LibrarySymbolEntry>,
-        _loaded_symbols: &mut std::collections::HashMap<String, signex_types::schematic::LibSymbol>,
+        _loaded_symbols: &mut std::collections::HashMap<String, oxide_types::schematic::LibSymbol>,
     ) -> Result<()> {
         // TODO(issue#62): port the legacy `.standard_sym` library browser to
         // the native `.snxlib`/`.snxsym` flow. Until then, the browser is
         // a no-op for foreign libraries — Standard-format libraries are no
         // longer parsed in Signex Community.
         crate::diagnostics::log_warning(format!(
-            "Skipping foreign symbol library {} ({}); convert with the signex-standard-import companion to use it in Signex.",
+            "Skipping foreign symbol library {} ({}); convert with the oxide-standard-import companion to use it in Signex.",
             library_name,
             library_path.display(),
         ));

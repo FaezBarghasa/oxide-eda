@@ -6,7 +6,7 @@
 use std::collections::BTreeMap;
 use std::path::Path;
 
-use signex_bom::{BomComponent, BomContext, BomEngineOptions, build_table, validate_table};
+use oxide_bom::{BomComponent, BomContext, BomEngineOptions, build_table, validate_table};
 use thiserror::Error;
 
 use crate::{ExportContext, Exporter};
@@ -17,7 +17,7 @@ mod xlsx;
 
 pub use csv::emit as csv_emit;
 pub use html::emit as html_emit;
-pub use signex_bom::{
+pub use oxide_bom::{
     BomGrouping, BomIssueSeverity, BomMetadata, BomRow, BomRule, BomRuleOptions, BomTable,
     BomValidationIssue, BomValidationReport,
 };
@@ -360,7 +360,7 @@ fn field_value_ci<'a>(
 }
 
 fn resolve_variant_fitted_from_property_overrides(
-    symbol: &signex_types::schematic::Symbol,
+    symbol: &oxide_types::schematic::Symbol,
     active_variant: &str,
 ) -> Option<bool> {
     for property in &symbol.custom_properties {
@@ -382,7 +382,7 @@ fn resolve_variant_fitted_from_property_overrides(
     None
 }
 
-fn resolve_base_variant_fitted(symbol: &signex_types::schematic::Symbol) -> Option<bool> {
+fn resolve_base_variant_fitted(symbol: &oxide_types::schematic::Symbol) -> Option<bool> {
     if let Some(raw) = field_value_ci(&symbol.fields, "VariantFitted") {
         return parse_bool_field(raw);
     }
@@ -420,7 +420,7 @@ fn resolve_base_variant_fitted(symbol: &signex_types::schematic::Symbol) -> Opti
 /// break any remaining tie on the field key, so the answer is a pure function
 /// of the file rather than of the allocator.
 fn resolve_variant_fitted_from_fields(
-    symbol: &signex_types::schematic::Symbol,
+    symbol: &oxide_types::schematic::Symbol,
     active_variant: &str,
 ) -> Option<bool> {
     symbol
@@ -440,7 +440,7 @@ fn resolve_variant_fitted_from_fields(
 }
 
 fn resolve_variant_fitted(
-    symbol: &signex_types::schematic::Symbol,
+    symbol: &oxide_types::schematic::Symbol,
     active_variant: Option<&str>,
 ) -> Option<bool> {
     if let Some(active_variant) = active_variant {
@@ -499,8 +499,8 @@ impl Exporter for BomExporter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_types::property::SchematicProperty;
-    use signex_types::schematic::{Point, Symbol};
+    use oxide_types::property::SchematicProperty;
+    use oxide_types::schematic::{Point, Symbol};
     use uuid::Uuid;
 
     fn test_symbol() -> Symbol {

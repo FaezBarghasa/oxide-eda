@@ -10,8 +10,8 @@
 
 use std::path::PathBuf;
 
-use signex_app::app::{Message, Signex};
-use signex_app::panels::history::HistoryRenderMode;
+use oxide_app::app::{Message, Signex};
+use oxide_app::panels::history::HistoryRenderMode;
 
 const WALK_ERROR: &str = "backend: git revwalk: corrupt object 4f21ac";
 
@@ -20,7 +20,7 @@ const WALK_ERROR: &str = "backend: git revwalk: corrupt object 4f21ac";
 /// generation is dropped as stale before any of this runs).
 fn history_loaded(
     app: &Signex,
-    result: Result<Vec<signex_widgets::HistoryEntry>, String>,
+    result: Result<Vec<oxide_widgets::HistoryEntry>, String>,
 ) -> Message {
     Message::HistoryLoaded {
         generation: app.document_state.history.generation,
@@ -70,7 +70,7 @@ fn a_successful_history_walk_is_still_ready() {
 #[test]
 fn a_failed_history_walk_reaches_the_messages_panel() {
     // Arrange
-    let _ = signex_app::diagnostics::init_logging();
+    let _ = oxide_app::diagnostics::init_logging();
     let (mut app, _boot) = Signex::new();
     let message = history_loaded(&app, Err(WALK_ERROR.to_string()));
 

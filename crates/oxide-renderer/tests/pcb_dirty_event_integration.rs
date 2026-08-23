@@ -1,13 +1,13 @@
 //! Integration test for PCB app-event to dirty-flag routing.
 
-use signex_gfx::scene::{DirtyFlags, Scene};
-use signex_renderer::pcb::{
+use oxide_gfx::scene::{DirtyFlags, Scene};
+use oxide_renderer::pcb::{
     DrcMarkerInput, PcbAppEvent, PcbRenderer, PcbSnapshot, RatsnestInput, dirty_flags_for_events,
 };
-use signex_renderer::schematic::ViewRenderer;
-use signex_renderer::theme::ResolvedTheme;
-use signex_types::pcb::PcbBoard;
-use signex_types::violation::Severity;
+use oxide_renderer::schematic::ViewRenderer;
+use oxide_renderer::theme::ResolvedTheme;
+use oxide_types::pcb::PcbBoard;
+use oxide_types::violation::Severity;
 
 fn fixture_board() -> PcbBoard {
     serde_json::from_str(include_str!("fixtures/pcb_vertical_slice_fixture.json"))

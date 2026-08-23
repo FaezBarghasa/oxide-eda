@@ -16,15 +16,15 @@
 // target-scoped, so each integration-test crate root needs its own allow.
 
 use chrono::Utc;
-use signex_app::library::editor::footprint::sketch_dispatch::apply_sketch_edit;
-use signex_app::library::editor::footprint::sketch_mode::SketchEdit;
-use signex_app::library::editor::footprint::state::FootprintEditorState;
-use signex_library::primitive::footprint::Footprint;
-use signex_sketch::SketchData;
-use signex_sketch::attr::{PadAttr, PadKind, PadShape, PadSide, PasteAperturePattern};
-use signex_sketch::entity::{Entity, EntityKind};
-use signex_sketch::id::SketchEntityId;
-use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
+use oxide_app::library::editor::footprint::sketch_dispatch::apply_sketch_edit;
+use oxide_app::library::editor::footprint::sketch_mode::SketchEdit;
+use oxide_app::library::editor::footprint::state::FootprintEditorState;
+use oxide_library::primitive::footprint::Footprint;
+use oxide_sketch::SketchData;
+use oxide_sketch::attr::{PadAttr, PadKind, PadShape, PadSide, PasteAperturePattern};
+use oxide_sketch::entity::{Entity, EntityKind};
+use oxide_sketch::id::SketchEntityId;
+use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
 
 const PITCH_05: f64 = 0.5;
 const PITCH_065: f64 = 0.65;

@@ -294,7 +294,7 @@ impl LocalGitProjectAdapter {
         let content = blob.content();
 
         let abs = self.project_root.join(rel_path);
-        signex_types::atomic_io::atomic_write(&abs, content)
+        oxide_types::atomic_io::atomic_write(&abs, content)
             .map_err(|e| LibraryError::Backend(format!("atomic write {}: {e}", abs.display())))?;
         Ok(())
     }
@@ -306,7 +306,7 @@ impl LocalGitProjectAdapter {
 
     /// String-SHA-keyed alternative to [`restore_at`]. Parses the
     /// argument as a hex commit OID, then forwards. Convenient for
-    /// callers (notably `signex-app`) that don't depend on `git2`
+    /// callers (notably `oxide-app`) that don't depend on `git2`
     /// directly and just have the short/full SHA string from the
     /// History panel widget.
     pub fn restore_at_from_sha(&self, rel_path: &Path, sha: &str) -> Result<(), LibraryError> {
@@ -362,7 +362,7 @@ impl LocalGitProjectAdapter {
             text.push_str("\n# 3D models opt-in via Git LFS so the working tree doesn't bloat.\n");
             text.push_str("assets/3d-models/**\tfilter=lfs diff=lfs merge=lfs -text\n");
         }
-        signex_types::atomic_io::atomic_write(&path, text.as_bytes())
+        oxide_types::atomic_io::atomic_write(&path, text.as_bytes())
             .map_err(|e| LibraryError::Backend(format!("write .gitattributes: {e}")))?;
         Ok(())
     }

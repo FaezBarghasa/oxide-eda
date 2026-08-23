@@ -255,7 +255,7 @@ fn triangle_area(a: [f32; 2], b: [f32; 2], c: [f32; 2]) -> f64 {
 
 #[test]
 fn concave_zone_fills_exactly_its_area() {
-    // #3 (fixed): `append_fill` triangulates via `signex_sketch::ear_clip`,
+    // #3 (fixed): `append_fill` triangulates via `oxide_sketch::ear_clip`,
     // which partitions a concave contour exactly instead of fanning it from
     // vertex 0 — the fan's over-fill-across-the-notch bug no longer applies.
     // A vertex count alone can't prove this (ear-clip still emits

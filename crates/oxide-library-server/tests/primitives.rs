@@ -8,9 +8,9 @@
 
 use axum::body::Body;
 use axum::http::{Request, StatusCode};
-use signex_library::primitive::{Footprint, SimKind, SimModel, Symbol};
-use signex_library_server::db::{AppState, PrimitiveSummary};
-use signex_library_server::{API_TOKEN_ENV, router_with_state};
+use oxide_library::primitive::{Footprint, SimKind, SimModel, Symbol};
+use oxide_library_server::db::{AppState, PrimitiveSummary};
+use oxide_library_server::{API_TOKEN_ENV, router_with_state};
 use tower::ServiceExt;
 use uuid::Uuid;
 

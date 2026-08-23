@@ -167,7 +167,7 @@ impl LocalGitAdapter {
         // file destroys all primitives in the container, so we cannot
         // afford the in-place truncate that `fs::write` does on
         // existing destinations.
-        signex_types::atomic_io::atomic_write(&abs_path, &bytes)?;
+        oxide_types::atomic_io::atomic_write(&abs_path, &bytes)?;
 
         let fallback = format!("save {} {uuid}", primitive_kind_str(kind));
         self.commit_path(&rel_path, message, &fallback)
@@ -250,7 +250,7 @@ impl LocalGitAdapter {
     fn persist_library_file(&self, lf: &LibraryFile) -> Result<(), LibraryError> {
         let text = lf.write()?;
         // HI-6: atomic write — never half-write the manifest.
-        signex_types::atomic_io::atomic_write(&self.file_path, text.as_bytes())?;
+        oxide_types::atomic_io::atomic_write(&self.file_path, text.as_bytes())?;
         Ok(())
     }
 
@@ -358,7 +358,7 @@ impl LocalGitAdapter {
                 // HI-6: atomic write — the symbol container is a TOML+TSV
                 // envelope holding every symbol; an in-place truncate by
                 // `fs::write` would destroy them all on a crash mid-save.
-                signex_types::atomic_io::atomic_write(&path, text.as_bytes())?;
+                oxide_types::atomic_io::atomic_write(&path, text.as_bytes())?;
                 path
             }
             None => {
@@ -371,7 +371,7 @@ impl LocalGitAdapter {
                 // HI-6: atomic write — the symbol container is a TOML+TSV
                 // envelope holding every symbol; an in-place truncate by
                 // `fs::write` would destroy them all on a crash mid-save.
-                signex_types::atomic_io::atomic_write(&path, text.as_bytes())?;
+                oxide_types::atomic_io::atomic_write(&path, text.as_bytes())?;
                 path
             }
         };

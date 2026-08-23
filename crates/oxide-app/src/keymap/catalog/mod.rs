@@ -410,7 +410,7 @@ mod tests {
     ///     just regenerate the golden to make the test pass again.
     ///   - a command was added, or an existing one's `group`/`category`
     ///     changed on purpose. Regenerate with:
-    ///     `UPDATE_GOLDEN=1 cargo test -p signex-app command_id_surface_matches_golden_snapshot`
+    ///     `UPDATE_GOLDEN=1 cargo test -p oxide-app command_id_surface_matches_golden_snapshot`
     #[test]
     fn command_id_surface_matches_golden_snapshot() {
         #[derive(serde::Serialize)]
@@ -442,7 +442,7 @@ mod tests {
             .unwrap_or_else(|err| panic!("failed to read golden {golden_path}: {err}"));
         assert_eq!(
             actual, expected,
-            "command-id surface drifted from crates/signex-app/tests/golden/commands.json — \
+            "command-id surface drifted from crates/oxide-app/tests/golden/commands.json — \
              see this test's doc comment before regenerating"
         );
     }

@@ -11,17 +11,17 @@
 
 use std::path::{Path, PathBuf};
 
-use signex_library::adapter::{LibraryAdapter, LibraryError};
-use signex_library::adapters::library_set::LibrarySet;
-use signex_library::adapters::local_git::{LibraryInitOptions, LocalGitAdapter};
-use signex_library::component::{ComponentRow, DatasheetRef, PlmReserved};
-use signex_library::identity::{ComponentClass, InternalPn, RowId};
-use signex_library::library_file::{FORMAT_TOKEN, LibrarySection, SnxlibManifest};
-use signex_library::lifecycle::LifecycleState;
-use signex_library::manifest::{LibraryMode, UsersConfig, WorkflowConfig, WorkflowMode};
-use signex_library::manufacturer::ManufacturerPart;
-use signex_library::param::ParamMap;
-use signex_library::primitive::{
+use oxide_library::adapter::{LibraryAdapter, LibraryError};
+use oxide_library::adapters::library_set::LibrarySet;
+use oxide_library::adapters::local_git::{LibraryInitOptions, LocalGitAdapter};
+use oxide_library::component::{ComponentRow, DatasheetRef, PlmReserved};
+use oxide_library::identity::{ComponentClass, InternalPn, RowId};
+use oxide_library::library_file::{FORMAT_TOKEN, LibrarySection, SnxlibManifest};
+use oxide_library::lifecycle::LifecycleState;
+use oxide_library::manifest::{LibraryMode, UsersConfig, WorkflowConfig, WorkflowMode};
+use oxide_library::manufacturer::ManufacturerPart;
+use oxide_library::param::ParamMap;
+use oxide_library::primitive::{
     Body3D, BodyShape, Footprint, FootprintFile, LayerId, Pad, PadKind, PadShape, PinDirection,
     Polygon, PrimitiveKind, PrimitiveRef, SimFile, SimKind, SimModel, Symbol, SymbolPin,
 };
@@ -183,7 +183,7 @@ fn fixture_footprint(name: &str) -> Footprint {
         paste_apertures: Vec::new(),
         description: String::new(),
         default_designator: String::new(),
-        component_type: signex_library::primitive::footprint::ComponentType::Standard,
+        component_type: oxide_library::primitive::footprint::ComponentType::Standard,
         height_mm: None,
     }
 }
@@ -680,7 +680,7 @@ fn corrupt_symbol_file_resolves_to_an_error_not_a_missing_uuid() {
         .resolve_symbol(&r)
         .expect_err("a corrupt symbol container must not read as an absent UUID");
     assert!(
-        !matches!(err, signex_library::LibraryError::NotFound(_)),
+        !matches!(err, oxide_library::LibraryError::NotFound(_)),
         "corrupt file reported as NotFound: {err}"
     );
 
@@ -1014,7 +1014,7 @@ fn cascade_team_mode_leaves_released_row_stale() {
     // Confirm the cascade engine itself bucketed it as stale rather
     // than silently dropping it — call it directly so we can inspect
     // the report shape (the adapter wrapper discards its return).
-    let report = signex_library::cascade::cascade_after_symbol_save(
+    let report = oxide_library::cascade::cascade_after_symbol_save(
         &adapter,
         sym_uuid,
         "1.0.2",

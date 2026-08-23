@@ -24,12 +24,12 @@
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
-use signex_types::schematic::{ChildSheet, FillType, Point, SchematicSheet};
+use oxide_types::schematic::{ChildSheet, FillType, Point, SchematicSheet};
 use uuid::Uuid;
 
 use crate::app::Signex;
 use crate::app::state::{DocumentState, LoadedProject};
-use signex_types::project::{ProjectData, SheetEntry};
+use oxide_types::project::{ProjectData, SheetEntry};
 
 fn child_ref(filename: &str) -> ChildSheet {
     ChildSheet {
@@ -79,7 +79,7 @@ fn schematic(children: &[&str]) -> SchematicSheet {
 /// you on the board — missing components. `net_name` is unqualified in the
 /// project netlist because the label is `Global`.
 pub(crate) fn sheet_with_net(reference: &str, net_name: &str, children: &[&str]) -> SchematicSheet {
-    use signex_types::schematic::{
+    use oxide_types::schematic::{
         HAlign, Label, LabelType, LibPin, LibSymbol, Pin, PinDirection, PinShapeStyle, Symbol,
         VAlign, Wire,
     };
@@ -172,7 +172,7 @@ pub(crate) fn sheet_with_net(reference: &str, net_name: &str, children: &[&str])
     sheet
 }
 
-fn net_names(ctx: &signex_output::ExportContext) -> Vec<String> {
+fn net_names(ctx: &oxide_output::ExportContext) -> Vec<String> {
     ctx.netlist
         .as_ref()
         .map(|n| n.nets.iter().map(|net| net.name.clone()).collect())
@@ -181,7 +181,7 @@ fn net_names(ctx: &signex_output::ExportContext) -> Vec<String> {
 
 /// Every component reference the exported netlist carries a terminal for —
 /// what a dropped subtree costs on the board.
-fn netlist_references(ctx: &signex_output::ExportContext) -> Vec<String> {
+fn netlist_references(ctx: &oxide_output::ExportContext) -> Vec<String> {
     let mut refs: Vec<String> = ctx
         .netlist
         .iter()
@@ -239,18 +239,18 @@ fn open(ds: &mut DocumentState, path: &Path, children: &[&str]) {
 }
 
 pub(crate) fn open_with(ds: &mut DocumentState, path: &Path, sheet: SchematicSheet) {
-    let engine = signex_engine::Engine::new(sheet).expect("engine");
+    let engine = oxide_engine::Engine::new(sheet).expect("engine");
     ds.engines.insert(path.to_path_buf(), engine);
 }
 
-fn page_paths(ctx: &signex_output::ExportContext) -> Vec<PathBuf> {
+fn page_paths(ctx: &oxide_output::ExportContext) -> Vec<PathBuf> {
     let mut paths: Vec<PathBuf> = ctx.sheets.iter().map(|s| s.path.clone()).collect();
     paths.sort();
     paths
 }
 
 /// The context alone, for the cases that do not care about stitch issues.
-fn context(ds: &DocumentState) -> signex_output::ExportContext {
+fn context(ds: &DocumentState) -> oxide_output::ExportContext {
     super::build_export_scope(ds).expect("context").0
 }
 
@@ -369,10 +369,10 @@ fn a_child_only_on_disk_is_stitched_without_being_opened() {
     // Same completeness requirement one step further out: the child is neither
     // in `data.sheets` nor open as a tab, but it is sitting next to its parent
     // on disk. `MissingChild` must mean *missing*, not merely *unopened*.
-    let dir = std::env::temp_dir().join(format!("signex-export-disk-{}", Uuid::new_v4()));
+    let dir = std::env::temp_dir().join(format!("oxide-export-disk-{}", Uuid::new_v4()));
     std::fs::create_dir_all(&dir).expect("tempdir");
     let child_text =
-        signex_types::format::SnxSchematic::new(sheet_with_net("R_DISK", "ON_DISK_NET", &[]))
+        oxide_types::format::SnxSchematic::new(sheet_with_net("R_DISK", "ON_DISK_NET", &[]))
             .write_string()
             .expect("serialize child");
     std::fs::write(dir.join("child.snxsch"), child_text).expect("write child");
@@ -553,7 +553,7 @@ fn diagnostic_count(marker: &str) -> usize {
 /// A project whose root references `missing` — a child that is neither open
 /// nor on disk. The one case that is a *genuine* `MissingChild`.
 fn app_with_missing_child(missing: &str) -> Signex {
-    let dir = std::env::temp_dir().join(format!("signex-export-missing-{}", Uuid::new_v4()));
+    let dir = std::env::temp_dir().join(format!("oxide-export-missing-{}", Uuid::new_v4()));
     let mut app = app_workspace(&dir.to_string_lossy(), &["top.snxsch"]);
     let top = dir.join("top.snxsch");
     open_with(
@@ -575,7 +575,7 @@ fn netlist_export_refuses_to_write_an_incomplete_netlist() {
     // the refusal is still the default — NOTHING reaches disk until the user
     // acts, and the prompt (not a silent write) is what the default raises.
     let mut app = app_with_missing_child("gone-net.snxsch");
-    let out = std::env::temp_dir().join(format!("signex-refuse-{}.net", Uuid::new_v4()));
+    let out = std::env::temp_dir().join(format!("oxide-refuse-{}.net", Uuid::new_v4()));
 
     let _ = app.handle_export_netlist_finished(Ok(out.clone()));
 
@@ -612,7 +612,7 @@ fn export_anyway_writes_a_partial_netlist_with_an_incomplete_header() {
     // header comment naming the omitted page — not only in the dismissed
     // dialog, so a downstream PCB import can see the netlist is partial.
     let mut app = app_with_missing_child("gone-anyway.snxsch");
-    let out = std::env::temp_dir().join(format!("signex-anyway-{}.net", Uuid::new_v4()));
+    let out = std::env::temp_dir().join(format!("oxide-anyway-{}.net", Uuid::new_v4()));
 
     // Default path raises the prompt; nothing is written yet.
     let _ = app.handle_export_netlist_finished(Ok(out.clone()));
@@ -660,7 +660,7 @@ fn export_anyway_writes_from_the_prompt_snapshot_not_a_fresh_re_derivation() {
     // the partial .net with its header; a re-derivation would find no active
     // schematic and write nothing.
     let mut app = app_with_missing_child("gone-snapshot.snxsch");
-    let out = std::env::temp_dir().join(format!("signex-snapshot-{}.net", Uuid::new_v4()));
+    let out = std::env::temp_dir().join(format!("oxide-snapshot-{}.net", Uuid::new_v4()));
 
     let _ = app.handle_export_netlist_finished(Ok(out.clone()));
     assert!(
@@ -702,7 +702,7 @@ fn cancel_on_the_incomplete_prompt_writes_nothing() {
     // #431: "Cancel" clears the prompt and leaves the disk untouched — the
     // refuse-by-default guarantee.
     let mut app = app_with_missing_child("gone-cancel.snxsch");
-    let out = std::env::temp_dir().join(format!("signex-cancel-{}.net", Uuid::new_v4()));
+    let out = std::env::temp_dir().join(format!("oxide-cancel-{}.net", Uuid::new_v4()));
 
     let _ = app.handle_export_netlist_finished(Ok(out.clone()));
     assert!(
@@ -730,7 +730,7 @@ fn pdf_export_proceeds_and_warns_once_per_user_action() {
     let _ = crate::diagnostics::init_logging();
     let before = diagnostic_count(&marker);
     let mut app = app_with_missing_child(&marker);
-    let out = std::env::temp_dir().join(format!("signex-partial-{}.pdf", Uuid::new_v4()));
+    let out = std::env::temp_dir().join(format!("oxide-partial-{}.pdf", Uuid::new_v4()));
 
     let _ = app.handle_export_pdf_finished(Ok(out.clone()));
 
@@ -825,7 +825,7 @@ fn a_flat_projects_second_page_no_longer_vanishes_from_the_netlist() {
 
     // …and the machine-consumed deliverable is therefore written, not held
     // behind the incomplete-export prompt.
-    let out = std::env::temp_dir().join(format!("signex-flat-{}.net", Uuid::new_v4()));
+    let out = std::env::temp_dir().join(format!("oxide-flat-{}.net", Uuid::new_v4()));
     let _ = app.handle_export_netlist_finished(Ok(out.clone()));
 
     assert!(
@@ -872,7 +872,7 @@ fn a_page_the_root_does_reach_is_not_reported_as_a_shortfall() {
 fn a_child_that_exists_but_will_not_parse_is_not_called_missing() {
     // "could not be found" sends the user hunting for a file that is sitting
     // right where it should be. The refusal is correct; the diagnosis was not.
-    let dir = std::env::temp_dir().join(format!("signex-export-corrupt-{}", Uuid::new_v4()));
+    let dir = std::env::temp_dir().join(format!("oxide-export-corrupt-{}", Uuid::new_v4()));
     std::fs::create_dir_all(&dir).expect("tempdir");
     std::fs::write(dir.join("child.snxsch"), "(this is not a schematic").expect("write child");
 

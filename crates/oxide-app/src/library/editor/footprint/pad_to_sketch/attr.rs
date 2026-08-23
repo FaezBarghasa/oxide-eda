@@ -2,16 +2,16 @@
 //! types, plus the small string / plane helpers shared by the mint
 //! and solve modules.
 
-use signex_library::primitive::footprint::{
+use oxide_library::primitive::footprint::{
     Footprint, PadKind as LibPadKind, PadShape as LibPadShape,
 };
-use signex_sketch::attr::{
+use oxide_sketch::attr::{
     ChamferedCorners as SkChamferedCorners, CustomPadShape, PadAttr, PadKind as SkPadKind,
     PadShape as SkPadShape, PadSide, PasteAperturePattern,
 };
-use signex_sketch::id::SketchEntityId;
-use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
-use signex_sketch::sketch::SketchData;
+use oxide_sketch::id::SketchEntityId;
+use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
+use oxide_sketch::sketch::SketchData;
 
 use super::super::state::EditorPad;
 
@@ -52,7 +52,7 @@ pub fn mirror_pad_attrs_into_sketch(pads: &[EditorPad], sketch: &mut SketchData)
     }
 }
 
-/// `signex_bake::pad` reads `PadAttr::shape`, so the sketch copy of
+/// `oxide_bake::pad` reads `PadAttr::shape`, so the sketch copy of
 /// the shape IS what gets baked. Leaving it out of the mirror let a
 /// flip swap the editor pad's chamfer corners while the sketch — and
 /// therefore the bake — kept the pre-flip ones: two representations,
@@ -79,8 +79,8 @@ fn mirror_shape(current: &mut SkPadShape, shape: &LibPadShape) {
 ///
 /// The discriminator is "is this a bare numeric literal", NOT "does it
 /// start with `=`". The `=` prefix is OPTIONAL throughout this
-/// codebase — `signex_sketch::solver::residual::resolve_dim` strips it
-/// before parsing and `signex_bake::pad::rotation_deg` does the same —
+/// codebase — `oxide_sketch::solver::residual::resolve_dim` strips it
+/// before parsing and `oxide_bake::pad::rotation_deg` does the same —
 /// so a bare `leg_angle` or `apex_angle * 2` is a fully valid authored
 /// parameter binding. Keying on `=` would destroy exactly those, with
 /// no warning and no undo entry for the sketch attribute.
@@ -139,7 +139,7 @@ pub(super) fn pad_attr_from_editor_pad(pad: &EditorPad) -> PadAttr {
     // sketch round-trip. Plated/NPT semantics follow the pad kind.
     let drill = pad
         .drill_diameter_mm
-        .map(|d| signex_sketch::attr::DrillSpec {
+        .map(|d| oxide_sketch::attr::DrillSpec {
             diameter_expr: format!("{}mm", format_f64(d)),
             slot_length_expr: None,
             plated: !matches!(pad.kind, LibPadKind::NptHole),

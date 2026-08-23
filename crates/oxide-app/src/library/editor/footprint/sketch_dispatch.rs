@@ -2,7 +2,7 @@
 //!
 //! Applies a [`SketchEdit`] to the footprint's `Option<SketchData>`,
 //! then runs the LM solver, captures DOF colouring, and (Phase 7.3)
-//! invokes `signex_bake` to regenerate `Footprint::pads` from the
+//! invokes `oxide_bake` to regenerate `Footprint::pads` from the
 //! solved sketch.
 //!
 //! Design:
@@ -18,9 +18,9 @@
 //!   surface them in `state.solve_warnings`; nothing is silently
 //!   swallowed.
 
-use signex_library::primitive::footprint::Footprint;
-use signex_sketch::id::SketchEntityId;
-use signex_sketch::{SketchData, SketchError, parameter};
+use oxide_library::primitive::footprint::Footprint;
+use oxide_sketch::id::SketchEntityId;
+use oxide_sketch::{SketchData, SketchError, parameter};
 
 use super::sketch_mode::SketchEdit;
 use super::state::FootprintEditorState;
@@ -100,13 +100,13 @@ pub fn apply_sketch_role_with_warnings(
 /// Visible to tests so they can assert the shape of the resulting
 /// Entity without spinning up a solve.
 pub fn set_entity_role(footprint: &mut Footprint, id: SketchEntityId, role: RoleTag) {
-    use signex_sketch::attr::{
+    use oxide_sketch::attr::{
         BoardCutoutAttr, CourtyardAttr, KeepoutAttr, KeepoutKinds, MaskExcludeAttr,
         MaskOpeningAttr, PadAttr, PadKind, PadShape, PadSide, PasteApertureAttr,
         PasteAperturePattern, PourAttr, SilkAttr, ThermalRelief,
     };
-    use signex_sketch::entity::EntityKind;
-    use signex_types::layer::SignexLayer;
+    use oxide_sketch::entity::EntityKind;
+    use oxide_types::layer::OxideLayer;
 
     let sketch = match footprint.sketch.as_mut() {
         Some(s) => s,
@@ -173,12 +173,12 @@ pub fn set_entity_role(footprint: &mut Footprint, id: SketchEntityId, role: Role
         }
         RoleTag::SilkTop => {
             entity.silk = Some(SilkAttr {
-                layer: SignexLayer::TopSilk,
+                layer: OxideLayer::TopSilk,
             });
         }
         RoleTag::SilkBottom => {
             entity.silk = Some(SilkAttr {
-                layer: SignexLayer::BottomSilk,
+                layer: OxideLayer::BottomSilk,
             });
         }
         RoleTag::Courtyard => {
@@ -186,7 +186,7 @@ pub fn set_entity_role(footprint: &mut Footprint, id: SketchEntityId, role: Role
         }
         RoleTag::Keepout => {
             entity.keepout = Some(KeepoutAttr {
-                layer: SignexLayer::TopCopper,
+                layer: OxideLayer::TopCopper,
                 kinds: KeepoutKinds::NO_ROUTING,
             });
         }
@@ -198,27 +198,27 @@ pub fn set_entity_role(footprint: &mut Footprint, id: SketchEntityId, role: Role
         }
         RoleTag::MaskOpeningTop => {
             entity.mask_opening = Some(MaskOpeningAttr {
-                layer: SignexLayer::TopSolderMask,
+                layer: OxideLayer::TopSolderMask,
             });
         }
         RoleTag::MaskOpeningBottom => {
             entity.mask_opening = Some(MaskOpeningAttr {
-                layer: SignexLayer::BottomSolderMask,
+                layer: OxideLayer::BottomSolderMask,
             });
         }
         RoleTag::MaskExcludeTop => {
             entity.mask_exclude = Some(MaskExcludeAttr {
-                layer: SignexLayer::TopSolderMask,
+                layer: OxideLayer::TopSolderMask,
             });
         }
         RoleTag::MaskExcludeBottom => {
             entity.mask_exclude = Some(MaskExcludeAttr {
-                layer: SignexLayer::BottomSolderMask,
+                layer: OxideLayer::BottomSolderMask,
             });
         }
         RoleTag::PourTop => {
             entity.pour = Some(PourAttr {
-                layer: SignexLayer::TopCopper,
+                layer: OxideLayer::TopCopper,
                 net: None,
                 fill_type: Default::default(),
                 thermal_relief: ThermalRelief::default(),
@@ -229,7 +229,7 @@ pub fn set_entity_role(footprint: &mut Footprint, id: SketchEntityId, role: Role
         }
         RoleTag::PourBottom => {
             entity.pour = Some(PourAttr {
-                layer: SignexLayer::BottomCopper,
+                layer: OxideLayer::BottomCopper,
                 net: None,
                 fill_type: Default::default(),
                 thermal_relief: ThermalRelief::default(),
@@ -240,12 +240,12 @@ pub fn set_entity_role(footprint: &mut Footprint, id: SketchEntityId, role: Role
         }
         RoleTag::PasteApertureTop => {
             entity.paste_aperture = Some(PasteApertureAttr {
-                layer: SignexLayer::TopPaste,
+                layer: OxideLayer::TopPaste,
             });
         }
         RoleTag::PasteApertureBottom => {
             entity.paste_aperture = Some(PasteApertureAttr {
-                layer: SignexLayer::BottomPaste,
+                layer: OxideLayer::BottomPaste,
             });
         }
     }
@@ -255,16 +255,16 @@ pub fn set_entity_role(footprint: &mut Footprint, id: SketchEntityId, role: Role
 /// `*Attr` slot is populated. Returns `RoleTag::Unassigned` when no
 /// role attr is set (the default for fresh entities). Used by the
 /// inspector to highlight the active dropdown value.
-pub fn current_role_of(entity: &signex_sketch::entity::Entity) -> RoleTag {
-    use signex_types::layer::SignexLayer;
+pub fn current_role_of(entity: &oxide_sketch::entity::Entity) -> RoleTag {
+    use oxide_types::layer::OxideLayer;
 
     if entity.pad.is_some() {
         return RoleTag::Pad;
     }
     if let Some(silk) = entity.silk.as_ref() {
         return match silk.layer {
-            SignexLayer::TopSilk => RoleTag::SilkTop,
-            SignexLayer::BottomSilk => RoleTag::SilkBottom,
+            OxideLayer::TopSilk => RoleTag::SilkTop,
+            OxideLayer::BottomSilk => RoleTag::SilkBottom,
             _ => RoleTag::SilkTop,
         };
     }
@@ -279,29 +279,29 @@ pub fn current_role_of(entity: &signex_sketch::entity::Entity) -> RoleTag {
     }
     if let Some(m) = entity.mask_opening.as_ref() {
         return match m.layer {
-            SignexLayer::TopSolderMask => RoleTag::MaskOpeningTop,
-            SignexLayer::BottomSolderMask => RoleTag::MaskOpeningBottom,
+            OxideLayer::TopSolderMask => RoleTag::MaskOpeningTop,
+            OxideLayer::BottomSolderMask => RoleTag::MaskOpeningBottom,
             _ => RoleTag::MaskOpeningTop,
         };
     }
     if let Some(m) = entity.mask_exclude.as_ref() {
         return match m.layer {
-            SignexLayer::TopSolderMask => RoleTag::MaskExcludeTop,
-            SignexLayer::BottomSolderMask => RoleTag::MaskExcludeBottom,
+            OxideLayer::TopSolderMask => RoleTag::MaskExcludeTop,
+            OxideLayer::BottomSolderMask => RoleTag::MaskExcludeBottom,
             _ => RoleTag::MaskExcludeTop,
         };
     }
     if let Some(p) = entity.pour.as_ref() {
         return match p.layer {
-            SignexLayer::TopCopper => RoleTag::PourTop,
-            SignexLayer::BottomCopper => RoleTag::PourBottom,
+            OxideLayer::TopCopper => RoleTag::PourTop,
+            OxideLayer::BottomCopper => RoleTag::PourBottom,
             _ => RoleTag::PourTop,
         };
     }
     if let Some(p) = entity.paste_aperture.as_ref() {
         return match p.layer {
-            SignexLayer::TopPaste => RoleTag::PasteApertureTop,
-            SignexLayer::BottomPaste => RoleTag::PasteApertureBottom,
+            OxideLayer::TopPaste => RoleTag::PasteApertureTop,
+            OxideLayer::BottomPaste => RoleTag::PasteApertureBottom,
             _ => RoleTag::PasteApertureTop,
         };
     }
@@ -329,7 +329,7 @@ fn apply_edit_inner(footprint: &mut Footprint, edit: SketchEdit) {
         SketchEdit::MovePoint { id, dx, dy } => {
             for ent in sketch.entities.iter_mut() {
                 if ent.id == id
-                    && let signex_sketch::entity::EntityKind::Point { x, y } = &mut ent.kind
+                    && let oxide_sketch::entity::EntityKind::Point { x, y } = &mut ent.kind
                 {
                     *x += dx;
                     *y += dy;
@@ -384,15 +384,15 @@ fn solve_and_bake(
             // intentional.
             if !sketch.entities.is_empty() {
                 // Pads + array expansions.
-                let mut baked: Vec<signex_library::primitive::footprint::Pad> = Vec::new();
-                signex_bake::bake_pads(
+                let mut baked: Vec<oxide_library::primitive::footprint::Pad> = Vec::new();
+                oxide_bake::bake_pads(
                     sketch,
                     &out,
                     &resolved,
                     &mut baked,
                     &mut state.solve_warnings,
                 )?;
-                signex_bake::bake_arrays(
+                oxide_bake::bake_arrays(
                     sketch,
                     &out,
                     &resolved,
@@ -408,7 +408,7 @@ fn solve_and_bake(
                 // of truth for any geometry it produces.
                 let mut silk_f = Vec::new();
                 let mut silk_b = Vec::new();
-                signex_bake::bake_silk(
+                oxide_bake::bake_silk(
                     sketch,
                     &out,
                     &mut silk_f,
@@ -422,8 +422,8 @@ fn solve_and_bake(
                     footprint.silk_b = silk_b;
                 }
 
-                let mut courtyard = signex_library::primitive::footprint::Polygon::default();
-                signex_bake::bake_courtyard(
+                let mut courtyard = oxide_library::primitive::footprint::Polygon::default();
+                oxide_bake::bake_courtyard(
                     sketch,
                     &out,
                     &mut courtyard,
@@ -440,40 +440,40 @@ fn solve_and_bake(
                 let mut keepouts = Vec::new();
                 let mut cutouts = Vec::new();
                 let mut v_scores = Vec::new();
-                signex_bake::bake_mask_openings(
+                oxide_bake::bake_mask_openings(
                     sketch,
                     &out,
                     &mut mask_openings,
                     &mut state.solve_warnings,
                 )?;
-                signex_bake::bake_mask_excludes(
+                oxide_bake::bake_mask_excludes(
                     sketch,
                     &out,
                     &mut mask_excludes,
                     &mut state.solve_warnings,
                 )?;
-                signex_bake::bake_paste_apertures(
+                oxide_bake::bake_paste_apertures(
                     sketch,
                     &out,
                     &mut paste_apertures,
                     &mut state.solve_warnings,
                 )?;
-                signex_bake::bake_pours(
+                oxide_bake::bake_pours(
                     sketch,
                     &out,
                     &resolved,
                     &mut pours,
                     &mut state.solve_warnings,
                 )?;
-                signex_bake::bake_keepouts(sketch, &out, &mut keepouts, &mut state.solve_warnings)?;
-                signex_bake::bake_cutouts(
+                oxide_bake::bake_keepouts(sketch, &out, &mut keepouts, &mut state.solve_warnings)?;
+                oxide_bake::bake_cutouts(
                     sketch,
                     &out,
                     &resolved,
                     &mut cutouts,
                     &mut state.solve_warnings,
                 )?;
-                signex_bake::bake_v_scores(
+                oxide_bake::bake_v_scores(
                     sketch,
                     &out,
                     &resolved,
@@ -504,7 +504,7 @@ fn solve_and_bake(
 
                 // v0.14.1 — 3D extrude profile from a BodyTop plane
                 // enriches the existing body_3d.outline + offset_z_mm.
-                signex_bake::bake_body3d(
+                oxide_bake::bake_body3d(
                     sketch,
                     &out,
                     &resolved,

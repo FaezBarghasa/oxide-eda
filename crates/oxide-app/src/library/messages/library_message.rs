@@ -3,7 +3,7 @@
 
 use std::path::PathBuf;
 
-use signex_library::{ComponentClass, PrimitiveKind, RowId, UseSite};
+use oxide_library::{ComponentClass, PrimitiveKind, RowId, UseSite};
 
 use super::super::state::{EditorAddress, PrimitivePickerTarget};
 use super::{

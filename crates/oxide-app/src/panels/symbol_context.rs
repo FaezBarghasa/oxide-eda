@@ -21,7 +21,7 @@ pub struct SymbolEditorPanelContext {
     pub symbol_description: String,
     /// Altium "Component Type" — `Standard / Mechanical / Graphical
     /// / Net Tie / Standard (No BOM) / Jumper`.
-    pub symbol_component_type: signex_library::ComponentType,
+    pub symbol_component_type: oxide_library::ComponentType,
     /// Altium "Mirrored" toggle.
     pub symbol_mirrored: bool,
     /// Optional per-symbol Local Colors override (Fills / Lines /
@@ -86,7 +86,7 @@ pub struct SymbolDisplayOptions {
     pub sheet_color: SheetColor,
     pub grid_visible: bool,
     pub grid_size_mm: f32,
-    pub unit: signex_types::coord::Unit,
+    pub unit: oxide_types::coord::Unit,
     /// Display name of the containing `.snxlib` (or the file stem
     /// when the symbol lives outside any mounted library).
     pub library_name: String,
@@ -102,7 +102,7 @@ impl Default for SymbolDisplayOptions {
             sheet_color: SheetColor::default(),
             grid_visible: true,
             grid_size_mm: 2.54,
-            unit: signex_types::coord::Unit::Mm,
+            unit: oxide_types::coord::Unit::Mm,
             library_name: "(lone file)".to_string(),
             library_symbol_count: None,
         }
@@ -132,10 +132,10 @@ pub struct SymbolPinDetails {
     pub propagation_delay_ns: Option<f64>,
     pub designator_visible: bool,
     pub name_visible: bool,
-    pub inside_symbol: signex_library::PinSymbolKind,
-    pub inside_edge_symbol: signex_library::PinSymbolKind,
-    pub outside_edge_symbol: signex_library::PinSymbolKind,
-    pub outside_symbol: signex_library::PinSymbolKind,
+    pub inside_symbol: oxide_library::PinSymbolKind,
+    pub inside_edge_symbol: oxide_library::PinSymbolKind,
+    pub outside_edge_symbol: oxide_library::PinSymbolKind,
+    pub outside_symbol: oxide_library::PinSymbolKind,
     pub hidden: bool,
     pub locked: bool,
     /// Multi-part scoping: 1 = single-part default, 0 = "Part Zero"
@@ -187,7 +187,7 @@ pub struct GraphicSummary {
 }
 
 /// Per-variant geometry for [`GraphicSummary`] — mirrors
-/// `signex_library::SymbolGraphicKind` so the panel can render each
+/// `oxide_library::SymbolGraphicKind` so the panel can render each
 /// shape's editable fields without depending on the library type.
 #[derive(Debug, Clone, PartialEq)]
 pub enum GraphicKindSummary {

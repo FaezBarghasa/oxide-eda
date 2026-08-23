@@ -29,17 +29,17 @@
 use std::collections::BTreeMap;
 use std::collections::HashMap;
 
-use signex_library::primitive::footprint::{Body3D, Polygon};
-use signex_sketch::SketchError;
-use signex_sketch::entity::EntityKind;
-use signex_sketch::expr::ast::ExprNode;
-use signex_sketch::expr::eval::{EvalContext, eval};
-use signex_sketch::expr::parse::parse;
-use signex_sketch::id::SketchEntityId;
-use signex_sketch::plane::{PlaneId, PlaneKind};
-use signex_sketch::sketch::SketchData;
-use signex_sketch::solver::FullSolveOutput;
-use signex_sketch::unit::Quantity;
+use oxide_library::primitive::footprint::{Body3D, Polygon};
+use oxide_sketch::SketchError;
+use oxide_sketch::entity::EntityKind;
+use oxide_sketch::expr::ast::ExprNode;
+use oxide_sketch::expr::eval::{EvalContext, eval};
+use oxide_sketch::expr::parse::parse;
+use oxide_sketch::id::SketchEntityId;
+use oxide_sketch::plane::{PlaneId, PlaneKind};
+use oxide_sketch::sketch::SketchData;
+use oxide_sketch::solver::FullSolveOutput;
+use oxide_sketch::unit::Quantity;
 
 use crate::profile::{TraceError, trace_closed_profile};
 
@@ -50,7 +50,7 @@ pub fn bake_body3d(
     body_3d: &mut Body3D,
     warnings: &mut Vec<String>,
 ) -> Result<(), SketchError> {
-    let body_top_planes: Vec<&signex_sketch::plane::Plane> = sketch
+    let body_top_planes: Vec<&oxide_sketch::plane::Plane> = sketch
         .planes
         .iter()
         .filter(|p| matches!(p.kind, PlaneKind::BodyTop { .. }))
@@ -154,12 +154,12 @@ fn eval_mm(expr: &str, ctx: &EvalContext) -> Result<f64, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_library::primitive::footprint::Body3D;
-    use signex_sketch::entity::Entity;
-    use signex_sketch::id::SketchEntityId;
-    use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
-    use signex_sketch::solver::Solver;
-    use signex_sketch::solver::residual::ResolvedParams;
+    use oxide_library::primitive::footprint::Body3D;
+    use oxide_sketch::entity::Entity;
+    use oxide_sketch::id::SketchEntityId;
+    use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
+    use oxide_sketch::solver::Solver;
+    use oxide_sketch::solver::residual::ResolvedParams;
 
     fn solve(sketch: &SketchData) -> FullSolveOutput {
         Solver::default()

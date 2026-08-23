@@ -8,8 +8,8 @@
 
 use std::path::PathBuf;
 
-use signex_library::adapters::local_git::LibraryInitOptions;
-use signex_library::{
+use oxide_library::adapters::local_git::LibraryInitOptions;
+use oxide_library::{
     ComponentClass, ComponentRow, ComponentSummary, DatasheetRef, FORMAT_TOKEN, InternalPn,
     LibraryError, LibrarySection, LifecycleState, LocalGitAdapter, ManufacturerPart, ParamMap,
     PlmReserved, PrimitiveRef, RowId, SnxlibManifest, UsersConfig, WorkflowConfig,
@@ -20,7 +20,7 @@ use signex_library::{
 // shape. The remaining sub-stages (Stage 13 workflow mode, Stage 14
 // versioning) will introduce richer manifest fields; keeping the
 // imports tight here keeps the v0.9-snxlib-as-file refactor auditable.
-use signex_types::project::{LibraryEntry, LibraryEntryKind, ProjectData};
+use oxide_types::project::{LibraryEntry, LibraryEntryKind, ProjectData};
 use uuid::Uuid;
 
 use super::state::LibraryState;
@@ -172,9 +172,9 @@ pub fn materialize_pending_library(
     }
 
     let stem = spec.display_name.clone();
-    let seed_classes: Vec<signex_library::ClassEntry> = crate::fonts::read_component_classes_pref()
+    let seed_classes: Vec<oxide_library::ClassEntry> = crate::fonts::read_component_classes_pref()
         .into_iter()
-        .map(|e| signex_library::ClassEntry {
+        .map(|e| oxide_library::ClassEntry {
             key: e.key,
             label: e.label,
         })
@@ -308,9 +308,9 @@ pub fn create_library_at(
     // start with the user's preferred taxonomy. The user can edit
     // the registry per-library afterwards via the Library
     // Properties pane (which then writes back to this `.snxlib`).
-    let seed_classes: Vec<signex_library::ClassEntry> = crate::fonts::read_component_classes_pref()
+    let seed_classes: Vec<oxide_library::ClassEntry> = crate::fonts::read_component_classes_pref()
         .into_iter()
-        .map(|e| signex_library::ClassEntry {
+        .map(|e| oxide_library::ClassEntry {
             key: e.key,
             label: e.label,
         })
@@ -677,7 +677,7 @@ pub fn list_components_filtered(
 
 /// Stub: emit `tracing::info!` with the use-site coordinates the
 /// Where-Used handler hands back.
-pub fn jump_to_use_site(site: &signex_library::UseSite) {
+pub fn jump_to_use_site(site: &oxide_library::UseSite) {
     // `UseSite::version_pinned` is gone in the DBLib model — past
     // versions of a row are read from `git log` (LocalGit) or the
     // audit trail (Database) rather than carried inline. The handler

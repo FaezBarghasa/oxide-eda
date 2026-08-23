@@ -118,7 +118,7 @@ impl LibraryState {
         let adapter = LocalGitAdapter::open(&root)?;
         // `manifest()` is on the LibraryAdapter trait; bring it into scope
         // via the trait import here so we don't widen the public surface.
-        use signex_library::LibraryAdapter as _;
+        use oxide_library::LibraryAdapter as _;
         let manifest = adapter.manifest();
         let display_name = manifest.library.name.clone();
         let library_id = manifest.library.library_id;

@@ -114,7 +114,7 @@ pub(crate) fn project_owning_sheet<'a>(
 mod tests {
     use super::*;
     use crate::app::state::ProjectId;
-    use signex_types::project::{ProjectData, SheetEntry};
+    use oxide_types::project::{ProjectData, SheetEntry};
 
     fn project(id: u32, dir: &str, filenames: &[&str]) -> LoadedProject {
         LoadedProject {

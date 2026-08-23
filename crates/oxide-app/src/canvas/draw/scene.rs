@@ -80,7 +80,7 @@ impl SchematicCanvas<'_> {
             && !self.selected.is_empty()
             && let Some(snapshot) = effective_snapshot
         {
-            use signex_types::schematic::SelectedKind;
+            use oxide_types::schematic::SelectedKind;
             let mut xs: Vec<f32> = Vec::new();
             let mut ys: Vec<f32> = Vec::new();
             let mut push_pt = |x: f64, y: f64, r: f32| {
@@ -146,7 +146,7 @@ impl SchematicCanvas<'_> {
                         }
                     }
                     SelectedKind::Drawing => {
-                        use signex_types::schematic::SchDrawing;
+                        use oxide_types::schematic::SchDrawing;
                         if let Some(d) = snapshot.drawings.iter().find(|d| {
                             let u = match d {
                                 SchDrawing::Line { uuid, .. }

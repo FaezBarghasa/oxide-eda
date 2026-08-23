@@ -129,7 +129,7 @@ pub(in crate::panels) fn view_child_sheet_properties<'a>(
 fn child_sheet_color_row<'a>(
     label: &'a str,
     sheet_id: uuid::Uuid,
-    current: Option<signex_types::schematic::StrokeColor>,
+    current: Option<oxide_types::schematic::StrokeColor>,
     show_picker: bool,
     show_advanced: bool,
     palette: PanelPalette,

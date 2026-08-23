@@ -20,8 +20,8 @@ mod support;
 
 use std::path::PathBuf;
 
-use signex_app::library::mount::{MountIntent, MountRequest, prepare_mount};
-use signex_app::library::state::LibraryState;
+use oxide_app::library::mount::{MountIntent, MountRequest, prepare_mount};
+use oxide_app::library::state::LibraryState;
 
 use support::{Scale, generate_library};
 
@@ -35,7 +35,7 @@ const FOOTPRINTS: usize = 10;
 fn fixture(tag: &'static str) -> (tempfile::TempDir, PathBuf) {
     let scale = Scale::new(tag, SYMBOLS, FOOTPRINTS);
     let tmp = tempfile::Builder::new()
-        .prefix("signex-async-mount-")
+        .prefix("oxide-async-mount-")
         .tempdir()
         .expect("tempdir");
     // `generate_library` returns the `.snxlib` FILE path, which is

@@ -16,8 +16,8 @@ use super::ToolClickCtx;
 use crate::library::editor::footprint::sketch_dispatch::apply_sketch_edit_with_warnings;
 use crate::library::editor::footprint::sketch_mode::SketchEdit;
 use crate::library::editor::footprint::state::{PlacementInputKind, SketchTool, ToolPending};
-use signex_sketch::entity::{Entity, EntityKind};
-use signex_sketch::id::SketchEntityId;
+use oxide_sketch::entity::{Entity, EntityKind};
+use oxide_sketch::id::SketchEntityId;
 
 pub(super) fn apply(
     editor: &mut crate::app::FootprintEditorState,
@@ -49,8 +49,8 @@ pub(super) fn apply(
 // radius (Circle's `radius` is a literal, not a referenced Point, so it
 // round-trips unchanged).
 fn mirror(editor: &mut crate::app::FootprintEditorState, ctx: &ToolClickCtx) {
-    use signex_sketch::constraint::{Constraint, ConstraintKind};
-    use signex_sketch::id::ConstraintId;
+    use oxide_sketch::constraint::{Constraint, ConstraintKind};
+    use oxide_sketch::id::ConstraintId;
 
     let line_id = match editor.state.selected_sketch {
         Some(id) => id,
@@ -376,8 +376,8 @@ fn offset_line(
     end: SketchEntityId,
     dist: f64,
 ) {
-    use signex_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
-    use signex_sketch::id::ConstraintId;
+    use oxide_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
+    use oxide_sketch::id::ConstraintId;
 
     let pos_of = |id: SketchEntityId| -> Option<(f64, f64)> {
         editor
@@ -494,8 +494,8 @@ fn offset_circle(
     radius: f64,
     dist: f64,
 ) {
-    use signex_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
-    use signex_sketch::id::ConstraintId;
+    use oxide_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
+    use oxide_sketch::id::ConstraintId;
 
     let pos_of = |id: SketchEntityId| -> Option<(f64, f64)> {
         editor
@@ -598,8 +598,8 @@ fn offset_arc(
     sweep_ccw: bool,
     dist: f64,
 ) {
-    use signex_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
-    use signex_sketch::id::ConstraintId;
+    use oxide_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
+    use oxide_sketch::id::ConstraintId;
 
     let pos_of = |id: SketchEntityId| -> Option<(f64, f64)> {
         editor
@@ -694,7 +694,7 @@ fn offset_arc(
 // sequential numbering. User edits via JSON until a Properties sub-form
 // lands.
 fn rect_pattern(editor: &mut crate::app::FootprintEditorState, ctx: &ToolClickCtx) {
-    use signex_sketch::array::{Array, ArrayId, ArrayKind, NumberingScheme};
+    use oxide_sketch::array::{Array, ArrayId, ArrayKind, NumberingScheme};
     let array = Array {
         id: ArrayId::new(),
         kind: ArrayKind::Grid {
@@ -710,7 +710,7 @@ fn rect_pattern(editor: &mut crate::app::FootprintEditorState, ctx: &ToolClickCt
     let sketch = editor
         .primitive_mut()
         .sketch
-        .get_or_insert_with(signex_sketch::SketchData::default);
+        .get_or_insert_with(oxide_sketch::SketchData::default);
     sketch.arrays.push(array);
     editor.with_parts(|state, primitive| {
         apply_sketch_edit_with_warnings(state, primitive, SketchEdit::ForceRebuild);
@@ -723,7 +723,7 @@ fn rect_pattern(editor: &mut crate::app::FootprintEditorState, ctx: &ToolClickCt
 // right of the click position so the array doesn't all stack on the
 // source. Default count 4, sweep 360°.
 fn circular_pattern(editor: &mut crate::app::FootprintEditorState, ctx: &ToolClickCtx) {
-    use signex_sketch::array::{Array, ArrayId, ArrayKind, NumberingScheme};
+    use oxide_sketch::array::{Array, ArrayId, ArrayKind, NumberingScheme};
     let centre_id = SketchEntityId::new();
     let centre = ctx.flag(Entity::new(
         centre_id,
@@ -750,7 +750,7 @@ fn circular_pattern(editor: &mut crate::app::FootprintEditorState, ctx: &ToolCli
     let sketch = editor
         .primitive_mut()
         .sketch
-        .get_or_insert_with(signex_sketch::SketchData::default);
+        .get_or_insert_with(oxide_sketch::SketchData::default);
     sketch.arrays.push(array);
     editor.with_parts(|state, primitive| {
         apply_sketch_edit_with_warnings(state, primitive, SketchEdit::ForceRebuild);

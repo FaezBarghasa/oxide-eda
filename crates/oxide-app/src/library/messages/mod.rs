@@ -1,7 +1,7 @@
 //! Library subsystem message tree.
 //!
 //! Mirrors the existing `Message` → dispatcher → handler split used across
-//! the rest of `signex-app`. The top-level `LibraryMessage` is folded into
+//! the rest of `oxide-app`. The top-level `LibraryMessage` is folded into
 //! [`crate::app::contracts::Message::Library`]; each sub-enum routes to a
 //! purpose-built handler.
 //!
@@ -11,7 +11,7 @@
 
 use std::path::PathBuf;
 
-use signex_library::{
+use oxide_library::{
     AlternateStatus, BodyShape, ComponentClass, ComponentSummary, DistributorSource,
     LifecycleState, PrimitiveRef, SimKind, SimModel,
 };
@@ -118,7 +118,7 @@ pub enum EditorMsg {
     /// Fire-and-forget save of the active symbol primitive — typically
     /// chained off SaveDraft via the dispatcher. Boxed so the
     /// containing enum stays cheap to clone and propagate.
-    SaveSymbol(uuid::Uuid, Box<signex_library::Symbol>),
+    SaveSymbol(uuid::Uuid, Box<oxide_library::Symbol>),
     // ── Footprint canvas (used by the standalone .snxfpt tab) ──
     /// Namespaced footprint-canvas edit (ADR-0001 D3). The footprint
     /// canvas program emits this; `translate_footprint_canvas_msg`
@@ -127,7 +127,7 @@ pub enum EditorMsg {
     Footprint(FootprintEditorMsg),
     /// Fire-and-forget save of the active footprint primitive. Boxed
     /// so the containing enum stays cheap to clone and propagate.
-    SaveFootprint(uuid::Uuid, Box<signex_library::Footprint>),
+    SaveFootprint(uuid::Uuid, Box<oxide_library::Footprint>),
     /// Body 3D editor pane — set extruded body height (mm).
     SetBodyHeight(f32),
     /// Body 3D editor pane — set body offset above PCB (mm).
@@ -277,7 +277,7 @@ pub enum EditorMsg {
 }
 
 /// Pure-data alias for `ParamKind` so messages don't depend on
-/// `signex_library::ParamKind` at the message layer.
+/// `oxide_library::ParamKind` at the message layer.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ParamKindMsg {
     Text,

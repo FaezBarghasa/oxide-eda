@@ -2,7 +2,7 @@
 use super::*;
 
 mod wire_order;
-use signex_types::schematic::{
+use oxide_types::schematic::{
     Junction, Label, LibPin, LibSymbol, Pin, PinDirection, PinShapeStyle, Symbol, Wire,
 };
 use std::collections::HashMap;
@@ -63,8 +63,8 @@ fn label(text: &str, pos: Point, ty: LabelType) -> Label {
         label_type: ty,
         shape: String::new(),
         font_size: 1.27,
-        justify: signex_types::schematic::HAlign::Left,
-        justify_v: signex_types::schematic::VAlign::Bottom,
+        justify: oxide_types::schematic::HAlign::Left,
+        justify_v: oxide_types::schematic::VAlign::Bottom,
     }
 }
 
@@ -193,7 +193,7 @@ fn pin_on_a_bare_bus_endpoint_forms_no_phantom_net() {
     // A bus is a bundle, never unioned; gating on a bus endpoint used to
     // mint a one-terminal phantom net (D5.4). Now it does not connect.
     let mut sheet = empty_sheet();
-    sheet.buses.push(signex_types::schematic::Bus {
+    sheet.buses.push(oxide_types::schematic::Bus {
         uuid: Uuid::nil(),
         start: pt(0.0, 0.0),
         end: pt(10.0, 0.0),

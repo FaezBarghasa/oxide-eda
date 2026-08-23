@@ -3,7 +3,7 @@
 
 use std::path::Path;
 
-use signex_types::schematic::{SchematicSheet, Symbol};
+use oxide_types::schematic::{SchematicSheet, Symbol};
 
 /// One row of the project-wide proposed change list.
 #[derive(Debug, Clone)]

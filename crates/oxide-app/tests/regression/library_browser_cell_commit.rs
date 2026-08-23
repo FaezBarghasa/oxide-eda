@@ -14,14 +14,14 @@
 
 use std::path::PathBuf;
 
-use signex_app::app::{Message, Signex};
-use signex_app::library::messages::LibraryMessage;
-use signex_app::library::state::LibraryBrowserState;
-use signex_library::adapter::LibraryAdapter;
-use signex_library::adapters::local_git::{LibraryInitOptions, LocalGitAdapter};
-use signex_library::library_file::{FORMAT_TOKEN, LibrarySection, SnxlibManifest};
-use signex_library::manifest::{LibraryMode, UsersConfig, WorkflowConfig};
-use signex_library::{
+use oxide_app::app::{Message, Signex};
+use oxide_app::library::messages::LibraryMessage;
+use oxide_app::library::state::LibraryBrowserState;
+use oxide_library::adapter::LibraryAdapter;
+use oxide_library::adapters::local_git::{LibraryInitOptions, LocalGitAdapter};
+use oxide_library::library_file::{FORMAT_TOKEN, LibrarySection, SnxlibManifest};
+use oxide_library::manifest::{LibraryMode, UsersConfig, WorkflowConfig};
+use oxide_library::{
     ComponentClass, ComponentRow, DatasheetRef, InternalPn, LifecycleState, ManufacturerPart,
     ParamMap, ParamValue, PlmReserved, PrimitiveRef, RowId,
 };
@@ -122,7 +122,7 @@ fn an_unparseable_buffer_does_not_retype_a_measurement_parameter() {
     // Arrange — a mounted library with a typed cell, and a browser tab
     // whose edit buffer holds something that is not a number.
     let tmp = tempfile::Builder::new()
-        .prefix("signex-599-cell-commit-")
+        .prefix("oxide-599-cell-commit-")
         .tempdir()
         .expect("tempdir");
     let (snxlib, row_id) = library_with_a_measurement_row(tmp.path());
@@ -173,9 +173,9 @@ fn an_unparseable_buffer_does_not_retype_a_measurement_parameter() {
 #[test]
 fn a_refused_cell_commit_reaches_the_messages_panel() {
     // Arrange
-    let _ = signex_app::diagnostics::init_logging();
+    let _ = oxide_app::diagnostics::init_logging();
     let tmp = tempfile::Builder::new()
-        .prefix("signex-599-cell-report-")
+        .prefix("oxide-599-cell-report-")
         .tempdir()
         .expect("tempdir");
     let (snxlib, row_id) = library_with_a_measurement_row(tmp.path());

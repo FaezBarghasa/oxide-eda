@@ -2,7 +2,7 @@
 //!
 //! `main.rs` is a thin wrapper that calls into this crate; the real
 //! contents live here so that integration tests in `tests/` can
-//! `use signex_app::*` and exercise dispatchers without spinning up
+//! `use oxide_app::*` and exercise dispatchers without spinning up
 //! the iced runtime.
 //!
 //! All modules are `pub` for test access. The published surface is

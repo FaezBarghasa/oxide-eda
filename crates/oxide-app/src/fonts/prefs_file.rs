@@ -358,7 +358,7 @@ pub fn move_prefs_file_aside_at(path: &Path) -> Result<Option<PathBuf>, std::io:
     // `.bak` slot per cycle. `{}` is exactly what `load_for_update`
     // already reads as an empty map, so every reader, `update_prefs_json`
     // and `check_prefs_file` behave as they do for an absent file.
-    if let Err(error) = signex_types::atomic_io::atomic_write(path, b"{}") {
+    if let Err(error) = oxide_types::atomic_io::atomic_write(path, b"{}") {
         // NOT an `Err` return. The rename has already happened, so the
         // caller's failure wording ("it was left untouched") would be a
         // lie and the banner would stay up over a file that really did
@@ -397,7 +397,7 @@ mod tests {
     /// default parallelism.
     fn temp_prefs() -> (tempfile::TempDir, PathBuf) {
         let dir = tempfile::Builder::new()
-            .prefix("signex-prefs-")
+            .prefix("oxide-prefs-")
             .tempdir()
             .expect("a temp directory for the prefs file");
         let path = dir.path().join("prefs.json");

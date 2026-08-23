@@ -208,11 +208,11 @@ pub fn net_params_add_bar<'a>(
 pub fn justification_grid(
     id: uuid::Uuid,
     rotation_deg: f64,
-    h: signex_types::schematic::HAlign,
+    h: oxide_types::schematic::HAlign,
     palette: PanelPalette,
-    theme: signex_types::theme::ThemeId,
+    theme: oxide_types::theme::ThemeId,
 ) -> Element<'static, PanelMsg> {
-    use signex_types::schematic::HAlign;
+    use oxide_types::schematic::HAlign;
     let PanelPalette {
         input_bg,
         input_bdr,
@@ -377,13 +377,13 @@ pub fn justification_grid(
 /// selection-aware `justification_grid` but dispatches to the
 /// `SetPrePlacementJustifyH` message family (no UUID needed).
 pub fn preplacement_justification_grid(
-    h: signex_types::schematic::HAlign,
+    h: oxide_types::schematic::HAlign,
     input_bg: Color,
     input_bdr: Color,
     primary: Color,
-    theme: signex_types::theme::ThemeId,
+    theme: oxide_types::theme::ThemeId,
 ) -> Element<'static, PanelMsg> {
-    use signex_types::schematic::HAlign;
+    use oxide_types::schematic::HAlign;
 
     const CELL_SIZE: f32 = 24.0;
     let cell = |handle: iced::widget::svg::Handle,

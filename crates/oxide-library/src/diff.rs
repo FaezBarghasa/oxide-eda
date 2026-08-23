@@ -8,7 +8,7 @@
 //!  listings move? did the datasheet repoint?"
 //!
 //! The diff is the data backbone for:
-//! * the visual diff renderer (drawn by signex-app — out of scope here),
+//! * the visual diff renderer (drawn by oxide-app — out of scope here),
 //! * the auto-bump heuristic — call [`auto_bump_kind`] to decide whether a
 //!   save should be tagged as a small or large change.
 

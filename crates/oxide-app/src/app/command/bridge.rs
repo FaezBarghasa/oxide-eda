@@ -51,7 +51,7 @@ fn resolve(command: &AppCommandId) -> Option<Message> {
     let message = match command.as_str() {
         "annotate_schematic" => Message::Annotate(AnnotateMsg::OpenDialog),
         "annotate_schematic_quietly" => {
-            Message::Annotate(AnnotateMsg::Run(signex_engine::AnnotateMode::Incremental))
+            Message::Annotate(AnnotateMsg::Run(oxide_engine::AnnotateMode::Incremental))
         }
         // No originating window: this Esc was invoked as a command, not
         // typed. `None` resolves as a main-window Esc (#547).
@@ -80,7 +80,7 @@ fn resolve(command: &AppCommandId) -> Option<Message> {
         "footprint_mode_sketch" => Message::FootprintModeShortcut(EditorMode::Sketch),
         "footprint_mode_view_3d" => Message::FootprintModeShortcut(EditorMode::View3d),
         "force_annotate_all_schematics" => Message::Annotate(AnnotateMsg::Run(
-            signex_engine::AnnotateMode::ResetAndRenumber,
+            oxide_engine::AnnotateMode::ResetAndRenumber,
         )),
         // Visual-flip semantics (preserved from the pre-keymap hardcoded map):
         // the `X` key = a horizontal (left-right) flip = internal MirrorSelectedY,
@@ -464,7 +464,7 @@ mod tests {
     }
 
     /// The diagnostics ring is one process-wide `Mutex<VecDeque<_>>`
-    /// (`diagnostics.rs`), and cargo runs the `signex-app --lib` tests in
+    /// (`diagnostics.rs`), and cargo runs the `oxide-app --lib` tests in
     /// parallel threads. The two reporting tests below both read it around
     /// an action, so they have to take turns — otherwise one sees the
     /// other's record land between its `before` and its assert.

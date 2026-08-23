@@ -6,7 +6,7 @@
 //! - `local-git` → [`local_git::LocalGitAdapter`] backed by a `*.snxlib/` dir
 //!   plus an embedded libgit2 repo.
 //! - `database` → [`database::DatabaseAdapter`] HTTP client speaking to
-//!   `signex-library-server`.
+//!   `oxide-library-server`.
 //! - [`library_set::LibrarySet`] composes any number of `LibraryAdapter`
 //!   trait objects into a single resolver for cross-library
 //!   [`crate::primitive::PrimitiveRef`] lookup.

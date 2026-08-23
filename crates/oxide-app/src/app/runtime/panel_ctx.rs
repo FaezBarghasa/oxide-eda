@@ -25,7 +25,7 @@ impl Signex {
             .tables
             .get(&table)?
             .iter()
-            .find(|r| signex_library::RowId::from_uuid(r.row_id) == row_id)?;
+            .find(|r| oxide_library::RowId::from_uuid(r.row_id) == row_id)?;
 
         // A read failure and an absent UUID are different diagnoses.
         // Reporting "UUID not in mounted libraries" for a corrupt
@@ -441,7 +441,7 @@ impl Signex {
                     })
                     .unwrap_or_default()
             },
-            tokens: signex_types::theme::theme_tokens(self.ui_state.theme_id),
+            tokens: oxide_types::theme::theme_tokens(self.ui_state.theme_id),
             theme_id: self.ui_state.theme_id,
             unit: self.ui_state.unit,
             grid_visible: self.ui_state.grid_visible,

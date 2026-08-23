@@ -5,7 +5,7 @@
 
 use iced::widget::{Row, button, container, row, space, text};
 use iced::{Border, Element, Length};
-use signex_types::theme::ThemeTokens;
+use oxide_types::theme::ThemeTokens;
 
 use crate::theme_ext;
 

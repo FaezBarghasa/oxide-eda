@@ -11,8 +11,8 @@ use super::geometry::{arc_path_commands, circle_path, rect_path};
 use super::*;
 use crate::pdf::layout::PageTransform;
 use crate::pdf::palette::SchematicPalette;
-use signex_types::markup::ExpressionEvalContext;
-use signex_types::schematic::{
+use oxide_types::markup::ExpressionEvalContext;
+use oxide_types::schematic::{
     FillType, Graphic, HAlign, LibSymbol, Pin, Point, Symbol, TextProp, VAlign,
 };
 use std::collections::HashMap;
@@ -264,7 +264,7 @@ pub(super) fn push_symbol_pins(
         let length = if pin.length > 0.0 {
             pin.length
         } else {
-            signex_types::schematic::PIN_LENGTH_MM
+            oxide_types::schematic::PIN_LENGTH_MM
         };
 
         let body_end = Point::new(
@@ -360,7 +360,7 @@ pub(super) fn push_symbol_pins(
                 x: xform.x(name_pos.0),
                 y: xform.px_y(name_pos.1),
                 font_alias: "F1",
-                size_pt: (signex_types::schematic::SCHEMATIC_TEXT_MM * xform.mm_to_unit) as f32,
+                size_pt: (oxide_types::schematic::SCHEMATIC_TEXT_MM * xform.mm_to_unit) as f32,
                 align,
                 v_align,
                 rotation_deg,
@@ -389,7 +389,7 @@ pub(super) fn push_symbol_pins(
                 x: xform.x(num_pos.0),
                 y: xform.px_y(num_pos.1),
                 font_alias: "F3",
-                size_pt: (signex_types::schematic::SCHEMATIC_TEXT_MM * xform.mm_to_unit) as f32,
+                size_pt: (oxide_types::schematic::SCHEMATIC_TEXT_MM * xform.mm_to_unit) as f32,
                 align,
                 v_align: SvgTextVAlign::Center,
                 rotation_deg: 0.0,

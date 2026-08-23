@@ -9,8 +9,8 @@
 
 use std::collections::HashMap;
 
-use signex_sketch::id::SketchEntityId;
-use signex_sketch::sketch::SketchData;
+use oxide_sketch::id::SketchEntityId;
+use oxide_sketch::sketch::SketchData;
 
 use super::super::state::FootprintEditorState;
 use super::helpers::set_point_xy;
@@ -244,7 +244,7 @@ pub fn mirror_solve_to_round_rect_geometry(
                 .find(|e| e.id == arc_id)
                 .map(|e| &e.kind)
             {
-                Some(signex_sketch::entity::EntityKind::Arc {
+                Some(oxide_sketch::entity::EntityKind::Arc {
                     center, start, end, ..
                 }) => (*center, *start, *end),
                 _ => continue,

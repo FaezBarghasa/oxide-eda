@@ -4,10 +4,10 @@
 mod common;
 use common::Sketch;
 
-use signex_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
-use signex_sketch::id::ConstraintId;
-use signex_sketch::solver::residual::{ResolvedParams, residual, total_residual};
-use signex_sketch::solver::state::pack;
+use oxide_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
+use oxide_sketch::id::ConstraintId;
+use oxide_sketch::solver::residual::{ResolvedParams, residual, total_residual};
+use oxide_sketch::solver::state::pack;
 
 fn empty_params() -> ResolvedParams {
     ResolvedParams::new()
@@ -327,7 +327,7 @@ fn total_residual_length_matches_constraint_kind_count_sum() {
 
 #[test]
 fn residual_count_matches_returned_vector_length() {
-    use signex_sketch::id::SketchEntityId;
+    use oxide_sketch::id::SketchEntityId;
     // Quick sanity: residual_count() must match residual() output length
     // for every implemented kind in this file.
     let mut s = Sketch::new();

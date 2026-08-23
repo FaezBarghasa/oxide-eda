@@ -72,7 +72,7 @@ fn warn_clamp_once(label: &'static str, required: usize, writable: usize) {
     static WARNED: std::sync::Once = std::sync::Once::new();
     WARNED.call_once(|| {
         log::warn!(
-            "signex_gfx: {label} needs {required} elements but the device \
+            "oxide_gfx: {label} needs {required} elements but the device \
              max_buffer_size fits only {writable}; drawing a truncated scene"
         );
     });

@@ -14,10 +14,10 @@
 //!  Vec<Violation>   ← public API
 //! ```
 //!
-//! ERC reads from `signex_types::SchematicSheet` directly.
+//! ERC reads from `oxide_types::SchematicSheet` directly.
 
 use serde::{Deserialize, Serialize};
-use signex_types::schematic::{Point, SchematicSheet, SelectedItem, SelectedKind};
+use oxide_types::schematic::{Point, SchematicSheet, SelectedItem, SelectedKind};
 
 pub mod context;
 pub mod diagnostic;
@@ -154,11 +154,11 @@ pub fn run_with_dsl(snapshot: &SchematicSheet, dsl_rules: &[engine::EvalFn]) -> 
 /// single project-wide map: keying it that way is what stops two parents in
 /// different directories that reference a child by the same filename string
 /// from resolving to the wrong file (#466), and is what keeps this in step
-/// with `signex_net::build_project_netlist`, which takes the same shape.
+/// with `oxide_net::build_project_netlist`, which takes the same shape.
 pub fn run_with_project(
     snapshot: &SchematicSheet,
-    resolved: &std::collections::HashMap<String, signex_net::SheetKey>,
-    sheets: &std::collections::HashMap<signex_net::SheetKey, SchematicSheet>,
+    resolved: &std::collections::HashMap<String, oxide_net::SheetKey>,
+    sheets: &std::collections::HashMap<oxide_net::SheetKey, SchematicSheet>,
 ) -> Vec<Violation> {
     let ctx = ErcContext::from_snapshot_with_children(snapshot, resolved, sheets);
     engine::run_all(&ctx)
@@ -171,8 +171,8 @@ pub fn run_with_project(
 /// See [`run_with_project`] for what `resolved` / `sheets` must be.
 pub fn run_with_project_and_dsl(
     snapshot: &SchematicSheet,
-    resolved: &std::collections::HashMap<String, signex_net::SheetKey>,
-    sheets: &std::collections::HashMap<signex_net::SheetKey, SchematicSheet>,
+    resolved: &std::collections::HashMap<String, oxide_net::SheetKey>,
+    sheets: &std::collections::HashMap<oxide_net::SheetKey, SchematicSheet>,
     dsl_rules: &[engine::EvalFn],
 ) -> Vec<Violation> {
     let ctx = ErcContext::from_snapshot_with_children(snapshot, resolved, sheets);

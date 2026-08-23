@@ -88,7 +88,7 @@ pub(super) fn apply_symbol_parts(editor: &mut SymEditor, msg: SymbolEditorMsg) {
 mod tests {
     use super::*;
     use crate::library::editor::symbol::canvas::SymbolTool;
-    use signex_library::{Symbol, SymbolFile, SymbolGraphicKind};
+    use oxide_library::{Symbol, SymbolFile, SymbolGraphicKind};
     use std::path::PathBuf;
 
     fn new_editor() -> SymEditor {

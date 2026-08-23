@@ -1,5 +1,5 @@
 use super::*;
-use signex_renderer::pcb::{PcbAppEvent, dirty_flags_for_events};
+use oxide_renderer::pcb::{PcbAppEvent, dirty_flags_for_events};
 
 const PCB_EVENTS_NONE: &[PcbAppEvent] = &[];
 const PCB_EVENTS_THEME: &[PcbAppEvent] = &[PcbAppEvent::ThemeChanged];
@@ -73,8 +73,8 @@ impl Signex {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_renderer::pcb::dirty_flags_for_events;
-    use signex_types::theme::ThemeId;
+    use oxide_renderer::pcb::dirty_flags_for_events;
+    use oxide_types::theme::ThemeId;
 
     #[test]
     fn move_selected_canvas_event_maps_to_footprint_move_dirty() {

@@ -1,5 +1,5 @@
 //! Netlist construction — derive the authoritative
-//! [`Netlist`](signex_types::net::Netlist) from a parsed [`SchematicSheet`].
+//! [`Netlist`](oxide_types::net::Netlist) from a parsed [`SchematicSheet`].
 //!
 //! The geometry mirrors the ERC context's `derive_nets` exactly (union-find
 //! over wire endpoints, junction T-merges, world-space pin projection, 1 µm
@@ -17,15 +17,15 @@
 
 use std::collections::{HashMap, HashSet};
 
-use signex_types::designator::compare_references;
-use signex_types::net::{Net, NetId, Netlist, Terminal};
-use signex_types::schematic::{Label, LabelType, Point, SchematicSheet, SymbolTransform};
+use oxide_types::designator::compare_references;
+use oxide_types::net::{Net, NetId, Netlist, Terminal};
+use oxide_types::schematic::{Label, LabelType, Point, SchematicSheet, SymbolTransform};
 use uuid::Uuid;
 
 use crate::uf::{Key, find as uf_find, union as uf_union};
 
 /// 1 µm integer bucket — the union-find key space and the single definition of
-/// "same point" for the whole derivation (D5.5). `pub` so `signex-erc`'s rules
+/// "same point" for the whole derivation (D5.5). `pub` so `oxide-erc`'s rules
 /// can compare positions with the exact same metric instead of hand-rolling a
 /// second float-epsilon `same()` (issue #388).
 pub fn pt_key(p: &Point) -> Key {
@@ -46,7 +46,7 @@ pub fn pt_key(p: &Point) -> Key {
 /// model still stores `f64` mm); that migration is the future coordinate ADR's
 /// job, and until then exact collinearity is the safe, deterministic rule.
 ///
-/// `pub` so callers outside this crate (`signex-erc`'s rules) can anchor a
+/// `pub` so callers outside this crate (`oxide-erc`'s rules) can anchor a
 /// point to a wire's interior the same way [`merged_sheet_parent`] anchors
 /// labels, instead of re-deriving an endpoint-only approximation that
 /// disagrees with the netlist on mid-wire taps (issue #388).
@@ -277,7 +277,7 @@ impl SheetConnectivity {
     /// pins, not to same-name peers, and is left to cross-sheet stitching.
     ///
     /// Labels arrive as plain `(position, kind, text)` tuples so consumers
-    /// outside `signex-net` — which hold their own snapshot types, not a
+    /// outside `oxide-net` — which hold their own snapshot types, not a
     /// [`SchematicSheet`] — apply the *same* merge instead of re-deriving a
     /// geometry-only copy that reports more nets than [`build_netlist`] does
     /// (issues #388, #396, #404).

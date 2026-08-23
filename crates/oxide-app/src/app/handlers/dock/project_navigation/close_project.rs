@@ -377,8 +377,8 @@ mod tests {
     /// for the "Export Failed — SymbolLibrary5.snxsym" close bug).
     fn app_with_dirty_symbol(path: &std::path::Path) -> Signex {
         let (mut app, _task) = Signex::new();
-        let symbol = signex_library::Symbol::empty("Sym1");
-        let file = signex_library::SymbolFile::from_symbol(symbol);
+        let symbol = oxide_library::Symbol::empty("Sym1");
+        let file = oxide_library::SymbolFile::from_symbol(symbol);
         app.document_state.symbol_editors.insert(
             path.to_path_buf(),
             SymbolEditorState::new(path.to_path_buf(), file),

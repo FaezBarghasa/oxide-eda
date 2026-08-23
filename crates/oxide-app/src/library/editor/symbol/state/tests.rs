@@ -1,6 +1,6 @@
 //! Tests for symbol-editor interaction state.
 use super::*;
-use signex_library::Symbol;
+use oxide_library::Symbol;
 
 #[test]
 fn add_pin_assigns_next_number() {
@@ -102,7 +102,7 @@ fn hit_test_returns_pin() {
 #[test]
 fn graphic_handle_position_returns_rectangle_corners() {
     let mut s = Symbol::empty("test");
-    s.graphics.push(signex_library::SymbolGraphic {
+    s.graphics.push(oxide_library::SymbolGraphic {
         kind: SymbolGraphicKind::Rectangle {
             from: [-2.0, -1.0],
             to: [2.0, 1.0],
@@ -125,7 +125,7 @@ fn graphic_handle_position_returns_rectangle_corners() {
 #[test]
 fn hit_test_graphic_handle_finds_rectangle_corner() {
     let mut s = Symbol::empty("test");
-    s.graphics.push(signex_library::SymbolGraphic {
+    s.graphics.push(oxide_library::SymbolGraphic {
         kind: SymbolGraphicKind::Rectangle {
             from: [0.0, 0.0],
             to: [10.0, 5.0],
@@ -143,7 +143,7 @@ fn hit_test_graphic_handle_finds_rectangle_corner() {
 #[test]
 fn move_graphic_handle_moves_line_endpoint() {
     let mut s = Symbol::empty("test");
-    s.graphics.push(signex_library::SymbolGraphic {
+    s.graphics.push(oxide_library::SymbolGraphic {
         kind: SymbolGraphicKind::Line {
             from: [0.0, 0.0],
             to: [5.0, 0.0],
@@ -162,7 +162,7 @@ fn move_graphic_handle_moves_line_endpoint() {
 #[test]
 fn move_graphic_handle_resizes_circle_radius() {
     let mut s = Symbol::empty("test");
-    s.graphics.push(signex_library::SymbolGraphic {
+    s.graphics.push(oxide_library::SymbolGraphic {
         kind: SymbolGraphicKind::Circle {
             center: [0.0, 0.0],
             radius: 1.0,
@@ -181,7 +181,7 @@ fn move_graphic_handle_resizes_circle_radius() {
 #[test]
 fn hit_test_returns_graphic_inside_rectangle() {
     let mut s = Symbol::empty("test");
-    s.graphics.push(signex_library::SymbolGraphic {
+    s.graphics.push(oxide_library::SymbolGraphic {
         kind: SymbolGraphicKind::Rectangle {
             from: [0.0, 0.0],
             to: [10.0, 5.0],
@@ -198,7 +198,7 @@ fn hit_test_returns_graphic_inside_rectangle() {
 #[test]
 fn move_selected_translates_rectangle_by_anchor_delta() {
     let mut s = Symbol::empty("test");
-    s.graphics.push(signex_library::SymbolGraphic {
+    s.graphics.push(oxide_library::SymbolGraphic {
         kind: SymbolGraphicKind::Rectangle {
             from: [0.0, 0.0],
             to: [10.0, 5.0],
@@ -220,7 +220,7 @@ fn move_selected_translates_rectangle_by_anchor_delta() {
 #[test]
 fn rotate_selected_rotates_rectangle_clockwise_around_origin() {
     let mut s = Symbol::empty("test");
-    s.graphics.push(signex_library::SymbolGraphic {
+    s.graphics.push(oxide_library::SymbolGraphic {
         kind: SymbolGraphicKind::Rectangle {
             from: [1.0, 2.0],
             to: [3.0, 4.0],
@@ -258,7 +258,7 @@ fn rotate_selected_rotates_pin_orientation_in_place() {
 #[test]
 fn rotate_selected_about_geometry_center_keeps_rectangle_center() {
     let mut s = Symbol::empty("test");
-    s.graphics.push(signex_library::SymbolGraphic {
+    s.graphics.push(oxide_library::SymbolGraphic {
         kind: SymbolGraphicKind::Rectangle {
             from: [1.0, 2.0],
             to: [3.0, 4.0],
@@ -287,7 +287,7 @@ fn rotate_selected_about_geometry_center_keeps_rectangle_center() {
 #[test]
 fn rotate_selected_about_geometry_center_keeps_text_anchor_fixed() {
     let mut s = Symbol::empty("test");
-    s.graphics.push(signex_library::SymbolGraphic {
+    s.graphics.push(oxide_library::SymbolGraphic {
         kind: SymbolGraphicKind::Text {
             position: [5.0, -7.0],
             content: "R".into(),
@@ -311,7 +311,7 @@ fn rotate_selected_about_geometry_center_keeps_text_anchor_fixed() {
 #[test]
 fn delete_selected_removes_graphic() {
     let mut s = Symbol::empty("test");
-    s.graphics.push(signex_library::SymbolGraphic {
+    s.graphics.push(oxide_library::SymbolGraphic {
         kind: SymbolGraphicKind::Circle {
             center: [0.0, 0.0],
             radius: 1.0,
@@ -328,7 +328,7 @@ fn delete_selected_removes_graphic() {
 #[test]
 fn move_graphic_handle_no_op_for_mismatched_variant() {
     let mut s = Symbol::empty("test");
-    s.graphics.push(signex_library::SymbolGraphic {
+    s.graphics.push(oxide_library::SymbolGraphic {
         kind: SymbolGraphicKind::Line {
             from: [0.0, 0.0],
             to: [5.0, 0.0],
@@ -352,7 +352,7 @@ fn move_graphic_handle_no_op_for_mismatched_variant() {
 fn graphic_on_part_shared_and_scoped() {
     let mut s = Symbol::empty("test");
     // Shared graphic (part 0) — visible on every unit.
-    s.graphics.push(signex_library::SymbolGraphic {
+    s.graphics.push(oxide_library::SymbolGraphic {
         kind: SymbolGraphicKind::Rectangle {
             from: [0.0, 0.0],
             to: [1.0, 1.0],
@@ -362,7 +362,7 @@ fn graphic_on_part_shared_and_scoped() {
         fill: None,
     });
     // Graphic scoped to unit 2.
-    s.graphics.push(signex_library::SymbolGraphic {
+    s.graphics.push(oxide_library::SymbolGraphic {
         kind: SymbolGraphicKind::Rectangle {
             from: [0.0, 0.0],
             to: [1.0, 1.0],
@@ -390,7 +390,7 @@ fn graphic_on_part_shared_and_scoped() {
 fn hit_test_respects_active_part() {
     let mut s = Symbol::empty("test");
     // A rectangle scoped to unit 2, covering the point (5.0, 2.5).
-    s.graphics.push(signex_library::SymbolGraphic {
+    s.graphics.push(oxide_library::SymbolGraphic {
         kind: SymbolGraphicKind::Rectangle {
             from: [0.0, 0.0],
             to: [10.0, 5.0],
@@ -409,7 +409,7 @@ fn hit_test_respects_active_part() {
 
     // A shared (part 0) rectangle is hittable on any active unit.
     let mut shared = Symbol::empty("test");
-    shared.graphics.push(signex_library::SymbolGraphic {
+    shared.graphics.push(oxide_library::SymbolGraphic {
         kind: SymbolGraphicKind::Rectangle {
             from: [0.0, 0.0],
             to: [10.0, 5.0],
@@ -434,7 +434,7 @@ fn hit_test_respects_active_part() {
 fn delete_unit_prunes_and_renumbers_graphics() {
     let mut s = Symbol::empty("test");
     // Shared body geometry (part 0) — must survive untouched.
-    s.graphics.push(signex_library::SymbolGraphic {
+    s.graphics.push(oxide_library::SymbolGraphic {
         kind: SymbolGraphicKind::Rectangle {
             from: [0.0, 0.0],
             to: [1.0, 1.0],
@@ -444,7 +444,7 @@ fn delete_unit_prunes_and_renumbers_graphics() {
         fill: None,
     });
     // Distinct `from` per unit so we can identify which rectangle survived.
-    s.graphics.push(signex_library::SymbolGraphic {
+    s.graphics.push(oxide_library::SymbolGraphic {
         kind: SymbolGraphicKind::Rectangle {
             from: [10.0, 10.0],
             to: [11.0, 11.0],
@@ -453,7 +453,7 @@ fn delete_unit_prunes_and_renumbers_graphics() {
         part_number: 1,
         fill: None,
     });
-    s.graphics.push(signex_library::SymbolGraphic {
+    s.graphics.push(oxide_library::SymbolGraphic {
         kind: SymbolGraphicKind::Rectangle {
             from: [20.0, 20.0],
             to: [21.0, 21.0],
@@ -462,7 +462,7 @@ fn delete_unit_prunes_and_renumbers_graphics() {
         part_number: 2,
         fill: None,
     });
-    s.graphics.push(signex_library::SymbolGraphic {
+    s.graphics.push(oxide_library::SymbolGraphic {
         kind: SymbolGraphicKind::Rectangle {
             from: [30.0, 30.0],
             to: [31.0, 31.0],
@@ -524,7 +524,7 @@ fn select_in_box_all_uses_visible_counts() {
     let mut s = Symbol::empty("test");
     // One pin and one rectangle visible on unit 1.
     add_pin(&mut s, 5.0, 5.0, 1);
-    s.graphics.push(signex_library::SymbolGraphic {
+    s.graphics.push(oxide_library::SymbolGraphic {
         kind: SymbolGraphicKind::Rectangle {
             from: [0.0, 0.0],
             to: [10.0, 10.0],
@@ -534,7 +534,7 @@ fn select_in_box_all_uses_visible_counts() {
         fill: None,
     });
     // A unit-2 rectangle far away — invisible while unit 1 is active.
-    s.graphics.push(signex_library::SymbolGraphic {
+    s.graphics.push(oxide_library::SymbolGraphic {
         kind: SymbolGraphicKind::Rectangle {
             from: [100.0, 100.0],
             to: [101.0, 101.0],
@@ -571,7 +571,7 @@ fn select_in_box_all_uses_visible_counts() {
 
 fn polygon_symbol(vertices: Vec<[f64; 2]>, fill: Option<[u8; 4]>) -> Symbol {
     let mut s = Symbol::empty("test");
-    s.graphics.push(signex_library::SymbolGraphic {
+    s.graphics.push(oxide_library::SymbolGraphic {
         kind: SymbolGraphicKind::Polygon { vertices },
         stroke_width: 0.15,
         part_number: 0,
@@ -816,7 +816,7 @@ fn select_in_box_crossing_touches_polygon_bbox() {
 
 fn arc_symbol(start_deg: f64, end_deg: f64) -> Symbol {
     let mut s = Symbol::empty("test");
-    s.graphics.push(signex_library::SymbolGraphic {
+    s.graphics.push(oxide_library::SymbolGraphic {
         kind: SymbolGraphicKind::Arc {
             center: [0.0, 0.0],
             radius: 5.0,
@@ -873,7 +873,7 @@ fn rotated_wraparound_arc_hit_test_and_draw_sweep_agree() {
     // on both of the same two points, independently re-deriving
     // "is this angle within the sweep" rather than reusing hit_test's
     // own formula.
-    let sweep = signex_gfx::primitive::arc::ccw_wrapped_sweep_rad(
+    let sweep = oxide_gfx::primitive::arc::ccw_wrapped_sweep_rad(
         (start_deg as f32).to_radians(),
         (end_deg as f32).to_radians(),
     );
@@ -903,7 +903,7 @@ fn rotated_wraparound_arc_hit_test_and_draw_sweep_agree() {
 /// edit path guards against. Regression for the ArcEnd handle writer.
 #[test]
 fn arc_endpoint_handle_drag_survives_save_reload() {
-    use signex_gfx::primitive::arc::ccw_wrapped_sweep_rad;
+    use oxide_gfx::primitive::arc::ccw_wrapped_sweep_rad;
 
     let mut s = arc_symbol(30.0, 90.0);
     // Drag the end handle below-and-right of the centre → raw atan2 = -45°.
@@ -926,9 +926,9 @@ fn arc_endpoint_handle_drag_survives_save_reload() {
 
     // Round-trip through the on-disk format: to_toml_string → from_toml_str
     // runs migrate_legacy_arc, which must leave this pair untouched.
-    let file = signex_library::SymbolFile::from_symbol(s.clone());
+    let file = oxide_library::SymbolFile::from_symbol(s.clone());
     let toml = file.to_toml_string().expect("serialise");
-    let reloaded = signex_library::SymbolFile::from_toml_str(&toml).expect("parse");
+    let reloaded = oxide_library::SymbolFile::from_toml_str(&toml).expect("parse");
     let (rs, re) = match &reloaded.symbols[0].graphics[0].kind {
         SymbolGraphicKind::Arc {
             start_deg, end_deg, ..

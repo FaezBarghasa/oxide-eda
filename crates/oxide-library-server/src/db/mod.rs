@@ -20,9 +20,9 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use chrono::Utc;
-use signex_library::component::ComponentRow;
-use signex_library::identity::RowId;
-use signex_library::primitive::{Footprint, SimModel, Symbol};
+use oxide_library::component::ComponentRow;
+use oxide_library::identity::RowId;
+use oxide_library::primitive::{Footprint, SimModel, Symbol};
 use sqlx::Row;
 use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode, SqlitePoolOptions};
 use uuid::Uuid;

@@ -28,11 +28,11 @@ impl Signex {
             // Alt+A shortcut-style: run incremental annotate without opening
             // the dialog. Matches Altium "Annotate Schematics Quietly".
             MenuMessage::AnnotateQuietly => Some(self.update(Message::Annotate(AnnotateMsg::Run(
-                signex_engine::AnnotateMode::Incremental,
+                oxide_engine::AnnotateMode::Incremental,
             )))),
             // Shift+Alt+A: force reset + renumber without confirm dialog.
             MenuMessage::AnnotateForceAll => Some(self.update(Message::Annotate(
-                AnnotateMsg::Run(signex_engine::AnnotateMode::ResetAndRenumber),
+                AnnotateMsg::Run(oxide_engine::AnnotateMode::ResetAndRenumber),
             ))),
             // Reset Duplicate Designators — scan every sheet (active,
             // cached, and on-disk project sheets), find references

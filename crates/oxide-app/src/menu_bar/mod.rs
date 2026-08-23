@@ -3,7 +3,7 @@
 //! Altium-style menu structure: File, Edit, View, Place, Design, Tools, Window, Help.
 //! iced_aw handles all overlay positioning, hover-to-switch, and keyboard navigation.
 //! Anchored on the left by the Signex wordmark — PNGs rasterised from
-//! `brand/signex-logo-{white,black}.svg` into `brand/generated/` at 1×/2×/3×
+//! `brand/oxide-logo-{white,black}.svg` into `brand/generated/` at 1×/2×/3×
 //! the on-screen 96×31 logical size. Regenerate via
 //! `python installer/build-wordmark.py`.
 
@@ -13,12 +13,12 @@ use iced::widget::{button, container, image, row, text};
 use iced::{Background, Border, Color, Element, Length, Theme};
 use iced_aw::menu::{DrawPath, Item, Menu, MenuBar};
 use iced_aw::style::menu_bar as menu_style;
-use signex_types::theme::ThemeTokens;
+use oxide_types::theme::ThemeTokens;
 
 use crate::keymap::{AppCommandId, CompiledKeymap};
 use crate::styles;
 
-/// Wordmark PNGs pre-rasterised from `signex-logo-{white,black}.svg` at
+/// Wordmark PNGs pre-rasterised from `oxide-logo-{white,black}.svg` at
 /// 1× / 2× / 3× the on-screen 96×31 logical size. Picked at view-time by
 /// window scale factor so the lockup renders 1:1 with device pixels —
 /// which is the only way to get crisp path-text at a size this small
@@ -367,7 +367,7 @@ pub fn wrap_plain<'a, M: 'a>(menu: Element<'a, M>, tokens: &ThemeTokens) -> Elem
 /// Perceptual-luminance test used to pick the white/black wordmark and
 /// (later) matching chrome icons. Mirrors the sRGB Y' coefficients so
 /// cyan/green tones don't fool the check like a naive (r+g+b)/3 would.
-fn is_dark_surface(c: signex_types::theme::Color) -> bool {
+fn is_dark_surface(c: oxide_types::theme::Color) -> bool {
     let r = c.r as f32 / 255.0;
     let g = c.g as f32 / 255.0;
     let b = c.b as f32 / 255.0;

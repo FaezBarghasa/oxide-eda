@@ -13,7 +13,7 @@ const MAX_GRID_CHECKBOX_DIM: u32 = 32;
 const MAX_POLAR_CHECKBOX_COUNT: u32 = 64;
 
 /// v0.23 — Pattern Properties sub-form. Renders the editable
-/// expressions for a Linear / Grid / Polar [`signex_sketch::array`]
+/// expressions for a Linear / Grid / Polar [`oxide_sketch::array`]
 /// when the selected sketch entity is its source. Each text input
 /// emits a [`PanelMsg::FpEditorEditArrayParam`]; the numbering
 /// pick_list emits [`PanelMsg::FpEditorSetArrayNumberingScheme`]; the

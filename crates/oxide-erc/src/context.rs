@@ -4,9 +4,9 @@
 
 use std::collections::HashMap;
 
-use signex_net::SheetConnectivity;
-use signex_types::schematic::SchematicSheet;
-use signex_types::schematic::{LabelType, PinDirection, Point, SymbolTransform};
+use oxide_net::SheetConnectivity;
+use oxide_types::schematic::SchematicSheet;
+use oxide_types::schematic::{LabelType, PinDirection, Point, SymbolTransform};
 use uuid::Uuid;
 
 // ---------------------------------------------------------------------------
@@ -201,12 +201,12 @@ impl ErcContext {
     /// `SheetKey -> SchematicSheet` table every sheet's submap is looked up
     /// against. Keying `resolved` per-sheet (rather than a single project-wide
     /// filename map) is what keeps this in step with
-    /// `signex_net::build_project_netlist` when two parents in different
+    /// `oxide_net::build_project_netlist` when two parents in different
     /// directories reference a child by the same filename string (#466).
     pub fn from_snapshot_with_children(
         snapshot: &SchematicSheet,
-        resolved: &HashMap<String, signex_net::SheetKey>,
-        sheets: &HashMap<signex_net::SheetKey, SchematicSheet>,
+        resolved: &HashMap<String, oxide_net::SheetKey>,
+        sheets: &HashMap<oxide_net::SheetKey, SchematicSheet>,
     ) -> Self {
         let child_ctxs = resolved
             .iter()
@@ -763,7 +763,7 @@ mod tests {
     fn same_name_hierarchical_labels_do_not_merge() {
         // `Hierarchical` binds to a parent sheet's pins, not to same-name
         // peers, so it is excluded from the name merge — mirroring the
-        // `signex-net` side (`build/tests.rs`) on the ERC side.
+        // `oxide-net` side (`build/tests.rs`) on the ERC side.
         let wires = vec![
             wire(pt(0.0, 0.0), pt(10.0, 0.0)),
             wire(pt(50.0, 0.0), pt(60.0, 0.0)),
@@ -787,7 +787,7 @@ mod tests {
 
     #[test]
     fn a_merged_net_takes_the_highest_priority_label_name() {
-        // The user-visible consequence of merging, mirroring signex-net's
+        // The user-visible consequence of merging, mirroring oxide-net's
         // `label_names_the_net_by_priority` on the ERC side: the merge changes
         // the NAME the DSL sees, not just the net count. Two wires joined by a
         // shared Global `SYS` also carry a Net label `VCC` each; the merged net

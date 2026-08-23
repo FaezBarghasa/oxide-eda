@@ -1,11 +1,11 @@
 //! Symbol editor — "Join into Polygon" selection op.
 //!
 //! Chains the currently-selected `Line`/`Arc` graphics end-to-end
-//! (via `signex_library::chain_into_closed_contour`) into a single
+//! (via `oxide_library::chain_into_closed_contour`) into a single
 //! closed `Polygon`, replacing the source graphics. See
 //! [`apply_symbol_join`] for the full contract.
 
-use signex_library::{ChainError, ChainSegment, Symbol, SymbolGraphic, SymbolGraphicKind};
+use oxide_library::{ChainError, ChainSegment, Symbol, SymbolGraphic, SymbolGraphicKind};
 
 use super::{SymEditor, close_pickers, mark_dirty, push_undo};
 use crate::library::editor::symbol::state::{self, SymbolSelection};
@@ -84,14 +84,14 @@ pub(super) fn apply_symbol_join(editor: &mut SymEditor, msg: SymbolEditorMsg) {
 fn resolve_ring_with_auto_close(
     segments: &[ChainSegment],
 ) -> Result<(Vec<[f64; 2]>, Option<f64>), ChainError> {
-    match signex_library::chain_into_closed_contour(segments) {
+    match oxide_library::chain_into_closed_contour(segments) {
         Err(ChainError::OpenChain { ends, gap_mm }) => {
             let mut retried = segments.to_vec();
             retried.push(ChainSegment::Line {
                 from: ends[0],
                 to: ends[1],
             });
-            let ring = signex_library::chain_into_closed_contour(&retried)?;
+            let ring = oxide_library::chain_into_closed_contour(&retried)?;
             Ok((ring, Some(gap_mm)))
         }
         result => result.map(|ring| (ring, None)),
@@ -192,7 +192,7 @@ fn chain_error_message(err: ChainError) -> String {
 mod tests {
     use super::*;
     use crate::library::editor::symbol::state::SymbolSelection;
-    use signex_library::{Symbol, SymbolFile};
+    use oxide_library::{Symbol, SymbolFile};
     use std::path::PathBuf;
 
     fn new_editor() -> SymEditor {

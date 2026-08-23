@@ -1,6 +1,6 @@
 use iced::widget::{Column, Row, Space, container, text};
 use iced::{Background, Border, Color, Element, Length, Theme};
-use signex_types::theme::ThemeTokens;
+use oxide_types::theme::ThemeTokens;
 
 use crate::catalog::Message;
 use crate::theme;

@@ -5,8 +5,8 @@ use std::path::Path;
 
 use iced::widget::{Space, button, column, container, row, scrollable, text};
 use iced::{Border, Element, Length, Theme};
-use signex_types::theme::ThemeTokens;
-use signex_widgets::theme_ext;
+use oxide_types::theme::ThemeTokens;
+use oxide_widgets::theme_ext;
 
 use crate::app::FootprintEditorState;
 use crate::library::editor::footprint::canvas::FootprintCanvas;
@@ -25,7 +25,7 @@ use crate::library::messages::{EditorMsg, FootprintEditorMsg, LibraryMessage, Pr
 pub fn view_footprint<'a>(
     editor: &'a FootprintEditorState,
     tokens: &'a ThemeTokens,
-    _theme_id: signex_types::theme::ThemeId,
+    _theme_id: oxide_types::theme::ThemeId,
 ) -> Element<'a, LibraryMessage> {
     use crate::library::editor::footprint::state::EditorMode;
     // v0.16.2.2 — footprint canvas uses Altium PCB-editor colours
@@ -628,7 +628,7 @@ fn view_footprint_canvas<'a>(
     let address = crate::library::state::EditorAddress::new(
         editor.path.clone(),
         String::new(),
-        signex_library::RowId::from_uuid(uuid::Uuid::nil()),
+        oxide_library::RowId::from_uuid(uuid::Uuid::nil()),
     );
     let prog = FootprintCanvas {
         state: &editor.state,
@@ -754,7 +754,7 @@ mod tests {
         LibraryMessage::EditorEvent {
             library_path: PathBuf::new(),
             table: String::new(),
-            row_id: signex_library::RowId::from_uuid(uuid::Uuid::nil()),
+            row_id: oxide_library::RowId::from_uuid(uuid::Uuid::nil()),
             msg: EditorMsg::Footprint(msg),
         }
     }

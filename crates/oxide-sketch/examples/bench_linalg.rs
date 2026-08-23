@@ -1,5 +1,5 @@
 //! Self-contained benchmark for the in-house dense LU solver in
-//! `signex_sketch::solver::linalg`. No external benchmarking crate
+//! `oxide_sketch::solver::linalg`. No external benchmarking crate
 //! is used — timings are taken with `std::time::Instant` so the
 //! Apache-clean Signex codebase stays free of dev-dependencies for
 //! micro-benchmarking.
@@ -7,7 +7,7 @@
 //! Run:
 //!
 //! ```sh
-//! cargo run -p signex-sketch --example bench_linalg --release
+//! cargo run -p oxide-sketch --example bench_linalg --release
 //! ```
 //!
 //! What it measures
@@ -43,7 +43,7 @@
 //! adequate for the v0.13 use case, not to compete with hand-tuned
 //! BLAS implementations.
 
-use signex_sketch::solver::linalg::{lu_decompose, lu_solve, solve};
+use oxide_sketch::solver::linalg::{lu_decompose, lu_solve, solve};
 use std::time::Instant;
 
 /// Build a well-conditioned `n × n` matrix that exercises pivoting:

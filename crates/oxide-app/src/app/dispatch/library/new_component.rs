@@ -26,7 +26,7 @@ impl Signex {
         let library = &self.library.open_libraries[library_idx];
         let library_path = library.root.clone();
         let library_id = library.library_id;
-        let class = signex_library::ComponentClass::default();
+        let class = oxide_library::ComponentClass::default();
         let table = self
             .library
             .set
@@ -94,7 +94,7 @@ impl Signex {
     /// User picked a class in the modal pick_list.
     pub(super) fn handle_new_component_set_class(
         &mut self,
-        class: signex_library::ComponentClass,
+        class: oxide_library::ComponentClass,
     ) -> Task<Message> {
         // Changing class does NOT overwrite the table pick —
         // that's the user's explicit choice. Class only
@@ -125,7 +125,7 @@ impl Signex {
                     && let Some(cfg) = adapter.manifest().tables().iter().find(|c| c.name == name)
                     && let Some(first) = cfg.classes.first()
                 {
-                    nc.class = signex_library::ComponentClass::new(first);
+                    nc.class = oxide_library::ComponentClass::new(first);
                 }
             } else {
                 nc.table = None;

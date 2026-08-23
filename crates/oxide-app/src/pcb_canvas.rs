@@ -4,13 +4,13 @@ use iced::event::Event;
 use iced::mouse;
 use iced::widget::canvas;
 use iced::{Color, Rectangle, Renderer, Theme};
-use signex_gfx::primitive::circle::Circle as GfxCircle;
-use signex_gfx::primitive::line::LineSegment;
-use signex_gfx::primitive::polygon::GpuPolygon;
-use signex_gfx::scene::{CPU_PCB_DRAW_ORDER, DirtyFlags, Scene, SceneBucket};
-use signex_renderer::pcb::{PcbRenderer, PcbSnapshot};
-use signex_renderer::schematic::ViewRenderer;
-use signex_renderer::theme::ResolvedTheme;
+use oxide_gfx::primitive::circle::Circle as GfxCircle;
+use oxide_gfx::primitive::line::LineSegment;
+use oxide_gfx::primitive::polygon::GpuPolygon;
+use oxide_gfx::scene::{CPU_PCB_DRAW_ORDER, DirtyFlags, Scene, SceneBucket};
+use oxide_renderer::pcb::{PcbRenderer, PcbSnapshot};
+use oxide_renderer::schematic::ViewRenderer;
+use oxide_renderer::theme::ResolvedTheme;
 
 use crate::app::Message;
 use crate::canvas::{Camera, CanvasEvent};
@@ -61,7 +61,7 @@ pub struct PcbCanvas {
     pub gpu_render: bool,
     pub theme_bg: Color,
     pub theme_grid: Color,
-    pub canvas_colors: signex_types::theme::CanvasColors,
+    pub canvas_colors: oxide_types::theme::CanvasColors,
     pub renderer_snapshot: Option<PcbSnapshot>,
     pub visible_grid_mm: f64,
 }
@@ -74,7 +74,7 @@ impl Default for PcbCanvas {
 
 impl PcbCanvas {
     pub fn new() -> Self {
-        let colors = signex_types::theme::canvas_colors(signex_types::theme::ThemeId::Signex);
+        let colors = oxide_types::theme::canvas_colors(oxide_types::theme::ThemeId::Signex);
         Self {
             bg_cache: canvas::Cache::default(),
             content_cache: canvas::Cache::default(),
@@ -142,7 +142,7 @@ impl PcbCanvas {
         (camera.offset.x, camera.offset.y, camera.scale)
     }
 
-    /// Build the `signex_gfx` scene for a board snapshot. Shared by the CPU
+    /// Build the `oxide_gfx` scene for a board snapshot. Shared by the CPU
     /// `draw` path and the GPU [`Self::gpu_scene`] path so both tessellate from
     /// identical instance data.
     fn build_scene(&self, snapshot: &PcbSnapshot) -> Scene {
@@ -618,8 +618,8 @@ impl canvas::Program<Message> for PcbCanvas {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_renderer::pcb::{DrcMarkerInput, PcbSnapshot};
-    use signex_types::violation::Severity;
+    use oxide_renderer::pcb::{DrcMarkerInput, PcbSnapshot};
+    use oxide_types::violation::Severity;
 
     /// Correctness — thread #4 (z-order): `gpu_scene()` must NOT fold overlay
     /// geometry into the base `polygons`/`lines`/`circles` buckets. A DRC

@@ -132,7 +132,7 @@ impl Signex {
                 if let Some(pp) = &mut self.document_state.panel_ctx.pre_placement {
                     pp.font_size_pt = *pt;
                 }
-                let fs_mm = *pt as f64 * signex_types::schematic::SCHEMATIC_PT_TO_MM;
+                let fs_mm = *pt as f64 * oxide_types::schematic::SCHEMATIC_PT_TO_MM;
                 if let Some(g) = &mut self.interaction_state.active_canvas_mut().ghost_label {
                     g.font_size = fs_mm;
                 }
@@ -226,7 +226,7 @@ impl Signex {
                     if let Some(uuid) = current_uuid.filter(|_| {
                         matches!(
                             self.document_state.panel_ctx.selected_kind,
-                            Some(signex_types::schematic::SelectedKind::Drawing)
+                            Some(oxide_types::schematic::SelectedKind::Drawing)
                         )
                     }) {
                         follow = self.update(crate::app::Message::UpdateDrawingField(uuid, edit));
@@ -240,7 +240,7 @@ impl Signex {
                 if let Some(uuid) = self.document_state.panel_ctx.selected_uuid.filter(|_| {
                     matches!(
                         self.document_state.panel_ctx.selected_kind,
-                        Some(signex_types::schematic::SelectedKind::Drawing)
+                        Some(oxide_types::schematic::SelectedKind::Drawing)
                     )
                 }) {
                     follow = self.update(crate::app::Message::UpdateDrawingField(uuid, *edit));
@@ -335,7 +335,7 @@ impl Signex {
                 // Persist into the document (SchematicSheet.paper_size) so the
                 // choice survives save/reopen; undoable like any other edit.
                 self.apply_engine_command(
-                    signex_engine::Command::SetPaperSize {
+                    oxide_engine::Command::SetPaperSize {
                         paper_size: size.clone(),
                     },
                     false,

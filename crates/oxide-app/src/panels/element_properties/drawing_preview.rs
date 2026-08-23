@@ -1,7 +1,7 @@
 //! Live shape-preview canvas widget (`DrawingPreview`) shown above the
 //! Drawing properties rows, plus its bounding-box / arc-sweep geometry
 //! helpers (circumcircle now comes from the shared
-//! `signex_types::schematic::circumcircle`, #461). Moved verbatim from the
+//! `oxide_types::schematic::circumcircle`, #461). Moved verbatim from the
 //! former single-file `element_properties` module.
 
 use super::super::*;
@@ -10,7 +10,7 @@ use super::super::*;
 
 #[derive(Debug, Clone)]
 pub struct DrawingPreview {
-    pub drawing: signex_types::schematic::SchDrawing,
+    pub drawing: oxide_types::schematic::SchDrawing,
     pub stroke: Color,
     pub fill: Color,
     pub muted: Color,
@@ -28,7 +28,7 @@ impl<Message> canvas::Program<Message> for DrawingPreview {
         bounds: Rectangle,
         _cursor: mouse::Cursor,
     ) -> Vec<canvas::Geometry> {
-        use signex_types::schematic::SchDrawing;
+        use oxide_types::schematic::SchDrawing;
         let mut frame = canvas::Frame::new(renderer, bounds.size());
         let pad = 14.0_f32;
         let view_w = (bounds.width - 2.0 * pad).max(20.0);
@@ -87,7 +87,7 @@ impl<Message> canvas::Program<Message> for DrawingPreview {
                 let rect_size =
                     iced::Size::new((b.x - a.x).abs().max(1.0), (b.y - a.y).abs().max(1.0));
                 let path = canvas::Path::rectangle(rect_pos, rect_size);
-                if !matches!(fill, signex_types::schematic::FillType::None) {
+                if !matches!(fill, oxide_types::schematic::FillType::None) {
                     frame.fill(
                         &path,
                         Color {
@@ -107,7 +107,7 @@ impl<Message> canvas::Program<Message> for DrawingPreview {
                 let cp = w2s(center.x, center.y);
                 let rs = (*radius as f32) * scale;
                 let path = canvas::Path::circle(cp, rs.max(1.0));
-                if !matches!(fill, signex_types::schematic::FillType::None) {
+                if !matches!(fill, oxide_types::schematic::FillType::None) {
                     frame.fill(
                         &path,
                         Color {
@@ -124,7 +124,7 @@ impl<Message> canvas::Program<Message> for DrawingPreview {
                 start, mid, end, ..
             } => {
                 if let Some((cxw, cyw, rw)) =
-                    signex_types::schematic::circumcircle(*start, *mid, *end)
+                    oxide_types::schematic::circumcircle(*start, *mid, *end)
                 {
                     let cp = w2s(cxw, cyw);
                     let rs = (rw as f32) * scale;
@@ -159,7 +159,7 @@ impl<Message> canvas::Program<Message> for DrawingPreview {
             }
             SchDrawing::Polyline { points, fill, .. } => {
                 if points.len() >= 2 {
-                    let close = !matches!(fill, signex_types::schematic::FillType::None)
+                    let close = !matches!(fill, oxide_types::schematic::FillType::None)
                         && points.len() >= 3;
                     let path = canvas::Path::new(|b| {
                         let first = w2s(points[0].x, points[0].y);
@@ -193,8 +193,8 @@ impl<Message> canvas::Program<Message> for DrawingPreview {
     }
 }
 
-fn shape_preview_bbox(d: &signex_types::schematic::SchDrawing) -> (f64, f64, f64, f64) {
-    use signex_types::schematic::SchDrawing;
+fn shape_preview_bbox(d: &oxide_types::schematic::SchDrawing) -> (f64, f64, f64, f64) {
+    use oxide_types::schematic::SchDrawing;
     match d {
         SchDrawing::Line { start, end, .. } | SchDrawing::Rect { start, end, .. } => (
             start.x.min(end.x),

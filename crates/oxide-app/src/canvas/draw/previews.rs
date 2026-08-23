@@ -146,11 +146,11 @@ impl SchematicCanvas<'_> {
             // about to create.
             let to_screen = |p: [f32; 2]| cam.world_to_screen(iced::Point::new(p[0], p[1]), bounds);
             let previewed_curve = if let [start, mid] = self.arc_points[..] {
-                let cursor = signex_types::schematic::Point::new(snap_x, snap_y);
-                signex_types::schematic::circumcircle(start, mid, cursor).and_then(
+                let cursor = oxide_types::schematic::Point::new(snap_x, snap_y);
+                oxide_types::schematic::circumcircle(start, mid, cursor).and_then(
                     |(cx, cy, radius)| {
                         let angle_of =
-                            |p: signex_types::schematic::Point| (p.y - cy).atan2(p.x - cx);
+                            |p: oxide_types::schematic::Point| (p.y - cy).atan2(p.x - cx);
                         let (a0, am, a1) = (angle_of(start), angle_of(mid), angle_of(cursor));
                         // Same endpoint ordering as the commit path: keep the
                         // span that actually contains the middle click.
@@ -311,8 +311,8 @@ impl SchematicCanvas<'_> {
                 } else {
                     (cursor_world.x as f64, cursor_world.y as f64)
                 };
-                let start = signex_types::schematic::Point::new(last.x, last.y);
-                let end = signex_types::schematic::Point::new(snap_x, snap_y);
+                let start = oxide_types::schematic::Point::new(last.x, last.y);
+                let end = oxide_types::schematic::Point::new(snap_x, snap_y);
                 let rubber_stroke = canvas::Stroke::default()
                     .with_color(Color {
                         a: 0.7,
@@ -331,7 +331,7 @@ impl SchematicCanvas<'_> {
                         if dx.abs() < 0.01 || dy.abs() < 0.01 {
                             vec![(start, end)]
                         } else {
-                            let corner = signex_types::schematic::Point::new(end.x, start.y);
+                            let corner = oxide_types::schematic::Point::new(end.x, start.y);
                             vec![(start, corner), (corner, end)]
                         }
                     }
@@ -346,7 +346,7 @@ impl SchematicCanvas<'_> {
                             let d = adx.min(ady);
                             let sx = if dx > 0.0 { 1.0 } else { -1.0 };
                             let sy = if dy > 0.0 { 1.0 } else { -1.0 };
-                            let diag_end = signex_types::schematic::Point::new(
+                            let diag_end = oxide_types::schematic::Point::new(
                                 start.x + d * sx,
                                 start.y + d * sy,
                             );
@@ -355,7 +355,7 @@ impl SchematicCanvas<'_> {
                                     (start, diag_end),
                                     (
                                         diag_end,
-                                        signex_types::schematic::Point::new(end.x, diag_end.y),
+                                        oxide_types::schematic::Point::new(end.x, diag_end.y),
                                     ),
                                 ]
                             } else {
@@ -363,12 +363,12 @@ impl SchematicCanvas<'_> {
                                     (start, diag_end),
                                     (
                                         diag_end,
-                                        signex_types::schematic::Point::new(diag_end.x, end.y),
+                                        oxide_types::schematic::Point::new(diag_end.x, end.y),
                                     ),
                                 ]
                             }
                         } else {
-                            let corner = signex_types::schematic::Point::new(end.x, start.y);
+                            let corner = oxide_types::schematic::Point::new(end.x, start.y);
                             vec![(start, corner), (corner, end)]
                         }
                     }

@@ -36,7 +36,7 @@
 //! starting point for authoring such overrides.
 
 use iced::widget::svg;
-use signex_types::theme::{ThemeId, theme_tokens};
+use oxide_types::theme::{ThemeId, theme_tokens};
 
 /// The Signex brand amber. Any accent path in a canonical SVG that is
 /// coloured with this literal hex gets replaced at load time by the

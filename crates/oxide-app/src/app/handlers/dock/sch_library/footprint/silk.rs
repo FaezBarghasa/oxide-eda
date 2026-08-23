@@ -39,7 +39,7 @@ impl Signex {
             && let Some(editor) = self.active_footprint_editor_mut()
             && let Some(idx) = editor.state.selected_silk_f
             && let Some(g) = editor.primitive_mut().silk_f.get_mut(idx)
-            && let signex_library::primitive::footprint::FpGraphicKind::Line { from, to } =
+            && let oxide_library::primitive::footprint::FpGraphicKind::Line { from, to } =
                 &mut g.kind
         {
             match endpoint {
@@ -65,7 +65,7 @@ impl Signex {
             && let Some(editor) = self.active_footprint_editor_mut()
             && let Some(idx) = editor.state.selected_silk_f
             && let Some(g) = editor.primitive_mut().silk_f.get_mut(idx)
-            && let signex_library::primitive::footprint::FpGraphicKind::Text {
+            && let oxide_library::primitive::footprint::FpGraphicKind::Text {
                 position, size, ..
             } = &mut g.kind
         {
@@ -133,7 +133,7 @@ impl Signex {
             && let Some(idx) = editor.state.selected_silk_f
         {
             editor.with_parts(|_state, primitive| {
-                use signex_library::primitive::footprint::FpGraphicKind;
+                use oxide_library::primitive::footprint::FpGraphicKind;
                 if let Some(g) = primitive.silk_f.get_mut(idx)
                     && let FpGraphicKind::Text { content, .. } = &mut g.kind
                 {

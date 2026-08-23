@@ -27,7 +27,7 @@ impl SchematicCanvas<'_> {
                 (cursor_world.x as f64, cursor_world.y as f64)
             };
             let mut preview = ghost_sym.clone();
-            preview.position = signex_types::schematic::Point::new(sx, sy);
+            preview.position = oxide_types::schematic::Point::new(sx, sy);
             let ghost_transform = crate::schematic_runtime::ScreenTransform {
                 offset_x: cam.offset.x,
                 offset_y: cam.offset.y,
@@ -66,7 +66,7 @@ impl SchematicCanvas<'_> {
                 (cursor_world.x as f64, cursor_world.y as f64)
             };
             let mut preview = ghost_tn.clone();
-            preview.position = signex_types::schematic::Point::new(sx, sy);
+            preview.position = oxide_types::schematic::Point::new(sx, sy);
             let ghost_transform = crate::schematic_runtime::ScreenTransform {
                 offset_x: cam.offset.x,
                 offset_y: cam.offset.y,
@@ -106,7 +106,7 @@ impl SchematicCanvas<'_> {
             };
             let mut preview_label = ghost.clone();
             preview_label.position =
-                signex_types::schematic::Point::new(snap_world.0, snap_world.1);
+                oxide_types::schematic::Point::new(snap_world.0, snap_world.1);
             let ghost_transform = crate::schematic_runtime::ScreenTransform {
                 offset_x: cam.offset.x,
                 offset_y: cam.offset.y,

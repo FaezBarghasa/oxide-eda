@@ -1,4 +1,4 @@
-//! Reporting wrapper around [`signex_library::LibrarySet`] resolution.
+//! Reporting wrapper around [`oxide_library::LibrarySet`] resolution.
 //!
 //! The resolvers return `Result<Option<T>, LibraryError>`: `Ok(None)`
 //! is "the primitive is not there", `Err` is "the lookup itself
@@ -13,7 +13,7 @@
 //! a remote library server answered 500 — a diagnosis that sends them
 //! off to re-bind a perfectly good reference.
 
-use signex_library::{LibraryError, PrimitiveRef};
+use oxide_library::{LibraryError, PrimitiveRef};
 
 /// What kind of primitive was being resolved. Used only for the log
 /// record's wording.

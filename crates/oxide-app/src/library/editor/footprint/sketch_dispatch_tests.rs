@@ -6,13 +6,13 @@
 #[cfg(test)]
 mod tests {
 
-    use signex_library::primitive::footprint::Footprint;
-    use signex_sketch::SketchData;
-    use signex_sketch::attr::{PadAttr, PadKind, PadShape, PadSide, PasteAperturePattern};
-    use signex_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
-    use signex_sketch::entity::{Entity, EntityKind};
-    use signex_sketch::id::{ConstraintId, SketchEntityId};
-    use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
+    use oxide_library::primitive::footprint::Footprint;
+    use oxide_sketch::SketchData;
+    use oxide_sketch::attr::{PadAttr, PadKind, PadShape, PadSide, PasteAperturePattern};
+    use oxide_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
+    use oxide_sketch::entity::{Entity, EntityKind};
+    use oxide_sketch::id::{ConstraintId, SketchEntityId};
+    use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
 
     use super::super::sketch_dispatch::{apply_sketch_edit, apply_sketch_edit_with_warnings};
     use super::super::sketch_mode::SketchEdit;
@@ -203,7 +203,7 @@ mod tests {
         // toggle. Once the user actually authors sketch entities, the
         // sketch becomes the source of truth and the bake's output
         // (possibly an empty Vec) overwrites the literal pads.
-        use signex_library::primitive::footprint::{
+        use oxide_library::primitive::footprint::{
             LayerId, Pad, PadKind as LibPadKind, PadShape as LibPadShape,
         };
 
@@ -247,16 +247,16 @@ mod tests {
         // entity to verify the auto-Coincident path.
         use crate::library::editor::footprint::sketch_mode::SketchEdit;
         use crate::library::editor::footprint::state::{SketchTool, ToolPending};
-        use signex_sketch::entity::EntityKind;
+        use oxide_sketch::entity::EntityKind;
 
         let mut fp = empty_footprint();
         let plane = PlaneId::new();
-        fp.sketch = Some(signex_sketch::SketchData {
-            planes: vec![signex_sketch::plane::Plane {
+        fp.sketch = Some(oxide_sketch::SketchData {
+            planes: vec![oxide_sketch::plane::Plane {
                 id: plane,
-                kind: signex_sketch::plane::PlaneKind::BoardTop,
+                kind: oxide_sketch::plane::PlaneKind::BoardTop,
             }],
-            ..signex_sketch::SketchData::default()
+            ..oxide_sketch::SketchData::default()
         });
         let mut state = FootprintEditorState::from_footprint(&fp);
         state.active_tool = SketchTool::Line;
@@ -397,7 +397,7 @@ mod tests {
     fn set_role_silk_top_attaches_silk_attr_with_top_layer() {
         use super::super::sketch_dispatch::{apply_sketch_role, current_role_of};
         use crate::library::messages::RoleTag;
-        use signex_types::layer::SignexLayer;
+        use oxide_types::layer::OxideLayer;
 
         let mut fp = empty_footprint();
         let plane = PlaneId::new();
@@ -429,7 +429,7 @@ mod tests {
             .unwrap();
         assert_eq!(
             line_entity.silk.as_ref().unwrap().layer,
-            SignexLayer::TopSilk
+            OxideLayer::TopSilk
         );
         assert_eq!(current_role_of(line_entity), RoleTag::SilkTop);
     }
@@ -606,7 +606,7 @@ mod tests {
         let mut fp = empty_footprint();
         let plane = PlaneId::new();
         let (e1, _p1) = point_with_pad(plane, 0.0, 0.0, "1");
-        let mut params = signex_sketch::parameter::ParameterTable::default();
+        let mut params = oxide_sketch::parameter::ParameterTable::default();
         params.insert("bad", "$$$");
         fp.sketch = Some(SketchData {
             planes: vec![Plane {
@@ -652,7 +652,7 @@ mod tests {
         SketchEntityId,
     ) {
         use crate::library::editor::footprint::state::SketchTool;
-        use signex_library::primitive::footprint::FootprintFile;
+        use oxide_library::primitive::footprint::FootprintFile;
         use std::path::PathBuf;
 
         let mut fp = empty_footprint();
@@ -925,7 +925,7 @@ mod tests {
     /// armed with the Edge Arc tool.
     fn edge_arc_editor() -> crate::app::FootprintEditorState {
         use crate::library::editor::footprint::state::SketchTool;
-        use signex_library::primitive::footprint::FootprintFile;
+        use oxide_library::primitive::footprint::FootprintFile;
         use std::path::PathBuf;
 
         let mut fp = empty_footprint();

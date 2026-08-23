@@ -13,9 +13,9 @@
 
 use iced::widget::{Space, button, column, container, row, scrollable, text};
 use iced::{Border, Element, Length, Theme};
-use signex_library::{Footprint, Symbol, SymbolGraphicKind};
-use signex_types::theme::ThemeTokens;
-use signex_widgets::theme_ext;
+use oxide_library::{Footprint, Symbol, SymbolGraphicKind};
+use oxide_types::theme::ThemeTokens;
+use oxide_widgets::theme_ext;
 
 use super::super::messages::{EditorMsg, LibraryMessage};
 use super::super::state::{ComponentPreviewState, EditorAddress, LibraryState};
@@ -85,7 +85,7 @@ fn render_panes<'a>(
     let (symbol_msg, symbol_btn_label): (Option<LibraryMessage>, &'static str) = if symbol_unbound {
         (
             Some(LibraryMessage::OpenPrimitivePicker {
-                kind: signex_library::PrimitiveKind::Symbol,
+                kind: oxide_library::PrimitiveKind::Symbol,
                 target: super::super::state::PrimitivePickerTarget::PreviewRow(address.clone()),
             }),
             "Pick Symbol",
@@ -103,7 +103,7 @@ fn render_panes<'a>(
         match state.row.footprint_ref.as_ref() {
             None => (
                 Some(LibraryMessage::OpenPrimitivePicker {
-                    kind: signex_library::PrimitiveKind::Footprint,
+                    kind: oxide_library::PrimitiveKind::Footprint,
                     target: super::super::state::PrimitivePickerTarget::PreviewRow(address.clone()),
                 }),
                 "Pick Footprint",
@@ -599,7 +599,7 @@ fn where_used_footer<'a>(
     tokens: &'a ThemeTokens,
 ) -> Element<'a, LibraryMessage> {
     let muted = theme_ext::text_secondary(tokens);
-    let row_id = signex_library::RowId::from_uuid(state.row.row_id);
+    let row_id = oxide_library::RowId::from_uuid(state.row.row_id);
     let uses = library_state.where_used_for(row_id);
     let label = if uses.is_empty() {
         "Used by 0 sheets in 0 projects.".to_string()

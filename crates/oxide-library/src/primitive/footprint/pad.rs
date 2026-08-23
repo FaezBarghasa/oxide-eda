@@ -4,10 +4,10 @@ use super::*;
 
 /// PCB layer identifier — minimal subset surfaced by the library layer.
 ///
-/// The PCB editor (signex-types::LayerId) carries the full Altium taxonomy.
+/// The PCB editor (oxide-types::LayerId) carries the full Altium taxonomy.
 /// This crate only needs to express which copper / mask / paste layers a pad
 /// participates in; we keep a string-typed wrapper rather than importing
-/// signex-types here so this crate stays leaf-level.
+/// oxide-types here so this crate stays leaf-level.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct LayerId(pub String);
@@ -196,27 +196,27 @@ pub struct Pad {
     /// Top-side surface feature (Altium "Pad Features → Top Side").
     #[serde(
         default,
-        skip_serializing_if = "signex_sketch::attr::PadFeature::is_none"
+        skip_serializing_if = "oxide_sketch::attr::PadFeature::is_none"
     )]
-    pub feature_top: signex_sketch::attr::PadFeature,
+    pub feature_top: oxide_sketch::attr::PadFeature,
     /// Bottom-side surface feature.
     #[serde(
         default,
-        skip_serializing_if = "signex_sketch::attr::PadFeature::is_none"
+        skip_serializing_if = "oxide_sketch::attr::PadFeature::is_none"
     )]
-    pub feature_bottom: signex_sketch::attr::PadFeature,
+    pub feature_bottom: oxide_sketch::attr::PadFeature,
     /// Test-point participation (top/bottom × assembly/fab).
     #[serde(
         default,
-        skip_serializing_if = "signex_sketch::attr::TestpointFlags::is_default"
+        skip_serializing_if = "oxide_sketch::attr::TestpointFlags::is_default"
     )]
-    pub testpoint: signex_sketch::attr::TestpointFlags,
+    pub testpoint: oxide_sketch::attr::TestpointFlags,
     /// Altium-parity electrical-type flag (Load/Source/Terminator).
     #[serde(
         default,
-        skip_serializing_if = "signex_sketch::attr::ElectricalType::is_default"
+        skip_serializing_if = "oxide_sketch::attr::ElectricalType::is_default"
     )]
-    pub electrical_type: signex_sketch::attr::ElectricalType,
+    pub electrical_type: oxide_sketch::attr::ElectricalType,
     /// Net assignment. Empty = unassigned.
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub net: String,

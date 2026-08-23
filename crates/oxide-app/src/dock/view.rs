@@ -83,7 +83,7 @@ impl DockArea {
             // The accent underline is done via bottom-padding on an outer
             // container whose background is the accent color, avoiding
             // Length::Fill which would expand the tab to the panel width.
-            // Shared `signex_widgets::TabPill` custom widget — same
+            // Shared `oxide_widgets::TabPill` custom widget — same
             // rounded-top + 3-sided border + accent underline that the
             // document tab bar uses. Panel tabs and document tabs stay
             // visually in lockstep — the accent line is drawn by
@@ -105,7 +105,7 @@ impl DockArea {
                     ..tab_active
                 }
             };
-            let pill_style = signex_widgets::tab_pill::TabPillStyle {
+            let pill_style = oxide_widgets::tab_pill::TabPillStyle {
                 fill,
                 border: styles::ti(ctx.tokens.border),
                 accent,
@@ -116,7 +116,7 @@ impl DockArea {
                 // ABOVE the panel content — so the accent stripe
                 // belongs at the top of the pill and the rounded
                 // corners flip to the bottom. Inverse of doc tabs.
-                accent_position: signex_widgets::tab_pill::AccentPosition::Top,
+                accent_position: oxide_widgets::tab_pill::AccentPosition::Top,
             };
             // F27 — pin the panel-tab label to a single line. Without
             // `Wrapping::None` iced word-wraps "SCH Library" onto two
@@ -130,7 +130,7 @@ impl DockArea {
                     .wrapping(iced::widget::text::Wrapping::None),
             )
             .padding([4, 10]);
-            let tab = mouse_area(signex_widgets::tab_pill::TabPill::new(inner, pill_style))
+            let tab = mouse_area(oxide_widgets::tab_pill::TabPill::new(inner, pill_style))
                 .on_enter(DockMessage::TabHoverEnter(position, i))
                 .on_exit(DockMessage::TabHoverExit(position, i))
                 .on_press(DockMessage::TabDragStart(position, i))

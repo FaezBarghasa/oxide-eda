@@ -6,7 +6,7 @@
 //! and a future regression has a ready-made probe. Run it explicitly:
 //!
 //! ```text
-//! cargo test -p signex-app --release --test measure_library_open -- --ignored --nocapture
+//! cargo test -p oxide-app --release --test measure_library_open -- --ignored --nocapture
 //! ```
 //!
 //! `--release` is not optional. The debug profile is >10× slower and the
@@ -26,12 +26,12 @@ mod support;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
-use signex_app::library::commands::auto_mount_project_libraries;
-use signex_app::library::mount::prepare_mount;
-use signex_app::library::state::{LibraryDisplaySettings, LibraryState, OpenLibrary};
-use signex_library::adapter::LibraryAdapter;
-use signex_library::adapters::local_git::LocalGitAdapter;
-use signex_types::project::{LibraryEntry, LibraryEntryKind, ProjectData, parse_project};
+use oxide_app::library::commands::auto_mount_project_libraries;
+use oxide_app::library::mount::prepare_mount;
+use oxide_app::library::state::{LibraryDisplaySettings, LibraryState, OpenLibrary};
+use oxide_library::adapter::LibraryAdapter;
+use oxide_library::adapters::local_git::LocalGitAdapter;
+use oxide_types::project::{LibraryEntry, LibraryEntryKind, ProjectData, parse_project};
 
 use support::{Scale, generate_library, primitive_file_sizes};
 
@@ -216,7 +216,7 @@ fn write_project(dir: &Path, name: &str, libs: &[PathBuf]) -> PathBuf {
             .collect(),
         enable_git: false,
     };
-    signex_types::project::write_project(&path, &data).expect("write_project");
+    oxide_types::project::write_project(&path, &data).expect("write_project");
     path
 }
 
@@ -233,7 +233,7 @@ fn measure_library_open() {
     ];
 
     let tmp = tempfile::Builder::new()
-        .prefix("signex-measure-")
+        .prefix("oxide-measure-")
         .tempdir()
         .expect("tempdir");
     let root = tmp.path();

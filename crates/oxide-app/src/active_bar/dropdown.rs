@@ -1,6 +1,6 @@
 //! Active Bar dropdown menus — data-driven. Each `ActiveBarMenu` builds
 //! pure `DropdownEntry` rows that the shared
-//! `signex_widgets::active_bar_dropdown` widget renders, so the
+//! `oxide_widgets::active_bar_dropdown` widget renders, so the
 //! schematic, footprint, and future PCB active bars share one dropdown
 //! renderer (see ADR-0003). Enable/disable is folded into each
 //! `DropdownItem` at build time, so no render-time selection guard is
@@ -8,8 +8,8 @@
 
 use iced::widget::{Space, button, column, container, row, svg, text};
 use iced::{Background, Border, Color, Element, Theme};
-use signex_types::theme::{ThemeId, ThemeTokens};
-use signex_widgets::active_bar_dropdown::{DropdownEntry, DropdownItem};
+use oxide_types::theme::{ThemeId, ThemeTokens};
+use oxide_widgets::active_bar_dropdown::{DropdownEntry, DropdownItem};
 
 use crate::icons as ic;
 use crate::styles;
@@ -32,7 +32,7 @@ pub fn view_dropdown<'a>(
     has_net_colors: bool,
 ) -> Element<'a, ActiveBarMsg> {
     // Data-driven: each menu produces pure `DropdownEntry` rows and the
-    // shared `signex_widgets::active_bar_dropdown` widget renders them, so
+    // shared `oxide_widgets::active_bar_dropdown` widget renders them, so
     // the schematic, footprint, and future PCB active bars share ONE
     // dropdown widget (see ADR-0003 — active_bar / menus data-driven
     // redesign). Enable/disable is folded into each `DropdownItem` here
@@ -47,7 +47,7 @@ pub fn view_dropdown<'a>(
         has_selection,
         has_net_colors,
     );
-    signex_widgets::active_bar_dropdown::view(entries, tokens, dropdown_min_width(menu))
+    oxide_widgets::active_bar_dropdown::view(entries, tokens, dropdown_min_width(menu))
 }
 
 /// One icon + label dropdown row. Disabled rows drop their `on_press`
@@ -876,7 +876,7 @@ pub fn dropdown_x_offset(menu: ActiveBarMenu) -> f32 {
     // `bar_items()` the offsets can be measured from, which is its own
     // change. It is correct today: the bar's only Custom slot (the
     // draw-mode pill) is appended after all thirteen triggers.
-    use signex_widgets::active_bar::{BAR_PADDING, BTN_SIZE, ROW_SPACING, SEP_W};
+    use oxide_widgets::active_bar::{BAR_PADDING, BTN_SIZE, ROW_SPACING, SEP_W};
     // Layout: [Filter][Move] | [Select][Align] | [Wire][Power] | [Harness][Sheet][Port][Dir] | [Text][Shapes][NetColor]
     //  btn:     0      1    s    2      3     s   4      5    s    6      7     8    9    s  10     11     12
     let btn = BTN_SIZE + ROW_SPACING;
@@ -1015,7 +1015,7 @@ mod tests {
 
     #[test]
     fn net_color_swatches_and_gated_clear_rows() {
-        let tokens = signex_types::theme::theme_tokens(TID);
+        let tokens = oxide_types::theme::theme_tokens(TID);
         let with = net_color_entries(&tokens, TID, false, true);
         let without = net_color_entries(&tokens, TID, false, false);
         assert_eq!(customs(&with), 7); // seven colour swatches
@@ -1030,7 +1030,7 @@ mod tests {
 
     #[test]
     fn filter_menu_is_a_single_custom_entry() {
-        let tokens = signex_types::theme::theme_tokens(TID);
+        let tokens = oxide_types::theme::theme_tokens(TID);
         let filters = std::collections::HashSet::new();
         let entry = filter_entry(&tokens, &filters, &[]);
         assert!(matches!(entry, DropdownEntry::Custom(_)));
@@ -1788,7 +1788,7 @@ mod tests {
 
     #[test]
     fn dropdown_entries_match_pre_refactor_golden() {
-        let tokens = signex_types::theme::theme_tokens(TID);
+        let tokens = oxide_types::theme::theme_tokens(TID);
         let filters: std::collections::HashSet<SelectionFilter> = std::collections::HashSet::new();
         let presets: Vec<CustomFilterPreset> = vec![];
         for &(menu, sel, nc, expected) in GOLDEN {

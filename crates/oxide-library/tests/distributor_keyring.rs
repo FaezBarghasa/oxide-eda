@@ -7,7 +7,7 @@
 
 #![cfg(feature = "distributors-community")]
 
-use signex_library::distributors::keyring::{KeyringError, KeyringStore};
+use oxide_library::distributors::keyring::{KeyringError, KeyringStore};
 
 fn entry_for(test_name: &str) -> KeyringStore {
     // Per-test username keeps parallel tests from clobbering each other.
@@ -96,7 +96,7 @@ fn keyring_overwrite_replaces_value() {
 
 #[test]
 fn service_name_format_matches_spec() {
-    // Service-name format: `signex-distributor-<provider>`. No
+    // Service-name format: `oxide-distributor-<provider>`. No
     // network or backend touch.
     // MD-17: skip on CI environments without a keyring daemon — the
     // service-name shape is stable; this test only verifies the
@@ -104,6 +104,6 @@ fn service_name_format_matches_spec() {
     let Ok(store) = KeyringStore::for_provider("digikey", "user1") else {
         return;
     };
-    assert_eq!(store.service_name(), "signex-distributor-digikey");
+    assert_eq!(store.service_name(), "oxide-distributor-digikey");
     assert_eq!(store.username(), "user1");
 }

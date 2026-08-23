@@ -9,7 +9,7 @@
 //!   message must apply exactly like the old inline path did (success
 //!   opens the tab, failure logs and opens nothing).
 
-use signex_app::app::{FileMsg, Message, Signex};
+use oxide_app::app::{FileMsg, Message, Signex};
 
 use std::fs;
 use std::path::PathBuf;
@@ -20,12 +20,12 @@ use tempfile::TempDir;
 // `tests/regression.rs`.
 
 /// Minimal but valid `SchematicSheet` fixture — same shape as
-/// `signex_types::format::tests::empty_sheet`.
-fn empty_schematic_sheet() -> signex_types::schematic::SchematicSheet {
-    signex_types::schematic::SchematicSheet {
+/// `oxide_types::format::tests::empty_sheet`.
+fn empty_schematic_sheet() -> oxide_types::schematic::SchematicSheet {
+    oxide_types::schematic::SchematicSheet {
         uuid: uuid::Uuid::new_v4(),
         version: 1,
-        generator: "signex-test".into(),
+        generator: "oxide-test".into(),
         generator_version: "0.9".into(),
         paper_size: "A4".into(),
         root_sheet_page: "1".into(),
@@ -50,7 +50,7 @@ fn opening_a_schematic_does_not_synchronously_create_a_tab() {
     let tmp = TempDir::new().expect("tempdir");
     let sch_path = tmp.path().join("Async.snxsch");
     let sheet = empty_schematic_sheet();
-    let serialised = signex_types::format::SnxSchematic::new(sheet)
+    let serialised = oxide_types::format::SnxSchematic::new(sheet)
         .write_string()
         .expect("serialise schematic");
     fs::write(&sch_path, serialised).expect("write .snxsch");
@@ -81,7 +81,7 @@ fn opening_the_same_schematic_twice_before_it_completes_spawns_only_one_task() {
     // second call actually spawned another read+parse.
     let tmp = TempDir::new().expect("tempdir");
     let sch_path = tmp.path().join("Dup.snxsch");
-    let serialised = signex_types::format::SnxSchematic::new(empty_schematic_sheet())
+    let serialised = oxide_types::format::SnxSchematic::new(empty_schematic_sheet())
         .write_string()
         .expect("serialise schematic");
     fs::write(&sch_path, serialised).expect("write .snxsch");
@@ -217,12 +217,12 @@ fn reopening_an_already_open_schematic_tab_activates_it_instead_of_duplicating()
 }
 
 /// Minimal but valid `PcbBoard` fixture — same shape as
-/// `signex_types::format::tests::empty_board`.
-fn empty_pcb_board() -> signex_types::pcb::PcbBoard {
-    signex_types::pcb::PcbBoard {
+/// `oxide_types::format::tests::empty_board`.
+fn empty_pcb_board() -> oxide_types::pcb::PcbBoard {
+    oxide_types::pcb::PcbBoard {
         uuid: uuid::Uuid::new_v4(),
         version: 1,
-        generator: "signex-test".into(),
+        generator: "oxide-test".into(),
         thickness: 1.6,
         outline: vec![],
         layers: vec![],
@@ -284,7 +284,7 @@ fn opening_the_same_pcb_twice_before_it_completes_spawns_only_one_task() {
 
 #[test]
 fn pcb_open_finished_ok_opens_the_tab_like_the_old_sync_path_did() {
-    use signex_app::app::TabDocument;
+    use oxide_app::app::TabDocument;
 
     let path = PathBuf::from("/tmp/does-not-matter/board.snxpcb");
     let board = empty_pcb_board();

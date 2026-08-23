@@ -1,7 +1,7 @@
-//! Integration tests for `signex_library::project_file_history`.
+//! Integration tests for `oxide_library::project_file_history`.
 //!
 //! Mirrors the in-adapter `LocalGitAdapter::history` tests but
-//! exercises the public helper used by `signex-app`'s right-dock
+//! exercises the public helper used by `oxide-app`'s right-dock
 //! History panel. The helper walks any git repo (not just a
 //! library-rooted one), so the fixtures here build a plain
 //! `git2::Repository` and stage handful of commits manually.
@@ -11,13 +11,13 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use signex_library::adapter::LibraryError;
-use signex_library::project_file_history;
+use oxide_library::adapter::LibraryError;
+use oxide_library::project_file_history;
 
 /// Mint a signature for fixture commits without leaning on the
 /// caller's `git` config (CI machines often have neither set).
 fn fixture_signature() -> git2::Signature<'static> {
-    git2::Signature::now("signex-test", "test@signex.local").unwrap()
+    git2::Signature::now("oxide-test", "test@signex.local").unwrap()
 }
 
 /// Stage `rel_path` (under `repo`'s working tree) and create a
@@ -112,7 +112,7 @@ fn returns_n_commits_newest_first() {
     assert_eq!(entries[2].subject, "first change");
 
     // Author identity from the fixture signature flows through.
-    assert_eq!(entries[0].author_name, "signex-test");
+    assert_eq!(entries[0].author_name, "oxide-test");
     assert_eq!(entries[0].author_email, "test@signex.local");
 
     // The unrelated commit on `other.txt` is filtered out — confirm

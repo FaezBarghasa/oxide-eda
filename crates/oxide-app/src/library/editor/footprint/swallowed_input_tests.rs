@@ -17,11 +17,11 @@
 
 #[cfg(test)]
 mod tests {
-    use signex_library::primitive::footprint::{Footprint, FootprintFile};
-    use signex_sketch::SketchData;
-    use signex_sketch::entity::{Entity, EntityKind};
-    use signex_sketch::id::SketchEntityId;
-    use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
+    use oxide_library::primitive::footprint::{Footprint, FootprintFile};
+    use oxide_sketch::SketchData;
+    use oxide_sketch::entity::{Entity, EntityKind};
+    use oxide_sketch::id::SketchEntityId;
+    use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
     use std::path::PathBuf;
 
     use crate::library::editor::footprint::state::SketchTool;

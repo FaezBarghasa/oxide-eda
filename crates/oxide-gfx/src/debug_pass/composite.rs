@@ -20,7 +20,7 @@ async fn run_text_geometry_composite_smoke_pass_with(
 
     let (device, queue) = adapter
         .request_device(&wgpu::DeviceDescriptor {
-            label: Some("signex_gfx_text_geometry_composite_smoke_device"),
+            label: Some("oxide_gfx_text_geometry_composite_smoke_device"),
             required_features: wgpu::Features::empty(),
             required_limits: wgpu::Limits::downlevel_defaults(),
             experimental_features: wgpu::ExperimentalFeatures::disabled(),
@@ -55,7 +55,7 @@ async fn run_text_geometry_composite_smoke_pass_with(
         .map_err(|err| format!("failed to prepare text: {err}"))?;
 
     let target = device.create_texture(&wgpu::TextureDescriptor {
-        label: Some("signex_gfx_text_geometry_composite_smoke_target"),
+        label: Some("oxide_gfx_text_geometry_composite_smoke_target"),
         size: wgpu::Extent3d {
             width: 128,
             height: 128,
@@ -71,12 +71,12 @@ async fn run_text_geometry_composite_smoke_pass_with(
     let target_view = target.create_view(&wgpu::TextureViewDescriptor::default());
 
     let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-        label: Some("signex_gfx_text_geometry_composite_smoke_encoder"),
+        label: Some("oxide_gfx_text_geometry_composite_smoke_encoder"),
     });
     let mut stage_order = Vec::with_capacity(2);
     {
         let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-            label: Some("signex_gfx_text_geometry_composite_smoke_render_pass"),
+            label: Some("oxide_gfx_text_geometry_composite_smoke_render_pass"),
             color_attachments: &[Some(wgpu::RenderPassColorAttachment {
                 view: &target_view,
                 depth_slice: None,
@@ -161,7 +161,7 @@ pub(super) async fn run_grid_overlay_text_composite_smoke_pass_with(
 
     let (device, queue) = adapter
         .request_device(&wgpu::DeviceDescriptor {
-            label: Some("signex_gfx_grid_overlay_text_composite_smoke_device"),
+            label: Some("oxide_gfx_grid_overlay_text_composite_smoke_device"),
             required_features: wgpu::Features::empty(),
             required_limits: wgpu::Limits::downlevel_defaults(),
             experimental_features: wgpu::ExperimentalFeatures::disabled(),
@@ -208,7 +208,7 @@ pub(super) async fn run_grid_overlay_text_composite_smoke_pass_with(
         .map_err(|err| format!("failed to prepare text: {err}"))?;
 
     let target = device.create_texture(&wgpu::TextureDescriptor {
-        label: Some("signex_gfx_grid_overlay_text_composite_smoke_target"),
+        label: Some("oxide_gfx_grid_overlay_text_composite_smoke_target"),
         size: wgpu::Extent3d {
             width: 128,
             height: 128,
@@ -224,13 +224,13 @@ pub(super) async fn run_grid_overlay_text_composite_smoke_pass_with(
     let target_view = target.create_view(&wgpu::TextureViewDescriptor::default());
 
     let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-        label: Some("signex_gfx_grid_overlay_text_composite_smoke_encoder"),
+        label: Some("oxide_gfx_grid_overlay_text_composite_smoke_encoder"),
     });
 
     let mut stage_order = Vec::with_capacity(4);
     {
         let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-            label: Some("signex_gfx_grid_overlay_text_composite_smoke_render_pass"),
+            label: Some("oxide_gfx_grid_overlay_text_composite_smoke_render_pass"),
             color_attachments: &[Some(wgpu::RenderPassColorAttachment {
                 view: &target_view,
                 depth_slice: None,

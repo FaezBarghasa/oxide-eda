@@ -2,7 +2,7 @@
 
 use iced::widget::{Column, Space, column, container, row, svg, text};
 use iced::{Background, Border, Color, Element, Length, Theme};
-use signex_types::theme::ThemeTokens;
+use oxide_types::theme::ThemeTokens;
 
 use crate::catalog::Message;
 use crate::icon::x_handle;

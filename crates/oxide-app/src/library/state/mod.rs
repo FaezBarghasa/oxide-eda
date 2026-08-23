@@ -5,7 +5,7 @@
 //! `<lib>/tables/<category>.tsv`, addressed by
 //! `(library_path, table, row_id)`. The main pieces:
 //!
-//! * `set` — `signex_library::LibrarySet`, the cross-library resolver
+//! * `set` — `oxide_library::LibrarySet`, the cross-library resolver
 //!   that maps `library_id → Box<dyn LibraryAdapter>`. Editors and
 //!   renderers hand a `PrimitiveRef` to `set.resolve_*` to load
 //!   `Symbol`/`Footprint`/`SimModel` primitives without knowing which
@@ -30,12 +30,12 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use signex_library::{
+use oxide_library::{
     ComponentClass, ComponentRow, ComponentSummary, DistributorSource, Footprint, LibraryAdapter,
     LibraryError, LibrarySet, LocalGitAdapter, PrimitiveKind, PrimitiveRef, PrimitiveSummary,
     RowId, SimModel, Symbol, TemplateRegistry, UseSite, WhereUsedIndex,
 };
-use signex_types::coord::Unit;
+use oxide_types::coord::Unit;
 
 use crate::panels::SheetColor;
 use uuid::Uuid;
@@ -123,8 +123,8 @@ impl LifecycleFilter {
     /// (see `lifecycle_dot_color`). `LifecycleState` is
     /// `#[non_exhaustive]` so the match falls through to the default
     /// (active-but-not-preferred) bucket for any future variant.
-    pub fn allows(self, state: signex_library::LifecycleState) -> bool {
-        use signex_library::LifecycleState as L;
+    pub fn allows(self, state: oxide_library::LifecycleState) -> bool {
+        use oxide_library::LifecycleState as L;
         match (self, state) {
             (Self::All, _) => true,
             (Self::PreferredOnly, L::Released) => true,
@@ -322,10 +322,10 @@ impl EditRowModalState {
             .iter()
             .map(|(k, v)| {
                 let (val, unit) = match v {
-                    signex_library::ParamValue::Text(s) => (s.clone(), String::new()),
-                    signex_library::ParamValue::Number(n) => (n.to_string(), String::new()),
-                    signex_library::ParamValue::Bool(b) => (b.to_string(), String::new()),
-                    signex_library::ParamValue::Measurement { value, unit } => {
+                    oxide_library::ParamValue::Text(s) => (s.clone(), String::new()),
+                    oxide_library::ParamValue::Number(n) => (n.to_string(), String::new()),
+                    oxide_library::ParamValue::Bool(b) => (b.to_string(), String::new()),
+                    oxide_library::ParamValue::Measurement { value, unit } => {
                         (value.to_string(), unit.clone())
                     }
                 };
@@ -336,7 +336,7 @@ impl EditRowModalState {
         // tags live as a free-form `ParamValue::Text` keyed by "tags"
         // (plan §6).
         let tags_buf = match draft.parameters.get("tags") {
-            Some(signex_library::ParamValue::Text(s)) => s.clone(),
+            Some(oxide_library::ParamValue::Text(s)) => s.clone(),
             Some(other) => other.display(),
             None => String::new(),
         };
@@ -448,7 +448,7 @@ pub struct LibraryState {
     /// "Library Updates Available" modal state — Stage 16 of
     /// `v0.9-snxlib-as-file-plan.md` §3.5. Populated by the
     /// schematic-open scan when the source library's mode is
-    /// [`signex_library::WorkflowMode::Team`] and at least one placed
+    /// [`oxide_library::WorkflowMode::Team`] and at least one placed
     /// Symbol's pinned version drifts from the row's current version.
     /// Personal-mode schematic opens auto-apply silently and never
     /// build this state.

@@ -7,9 +7,9 @@ use iced::widget::{Space, button, column, container, row, text};
 use iced::{Background, Border, Color, Element, Length, Theme};
 
 pub(super) fn content_erc<'a>(
-    overrides: &'a std::collections::HashMap<signex_erc::RuleKind, signex_erc::Severity>,
+    overrides: &'a std::collections::HashMap<oxide_erc::RuleKind, oxide_erc::Severity>,
 ) -> Element<'a, PrefMsg> {
-    use signex_erc::{RuleKind, Severity};
+    use oxide_erc::{RuleKind, Severity};
     const RULES: &[RuleKind] = &[
         RuleKind::UnusedPin,
         RuleKind::DuplicateRefDesignator,
@@ -131,20 +131,20 @@ pub(super) fn content_erc<'a>(
     column![header, rows_col, reset_row].spacing(0).into()
 }
 
-fn severity_label(sev: signex_erc::Severity) -> &'static str {
+fn severity_label(sev: oxide_erc::Severity) -> &'static str {
     match sev {
-        signex_erc::Severity::Error => "Error",
-        signex_erc::Severity::Warning => "Warning",
-        signex_erc::Severity::Info => "Info",
-        signex_erc::Severity::Off => "Off",
+        oxide_erc::Severity::Error => "Error",
+        oxide_erc::Severity::Warning => "Warning",
+        oxide_erc::Severity::Info => "Info",
+        oxide_erc::Severity::Off => "Off",
     }
 }
 
-fn severity_bg(sev: signex_erc::Severity) -> Color {
+fn severity_bg(sev: oxide_erc::Severity) -> Color {
     match sev {
-        signex_erc::Severity::Error => Color::from_rgb(0.58, 0.20, 0.22),
-        signex_erc::Severity::Warning => Color::from_rgb(0.55, 0.45, 0.12),
-        signex_erc::Severity::Info => Color::from_rgb(0.20, 0.36, 0.58),
-        signex_erc::Severity::Off => Color::from_rgb(0.28, 0.28, 0.32),
+        oxide_erc::Severity::Error => Color::from_rgb(0.58, 0.20, 0.22),
+        oxide_erc::Severity::Warning => Color::from_rgb(0.55, 0.45, 0.12),
+        oxide_erc::Severity::Info => Color::from_rgb(0.20, 0.36, 0.58),
+        oxide_erc::Severity::Off => Color::from_rgb(0.28, 0.28, 0.32),
     }
 }

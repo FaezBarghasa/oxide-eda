@@ -6,7 +6,7 @@
 //! validation pipeline still works on the new row payload.
 
 use chrono::Utc;
-use signex_library::*;
+use oxide_library::*;
 use uuid::Uuid;
 
 #[test]

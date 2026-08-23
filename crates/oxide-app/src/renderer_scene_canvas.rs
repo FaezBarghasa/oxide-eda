@@ -2,12 +2,12 @@ use iced::advanced::text as advanced_text;
 use iced::alignment;
 use iced::widget::canvas;
 use iced::{Color, Point};
-use signex_gfx::primitive::arc::Arc;
-use signex_gfx::primitive::circle::Circle;
-use signex_gfx::primitive::line::LineSegment;
-use signex_gfx::primitive::polygon::GpuPolygon;
-use signex_gfx::primitive::text::{TextHAlign, TextItem, TextVAlign};
-use signex_gfx::scene::{CPU_SCHEMATIC_DRAW_ORDER, Scene, SceneBucket};
+use oxide_gfx::primitive::arc::Arc;
+use oxide_gfx::primitive::circle::Circle;
+use oxide_gfx::primitive::line::LineSegment;
+use oxide_gfx::primitive::polygon::GpuPolygon;
+use oxide_gfx::primitive::text::{TextHAlign, TextItem, TextVAlign};
+use oxide_gfx::scene::{CPU_SCHEMATIC_DRAW_ORDER, Scene, SceneBucket};
 
 #[derive(Debug, Clone, Copy)]
 pub struct SceneDrawOptions {
@@ -15,7 +15,7 @@ pub struct SceneDrawOptions {
     pub min_stroke_px: f32,
     /// Readability limits in logical pixels — a per-surface view decision, so
     /// each replay supplies its own. The mm→em ratio is *not* here: it is one
-    /// constant (`signex_gfx::primitive::text::MM_PER_EM`) because it encodes
+    /// constant (`oxide_gfx::primitive::text::MM_PER_EM`) because it encodes
     /// the model's millimetre contract, not a view preference, and a second
     /// copy is how the replays drifted apart.
     pub text_min_px: f32,
@@ -46,7 +46,7 @@ where
     up.y < origin.y
 }
 
-/// How an [`signex_gfx::primitive::arc::Arc`] maps onto the screen-space
+/// How an [`oxide_gfx::primitive::arc::Arc`] maps onto the screen-space
 /// angles `canvas::path::Arc` wants.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ArcScreenSpan {
@@ -63,7 +63,7 @@ pub enum ArcScreenSpan {
 ///
 /// Arc angles are world-space radians measured from +X, and the sweep is
 /// always this codebase's CCW-wraparound rule — `(end - start).rem_euclid(TAU)`
-/// (`signex_gfx::primitive::arc::ccw_wrapped_sweep_rad`, the same rule
+/// (`oxide_gfx::primitive::arc::ccw_wrapped_sweep_rad`, the same rule
 /// `arc.wgsl` and the symbol hit-test use) — never the signed difference.
 /// lyon's `builder.arc` does not know that convention: it draws
 /// `end_angle - start_angle` as a raw signed sweep, so the end angle handed to
@@ -94,11 +94,11 @@ where
 }
 
 pub fn arc_screen_span(start_angle: f32, end_angle: f32, world_is_y_up: bool) -> ArcScreenSpan {
-    if signex_gfx::primitive::arc::arc_is_full_turn_rad(start_angle, end_angle) {
+    if oxide_gfx::primitive::arc::arc_is_full_turn_rad(start_angle, end_angle) {
         return ArcScreenSpan::FullTurn;
     }
 
-    let sweep = signex_gfx::primitive::arc::ccw_wrapped_sweep_rad(start_angle, end_angle);
+    let sweep = oxide_gfx::primitive::arc::ccw_wrapped_sweep_rad(start_angle, end_angle);
 
     if world_is_y_up {
         // Reflection: screen angle is the negated world angle, so an
@@ -127,10 +127,10 @@ impl SceneDrawOptions {
     }
 
     fn text_px(self, size_mm: f32) -> f32 {
-        signex_gfx::primitive::text::text_px(
+        oxide_gfx::primitive::text::text_px(
             size_mm,
             self.scale_px_per_mm,
-            signex_gfx::primitive::text::TextSizePolicy::new(self.text_min_px, self.text_max_px),
+            oxide_gfx::primitive::text::TextSizePolicy::new(self.text_min_px, self.text_max_px),
         )
     }
 }

@@ -15,7 +15,7 @@ impl Signex {
     /// active preview. Returns the sidebar `column` the modal drops into its
     /// main row.
     pub(super) fn bom_sidebar(&self) -> Element<'_, Message> {
-        use signex_output::{BomColumn, BomFormat, BomGrouping};
+        use oxide_output::{BomColumn, BomFormat, BomGrouping};
         let Some(ref preview) = self.document_state.bom_preview else {
             return container(Space::new()).into();
         };

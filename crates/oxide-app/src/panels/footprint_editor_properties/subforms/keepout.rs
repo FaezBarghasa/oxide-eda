@@ -10,7 +10,7 @@ use super::super::super::{FootprintEditorPanelContext, KeepoutKindFlag, PanelMsg
 pub(in crate::panels::footprint_editor_properties) fn render_keepout_subform<'a>(
     mut col: Column<'a, PanelMsg>,
     fp: &'a FootprintEditorPanelContext,
-    id: signex_sketch::id::SketchEntityId,
+    id: oxide_sketch::id::SketchEntityId,
     muted: Color,
     primary: Color,
     _border_c: Color,

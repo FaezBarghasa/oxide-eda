@@ -15,9 +15,9 @@
 //! prefs path guarded by another module's `Mutex`, and the regression
 //! tests are one binary with no lock shared across modules.
 
-use signex_app::app::{Message, PreferencesMsg, Signex, UiMsg};
-use signex_app::preferences::PrefMsg;
-use signex_app::render_config::GridStyle;
+use oxide_app::app::{Message, PreferencesMsg, Signex, UiMsg};
+use oxide_app::preferences::PrefMsg;
+use oxide_app::render_config::GridStyle;
 
 fn inner(msg: PrefMsg) -> Message {
     Message::Preferences(PreferencesMsg::Inner(msg))
@@ -123,7 +123,7 @@ fn no_per_window_copy_of_the_grid_style_exists() {
     let undocked_id = iced::window::Id::unique();
     app.interaction_state
         .canvases
-        .insert(undocked_id, signex_app::canvas::CanvasSlot::new());
+        .insert(undocked_id, oxide_app::canvas::CanvasSlot::new());
     let _ = app.update(Message::Preferences(PreferencesMsg::Open));
     let wanted = other_grid_style(app.ui_state.grid_style);
 

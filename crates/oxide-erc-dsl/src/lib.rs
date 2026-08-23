@@ -46,7 +46,7 @@ pub fn parse_validate_compile(src: &str) -> Result<Vec<CompiledRule>, Vec<DslErr
 /// Parse, validate, compile, and convert rules into engine evaluator closures.
 pub fn parse_validate_compile_to_eval_fns(
     src: &str,
-) -> Result<Vec<signex_erc::engine::EvalFn>, Vec<DslError>> {
+) -> Result<Vec<oxide_erc::engine::EvalFn>, Vec<DslError>> {
     let compiled = parse_validate_compile(src)?;
     Ok(to_eval_fns(&compiled))
 }
@@ -55,8 +55,8 @@ pub fn parse_validate_compile_to_eval_fns(
 mod tests {
     use std::collections::HashMap;
 
-    use signex_erc::context::{ErcContext, ErcNet, ErcPin, ErcSymbol, PaperSize};
-    use signex_types::schematic::{PinDirection, Point};
+    use oxide_erc::context::{ErcContext, ErcNet, ErcPin, ErcSymbol, PaperSize};
+    use oxide_types::schematic::{PinDirection, Point};
 
     use super::*;
 

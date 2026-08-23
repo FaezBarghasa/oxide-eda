@@ -31,7 +31,7 @@ use pdf_writer::{Finish, Pdf, Ref, TextStr};
 use super::PdfOptions;
 use super::layout::PageTransform;
 use crate::ExportContext;
-use signex_types::schematic::LabelType;
+use oxide_types::schematic::LabelType;
 
 /// A bookmark target before any PDF refs have been allocated.
 #[derive(Debug, Clone)]

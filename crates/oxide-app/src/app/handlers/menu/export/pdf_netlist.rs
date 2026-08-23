@@ -3,7 +3,7 @@
 use std::path::PathBuf;
 
 use iced::Task;
-use signex_output::{Exporter, NetlistExporter, NetlistOptions, PdfExporter};
+use oxide_output::{Exporter, NetlistExporter, NetlistOptions, PdfExporter};
 
 use super::super::super::super::*;
 

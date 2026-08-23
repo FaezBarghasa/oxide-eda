@@ -84,8 +84,8 @@ fn hit_wire(snapshot: &SchematicRenderSnapshot, uuid: uuid::Uuid, point: Point) 
         .is_some_and(|wire| {
             let tolerance = wire
                 .stroke_width
-                .max(signex_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_MM)
-                .max(signex_types::schematic::SCHEMATIC_HIT_WIRE_TOLERANCE_MM);
+                .max(oxide_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_MM)
+                .max(oxide_types::schematic::SCHEMATIC_HIT_WIRE_TOLERANCE_MM);
             point_to_segment_distance(point, wire.start, wire.end) <= tolerance
         })
 }
@@ -97,6 +97,6 @@ fn hit_bus(snapshot: &SchematicRenderSnapshot, uuid: uuid::Uuid, point: Point) -
         .find(|bus| bus.uuid == uuid)
         .is_some_and(|bus| {
             point_to_segment_distance(point, bus.start, bus.end)
-                <= signex_types::schematic::SCHEMATIC_HIT_BUS_TOLERANCE_MM
+                <= oxide_types::schematic::SCHEMATIC_HIT_BUS_TOLERANCE_MM
         })
 }

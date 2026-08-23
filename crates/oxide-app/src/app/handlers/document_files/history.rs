@@ -40,7 +40,7 @@ impl Signex {
         };
 
         let adapter =
-            match signex_library::adapters::local_git_project::LocalGitProjectAdapter::open_or_init(
+            match oxide_library::adapters::local_git_project::LocalGitProjectAdapter::open_or_init(
                 project_root.clone(),
             ) {
                 Ok(a) => a,
@@ -119,7 +119,7 @@ impl Signex {
                         return;
                     }
                 };
-                let parsed = match signex_types::format::SnxSchematic::parse(&text) {
+                let parsed = match oxide_types::format::SnxSchematic::parse(&text) {
                     Ok(p) => p.sheet,
                     Err(e) => {
                         crate::diagnostics::log_warning(format!(
@@ -145,7 +145,7 @@ impl Signex {
                         return;
                     }
                 };
-                let board = match signex_types::format::SnxPcb::parse(&text) {
+                let board = match oxide_types::format::SnxPcb::parse(&text) {
                     Ok(p) => p.board,
                     Err(e) => {
                         crate::diagnostics::log_warning(format!(
@@ -172,7 +172,7 @@ impl Signex {
                         return;
                     }
                 };
-                match signex_library::FootprintFile::from_toml_str(&bytes) {
+                match oxide_library::FootprintFile::from_toml_str(&bytes) {
                     Ok(file) if !file.footprints.is_empty() => {
                         let snap_disabled = !self.ui_state.snap_enabled;
                         let state = crate::app::FootprintEditorState::new(p.clone(), file)
@@ -209,7 +209,7 @@ impl Signex {
                         return;
                     }
                 };
-                match signex_library::SymbolFile::from_bytes(&bytes) {
+                match oxide_library::SymbolFile::from_bytes(&bytes) {
                     Ok(file) if !file.symbols.is_empty() => {
                         let state = crate::app::SymbolEditorState::new(p.clone(), file);
                         self.document_state.symbol_editors.insert(p.clone(), state);
@@ -254,7 +254,7 @@ impl Signex {
                     // the mounted one — `restore_at` rewrote the
                     // working tree, and the adapter's internal
                     // caches (e.g. git2 index) are stale.
-                    match signex_library::LocalGitAdapter::open(&lib_path) {
+                    match oxide_library::LocalGitAdapter::open(&lib_path) {
                         Ok(fresh_adapter) => {
                             if let Err(e) = open_lib.reload_tables(&fresh_adapter) {
                                 crate::diagnostics::log_warning(format!(

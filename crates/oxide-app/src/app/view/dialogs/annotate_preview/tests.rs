@@ -20,7 +20,7 @@
 
 use std::path::PathBuf;
 
-use signex_types::format::SnxSchematic;
+use oxide_types::format::SnxSchematic;
 use uuid::Uuid;
 
 use crate::app::Signex;
@@ -41,7 +41,7 @@ use crate::app::handlers::menu::export::tests::{app_workspace, open_with, sheet_
 ///
 /// Returns the app and the temp dir (caller cleans up).
 fn fixture() -> (Signex, PathBuf) {
-    let dir = std::env::temp_dir().join(format!("signex-annotate-preview-{}", Uuid::new_v4()));
+    let dir = std::env::temp_dir().join(format!("oxide-annotate-preview-{}", Uuid::new_v4()));
     std::fs::create_dir_all(&dir).expect("tempdir");
 
     let child = SnxSchematic::new(sheet_with_net("R?", "CHILD_NET", &[]))
@@ -99,7 +99,7 @@ fn the_preview_promises_what_the_action_assigns() {
     let promised_child = proposed_for(&app, "z_child");
     let promised_root = proposed_for(&app, "a_root");
 
-    let _ = app.handle_annotate(signex_engine::AnnotateMode::Incremental);
+    let _ = app.handle_annotate(oxide_engine::AnnotateMode::Incremental);
 
     let written = std::fs::read_to_string(dir.join("z_child.snxsch")).expect("child still on disk");
     let child_after: Vec<String> = SnxSchematic::parse(&written)
@@ -162,7 +162,7 @@ fn the_preview_omits_tabs_the_action_refuses_to_touch() {
          so the preview must not offer to renumber it: {sheets:?}"
     );
 
-    let _ = app.handle_annotate(signex_engine::AnnotateMode::Incremental);
+    let _ = app.handle_annotate(oxide_engine::AnnotateMode::Incremental);
     let loose_after = app
         .document_state
         .engines

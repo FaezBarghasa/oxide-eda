@@ -28,7 +28,7 @@
 
 #[test]
 fn config_root_resolves_under_the_os_temp_dir_during_tests() {
-    let root = signex_app::config_root::config_root().expect("test redirect always resolves");
+    let root = oxide_app::config_root::config_root().expect("test redirect always resolves");
     assert!(
         root.starts_with(std::env::temp_dir()),
         "config_root() must resolve under the OS temp dir during a test run, got {}",
@@ -38,8 +38,8 @@ fn config_root_resolves_under_the_os_temp_dir_during_tests() {
 
 #[test]
 fn keymap_config_path_lives_under_shared_root() {
-    let root = signex_app::config_root::config_root().expect("test redirect always resolves");
-    let path = signex_app::keymap::config_path().expect("resolves under the test redirect");
+    let root = oxide_app::config_root::config_root().expect("test redirect always resolves");
+    let path = oxide_app::keymap::config_path().expect("resolves under the test redirect");
     assert!(
         path.starts_with(&root),
         "keymap::config_path() must live under config_root(), got {} (root {})",
@@ -50,8 +50,8 @@ fn keymap_config_path_lives_under_shared_root() {
 
 #[test]
 fn distributors_config_path_lives_under_shared_root() {
-    let root = signex_app::config_root::config_root().expect("test redirect always resolves");
-    let path = signex_app::library::settings::persistence::config_path()
+    let root = oxide_app::config_root::config_root().expect("test redirect always resolves");
+    let path = oxide_app::library::settings::persistence::config_path()
         .expect("resolves under the test redirect");
     assert!(
         path.starts_with(&root),
@@ -63,8 +63,8 @@ fn distributors_config_path_lives_under_shared_root() {
 
 #[test]
 fn global_libraries_prefs_path_lives_under_shared_root() {
-    let root = signex_app::config_root::config_root().expect("test redirect always resolves");
-    let path = signex_app::panels::components_panel::global_prefs::prefs_path()
+    let root = oxide_app::config_root::config_root().expect("test redirect always resolves");
+    let path = oxide_app::panels::components_panel::global_prefs::prefs_path()
         .expect("resolves under the test redirect");
     assert!(
         path.starts_with(&root),

@@ -1,4 +1,4 @@
-use signex_types::schematic::{
+use oxide_types::schematic::{
     Bus, BusEntry, HAlign, Junction, Label, NoConnect, SchematicSheet, SelectedItem, StrokeColor,
     Symbol, TextNote, Wire,
 };
@@ -161,13 +161,13 @@ pub enum Command {
     /// to the sheet's drawings list. Used by the Arc 3-click tool and
     /// the Polyline click-by-click tool.
     PlaceSchDrawing {
-        drawing: signex_types::schematic::SchDrawing,
+        drawing: oxide_types::schematic::SchDrawing,
     },
     /// Replace an existing SchDrawing by uuid — used by the drawing
     /// properties panel for per-field edits (angle, radius, vertex
     /// coords, fill, width).
     UpdateSchDrawing {
-        drawing: signex_types::schematic::SchDrawing,
+        drawing: oxide_types::schematic::SchDrawing,
     },
     /// Update a hierarchical child sheet's outline / fill / line-width
     /// styling. `stroke_color` and `fill_color` are double-Optioned so

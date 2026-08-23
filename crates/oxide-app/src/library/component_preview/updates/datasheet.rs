@@ -15,16 +15,16 @@ use crate::library::editor::datasheet_picker::DatasheetMode;
 pub(super) fn set_mode(state: &mut ComponentPreviewState, mode: DatasheetMode) {
     match mode {
         DatasheetMode::Url => match &state.row.datasheet {
-            signex_library::DatasheetRef::Url { .. } => {}
+            oxide_library::DatasheetRef::Url { .. } => {}
             _ => {
-                state.row.datasheet = signex_library::DatasheetRef::default();
+                state.row.datasheet = oxide_library::DatasheetRef::default();
                 state.dirty = true;
             }
         },
         DatasheetMode::PinnedPdf => match &state.row.datasheet {
-            signex_library::DatasheetRef::HashPinned { .. } => {}
+            oxide_library::DatasheetRef::HashPinned { .. } => {}
             _ => {
-                state.row.datasheet = signex_library::DatasheetRef::HashPinned {
+                state.row.datasheet = oxide_library::DatasheetRef::HashPinned {
                     hash: String::new(),
                     filename: String::new(),
                 };
@@ -39,9 +39,9 @@ pub(super) fn set_mode(state: &mut ComponentPreviewState, mode: DatasheetMode) {
 pub(super) fn set_url(state: &mut ComponentPreviewState, url: String) {
     let trimmed = url.trim();
     state.row.datasheet = if trimmed.is_empty() {
-        signex_library::DatasheetRef::default()
+        oxide_library::DatasheetRef::default()
     } else {
-        signex_library::DatasheetRef::url(trimmed)
+        oxide_library::DatasheetRef::url(trimmed)
     };
     state.dirty = true;
 }
@@ -58,7 +58,7 @@ pub(super) fn apply_upload_result(
         let mut hasher = sha2::Sha256::new();
         hasher.update(&bytes);
         let hash = format!("{:x}", hasher.finalize());
-        state.row.datasheet = signex_library::DatasheetRef::hash_pinned(hash, filename);
+        state.row.datasheet = oxide_library::DatasheetRef::hash_pinned(hash, filename);
         state.dirty = true;
     }
 }

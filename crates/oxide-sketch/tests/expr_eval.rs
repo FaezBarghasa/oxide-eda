@@ -1,5 +1,5 @@
 //! Integration tests for the expression evaluator
-//! (`crates/signex-sketch/src/expr/eval.rs`).
+//! (`crates/oxide-sketch/src/expr/eval.rs`).
 //!
 //! Covers Task 4.4 of `docs/internal/SKETCH_MODE_v0.13_PLAN.md`.
 //!
@@ -10,10 +10,10 @@
 
 use std::collections::BTreeMap;
 
-use signex_sketch::expr::ExprError;
-use signex_sketch::expr::ast::{ArrayIndex, BinOp, ExprNode, UnaryOp};
-use signex_sketch::expr::eval::{EvalContext, eval};
-use signex_sketch::unit::{Quantity, Unit};
+use oxide_sketch::expr::ExprError;
+use oxide_sketch::expr::ast::{ArrayIndex, BinOp, ExprNode, UnaryOp};
+use oxide_sketch::expr::eval::{EvalContext, eval};
+use oxide_sketch::unit::{Quantity, Unit};
 
 const EPS: f64 = 1e-10;
 

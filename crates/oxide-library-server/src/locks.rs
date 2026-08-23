@@ -19,7 +19,7 @@ use std::sync::Mutex;
 use std::time::{Duration, Instant};
 
 use chrono::{DateTime, Utc};
-use signex_library::adapter::FieldSet;
+use oxide_library::adapter::FieldSet;
 use uuid::Uuid;
 
 #[derive(Debug, Clone, PartialEq, Eq)]

@@ -24,14 +24,14 @@ use std::sync::{Mutex, OnceLock};
 use crate::render_config::{
     GridStyle, LabelStyle, MultisheetStyle, PinSelectionMode, PowerPortStyle,
 };
-use signex_types::coord::Unit;
-use signex_types::theme::ThemeId;
+use oxide_types::coord::Unit;
+use oxide_types::theme::ThemeId;
 
 /// Default UI font family name. Used when no preference file is found.
 pub const DEFAULT_UI_FONT: &str = "Roboto";
 
 /// MD-32: persist `bytes` to `path` atomically (tmp + rename via
-/// `signex_types::atomic_io`) and report on failure, instead of the
+/// `oxide_types::atomic_io`) and report on failure, instead of the
 /// `let _ = std::fs::write(...)` pattern that swallows disk-full /
 /// permission errors silently. Every preferences write in this module
 /// tree funnels through here, so this is the single place a failed write
@@ -44,7 +44,7 @@ pub const DEFAULT_UI_FONT: &str = "Roboto";
 /// were about. The setting the user just changed did not persist and
 /// will be gone at the next launch; that is not a `debug!`.
 fn write_pref_atomic(path: &Path, bytes: &[u8], context: &str) {
-    if let Err(e) = signex_types::atomic_io::atomic_write(path, bytes) {
+    if let Err(e) = oxide_types::atomic_io::atomic_write(path, bytes) {
         tracing::error!(
             target: "signex::prefs",
             path = %path.display(),
@@ -240,7 +240,7 @@ fn prefs_path() -> PathBuf {
 /// `prefs.json.tmp` as a symlink gets `atomic_write`'s `File::create` to
 /// write through it.
 ///
-/// A later per-user `<tmp>/signex-{user}` scheme fixed the sharing
+/// A later per-user `<tmp>/oxide-{user}` scheme fixed the sharing
 /// problem but leaned on `USER`/`USERNAME`/`LOGNAME` being set — a
 /// bare-uid container or a systemd unit with a scrubbed environment has
 /// none of those, and that version `panic!`ed there, taking the whole
@@ -258,7 +258,7 @@ fn prefs_path() -> PathBuf {
 /// `tracing::debug!`, and the app simply runs the session on in-memory
 /// defaults. Degrade, don't die.
 fn production_temp_fallback_path() -> PathBuf {
-    let dir = match tempfile::Builder::new().prefix("signex-").tempdir() {
+    let dir = match tempfile::Builder::new().prefix("oxide-").tempdir() {
         Ok(dir) => {
             // Leak the `TempDir` handle rather than let it delete the
             // directory when dropped at the end of this function:
@@ -280,7 +280,7 @@ fn production_temp_fallback_path() -> PathBuf {
                  preferences will not persist for this session"
             );
             return std::env::temp_dir()
-                .join("signex-prefs-unavailable")
+                .join("oxide-prefs-unavailable")
                 .join("prefs.json");
         }
     };
@@ -882,7 +882,7 @@ mod tests {
 
     fn temp_prefs(contents: &str) -> (tempfile::TempDir, std::path::PathBuf) {
         let dir = tempfile::Builder::new()
-            .prefix("signex-flags-")
+            .prefix("oxide-flags-")
             .tempdir()
             .expect("temp dir");
         let path = dir.path().join("prefs.json");

@@ -58,7 +58,7 @@ impl Signex {
 
     /// Modal — cycle the coordinate display unit.
     pub(super) fn handle_document_options_cycle_unit(&mut self) -> Task<Message> {
-        use signex_types::coord::Unit;
+        use oxide_types::coord::Unit;
         if let Some(s) = self.library.document_options.as_mut() {
             s.draft.unit = match s.draft.unit {
                 Unit::Mm => Unit::Mil,

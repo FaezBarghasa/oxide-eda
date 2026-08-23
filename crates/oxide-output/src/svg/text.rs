@@ -8,7 +8,7 @@
 //! motion, zero behaviour change.
 
 use super::*;
-use signex_types::markup::{RichSegment, parse_signex_markup};
+use oxide_types::markup::{RichSegment, parse_signex_markup};
 use tiny_skia::{FillRule, Paint, PathBuilder, Pixmap, Stroke};
 use ttf_parser::{Face, GlyphId, OutlineBuilder};
 
@@ -220,22 +220,22 @@ fn glyph_advance(face: &Face<'_>, gid: GlyphId, scale: f32) -> f32 {
 fn face_for_alias(alias: &str) -> Option<Face<'static>> {
     match alias {
         "F1" => Face::parse(
-            include_bytes!("../../../signex-app/assets/fonts/Roboto-Regular.ttf"),
+            include_bytes!("../../../oxide-app/assets/fonts/Roboto-Regular.ttf"),
             0,
         )
         .ok(),
         "F2" => Face::parse(
-            include_bytes!("../../../signex-app/assets/fonts/Roboto-Bold.ttf"),
+            include_bytes!("../../../oxide-app/assets/fonts/Roboto-Bold.ttf"),
             0,
         )
         .ok(),
         "F3" => Face::parse(
-            include_bytes!("../../../signex-app/assets/fonts/Iosevka-Regular.ttf"),
+            include_bytes!("../../../oxide-app/assets/fonts/Iosevka-Regular.ttf"),
             0,
         )
         .ok(),
         "F4" => Face::parse(
-            include_bytes!("../../../signex-app/assets/fonts/Iosevka-Bold.ttf"),
+            include_bytes!("../../../oxide-app/assets/fonts/Iosevka-Bold.ttf"),
             0,
         )
         .ok(),

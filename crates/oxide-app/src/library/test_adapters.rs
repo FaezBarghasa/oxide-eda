@@ -4,7 +4,7 @@
 //! `app::dispatch::library::editor`, which both need a mounted library
 //! whose primitive listings fail.
 
-use signex_library::{
+use oxide_library::{
     LibraryAdapter, LibraryError, LibraryMeta, LibraryMode, Manifest, PrimitiveSummary,
     UsersConfig, WorkflowConfig,
 };
@@ -70,7 +70,7 @@ pub(crate) fn cached_summary(name: &str) -> PrimitiveSummary {
     PrimitiveSummary {
         uuid: Uuid::new_v4(),
         name: name.to_string(),
-        kind: signex_library::PrimitiveKind::Symbol,
+        kind: oxide_library::PrimitiveKind::Symbol,
         used_by_count: 0,
     }
 }

@@ -7,11 +7,11 @@ use crate::active_bar::SelectionFilter;
 /// given hit. When no filters are active (empty set), selection is blocked
 /// entirely — that matches the Altium "unselect all categories" behaviour.
 pub(crate) fn passes_filter(
-    item: &signex_types::schematic::SelectedItem,
+    item: &oxide_types::schematic::SelectedItem,
     snapshot: &crate::schematic_runtime::SchematicRenderSnapshot,
     filters: &std::collections::HashSet<SelectionFilter>,
 ) -> bool {
-    use signex_types::schematic::SelectedKind;
+    use oxide_types::schematic::SelectedKind;
     let required = match item.kind {
         SelectedKind::Symbol => {
             let is_power = snapshot
@@ -40,8 +40,8 @@ pub(crate) fn passes_filter(
 
 fn all_selectable_items(
     snapshot: &crate::schematic_runtime::SchematicRenderSnapshot,
-) -> Vec<signex_types::schematic::SelectedItem> {
-    use signex_types::schematic::{SelectedItem, SelectedKind};
+) -> Vec<oxide_types::schematic::SelectedItem> {
+    use oxide_types::schematic::{SelectedItem, SelectedKind};
 
     let mut items = Vec::new();
     for symbol in &snapshot.symbols {
@@ -79,11 +79,11 @@ fn all_selectable_items(
     }
     for drawing in &snapshot.drawings {
         let uuid = match drawing {
-            signex_types::schematic::SchDrawing::Line { uuid, .. }
-            | signex_types::schematic::SchDrawing::Rect { uuid, .. }
-            | signex_types::schematic::SchDrawing::Circle { uuid, .. }
-            | signex_types::schematic::SchDrawing::Arc { uuid, .. }
-            | signex_types::schematic::SchDrawing::Polyline { uuid, .. } => *uuid,
+            oxide_types::schematic::SchDrawing::Line { uuid, .. }
+            | oxide_types::schematic::SchDrawing::Rect { uuid, .. }
+            | oxide_types::schematic::SchDrawing::Circle { uuid, .. }
+            | oxide_types::schematic::SchDrawing::Arc { uuid, .. }
+            | oxide_types::schematic::SchDrawing::Polyline { uuid, .. } => *uuid,
         };
         items.push(SelectedItem::new(uuid, SelectedKind::Drawing));
     }
@@ -93,17 +93,17 @@ fn all_selectable_items(
 
 fn valid_selection_items(
     snapshot: &crate::schematic_runtime::SchematicRenderSnapshot,
-    items: &[signex_types::schematic::SelectedItem],
-) -> Vec<signex_types::schematic::SelectedItem> {
-    use signex_types::schematic::SelectedKind;
+    items: &[oxide_types::schematic::SelectedItem],
+) -> Vec<oxide_types::schematic::SelectedItem> {
+    use oxide_types::schematic::SelectedKind;
 
     let valid_items: std::collections::HashSet<_> = all_selectable_items(snapshot)
         .into_iter()
         .flat_map(|item| match item.kind {
             SelectedKind::Symbol => vec![
                 item,
-                signex_types::schematic::SelectedItem::new(item.uuid, SelectedKind::SymbolRefField),
-                signex_types::schematic::SelectedItem::new(item.uuid, SelectedKind::SymbolValField),
+                oxide_types::schematic::SelectedItem::new(item.uuid, SelectedKind::SymbolRefField),
+                oxide_types::schematic::SelectedItem::new(item.uuid, SelectedKind::SymbolValField),
             ],
             _ => vec![item],
         })
@@ -168,7 +168,7 @@ impl Signex {
             }
             selection_request::SelectionRequest::BoxSelect { x1, y1, x2, y2 } => {
                 if let Some(snapshot) = self.active_render_snapshot() {
-                    let rect = signex_types::schematic::Aabb::new(x1, y1, x2, y2);
+                    let rect = oxide_types::schematic::Aabb::new(x1, y1, x2, y2);
                     let filters = self.interaction_state.selection_filters.clone();
                     let mode = self.ui_state.selection_mode;
                     self.interaction_state.active_canvas_mut().selected =
@@ -224,9 +224,9 @@ impl Signex {
 /// with hundreds of wires.
 fn expand_to_net(
     snapshot: &crate::schematic_runtime::SchematicRenderSnapshot,
-    seed: &signex_types::schematic::SelectedItem,
-) -> Vec<signex_types::schematic::SelectedItem> {
-    use signex_types::schematic::{Point, SelectedItem, SelectedKind};
+    seed: &oxide_types::schematic::SelectedItem,
+) -> Vec<oxide_types::schematic::SelectedItem> {
+    use oxide_types::schematic::{Point, SelectedItem, SelectedKind};
     use std::collections::HashSet;
 
     // Quantise to 0.001 mm so endpoints compare as exact integer keys.

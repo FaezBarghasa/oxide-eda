@@ -6,13 +6,13 @@
 
 use iced::widget::{button, container};
 use iced::{Background, Border, Color, Theme};
-use signex_types::theme::ThemeTokens;
+use oxide_types::theme::ThemeTokens;
 
 // ─── Color conversion ─────────────────────────────────────────
 
-/// Convert a signex-types Color to an iced Color.
+/// Convert a oxide-types Color to an iced Color.
 #[inline]
-pub fn ti(c: signex_types::theme::Color) -> Color {
+pub fn ti(c: oxide_types::theme::Color) -> Color {
     Color::from_rgba8(c.r, c.g, c.b, c.a as f32 / 255.0)
 }
 

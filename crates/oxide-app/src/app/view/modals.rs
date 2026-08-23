@@ -201,9 +201,9 @@ impl Signex {
                     .filter(|l| {
                         matches!(
                             l.label_type,
-                            signex_types::schematic::LabelType::Net
-                                | signex_types::schematic::LabelType::Global
-                                | signex_types::schematic::LabelType::Hierarchical
+                            oxide_types::schematic::LabelType::Net
+                                | oxide_types::schematic::LabelType::Global
+                                | oxide_types::schematic::LabelType::Hierarchical
                         )
                     })
                     .map(|l| l.text.clone())
@@ -261,7 +261,7 @@ impl Signex {
                             ))
                             .on_press(Message::NetColor(NetColorMsg::Set {
                                 net: net_copy.clone(),
-                                color: Some(signex_types::theme::Color {
+                                color: Some(oxide_types::theme::Color {
                                     r: r_c,
                                     g: g_c,
                                     b: b_c,

@@ -162,10 +162,10 @@ pub(super) fn build_symbol_editor_panel_ctx(
 /// Properties panel can render per-shape fields without depending on
 /// the library type.
 fn graphic_kind_to_summary(
-    kind: &signex_library::SymbolGraphicKind,
+    kind: &oxide_library::SymbolGraphicKind,
 ) -> crate::panels::GraphicKindSummary {
     use crate::panels::GraphicKindSummary;
-    use signex_library::SymbolGraphicKind;
+    use oxide_library::SymbolGraphicKind;
     match kind {
         SymbolGraphicKind::Rectangle { from, to } => GraphicKindSummary::Rectangle {
             from: *from,

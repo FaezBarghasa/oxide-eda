@@ -107,7 +107,7 @@ pub fn save(entries: &[GlobalLibraryEntry]) -> Result<(), String> {
 /// `save_preferred_order` / `save_preferred_order_at` split in
 /// `library::settings::persistence`.
 ///
-/// Crash-safe: [`signex_types::atomic_io::atomic_write`] writes to a temp
+/// Crash-safe: [`oxide_types::atomic_io::atomic_write`] writes to a temp
 /// sibling, fsyncs it and renames over the destination, so a crash mid-save
 /// leaves the previous library list intact rather than a truncated file. It
 /// also creates the parent directory, so no separate `create_dir_all` here.
@@ -117,7 +117,7 @@ pub fn save_at(path: &Path, entries: &[GlobalLibraryEntry]) -> Result<(), String
     };
     let text = toml::to_string_pretty(&file)
         .map_err(|e| format!("serialise global_libraries.toml: {e}"))?;
-    signex_types::atomic_io::atomic_write(path, text.as_bytes())
+    oxide_types::atomic_io::atomic_write(path, text.as_bytes())
         .map_err(|e| format!("write {}: {}", path.display(), e))?;
     Ok(())
 }

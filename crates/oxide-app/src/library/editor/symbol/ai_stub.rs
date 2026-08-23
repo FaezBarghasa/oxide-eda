@@ -12,7 +12,7 @@ pub struct AiPinoutPreview {
 
 impl AiPinoutPreview {
     /// Whether the parent UI should warn the user. Mirrors the 0.5
-    /// threshold called out in `signex-library/src/ai_stub.rs`.
+    /// threshold called out in `oxide-library/src/ai_stub.rs`.
     pub fn is_low_confidence(&self) -> bool {
         self.confidence < 0.5
     }

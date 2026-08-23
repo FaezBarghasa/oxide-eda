@@ -29,18 +29,18 @@ impl CirclePipeline {
         camera_bind_group_layout: &wgpu::BindGroupLayout,
     ) -> Self {
         let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("signex_gfx_circle_shader"),
+            label: Some("oxide_gfx_circle_shader"),
             source: wgpu::ShaderSource::Wgsl(shader::CIRCLE_WGSL.into()),
         });
 
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: Some("signex_gfx_circle_pipeline_layout"),
+            label: Some("oxide_gfx_circle_pipeline_layout"),
             bind_group_layouts: &[camera_bind_group_layout],
             push_constant_ranges: &[],
         });
 
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("signex_gfx_circle_pipeline"),
+            label: Some("oxide_gfx_circle_pipeline"),
             layout: Some(&pipeline_layout),
             vertex: wgpu::VertexState {
                 module: &shader_module,
@@ -100,13 +100,13 @@ impl CirclePipeline {
 
         let initial_capacity = 1usize;
         let instance_buffer = device.create_buffer(&wgpu::BufferDescriptor {
-            label: Some("signex_gfx_circle_instances"),
+            label: Some("oxide_gfx_circle_instances"),
             size: std::mem::size_of::<Circle>() as wgpu::BufferAddress,
             usage: wgpu::BufferUsages::VERTEX | wgpu::BufferUsages::COPY_DST,
             mapped_at_creation: false,
         });
         let overlay_instance_buffer = device.create_buffer(&wgpu::BufferDescriptor {
-            label: Some("signex_gfx_circle_overlay_instances"),
+            label: Some("oxide_gfx_circle_overlay_instances"),
             size: std::mem::size_of::<Circle>() as wgpu::BufferAddress,
             usage: wgpu::BufferUsages::VERTEX | wgpu::BufferUsages::COPY_DST,
             mapped_at_creation: false,
@@ -132,7 +132,7 @@ impl CirclePipeline {
             &mut self.instance_buffer,
             &mut self.instance_capacity,
             &mut self.instance_count,
-            "signex_gfx_circle_instances",
+            "oxide_gfx_circle_instances",
         );
     }
 
@@ -151,7 +151,7 @@ impl CirclePipeline {
             &mut self.overlay_instance_buffer,
             &mut self.overlay_instance_capacity,
             &mut self.overlay_instance_count,
-            "signex_gfx_circle_overlay_instances",
+            "oxide_gfx_circle_overlay_instances",
         );
     }
 

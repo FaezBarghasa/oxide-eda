@@ -18,11 +18,11 @@ pub struct ErcDiagnosticEntry {
     /// zoom + select on the canvas). Carrying it here means the panel
     /// view can decide both the label and the dispatch with no
     /// extra lookup against `erc_violations_by_path`.
-    pub rule_kind: signex_erc::RuleKind,
+    pub rule_kind: oxide_erc::RuleKind,
     pub message: String,
     pub world_x: f64,
     pub world_y: f64,
-    pub select: Option<signex_types::schematic::SelectedItem>,
+    pub select: Option<oxide_types::schematic::SelectedItem>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -155,7 +155,7 @@ pub fn view_erc<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
         // even when the row's text is long enough that the click
         // target's centre lands far from the cursor.
         let quick_fix_label = match v.rule_kind {
-            signex_erc::RuleKind::UnusedPin => "Add No-Connect",
+            oxide_erc::RuleKind::UnusedPin => "Add No-Connect",
             _ => "Show on Canvas",
         };
         col = col.push(
@@ -238,7 +238,7 @@ pub fn view_messages<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
                 .color(theme_ext::success_color(&ctx.tokens)),
         );
         col = col.push(
-            text("Set RUST_LOG=debug or SIGNEX_LOG=debug for verbose output")
+            text("Set RUST_LOG=debug or OXIDE_LOG=debug for verbose output")
                 .size(9)
                 .color(theme_ext::text_secondary(&ctx.tokens)),
         );

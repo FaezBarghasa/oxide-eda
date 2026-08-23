@@ -14,7 +14,7 @@ pub enum NetColorMsg {
     /// Assign a color to a net label text, or clear the override.
     Set {
         net: String,
-        color: Option<signex_types::theme::Color>,
+        color: Option<oxide_types::theme::Color>,
     },
     /// Show / hide the custom net-color picker modal.
     CustomShow(bool),
@@ -50,7 +50,7 @@ pub enum ParameterManagerMsg {
 pub enum AnnotateMsg {
     /// Auto-annotate every unannotated symbol (reference ends in `?`).
     /// Three modes: incremental, reset+renumber, reset-only.
-    Run(signex_engine::AnnotateMode),
+    Run(oxide_engine::AnnotateMode),
     /// Show the Annotate Schematics modal with preview of proposed changes.
     OpenDialog,
     /// Dismiss the Annotate dialog without applying.
@@ -79,7 +79,7 @@ pub enum ErcMsg {
     /// Dismiss the ERC dialog.
     CloseDialog,
     /// Override the severity for a single rule from within the ERC dialog.
-    SeverityChanged(signex_erc::RuleKind, signex_erc::Severity),
+    SeverityChanged(oxide_erc::RuleKind, oxide_erc::Severity),
     /// Click on a pin-connection matrix cell: cycle its severity
     /// Error → Warning → Info → Off → (back to baseline default).
     PinMatrixCellCycled { row: u8, col: u8 },
@@ -268,7 +268,7 @@ pub enum FileMsg {
     PcbOpenFinished {
         path: PathBuf,
         title: String,
-        result: Result<Box<signex_types::pcb::PcbBoard>, String>,
+        result: Result<Box<oxide_types::pcb::PcbBoard>, String>,
     },
     Save,
     SaveAs(PathBuf),
@@ -366,7 +366,7 @@ pub enum EditMsg {
 #[derive(Debug, Clone, Copy)]
 pub enum DrawingFieldEdit {
     Width(f64),
-    Fill(signex_types::schematic::FillType),
+    Fill(oxide_types::schematic::FillType),
     LineStartX(f64),
     LineStartY(f64),
     LineEndX(f64),
@@ -384,5 +384,5 @@ pub enum DrawingFieldEdit {
     ArcStartAngle(f64),
     ArcEndAngle(f64),
     /// Override the stroke colour; `None` restores the theme default.
-    StrokeColor(Option<signex_types::schematic::StrokeColor>),
+    StrokeColor(Option<oxide_types::schematic::StrokeColor>),
 }

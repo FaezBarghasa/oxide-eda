@@ -2,7 +2,7 @@
 //! shown to the right of the canvas and project-tree context menus.
 //!
 //! Data-to-view (#269): each submenu is a pure `Vec<DropdownEntry<Message>>`
-//! rendered by the shared `signex_widgets::active_bar_dropdown` widget, so
+//! rendered by the shared `oxide_widgets::active_bar_dropdown` widget, so
 //! the flyout shares its row chrome with the parent menus and the active
 //! bars (ADR-0003). Every Place / Align row dispatches an Active Bar action
 //! via `ContextAction::ActiveBar(...)` so placement / transform pipelines
@@ -12,8 +12,8 @@ use super::*;
 
 use super::items::{dd_disabled, dd_kb, dd_msg};
 use crate::icons as ic;
-use signex_types::theme::ThemeId;
-use signex_widgets::active_bar_dropdown::DropdownEntry;
+use oxide_types::theme::ThemeId;
+use oxide_widgets::active_bar_dropdown::DropdownEntry;
 
 /// Place submenu — wires, buses, ports, power, directives, harness, sheet
 /// symbols, component, and text. Every row is always enabled.
@@ -295,6 +295,6 @@ impl Signex {
                 add_new_entries(tid, target)
             }
         };
-        signex_widgets::active_bar_dropdown::view(entries, tokens, Some(Self::CONTEXT_MENU_WIDTH))
+        oxide_widgets::active_bar_dropdown::view(entries, tokens, Some(Self::CONTEXT_MENU_WIDTH))
     }
 }

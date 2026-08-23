@@ -1,6 +1,6 @@
 //! Pad selection, clipboard, rotate/flip, courtyard recompute, and context-menu dispatch.
 
-use signex_app::app::{Message, Signex};
+use oxide_app::app::{Message, Signex};
 
 use std::path::PathBuf;
 
@@ -17,9 +17,9 @@ use std::path::PathBuf;
 /// `path` inside `document_state.footprint_editors`. Returns the app
 /// and the path so the caller can dispatch and re-borrow.
 fn fixture_footprint_with_pads(stem: &str, count: usize) -> (Signex, PathBuf) {
-    use signex_app::app::FootprintEditorState;
-    use signex_app::library::editor::footprint::state::EditorPad;
-    use signex_library::{Footprint, FootprintFile};
+    use oxide_app::app::FootprintEditorState;
+    use oxide_app::library::editor::footprint::state::EditorPad;
+    use oxide_library::{Footprint, FootprintFile};
     let path = PathBuf::from(format!("{stem}.snxfpt"));
     let fp = Footprint::empty(stem);
     let file = FootprintFile::from_footprint(fp);
@@ -39,7 +39,7 @@ fn fixture_footprint_with_pads(stem: &str, count: usize) -> (Signex, PathBuf) {
 
 #[test]
 fn v026e_copy_with_no_selection_is_noop() {
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
     let (mut app, path) = fixture_footprint_with_pads("v026e-copy-empty", 1);
     // No pad selected.
     assert!(
@@ -63,7 +63,7 @@ fn v026e_copy_with_no_selection_is_noop() {
 
 #[test]
 fn v026e_copy_populates_clipboard_with_selected_pad() {
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
     let (mut app, path) = fixture_footprint_with_pads("v026e-copy", 2);
     app.document_state
         .footprint_editors
@@ -97,7 +97,7 @@ fn v026e_copy_populates_clipboard_with_selected_pad() {
 
 #[test]
 fn v026e_cut_removes_pad_populates_clipboard_and_pushes_history() {
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
     let (mut app, path) = fixture_footprint_with_pads("v026e-cut", 2);
     app.document_state
         .footprint_editors
@@ -133,8 +133,8 @@ fn v026e_cut_removes_pad_populates_clipboard_and_pushes_history() {
 
 #[test]
 fn v026e_paste_at_cursor_with_bumped_designator() {
-    use signex_app::library::editor::footprint::state::EditorPad;
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_app::library::editor::footprint::state::EditorPad;
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
     let (mut app, path) = fixture_footprint_with_pads("v026e-paste-cursor", 2);
     {
         let editor = app.document_state.footprint_editors.get_mut(&path).unwrap();
@@ -174,9 +174,9 @@ fn v026e_paste_at_cursor_with_bumped_designator() {
 
 #[test]
 fn v026e_paste_resets_sketch_entity_links() {
-    use signex_app::library::editor::footprint::state::EditorPad;
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_sketch::id::SketchEntityId;
+    use oxide_app::library::editor::footprint::state::EditorPad;
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_sketch::id::SketchEntityId;
     let (mut app, path) = fixture_footprint_with_pads("v026e-paste-fresh-ids", 1);
     // Clipboard holds a pad with sketch links populated — the paste
     // path must reset both fields so the new pad re-mirrors freshly.
@@ -207,7 +207,7 @@ fn v026e_paste_resets_sketch_entity_links() {
 
 #[test]
 fn v026e_paste_with_empty_clipboard_is_noop() {
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
     let (mut app, path) = fixture_footprint_with_pads("v026e-paste-empty", 1);
     assert!(app.document_state.pad_clipboard.is_none());
     let pad_count_before = app
@@ -244,7 +244,7 @@ fn v026e_paste_with_empty_clipboard_is_noop() {
 
 #[test]
 fn v026g_rotate_selection_increments_rotation_by_90_degrees() {
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
     let (mut app, path) = fixture_footprint_with_pads("v026g-rotate", 1);
     {
         let editor = app.document_state.footprint_editors.get_mut(&path).unwrap();
@@ -265,7 +265,7 @@ fn v026g_rotate_selection_increments_rotation_by_90_degrees() {
 
 #[test]
 fn v026g_rotate_selection_wraps_at_360() {
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
     let (mut app, path) = fixture_footprint_with_pads("v026g-rotate-wrap", 1);
     {
         let editor = app.document_state.footprint_editors.get_mut(&path).unwrap();
@@ -285,8 +285,8 @@ fn v026g_rotate_selection_wraps_at_360() {
 
 #[test]
 fn v026g_flip_selection_swaps_top_to_bottom_layers() {
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::LayerId;
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::LayerId;
     let (mut app, path) = fixture_footprint_with_pads("v026g-flip", 1);
     {
         let editor = app.document_state.footprint_editors.get_mut(&path).unwrap();
@@ -341,7 +341,7 @@ fn v026g_flip_selection_swaps_top_to_bottom_layers() {
 
 #[test]
 fn v026g_rotate_with_no_selection_is_noop() {
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
     let (mut app, path) = fixture_footprint_with_pads("v026g-rotate-noop", 1);
     {
         let editor = app.document_state.footprint_editors.get_mut(&path).unwrap();
@@ -369,10 +369,10 @@ fn v026g_rotate_with_no_selection_is_noop() {
 
 #[test]
 fn v026c_fit_to_window_action_arms_fit_pending_and_closes_menu() {
-    use signex_app::library::editor::footprint::state::{
+    use oxide_app::library::editor::footprint::state::{
         FootprintContextAction, FootprintContextMenuState, FootprintContextTarget,
     };
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
     let (mut app, path) = fixture_footprint_with_pads("v026c-fit-arm", 1);
     // Open a context menu so the action's "close menu" side effect
     // has something visible to clear.
@@ -405,7 +405,7 @@ fn v026c_fit_to_window_action_arms_fit_pending_and_closes_menu() {
 
 #[test]
 fn v026c_fit_consumed_clears_fit_pending() {
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
     let (mut app, path) = fixture_footprint_with_pads("v026c-fit-consume", 1);
     app.document_state
         .footprint_editors
@@ -484,8 +484,8 @@ fn v026i_recompute_courtyard_with_auto_fit_on_still_computes_pad_bbox() {
 
 #[test]
 fn v026b_show_context_menu_pad_target_selects_pad_and_clears_silk() {
-    use signex_app::library::editor::footprint::state::FootprintContextTarget;
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_app::library::editor::footprint::state::FootprintContextTarget;
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
     let (mut app, path) = fixture_footprint_with_pads("v026b-pad-target", 3);
     {
         let editor = app.document_state.footprint_editors.get_mut(&path).unwrap();
@@ -524,8 +524,8 @@ fn v026b_show_context_menu_pad_target_selects_pad_and_clears_silk() {
 
 #[test]
 fn v026d_show_context_menu_silk_target_selects_silk_and_clears_pad() {
-    use signex_app::library::editor::footprint::state::FootprintContextTarget;
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_app::library::editor::footprint::state::FootprintContextTarget;
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
     let (mut app, path) = fixture_footprint_with_pads("v026d-silk-target", 1);
     {
         let editor = app.document_state.footprint_editors.get_mut(&path).unwrap();
@@ -560,8 +560,8 @@ fn v026d_show_context_menu_silk_target_selects_silk_and_clears_pad() {
 
 #[test]
 fn v026b_show_context_menu_empty_target_preserves_selection_and_opens_menu() {
-    use signex_app::library::editor::footprint::state::FootprintContextTarget;
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_app::library::editor::footprint::state::FootprintContextTarget;
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
     let (mut app, path) = fixture_footprint_with_pads("v026b-empty-target", 2);
     {
         let editor = app.document_state.footprint_editors.get_mut(&path).unwrap();

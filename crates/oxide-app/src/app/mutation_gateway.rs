@@ -2,49 +2,49 @@ use super::*;
 
 impl Signex {
     fn render_invalidation_for_patch(
-        patch: signex_engine::DocumentPatch,
+        patch: oxide_engine::DocumentPatch,
     ) -> crate::schematic_runtime::RenderInvalidation {
         use crate::schematic_runtime::RenderInvalidation;
 
-        if patch.contains(signex_engine::DocumentPatch::FULL) {
+        if patch.contains(oxide_engine::DocumentPatch::FULL) {
             return RenderInvalidation::FULL;
         }
 
         let mut invalidation = RenderInvalidation::NONE;
-        if patch.contains(signex_engine::DocumentPatch::SYMBOLS) {
+        if patch.contains(oxide_engine::DocumentPatch::SYMBOLS) {
             invalidation |= RenderInvalidation::SYMBOLS;
         }
-        if patch.contains(signex_engine::DocumentPatch::WIRES) {
+        if patch.contains(oxide_engine::DocumentPatch::WIRES) {
             invalidation |= RenderInvalidation::WIRES;
         }
-        if patch.contains(signex_engine::DocumentPatch::LABELS) {
+        if patch.contains(oxide_engine::DocumentPatch::LABELS) {
             invalidation |= RenderInvalidation::LABELS;
         }
-        if patch.contains(signex_engine::DocumentPatch::TEXT_NOTES) {
+        if patch.contains(oxide_engine::DocumentPatch::TEXT_NOTES) {
             invalidation |= RenderInvalidation::TEXT_NOTES;
         }
-        if patch.contains(signex_engine::DocumentPatch::BUSES) {
+        if patch.contains(oxide_engine::DocumentPatch::BUSES) {
             invalidation |= RenderInvalidation::BUSES;
         }
-        if patch.contains(signex_engine::DocumentPatch::BUS_ENTRIES) {
+        if patch.contains(oxide_engine::DocumentPatch::BUS_ENTRIES) {
             invalidation |= RenderInvalidation::BUS_ENTRIES;
         }
-        if patch.contains(signex_engine::DocumentPatch::JUNCTIONS) {
+        if patch.contains(oxide_engine::DocumentPatch::JUNCTIONS) {
             invalidation |= RenderInvalidation::JUNCTIONS;
         }
-        if patch.contains(signex_engine::DocumentPatch::NO_CONNECTS) {
+        if patch.contains(oxide_engine::DocumentPatch::NO_CONNECTS) {
             invalidation |= RenderInvalidation::NO_CONNECTS;
         }
-        if patch.contains(signex_engine::DocumentPatch::CHILD_SHEETS) {
+        if patch.contains(oxide_engine::DocumentPatch::CHILD_SHEETS) {
             invalidation |= RenderInvalidation::CHILD_SHEETS;
         }
-        if patch.contains(signex_engine::DocumentPatch::DRAWINGS) {
+        if patch.contains(oxide_engine::DocumentPatch::DRAWINGS) {
             invalidation |= RenderInvalidation::DRAWINGS;
         }
-        if patch.contains(signex_engine::DocumentPatch::LIB_SYMBOLS) {
+        if patch.contains(oxide_engine::DocumentPatch::LIB_SYMBOLS) {
             invalidation |= RenderInvalidation::LIB_SYMBOLS;
         }
-        if patch.contains(signex_engine::DocumentPatch::PAPER) {
+        if patch.contains(oxide_engine::DocumentPatch::PAPER) {
             invalidation |= RenderInvalidation::PAPER;
         }
 
@@ -53,7 +53,7 @@ impl Signex {
 
     pub(crate) fn apply_engine_commands(
         &mut self,
-        commands: Vec<signex_engine::Command>,
+        commands: Vec<oxide_engine::Command>,
         clear_overlay_cache: bool,
         update_selection_info: bool,
     ) -> bool {
@@ -85,7 +85,7 @@ impl Signex {
 
     pub(crate) fn apply_engine_command(
         &mut self,
-        command: signex_engine::Command,
+        command: oxide_engine::Command,
         clear_overlay_cache: bool,
         update_selection_info: bool,
     ) -> bool {
@@ -301,8 +301,8 @@ impl Signex {
             ));
             return;
         }
-        let roots = [signex_net::ProjectRoot { key: root_key }];
-        let mut result = signex_net::build_project_netlist(&signex_net::ProjectGraph {
+        let roots = [oxide_net::ProjectRoot { key: root_key }];
+        let mut result = oxide_net::build_project_netlist(&oxide_net::ProjectGraph {
             sheets: &graph.sheets,
             resolved: &graph.resolved,
             roots: &roots,
@@ -326,7 +326,7 @@ impl Signex {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_engine::DocumentPatch;
+    use oxide_engine::DocumentPatch;
 
     fn touches_netlist(patch: DocumentPatch) -> bool {
         Signex::render_invalidation_for_patch(patch).intersects(Signex::netlist_render_mask())
@@ -371,9 +371,9 @@ mod tests {
     fn app_with_a_child_only_on_disk() -> (Signex, std::path::PathBuf) {
         use crate::app::handlers::menu::export::tests as fx;
         let dir =
-            std::env::temp_dir().join(format!("signex-gateway-disk-{}", uuid::Uuid::new_v4()));
+            std::env::temp_dir().join(format!("oxide-gateway-disk-{}", uuid::Uuid::new_v4()));
         std::fs::create_dir_all(&dir).expect("tempdir");
-        let child = signex_types::format::SnxSchematic::new(fx::sheet_with_net(
+        let child = oxide_types::format::SnxSchematic::new(fx::sheet_with_net(
             "R_DISK",
             "ON_DISK_NET",
             &[],
@@ -460,11 +460,11 @@ mod tests {
         // child invisible, so R1 looked unique, nothing was reset, and the
         // duplicate went out in the netlist and onto the board.
         use crate::app::handlers::menu::export::tests as fx;
-        let dir = std::env::temp_dir().join(format!("signex-dupe-{}", uuid::Uuid::new_v4()));
+        let dir = std::env::temp_dir().join(format!("oxide-dupe-{}", uuid::Uuid::new_v4()));
         std::fs::create_dir_all(&dir).expect("tempdir");
         let child_path = dir.join("child.snxsch");
         let child =
-            signex_types::format::SnxSchematic::new(fx::sheet_with_net("R1", "ON_DISK_NET", &[]))
+            oxide_types::format::SnxSchematic::new(fx::sheet_with_net("R1", "ON_DISK_NET", &[]))
                 .write_string()
                 .expect("serialize child");
         std::fs::write(&child_path, child).expect("write child");

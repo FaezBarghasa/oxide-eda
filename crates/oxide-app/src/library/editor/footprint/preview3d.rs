@@ -11,7 +11,7 @@
 
 use iced::widget::canvas::{self, Path, Stroke};
 use iced::{Color, Element, Length, Point, Rectangle, Renderer, Theme, mouse};
-use signex_library::{BodyShape, Footprint};
+use oxide_library::{BodyShape, Footprint};
 
 use crate::library::messages::LibraryMessage;
 
@@ -306,7 +306,7 @@ fn body_bbox(fp: &Footprint) -> (f64, f64, f64, f64) {
     (x0 + mx, y0 + mx, x1 - mx, y1 - mx)
 }
 
-fn pad_color(pad: &signex_library::Pad) -> Color {
+fn pad_color(pad: &oxide_library::Pad) -> Color {
     // Pick a colour from the pad's primary layer name. Falls back to
     // a generic copper colour for unknown layers.
     let name = pad.layers.first().map(|l| l.as_str()).unwrap_or("F.Cu");

@@ -30,9 +30,9 @@ mod support;
 
 use std::path::{Path, PathBuf};
 
-use signex_app::library::commands::auto_mount_project_libraries;
-use signex_app::library::state::LibraryState;
-use signex_types::project::{LibraryEntry, LibraryEntryKind, ProjectData};
+use oxide_app::library::commands::auto_mount_project_libraries;
+use oxide_app::library::state::LibraryState;
+use oxide_types::project::{LibraryEntry, LibraryEntryKind, ProjectData};
 
 use support::{Scale, append_component, generate_library};
 
@@ -51,7 +51,7 @@ fn open_library_primes_every_cache() {
         "scale must generate at least one sim, else the cached_sims assertion is vacuous"
     );
     let tmp = tempfile::Builder::new()
-        .prefix("signex-open-cache-")
+        .prefix("oxide-open-cache-")
         .tempdir()
         .expect("tempdir");
     // NOTE: `generate_library` returns the `.snxlib` FILE path, and
@@ -110,7 +110,7 @@ fn open_library_primes_every_cache() {
 fn refresh_components_after_open_changes_nothing() {
     let scale = Scale::new("noop", SYMBOLS, FOOTPRINTS);
     let tmp = tempfile::Builder::new()
-        .prefix("signex-open-noop-")
+        .prefix("oxide-open-noop-")
         .tempdir()
         .expect("tempdir");
     let snxlib = generate_library(tmp.path(), "noop", &scale).expect("generate_library");
@@ -143,7 +143,7 @@ fn auto_mount_refreshes_an_already_mounted_library() {
     // Arrange — project A mounts the library (the cold path).
     let scale = Scale::new("warm", SYMBOLS, FOOTPRINTS);
     let tmp = tempfile::Builder::new()
-        .prefix("signex-warm-mount-")
+        .prefix("oxide-warm-mount-")
         .tempdir()
         .expect("tempdir");
     let snxlib = generate_library(tmp.path(), "warm", &scale).expect("generate_library");
@@ -285,13 +285,13 @@ fn project_referencing(dir: &Path, libs: &[PathBuf]) -> ProjectData {
 fn commands_open_library_refreshes_an_already_mounted_library() {
     let scale = Scale::new("warmcmd", SYMBOLS, FOOTPRINTS);
     let tmp = tempfile::Builder::new()
-        .prefix("signex-warm-cmd-")
+        .prefix("oxide-warm-cmd-")
         .tempdir()
         .expect("tempdir");
     let snxlib = generate_library(tmp.path(), "warmcmd", &scale).expect("generate_library");
 
     let mut state = LibraryState::default();
-    signex_app::library::commands::open_library(&mut state, snxlib.clone()).expect("cold open");
+    oxide_app::library::commands::open_library(&mut state, snxlib.clone()).expect("cold open");
     assert_eq!(
         state
             .library_at(&snxlib)
@@ -306,7 +306,7 @@ fn commands_open_library_refreshes_an_already_mounted_library() {
     append_component(&snxlib, SYMBOLS).expect("append_component");
 
     // Re-open the same library — the warm branch.
-    signex_app::library::commands::open_library(&mut state, snxlib.clone()).expect("warm open");
+    oxide_app::library::commands::open_library(&mut state, snxlib.clone()).expect("warm open");
 
     let lib = state.library_at(&snxlib).expect("still mounted");
     assert_eq!(
@@ -332,14 +332,14 @@ fn commands_open_library_refreshes_an_already_mounted_library() {
 #[test]
 fn create_library_at_mounts_with_primed_empty_caches() {
     let tmp = tempfile::Builder::new()
-        .prefix("signex-create-empty-")
+        .prefix("oxide-create-empty-")
         .tempdir()
         .expect("tempdir");
     let lib_path = tmp.path().join("fresh.snxlib");
 
     let mut state = LibraryState::default();
     let mut project = project_referencing(tmp.path(), &[]);
-    signex_app::library::commands::create_library_at(
+    oxide_app::library::commands::create_library_at(
         &mut state,
         &mut project,
         lib_path.clone(),

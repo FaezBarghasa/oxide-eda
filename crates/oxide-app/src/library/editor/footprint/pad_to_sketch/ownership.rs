@@ -1,6 +1,6 @@
 //! Which sketch entities a pad OWNS.
 //!
-//! The DURABLE answer is [`signex_sketch::attr::PadAttr::owned`], a
+//! The DURABLE answer is [`oxide_sketch::attr::PadAttr::owned`], a
 //! ledger written onto the centre Point's `PadAttr` at mint time by
 //! [`record_ledger`]. It is the only one of the four ownership records
 //! that survives a save + reopen.
@@ -26,9 +26,9 @@
 
 use std::collections::HashSet;
 
-use signex_sketch::entity::EntityKind;
-use signex_sketch::id::SketchEntityId;
-use signex_sketch::sketch::SketchData;
+use oxide_sketch::entity::EntityKind;
+use oxide_sketch::id::SketchEntityId;
+use oxide_sketch::sketch::SketchData;
 
 use super::super::state::EditorPad;
 

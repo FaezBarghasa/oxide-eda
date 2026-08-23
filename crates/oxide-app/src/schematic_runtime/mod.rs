@@ -1,22 +1,22 @@
-//! Local schematic runtime used by `signex-app`.
+//! Local schematic runtime used by `oxide-app`.
 //!
 //! This module keeps schematic rendering, hit-test, and overlay behavior
 //! self-contained inside the app runtime contract.
 
 use iced::widget::canvas;
 use iced::{Color, Rectangle};
-use signex_gfx::scene::{DirtyFlags, Scene};
-use signex_renderer::schematic::{
+use oxide_gfx::scene::{DirtyFlags, Scene};
+use oxide_renderer::schematic::{
     ArcInput, JunctionInput, OverlayCircleInput, OverlayInputs, OverlayLineInput,
     OverlayPolygonInput, PolygonInput, SchematicRenderer, SchematicSnapshot as RendererSnapshot,
     TextInput, ViewRenderer, WireInput,
 };
-use signex_renderer::theme::ResolvedTheme;
-use signex_types::schematic::{
+use oxide_renderer::theme::ResolvedTheme;
+use oxide_types::schematic::{
     Aabb, FillType, HAlign, Label, LabelType, Point, SchDrawing, SchematicSheet, SelectedItem,
     SelectedKind, Symbol, TextNote, TextProp, VAlign, circumcircle,
 };
-use signex_types::theme::{CanvasColors, Color as ThemeColor};
+use oxide_types::theme::{CanvasColors, Color as ThemeColor};
 use std::collections::{HashMap, HashSet};
 
 pub mod hit_test;
@@ -210,7 +210,7 @@ pub fn draw_power_port_preview(
             }),
             stroke_color: Some(to_rgba(color)),
             stroke_width_mm: stroke_world_mm(
-                signex_types::schematic::SCHEMATIC_RENDER_POWER_PORT_STROKE_PX,
+                oxide_types::schematic::SCHEMATIC_RENDER_POWER_PORT_STROKE_PX,
                 transform.scale,
             ),
         }],
@@ -226,8 +226,8 @@ pub fn draw_power_port_preview(
     draw_renderer_snapshot(
         frame,
         &snapshot,
-        &ResolvedTheme::from_canvas_colors(signex_types::theme::canvas_colors(
-            signex_types::theme::ThemeId::Signex,
+        &ResolvedTheme::from_canvas_colors(oxide_types::theme::canvas_colors(
+            oxide_types::theme::ThemeId::Signex,
         )),
         DirtyFlags::POLYGONS | DirtyFlags::TEXT,
         transform,
@@ -304,7 +304,7 @@ fn label_marker_polygon(
 ) -> PolygonInput {
     let size_mm = label
         .font_size
-        .max(signex_types::schematic::SCHEMATIC_TEXT_MM) as f32;
+        .max(oxide_types::schematic::SCHEMATIC_TEXT_MM) as f32;
     let em_mm = size_mm / 0.72;
     let glyph_w = (label.text.chars().count().max(1) as f32) * (em_mm * 0.58);
     let half_h = em_mm * 0.62;
@@ -333,7 +333,7 @@ fn label_marker_polygon(
         fill_color,
         stroke_color: Some(to_rgba(stroke_color)),
         stroke_width_mm: stroke_world_mm(
-            signex_types::schematic::SCHEMATIC_RENDER_LABEL_GLYPH_STROKE_PX,
+            oxide_types::schematic::SCHEMATIC_RENDER_LABEL_GLYPH_STROKE_PX,
             transform.scale,
         ),
     }
@@ -358,7 +358,7 @@ fn draw_renderer_snapshot(
         |point| transform.world_to_screen((point[0] as f64, point[1] as f64)),
         crate::renderer_scene_canvas::SceneDrawOptions {
             scale_px_per_mm: transform.scale,
-            min_stroke_px: signex_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_PX,
+            min_stroke_px: oxide_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_PX,
             text_min_px: 6.0,
             text_max_px: 64.0,
         },
@@ -371,7 +371,7 @@ fn to_rgba(color: Color) -> [f32; 4] {
 
 fn stroke_world_mm(base_width_px_at_100: f32, scale: f32) -> f32 {
     (stroke_px_at_zoom(base_width_px_at_100, scale) / scale.max(0.001))
-        .max(signex_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_MM as f32)
+        .max(oxide_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_MM as f32)
 }
 
 fn screen_px_to_world_mm(px: f32, scale: f32) -> f64 {
@@ -431,7 +431,7 @@ fn collect_item_bounds(snapshot: &SchematicRenderSnapshot) -> Vec<ItemBound> {
             item: SelectedItem::new(wire.uuid, SelectedKind::Wire),
             bbox: Aabb::new(wire.start.x, wire.start.y, wire.end.x, wire.end.y).expand(
                 wire.stroke_width
-                    .max(signex_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_MM),
+                    .max(oxide_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_MM),
             ),
             anchor: Point::new(
                 (wire.start.x + wire.end.x) * 0.5,
@@ -444,7 +444,7 @@ fn collect_item_bounds(snapshot: &SchematicRenderSnapshot) -> Vec<ItemBound> {
         out.push(ItemBound {
             item: SelectedItem::new(bus.uuid, SelectedKind::Bus),
             bbox: Aabb::new(bus.start.x, bus.start.y, bus.end.x, bus.end.y)
-                .expand(signex_types::schematic::SCHEMATIC_RENDER_BUS_STROKE_MM),
+                .expand(oxide_types::schematic::SCHEMATIC_RENDER_BUS_STROKE_MM),
             anchor: Point::new(
                 (bus.start.x + bus.end.x) * 0.5,
                 (bus.start.y + bus.end.y) * 0.5,
@@ -591,7 +591,7 @@ fn text_prop_aabb(symbol: &Symbol, text: &str, prop: &TextProp) -> Aabb {
     let chars = text.chars().count().max(1) as f64;
     let h = prop
         .font_size
-        .max(signex_types::schematic::SCHEMATIC_TEXT_MM);
+        .max(oxide_types::schematic::SCHEMATIC_TEXT_MM);
     let w = h * 0.6 * chars;
     let (x, y) = instance_transform(symbol, &prop.position);
     Aabb::new(x - w * 0.5, y - h * 0.5, x + w * 0.5, y + h * 0.5)
@@ -600,7 +600,7 @@ fn text_prop_aabb(symbol: &Symbol, text: &str, prop: &TextProp) -> Aabb {
 fn note_aabb(note: &TextNote) -> Aabb {
     let h = note
         .font_size
-        .max(signex_types::schematic::SCHEMATIC_TEXT_MM);
+        .max(oxide_types::schematic::SCHEMATIC_TEXT_MM);
     let w = h * 0.6 * note.text.chars().count().max(1) as f64;
     Aabb::new(
         note.position.x - w * 0.5,
@@ -613,7 +613,7 @@ fn note_aabb(note: &TextNote) -> Aabb {
 fn label_aabb(label: &Label) -> Aabb {
     let h = label
         .font_size
-        .max(signex_types::schematic::SCHEMATIC_TEXT_MM);
+        .max(oxide_types::schematic::SCHEMATIC_TEXT_MM);
     let mut w = h * 0.6 * label.text.chars().count().max(1) as f64;
     if matches!(
         label.label_type,
@@ -665,21 +665,21 @@ fn drawing_aabb(drawing: &SchDrawing) -> Aabb {
 }
 
 fn point_to_segment_distance(p: Point, a: Point, b: Point) -> f64 {
-    signex_sketch::geom::point_to_segment_distance((p.x, p.y), (a.x, a.y), (b.x, b.y))
+    oxide_sketch::geom::point_to_segment_distance((p.x, p.y), (a.x, a.y), (b.x, b.y))
 }
 
 fn point_in_polygon(point: (f64, f64), polygon: &[(f64, f64)]) -> bool {
-    let polygon: Vec<signex_sketch::geom::Point2> = polygon.iter().map(|&p| p.into()).collect();
-    signex_sketch::geom::point_in_polygon(point, &polygon)
+    let polygon: Vec<oxide_sketch::geom::Point2> = polygon.iter().map(|&p| p.into()).collect();
+    oxide_sketch::geom::point_in_polygon(point, &polygon)
 }
 
 fn stroke_px_at_zoom(base_width_px_at_100: f32, scale: f32) -> f32 {
-    let zoom_factor = (scale / signex_types::schematic::SCHEMATIC_ZOOM_100_SCALE).max(0.0);
+    let zoom_factor = (scale / oxide_types::schematic::SCHEMATIC_ZOOM_100_SCALE).max(0.0);
     let scaled = base_width_px_at_100 * zoom_factor;
     let max_stroke = base_width_px_at_100
-        * signex_types::schematic::SCHEMATIC_RENDER_STROKE_MAX_SCALE_MULTIPLIER;
+        * oxide_types::schematic::SCHEMATIC_RENDER_STROKE_MAX_SCALE_MULTIPLIER;
     scaled.clamp(
-        signex_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_PX,
+        oxide_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_PX,
         max_stroke,
     )
 }
@@ -724,7 +724,7 @@ fn point_visible(p: iced::Point, bounds: Rectangle, pad: f32) -> bool {
 }
 
 fn resolve_stroke_color(
-    stroke_color: &Option<signex_types::schematic::StrokeColor>,
+    stroke_color: &Option<oxide_types::schematic::StrokeColor>,
     fallback: Color,
 ) -> Color {
     stroke_color
@@ -734,7 +734,7 @@ fn resolve_stroke_color(
 
 fn fill_color_for(
     fill: FillType,
-    stroke_color: &Option<signex_types::schematic::StrokeColor>,
+    stroke_color: &Option<oxide_types::schematic::StrokeColor>,
     colors: &CanvasColors,
 ) -> Option<Color> {
     match fill {

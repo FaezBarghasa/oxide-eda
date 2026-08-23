@@ -6,7 +6,7 @@
 //! `/tables` + `/rows` row tier, the primitive
 //! (`/symbols` / `/footprints` / `/sims`) routes, and the advisory
 //! `/rows/:row_id/locks` endpoint — is gated behind a bearer-token
-//! check sourced from the `SIGNEX_API_TOKEN` env var.
+//! check sourced from the `OXIDE_API_TOKEN` env var.
 //!
 //! ## DBLib row model
 //!
@@ -24,7 +24,7 @@
 //! ## Authentication (H1)
 //!
 //! Mutating routes are gated behind a bearer-token check sourced from
-//! `SIGNEX_API_TOKEN`. If unset on startup the auth layer is omitted entirely
+//! `OXIDE_API_TOKEN`. If unset on startup the auth layer is omitted entirely
 //! and a `tracing::warn!` fires telling operators they are running
 //! unauthenticated — fine for local dev, never for production.
 
@@ -46,13 +46,13 @@ pub use db::AppState;
 
 /// Env var that holds the bearer token for the protected routes.
 /// Unset → unauthenticated mode (with a startup warning).
-pub const API_TOKEN_ENV: &str = "SIGNEX_API_TOKEN";
+pub const API_TOKEN_ENV: &str = "OXIDE_API_TOKEN";
 
 /// Env var holding the persistent database URL (`postgres://…` or
 /// `sqlite://<file>`). Unset → an ephemeral in-memory SQLite that
 /// loses every row on restart; the binary only allows that on a
 /// loopback bind and logs a prominent warning.
-pub const DATABASE_URL_ENV: &str = "SIGNEX_DATABASE_URL";
+pub const DATABASE_URL_ENV: &str = "OXIDE_DATABASE_URL";
 
 /// Maximum request body in bytes accepted on protected mutation routes.
 /// 1 MiB is generous for component / primitive payloads (typical row JSON
@@ -90,7 +90,7 @@ pub async fn router_with_in_memory_state() -> anyhow::Result<Router> {
 
 /// Build the full router around an existing `AppState`.
 ///
-/// HI-1: mutation routes require a `Bearer <token>` matching `SIGNEX_API_TOKEN`.
+/// HI-1: mutation routes require a `Bearer <token>` matching `OXIDE_API_TOKEN`.
 /// HI-3: the `LockManager.sweep_expired` task is spawned here so expired
 ///   locks are evicted from memory every [`LOCK_SWEEP_INTERVAL`].
 /// HI-4: every protected route is body-size-capped at [`MAX_REQUEST_BODY_BYTES`].
@@ -203,7 +203,7 @@ pub async fn health() -> Json<serde_json::Value> {
 
 pub async fn version() -> Json<serde_json::Value> {
     Json(json!({
-        "name": "signex-library-server",
+        "name": "oxide-library-server",
         "version": env!("CARGO_PKG_VERSION"),
     }))
 }

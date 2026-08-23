@@ -1,5 +1,5 @@
 //! Pure conversion: a library-authored [`Symbol`] (`.snxsym`) into a
-//! schematic [`LibSymbol`] (`signex_types::schematic`).
+//! schematic [`LibSymbol`] (`oxide_types::schematic`).
 //!
 //! This is **part 1 of 2** of issue #365 — no I/O, no app dependency, and
 //! nothing here wires the result into the place flow or `PlaceSymbol`
@@ -8,11 +8,11 @@
 //!
 //! ## Coordinates — no y-flip here
 //!
-//! `.snxsym` positions are y-up mm (`crates/signex-app/src/library/editor/
+//! `.snxsym` positions are y-up mm (`crates/oxide-app/src/library/editor/
 //! symbol/canvas/geometry.rs`), and `LibPin.pin.position` / `LibGraphic`
 //! points are already y-up library space too — the flip to y-down
 //! schematic space happens later, only inside
-//! [`signex_types::schematic::SymbolTransform::apply`]. Every position
+//! [`oxide_types::schematic::SymbolTransform::apply`]. Every position
 //! here carries over unchanged.
 //!
 //! ## Pin rotation convention (both sides agree — identity mapping)
@@ -20,18 +20,18 @@
 //! `.snxsym`'s [`PinOrientation`] is the tip→body direction as a CCW angle
 //! from +x in that same y-up space: `Right = 0°`, `Up = +90°`,
 //! `Left = 180°`, `Down = -90°` — see `PinRenderGeometry::compute` in
-//! `crates/signex-app/src/library/editor/symbol/canvas/pins.rs`, where
+//! `crates/oxide-app/src/library/editor/symbol/canvas/pins.rs`, where
 //! `tip = pin.position` and `body_end = tip + unit(angle_rad) * length`.
 //!
 //! `LibPin.pin.rotation` is read by every real consumer as the SAME
 //! y-up, CCW-from-+x, tip→body angle, with the single y-flip applied
 //! later — never here — by
-//! [`signex_types::schematic::SymbolTransform::apply`] (`y = -local.y`).
-//! `crates/signex-engine/src/transform/autoplace.rs` derives a pin's far
+//! [`oxide_types::schematic::SymbolTransform::apply`] (`y = -local.y`).
+//! `crates/oxide-engine/src/transform/autoplace.rs` derives a pin's far
 //! end as `(sx + length*cos(rotation), sy + length*sin(rotation))` in
 //! this same pre-flip local space before handing the point to
 //! `transform_local_point`, and the SVG/PDF exporter's `pin_direction`
-//! (`crates/signex-output/src/svg/symbols.rs`) maps `90° => (0.0, 1.0)`,
+//! (`crates/oxide-output/src/svg/symbols.rs`) maps `90° => (0.0, 1.0)`,
 //! `270° => (0.0, -1.0)` — both agree `90°` means "toward +y" in
 //! pre-flip space, matching the source convention exactly. Since
 //! positions are not flipped either (previous section), the faithful
@@ -41,7 +41,7 @@
 //! ## Pin direction — total, no panic
 //!
 //! [`PinDirection`] (10 variants, symbol-editor-curated) and
-//! `signex_types::schematic::PinDirection` (14 variants, independently
+//! `oxide_types::schematic::PinDirection` (14 variants, independently
 //! curated) are two separate sets with no exact 1:1 twin for several
 //! source variants. [`pin_direction`] documents every non-obvious choice
 //! inline; every source variant is pinned by a test.
@@ -60,7 +60,7 @@
 //! carries no colour: `None -> FillType::None`, `Some(_) ->
 //! FillType::Background`. The RGBA value itself has nowhere to land.
 
-use signex_types::schematic::{
+use oxide_types::schematic::{
     FillType, Graphic, HAlign, LibGraphic, LibPin, LibSymbol, Pin,
     PinDirection as SchematicPinDirection, PinShapeStyle, Point, VAlign,
 };
@@ -109,7 +109,7 @@ impl Symbol {
 /// `SymbolPin.part_number` (Altium-style: `0` = Part Zero, shared across
 /// every unit) maps straight onto `LibPin.unit` — consumers already read
 /// `unit == 0` as "common to all units"
-/// (`crates/signex-net/src/build/mod.rs`, `lp.unit != 0 && lp.unit !=
+/// (`crates/oxide-net/src/build/mod.rs`, `lp.unit != 0 && lp.unit !=
 /// sym.unit`).
 fn lib_pin_from(pin: &SymbolPin) -> LibPin {
     LibPin {
@@ -148,7 +148,7 @@ fn pin_rotation_deg(orientation: PinOrientation) -> f64 {
 
 /// Total, panic-free map from the library's 10-variant [`PinDirection`]
 /// to the schematic's independently-curated 14-variant
-/// `signex_types::schematic::PinDirection`. Every source variant is
+/// `oxide_types::schematic::PinDirection`. Every source variant is
 /// pinned by a test in [`super::to_lib_symbol_tests`].
 ///
 /// `PinDirection` is `#[non_exhaustive]` for downstream crates, but this

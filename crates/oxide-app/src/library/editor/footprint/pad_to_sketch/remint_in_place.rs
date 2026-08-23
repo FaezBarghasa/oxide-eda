@@ -7,10 +7,10 @@
 //! gesture. This module mints the same geometry through the same owner
 //! and writes it ONTO the entities already there.
 
-use signex_library::primitive::footprint::Footprint;
-use signex_sketch::entity::EntityKind;
-use signex_sketch::id::SketchEntityId;
-use signex_sketch::sketch::SketchData;
+use oxide_library::primitive::footprint::Footprint;
+use oxide_sketch::entity::EntityKind;
+use oxide_sketch::id::SketchEntityId;
+use oxide_sketch::sketch::SketchData;
 
 use super::EditorPad;
 use super::{is_sketch_profile_pad, mint_pad_entities, remint_pad_geometry, sidecar_id};
@@ -210,7 +210,7 @@ fn pairing_covers_all_geometry(
 /// Points carry their position, Circles their radius, Arcs their sweep;
 /// a Line's geometry is entirely in the Points it references. The
 /// centre also carries its `PadAttr`, which is how the size expressions
-/// `signex_bake::pad` reads stay in step with the new frame.
+/// `oxide_bake::pad` reads stay in step with the new frame.
 fn copy_entity_geometry(
     from: &SketchData,
     from_id: SketchEntityId,

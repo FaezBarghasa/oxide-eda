@@ -535,7 +535,7 @@ impl Signex {
             Space::new().width(4),
             secondary_button(
                 "Reset All",
-                Message::Annotate(AnnotateMsg::Run(signex_engine::AnnotateMode::ResetOnly)),
+                Message::Annotate(AnnotateMsg::Run(oxide_engine::AnnotateMode::ResetOnly)),
                 text_c,
                 border_c,
             ),
@@ -543,7 +543,7 @@ impl Signex {
             secondary_button(
                 "Reset & Renumber",
                 Message::Annotate(AnnotateMsg::Run(
-                    signex_engine::AnnotateMode::ResetAndRenumber,
+                    oxide_engine::AnnotateMode::ResetAndRenumber,
                 )),
                 text_c,
                 border_c,
@@ -555,7 +555,7 @@ impl Signex {
                     None
                 } else {
                     Some(Message::Annotate(AnnotateMsg::Run(
-                        signex_engine::AnnotateMode::Incremental,
+                        oxide_engine::AnnotateMode::Incremental,
                     )))
                 },
                 border_c,
@@ -666,7 +666,7 @@ impl Signex {
                         primary_button(
                             "Reset & Renumber",
                             Some(Message::Annotate(AnnotateMsg::Run(
-                                signex_engine::AnnotateMode::ResetAndRenumber,
+                                oxide_engine::AnnotateMode::ResetAndRenumber,
                             ))),
                             border_c,
                         ),

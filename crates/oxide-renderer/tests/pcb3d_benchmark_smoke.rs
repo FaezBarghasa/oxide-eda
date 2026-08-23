@@ -9,13 +9,13 @@
 //! Tier S  (small)  :  1 scene, 1 node, 1 mesh,  3 primitives
 //! Tier M  (medium) :  2 scenes, 4 nodes, 3 meshes, 7 primitives across nodes
 
-use signex_gfx::scene::Scene;
-use signex_renderer::pcb3d::{
+use oxide_gfx::scene::Scene;
+use oxide_renderer::pcb3d::{
     GlbSource, ModelTransform, OpaquePassLayout, ProjectionPassConfig, RuntimeGlbIngestRequest,
     RuntimeMaterialPolicy, check_projection_alignment, emit_opaque_pass_preview,
     emit_projection_pass, ingest_runtime_glb,
 };
-use signex_renderer::theme::ResolvedTheme;
+use oxide_renderer::theme::ResolvedTheme;
 
 // ---------------------------------------------------------------------------
 // Shared helpers

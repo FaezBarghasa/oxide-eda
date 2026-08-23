@@ -18,7 +18,7 @@ use iced::{Element, Length};
 /// through the same dispatcher the Tools-menu surface uses.
 pub(super) fn content_library_distributors<'a>(
     settings: &'a crate::library::state::DistributorSettings,
-    tokens: &'a signex_types::theme::ThemeTokens,
+    tokens: &'a oxide_types::theme::ThemeTokens,
 ) -> Element<'a, PrefMsg> {
     let header: Element<'a, PrefMsg> = column![
         section_title("Library — Distributor APIs"),

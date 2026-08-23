@@ -103,7 +103,7 @@ impl Signex {
                 iced::Task::perform(
                     async move {
                         tokio::task::spawn_blocking(move || {
-                            let adapter = signex_library::adapters::local_git_project::LocalGitProjectAdapter::open_or_init(
+                            let adapter = oxide_library::adapters::local_git_project::LocalGitProjectAdapter::open_or_init(
                                 project_root.clone(),
                             )
                             .map_err(|e| {

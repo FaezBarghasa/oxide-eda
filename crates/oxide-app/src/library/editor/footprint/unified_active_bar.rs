@@ -4,13 +4,13 @@
 //!
 //! v0.13 — Public surface split into `bar_items()` + `dropdown_overlay()`
 //! so the layer-site mounting code at `view_main_for` calls
-//! `signex_widgets::active_bar::view(items, tokens).map(...)` directly,
+//! `oxide_widgets::active_bar::view(items, tokens).map(...)` directly,
 //! BYTE-FOR-BYTE matching the schematic active bar's chain. This
 //! prevents `Element::map` ordering drift (Map-wraps-container vs
 //! container-wraps-Map) that introduced a 2 px layout-pass shift.
 
-use signex_types::theme::{ThemeId, ThemeTokens};
-use signex_widgets::active_bar::{ActiveBarButton, ActiveBarIcon, ActiveBarItem};
+use oxide_types::theme::{ThemeId, ThemeTokens};
+use oxide_widgets::active_bar::{ActiveBarButton, ActiveBarIcon, ActiveBarItem};
 
 use crate::app::FootprintEditorState;
 use crate::icons as ic;
@@ -18,7 +18,7 @@ use crate::library::editor::footprint::state::{EditorMode, FpActiveBarMenu};
 use crate::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
 
 /// Build the bar items only — caller mounts via
-/// `signex_widgets::active_bar::view(items, tokens)` so the chain is
+/// `oxide_widgets::active_bar::view(items, tokens)` so the chain is
 /// identical to the schematic.
 pub fn bar_items(
     editor: &FootprintEditorState,
@@ -64,7 +64,7 @@ fn menu_trigger_geometry(
     items: &[ActiveBarItem<LibraryMessage>],
     menu: FpActiveBarMenu,
 ) -> (Option<f32>, f32) {
-    let (offsets, total) = signex_widgets::active_bar::slot_offsets(items);
+    let (offsets, total) = oxide_widgets::active_bar::slot_offsets(items);
     let opens = |item: &ActiveBarItem<LibraryMessage>| -> bool {
         let ActiveBarItem::Button(b) = item else {
             return false;
@@ -130,7 +130,7 @@ pub fn dropdown_overlay<'a>(
         FpActiveBarMenu::SketchCreate => Some(230.0),
         FpActiveBarMenu::SketchModify => Some(250.0),
     };
-    let panel = signex_widgets::active_bar_dropdown::view(entries, tokens, width_hint);
+    let panel = oxide_widgets::active_bar_dropdown::view(entries, tokens, width_hint);
 
     // v0.26-H — the panel lands under its own trigger button:
     //   bar_left + <that button's offset within the bar>
@@ -275,12 +275,12 @@ fn dropdown_trigger_items(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_widgets::active_bar::{BAR_PADDING, BTN_SIZE, ROW_SPACING};
+    use oxide_widgets::active_bar::{BAR_PADDING, BTN_SIZE, ROW_SPACING};
 
     fn editor_in(
         mode: crate::library::editor::footprint::state::EditorMode,
     ) -> FootprintEditorState {
-        use signex_library::{Footprint, FootprintFile};
+        use oxide_library::{Footprint, FootprintFile};
         let file = FootprintFile::from_footprint(Footprint::empty("t"));
         let mut editor =
             crate::app::FootprintEditorState::new(std::path::PathBuf::from("t.snxfpt"), file);
@@ -295,7 +295,7 @@ mod tests {
     #[test]
     fn menu_triggers_are_located_by_message_not_by_index() {
         use crate::library::editor::footprint::state::EditorMode;
-        use signex_types::theme::{ThemeId, theme_tokens};
+        use oxide_types::theme::{ThemeId, theme_tokens};
 
         let tid = ThemeId::Signex;
         let tokens = theme_tokens(tid);
@@ -343,7 +343,7 @@ mod tests {
     fn bar_width_counts_every_slot_including_the_custom_one() {
         use crate::library::editor::footprint::sketch_mode::active_bar::DIM_INPUT_W;
         use crate::library::editor::footprint::state::EditorMode;
-        use signex_types::theme::{ThemeId, theme_tokens};
+        use oxide_types::theme::{ThemeId, theme_tokens};
 
         let tid = ThemeId::Signex;
         let tokens = theme_tokens(tid);

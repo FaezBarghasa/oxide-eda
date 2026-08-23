@@ -12,8 +12,8 @@
 //! tests drive the completion messages the async task now emits, which
 //! is where the reporting lives.
 
-use signex_app::app::{Message, PreferencesMsg, Signex};
-use signex_app::preferences::PrefMsg;
+use oxide_app::app::{Message, PreferencesMsg, Signex};
+use oxide_app::preferences::PrefMsg;
 use std::path::PathBuf;
 
 fn inner(msg: PrefMsg) -> Message {

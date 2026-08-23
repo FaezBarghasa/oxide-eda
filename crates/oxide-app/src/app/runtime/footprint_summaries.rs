@@ -1,7 +1,7 @@
 pub(super) fn footprint_pad_kind_label(
     pad: &crate::library::editor::footprint::state::EditorPad,
 ) -> &'static str {
-    use signex_library::primitive::footprint::PadKind;
+    use oxide_library::primitive::footprint::PadKind;
     match pad.kind {
         PadKind::Smd => "SMD",
         PadKind::Tht => "Through-hole",
@@ -16,7 +16,7 @@ pub(super) fn footprint_pad_kind_label(
 pub(super) fn footprint_pad_shape_label(
     pad: &crate::library::editor::footprint::state::EditorPad,
 ) -> &'static str {
-    use signex_library::primitive::footprint::PadShape;
+    use oxide_library::primitive::footprint::PadShape;
     match &pad.shape {
         PadShape::Round => "Round",
         PadShape::Rect => "Rect",
@@ -35,11 +35,11 @@ pub(super) fn footprint_pad_shape_label(
 /// Rows whose residual cannot be evaluated come first, then the rest
 /// descending by residual magnitude — see [`residual_magnitude_of`].
 pub(super) fn build_over_constraint_summaries(
-    fp: &signex_library::primitive::footprint::Footprint,
-    out: &signex_sketch::solver::FullSolveOutput,
+    fp: &oxide_library::primitive::footprint::Footprint,
+    out: &oxide_sketch::solver::FullSolveOutput,
 ) -> Vec<crate::panels::OverConstraintSummary> {
     use crate::panels::OverConstraintSummary;
-    use signex_sketch::constraint::ConstraintKind;
+    use oxide_sketch::constraint::ConstraintKind;
 
     let sketch = match fp.sketch.as_ref() {
         Some(s) => s,
@@ -74,7 +74,7 @@ pub(super) fn build_over_constraint_summaries(
             Fixed { .. } => "Fixed",
         }
     };
-    let first_focus = |k: &ConstraintKind| -> Option<signex_sketch::id::SketchEntityId> {
+    let first_focus = |k: &ConstraintKind| -> Option<oxide_sketch::id::SketchEntityId> {
         use ConstraintKind::*;
         match k {
             Coincident { p1, .. } => Some(*p1),
@@ -136,12 +136,12 @@ pub(super) fn build_over_constraint_summaries(
 /// diagnostics the user is reading are incomplete, and a blank cell in
 /// a panel is not a report.
 fn residual_magnitude_of(
-    c: &signex_sketch::constraint::Constraint,
-    out: &signex_sketch::solver::FullSolveOutput,
-    sketch: &signex_sketch::sketch::SketchData,
+    c: &oxide_sketch::constraint::Constraint,
+    out: &oxide_sketch::solver::FullSolveOutput,
+    sketch: &oxide_sketch::sketch::SketchData,
     kind_label: &'static str,
 ) -> Option<f64> {
-    use signex_sketch::solver::residual::residual;
+    use oxide_sketch::solver::residual::residual;
 
     // `out.params` is the map the solve itself ran with, carried on
     // `FullSolveOutput`. Re-resolving `sketch.parameters` here and
@@ -164,9 +164,9 @@ fn residual_magnitude_of(
 
 pub(super) fn build_sketch_entity_summary(
     editor: &crate::app::FootprintEditorState,
-    id: signex_sketch::id::SketchEntityId,
+    id: oxide_sketch::id::SketchEntityId,
 ) -> Option<crate::panels::FootprintSketchEntitySummary> {
-    use signex_sketch::entity::EntityKind;
+    use oxide_sketch::entity::EntityKind;
     let sketch = editor.primitive().sketch.as_ref()?;
     let entity = sketch.entities.iter().find(|e| e.id == id)?;
     let (kind_label, position_mm) = match entity.kind {
@@ -206,16 +206,16 @@ pub(super) fn build_sketch_entity_summary(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_library::primitive::footprint::Footprint;
-    use signex_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
-    use signex_sketch::entity::{Entity, EntityKind};
-    use signex_sketch::id::{ConstraintId, SketchEntityId};
-    use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
-    use signex_sketch::sketch::SketchData;
-    use signex_sketch::solver::FullSolveOutput;
-    use signex_sketch::solver::lm::SolveResult;
-    use signex_sketch::solver::residual::ResolvedParams;
-    use signex_sketch::solver::state::pack;
+    use oxide_library::primitive::footprint::Footprint;
+    use oxide_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
+    use oxide_sketch::entity::{Entity, EntityKind};
+    use oxide_sketch::id::{ConstraintId, SketchEntityId};
+    use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
+    use oxide_sketch::sketch::SketchData;
+    use oxide_sketch::solver::FullSolveOutput;
+    use oxide_sketch::solver::lm::SolveResult;
+    use oxide_sketch::solver::residual::ResolvedParams;
+    use oxide_sketch::solver::state::pack;
 
     /// Two Points 5 mm apart, ready for the caller to attach
     /// `DistancePtPt` constraints between them.
@@ -254,7 +254,7 @@ mod tests {
     /// and assemble the `FullSolveOutput` the panel reads.
     ///
     /// Conflicting constraints make `solve_lm` legitimately return
-    /// `DidNotConverge`, so — exactly as `signex-sketch/tests/dof.rs`
+    /// `DidNotConverge`, so — exactly as `oxide-sketch/tests/dof.rs`
     /// does — the output is assembled at the packed initial state
     /// rather than through `Solver::solve`. Everything
     /// `build_over_constraint_summaries` reads is real: the packed

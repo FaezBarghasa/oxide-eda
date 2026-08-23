@@ -8,8 +8,8 @@ use std::path::PathBuf;
 
 #[test]
 fn footprint_editor_push_history_then_undo_restores_pads() {
-    use signex_app::app::FootprintEditorState;
-    use signex_library::{Footprint, FootprintFile};
+    use oxide_app::app::FootprintEditorState;
+    use oxide_library::{Footprint, FootprintFile};
 
     let fp = Footprint::empty("test");
     let file = FootprintFile::from_footprint(fp);
@@ -20,7 +20,7 @@ fn footprint_editor_push_history_then_undo_restores_pads() {
     editor.push_history();
     // Mutate: append a pad.
     editor.state.pads.push(
-        signex_app::library::editor::footprint::state::EditorPad::new_default(
+        oxide_app::library::editor::footprint::state::EditorPad::new_default(
             "1".into(),
             (0.0, 0.0),
         ),
@@ -40,8 +40,8 @@ fn footprint_editor_push_history_then_undo_restores_pads() {
 
 #[test]
 fn footprint_editor_undo_returns_false_on_empty_history() {
-    use signex_app::app::FootprintEditorState;
-    use signex_library::{Footprint, FootprintFile};
+    use oxide_app::app::FootprintEditorState;
+    use oxide_library::{Footprint, FootprintFile};
 
     let fp = Footprint::empty("test");
     let file = FootprintFile::from_footprint(fp);
@@ -53,8 +53,8 @@ fn footprint_editor_undo_returns_false_on_empty_history() {
 
 #[test]
 fn footprint_editor_history_caps_at_depth_limit() {
-    use signex_app::app::FootprintEditorState;
-    use signex_library::{Footprint, FootprintFile};
+    use oxide_app::app::FootprintEditorState;
+    use oxide_library::{Footprint, FootprintFile};
 
     let fp = Footprint::empty("test");
     let file = FootprintFile::from_footprint(fp);
@@ -69,8 +69,8 @@ fn footprint_editor_history_caps_at_depth_limit() {
 
 #[test]
 fn footprint_editor_new_mutation_clears_redo_stack() {
-    use signex_app::app::FootprintEditorState;
-    use signex_library::{Footprint, FootprintFile};
+    use oxide_app::app::FootprintEditorState;
+    use oxide_library::{Footprint, FootprintFile};
 
     let fp = Footprint::empty("test");
     let file = FootprintFile::from_footprint(fp);
@@ -78,7 +78,7 @@ fn footprint_editor_new_mutation_clears_redo_stack() {
 
     editor.push_history();
     editor.state.pads.push(
-        signex_app::library::editor::footprint::state::EditorPad::new_default(
+        oxide_app::library::editor::footprint::state::EditorPad::new_default(
             "1".into(),
             (0.0, 0.0),
         ),

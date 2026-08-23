@@ -17,11 +17,11 @@
 //! `handle_parameter_manager_edit`, and `erc/annotate.rs` `handle_annotate`
 //! and `handle_reset_duplicate_designators` on the active engine.
 
-use signex_app::app::{
+use oxide_app::app::{
     AnnotateMsg, Message, MoveSelectionMsg, ParameterManagerMsg, Signex, WindowMsg,
 };
-use signex_app::menu_bar::MenuMessage;
-use signex_types::schematic::{Point, SchematicSheet, SelectedItem, SelectedKind, Symbol};
+use oxide_app::menu_bar::MenuMessage;
+use oxide_types::schematic::{Point, SchematicSheet, SelectedItem, SelectedKind, Symbol};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
@@ -88,17 +88,17 @@ fn sheet_with(symbols: Vec<Symbol>) -> SchematicSheet {
 /// `active_tab` or it silently no-ops.
 fn app_with(symbols: Vec<Symbol>) -> (Signex, PathBuf) {
     let path = PathBuf::from("dirty-gateway.snxsch");
-    let engine = signex_engine::Engine::new(sheet_with(symbols)).expect("engine");
+    let engine = oxide_engine::Engine::new(sheet_with(symbols)).expect("engine");
 
     let (mut app, _initial_task) = Signex::new();
     app.document_state.engines.insert(path.clone(), engine);
-    app.document_state.tabs.push(signex_app::app::TabInfo {
+    app.document_state.tabs.push(oxide_app::app::TabInfo {
         title: "dirty-gateway".to_string(),
         path: path.clone(),
         cached_document: None,
         dirty: false,
         project_id: None,
-        kind: signex_app::app::TabKind::Schematic,
+        kind: oxide_app::app::TabKind::Schematic,
     });
     app.document_state.active_tab = 0;
     app.document_state.active_path = Some(path.clone());
@@ -210,7 +210,7 @@ fn annotate_marks_the_active_sheet_dirty() {
     ]);
 
     let _ = app.update(Message::Annotate(AnnotateMsg::Run(
-        signex_engine::AnnotateMode::ResetAndRenumber,
+        oxide_engine::AnnotateMode::ResetAndRenumber,
     )));
 
     let references: Vec<String> = app

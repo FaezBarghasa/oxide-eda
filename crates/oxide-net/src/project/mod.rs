@@ -37,9 +37,9 @@
 
 use std::collections::{HashMap, HashSet};
 
-use signex_types::designator::compare_references;
-use signex_types::net::{Net, NetId, Netlist, Terminal};
-use signex_types::schematic::{Label, LabelType, Point, SchematicSheet};
+use oxide_types::designator::compare_references;
+use oxide_types::net::{Net, NetId, Netlist, Terminal};
+use oxide_types::schematic::{Label, LabelType, Point, SchematicSheet};
 use uuid::Uuid;
 
 use crate::build::{

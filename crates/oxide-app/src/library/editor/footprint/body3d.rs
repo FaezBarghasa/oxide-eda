@@ -2,16 +2,16 @@
 //!
 //! Sits in the right column of the Footprint tab (per
 //! `v0.9-refactor-2-plan.md` §11 step F3). Edits the
-//! [`signex_library::Body3D`] embedded on the active footprint
+//! [`oxide_library::Body3D`] embedded on the active footprint
 //! primitive — the procedural 3D render in `preview3d.rs` rebuilds off
 //! these values on every frame.
 
 use iced::widget::{Space, button, column, container, pick_list, row, text};
 use iced::{Border, Element, Length, Theme};
 use iced_aw::NumberInput;
-use signex_library::{Body3D, BodyShape};
-use signex_types::theme::ThemeTokens;
-use signex_widgets::theme_ext;
+use oxide_library::{Body3D, BodyShape};
+use oxide_types::theme::ThemeTokens;
+use oxide_widgets::theme_ext;
 
 use crate::library::messages::{EditorMsg, LibraryMessage};
 use crate::library::state::EditorAddress;
@@ -238,7 +238,7 @@ fn color_row<'a>(
 
 #[cfg(test)]
 mod tests {
-    use signex_library::{Body3D, BodyShape};
+    use oxide_library::{Body3D, BodyShape};
 
     /// `Body3D::default()` should give us a sensible block: visible
     /// (non-zero alpha + non-zero height) and a defined extrude shape.

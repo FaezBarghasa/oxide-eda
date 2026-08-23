@@ -1,4 +1,4 @@
-//! `LibraryAdapter` over the HTTP API exposed by `signex-library-server`.
+//! `LibraryAdapter` over the HTTP API exposed by `oxide-library-server`.
 //!
 //! Synchronous facade for the trait. Row CRUD speaks to the
 //! `/tables` / `/rows` routes; primitive (`/symbols` / `/footprints`
@@ -8,7 +8,7 @@
 //! Routes are addressed by a `library_id` query parameter — the
 //! adapter sources its own from `manifest().library.library_id`.
 //! Mutating calls carry their commit message in the
-//! `x-signex-message` header so the server-side audit log has it
+//! `x-oxide-message` header so the server-side audit log has it
 //! (the DB backend doesn't have its own commit graph the way
 //! `LocalGitAdapter` does — see TODO around the `audit_log` table
 //! below).
@@ -69,7 +69,7 @@ impl DatabaseAdapter {
             .map_err(|e| LibraryError::Backend(format!("reqwest client: {e}")))?;
         let token = if auth.is_empty() { None } else { Some(auth) };
         // CRIT-3: never use the bearer token as `holder`. The `holder` is
-        // sent in the `x-signex-holder` request header AND echoed in
+        // sent in the `x-oxide-holder` request header AND echoed in
         // server error bodies (`"lock held by {holder}"`), so identifying
         // the caller via the credential leaks it through both surfaces.
         // Derive a non-secret label from the library identity instead.
@@ -211,7 +211,7 @@ impl DatabaseAdapter {
     }
 
     /// Generic POST primitive JSON to `/{collection}` with the supplied
-    /// commit message in the `x-signex-message` header.
+    /// commit message in the `x-oxide-message` header.
     fn post_primitive_json<T: Serialize>(
         &self,
         collection: &str,
@@ -223,7 +223,7 @@ impl DatabaseAdapter {
             .auth(
                 self.client
                     .post(self.url(&format!("/{coll}")))
-                    .header("x-signex-message", message)
+                    .header("x-oxide-message", message)
                     .json(body),
             )
             .send()
@@ -282,12 +282,12 @@ impl LibraryAdapter for DatabaseAdapter {
     // ── Row + table CRUD ─────────────────────────────────────────────────
     //
     // The adapter forwards each method to its route on
-    // `signex-library-server`. The server-side DB schema lives in
+    // `oxide-library-server`. The server-side DB schema lives in
     // `migrations/0005_tabular_components.sql`; the wire format is the
     // `ComponentRow` JSON serialisation defined in `component::ComponentRow`.
     //
     // TODO(audit): mutating routes pass a commit message via
-    // `x-signex-message`, but the DB backend has no audit_log table yet —
+    // `x-oxide-message`, but the DB backend has no audit_log table yet —
     // the message currently shows up only in `tracing::info!` lines.
     // v0.9.x can add an `audit_log (library_id, row_id, actor, message,
     // occurred)` row per mutation when the workflow grows server-side
@@ -379,7 +379,7 @@ impl LibraryAdapter for DatabaseAdapter {
         // the `tracing` layer so it shows up in operator logs even before
         // the planned `audit_log` table lands.
         tracing::info!(
-            target: "signex_library::database",
+            target: "oxide_library::database",
             library_id = %self.manifest.library.library_id,
             table = table,
             row_id = %row.row_id,
@@ -393,7 +393,7 @@ impl LibraryAdapter for DatabaseAdapter {
             .auth(
                 self.client
                     .post(url)
-                    .header("x-signex-message", msg)
+                    .header("x-oxide-message", msg)
                     .json(&row),
             )
             .send()
@@ -409,7 +409,7 @@ impl LibraryAdapter for DatabaseAdapter {
 
     fn update_row(&self, table: &str, row: ComponentRow, msg: &str) -> Result<(), LibraryError> {
         tracing::info!(
-            target: "signex_library::database",
+            target: "oxide_library::database",
             library_id = %self.manifest.library.library_id,
             table = table,
             row_id = %row.row_id,
@@ -427,7 +427,7 @@ impl LibraryAdapter for DatabaseAdapter {
             .auth(
                 self.client
                     .put(url)
-                    .header("x-signex-message", msg)
+                    .header("x-oxide-message", msg)
                     .json(&row),
             )
             .send()
@@ -445,7 +445,7 @@ impl LibraryAdapter for DatabaseAdapter {
 
     fn delete_row(&self, table: &str, row_id: RowId, msg: &str) -> Result<(), LibraryError> {
         tracing::info!(
-            target: "signex_library::database",
+            target: "oxide_library::database",
             library_id = %self.manifest.library.library_id,
             table = table,
             row_id = %row_id,
@@ -458,7 +458,7 @@ impl LibraryAdapter for DatabaseAdapter {
             self.library_id_query()
         ));
         let resp = self
-            .auth(self.client.delete(url).header("x-signex-message", msg))
+            .auth(self.client.delete(url).header("x-oxide-message", msg))
             .send()
             .map_err(|e| LibraryError::Backend(e.to_string()))?;
         match resp.status() {

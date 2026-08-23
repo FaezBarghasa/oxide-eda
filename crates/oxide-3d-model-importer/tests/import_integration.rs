@@ -1,4 +1,4 @@
-use signex_3d_model_importer::{ModelImportRequest, SourceFormat, import_model};
+use oxide_3d_model_importer::{ModelImportRequest, SourceFormat, import_model};
 
 fn write_tier0_wrl(path: &std::path::Path) {
     std::fs::write(
@@ -287,7 +287,7 @@ fn import_unsupported_format_returns_error() {
     });
     assert!(matches!(
         err,
-        Err(signex_3d_model_importer::ModelImportError::UnsupportedFormat { .. })
+        Err(oxide_3d_model_importer::ModelImportError::UnsupportedFormat { .. })
     ));
 }
 
@@ -305,6 +305,6 @@ fn import_missing_source_returns_error() {
     });
     assert!(matches!(
         err,
-        Err(signex_3d_model_importer::ModelImportError::SourceNotFound { .. })
+        Err(oxide_3d_model_importer::ModelImportError::SourceNotFound { .. })
     ));
 }

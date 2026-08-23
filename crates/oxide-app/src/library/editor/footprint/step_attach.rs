@@ -1,7 +1,7 @@
 //! STEP file attachment helper.
 //!
 //! Handles the file-pick → SHA-256 → copy-into-`step/<hash>.step` flow
-//! for [`signex_library::StepAttachment`]. Also exposes the small
+//! for [`oxide_library::StepAttachment`]. Also exposes the small
 //! `view()` widget for the Footprint tab's Body 3D pane.
 //!
 //! Per `v0.9-refactor-2-plan.md` §11 step F5: the attachment is
@@ -13,9 +13,9 @@ use std::path::Path;
 use iced::widget::{Space, button, column, container, row, text};
 use iced::{Border, Element, Length, Theme};
 use sha2::{Digest, Sha256};
-use signex_library::{Footprint, StepAttachment};
-use signex_types::theme::ThemeTokens;
-use signex_widgets::theme_ext;
+use oxide_library::{Footprint, StepAttachment};
+use oxide_types::theme::ThemeTokens;
+use oxide_widgets::theme_ext;
 
 use crate::library::messages::{EditorMsg, LibraryMessage};
 use crate::library::state::EditorAddress;
@@ -160,7 +160,7 @@ pub fn stash_step(lib_root: &Path, bytes: &[u8], filename: &str) -> Option<StepA
     }
     let target = step_dir.join(format!("{hash}.step"));
     if !target.exists()
-        && let Err(e) = signex_types::atomic_io::atomic_write(&target, bytes)
+        && let Err(e) = oxide_types::atomic_io::atomic_write(&target, bytes)
     {
         tracing::warn!(
             target: "signex::library",

@@ -17,8 +17,8 @@
 
 use iced::widget::{Space, button, checkbox, column, container, row, text};
 use iced::{Border, Element, Length, Theme};
-use signex_types::theme::ThemeTokens;
-use signex_widgets::theme_ext;
+use oxide_types::theme::ThemeTokens;
+use oxide_widgets::theme_ext;
 
 use super::messages::LibraryMessage;
 use super::state::LibraryCreateOptionsState;

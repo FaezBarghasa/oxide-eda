@@ -5,10 +5,10 @@ use common::Sketch;
 
 use std::f64::consts::PI;
 
-use signex_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
-use signex_sketch::id::ConstraintId;
-use signex_sketch::solver::residual::{ResolvedParams, residual};
-use signex_sketch::solver::state::pack;
+use oxide_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
+use oxide_sketch::id::ConstraintId;
+use oxide_sketch::solver::residual::{ResolvedParams, residual};
+use oxide_sketch::solver::state::pack;
 
 fn empty_params() -> ResolvedParams {
     ResolvedParams::new()

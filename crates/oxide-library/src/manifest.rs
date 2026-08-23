@@ -243,13 +243,13 @@ library_id = "0192a8c0-0000-7000-8000-000000000001"
 [mode]
 kind = "database"
 url = "https://lib.alplab.example/api"
-auth = "@signex-keychain:alplab-libserver"
+auth = "@oxide-keychain:alplab-libserver"
 "#;
         let m = Manifest::parse(text).unwrap();
         match m.mode {
             LibraryMode::Database { url, auth } => {
                 assert_eq!(url, "https://lib.alplab.example/api");
-                assert_eq!(auth, "@signex-keychain:alplab-libserver");
+                assert_eq!(auth, "@oxide-keychain:alplab-libserver");
             }
             _ => panic!("expected database mode"),
         }

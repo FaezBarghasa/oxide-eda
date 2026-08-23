@@ -27,7 +27,7 @@ pub fn draw_text_note_preview(
             position: [note.position.x as f32, note.position.y as f32],
             size_mm: note
                 .font_size
-                .max(signex_types::schematic::SCHEMATIC_TEXT_MM) as f32,
+                .max(oxide_types::schematic::SCHEMATIC_TEXT_MM) as f32,
             color: to_rgba(color),
             bold: false,
             italic: false,
@@ -43,8 +43,8 @@ pub fn draw_text_note_preview(
     draw_renderer_snapshot(
         frame,
         &snapshot,
-        &ResolvedTheme::from_canvas_colors(signex_types::theme::canvas_colors(
-            signex_types::theme::ThemeId::Signex,
+        &ResolvedTheme::from_canvas_colors(oxide_types::theme::canvas_colors(
+            oxide_types::theme::ThemeId::Signex,
         )),
         DirtyFlags::TEXT,
         transform,

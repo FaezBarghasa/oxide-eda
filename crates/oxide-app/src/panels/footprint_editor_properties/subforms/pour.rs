@@ -10,7 +10,7 @@ use super::super::super::{FootprintEditorPanelContext, PanelMsg};
 pub(in crate::panels::footprint_editor_properties) fn render_pour_subform<'a>(
     mut col: Column<'a, PanelMsg>,
     fp: &'a FootprintEditorPanelContext,
-    id: signex_sketch::id::SketchEntityId,
+    id: oxide_sketch::id::SketchEntityId,
     muted: Color,
     primary: Color,
     border_c: Color,
@@ -58,7 +58,7 @@ pub(in crate::panels::footprint_editor_properties) fn render_pour_subform<'a>(
 
     // Fill type (Solid / Hatched / Outline)
     let fill_picker = pick_list(
-        signex_sketch::attr::PourFillType::ALL,
+        oxide_sketch::attr::PourFillType::ALL,
         Some(pour.fill_type),
         move |v| PanelMsg::FpEditorSetPourFillType { id, value: v },
     )

@@ -2,8 +2,8 @@
 
 use iced::widget::{Row, container, mouse_area, row, text};
 use iced::{Element, Length};
-use signex_types::theme::ThemeTokens;
-use signex_widgets::tab_pill::{AccentPosition, TabPill, TabPillStyle};
+use oxide_types::theme::ThemeTokens;
+use oxide_widgets::tab_pill::{AccentPosition, TabPill, TabPillStyle};
 
 use crate::app::TabInfo;
 use crate::styles;
@@ -69,7 +69,7 @@ pub fn view<'a>(
         // right-click menu now (Altium parity) — the tab itself is the
         // entire hit target.
         //
-        // The pill itself is a custom widget (`signex_widgets::TabPill`)
+        // The pill itself is a custom widget (`oxide_widgets::TabPill`)
         // that paints its own bg + 3-sided border (top + L/R only) +
         // 2 px accent strip below. Iced's stock Border can't do "top
         // and sides only", and a stacked-bg fake leaked accent through

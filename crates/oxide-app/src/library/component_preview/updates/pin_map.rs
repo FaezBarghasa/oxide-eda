@@ -68,7 +68,7 @@ pub(super) fn add_override(state: &mut ComponentPreviewState, pin: String, pad: 
         state
             .row
             .pin_map_overrides
-            .push(signex_library::PinPadOverride::new(pin, trimmed));
+            .push(oxide_library::PinPadOverride::new(pin, trimmed));
     }
     state.pin_map_state.expanded_row = None;
     state.pin_map_state.override_buf.clear();

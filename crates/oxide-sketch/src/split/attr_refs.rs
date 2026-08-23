@@ -34,7 +34,7 @@ pub(super) fn retarget_arrays(sketch: &mut SketchData, ctx: &SplitCtx) {
 /// `CustomPadShape::SketchProfile.source` / `PasteAperturePattern::
 /// Custom.source` are seed lists into `trace_closed_profile`'s
 /// adjacency walk (today only `source[0]` is read — see
-/// `signex-bake/src/pad.rs`). The walk discovers the WHOLE closed loop
+/// `oxide-bake/src/pad.rs`). The walk discovers the WHOLE closed loop
 /// from any edge on it, and `line_a` is still wired into that same
 /// loop (through `start`, and through the new mid Point to `line_b`),
 /// so re-seeding with `line_a` re-finds the identical profile. Every

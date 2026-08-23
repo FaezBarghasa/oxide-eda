@@ -1,12 +1,12 @@
 //! Integration tests for Milestone C runtime GLB ingest hooks.
 
-use signex_gfx::scene::Scene;
-use signex_renderer::pcb3d::{
+use oxide_gfx::scene::Scene;
+use oxide_renderer::pcb3d::{
     GlbSource, ModelTransform, OpaquePassLayout, ProjectionAlignmentError, ProjectionBounds,
     ProjectionPassConfig, RuntimeGlbIngestError, RuntimeGlbIngestRequest, RuntimeMaterialPolicy,
     check_projection_alignment, emit_opaque_pass_preview, emit_projection_pass, ingest_runtime_glb,
 };
-use signex_renderer::theme::ResolvedTheme;
+use oxide_renderer::theme::ResolvedTheme;
 use std::fs;
 use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -54,7 +54,7 @@ fn unique_temp_path(extension: &str) -> PathBuf {
         .expect("clock should be after unix epoch")
         .as_nanos();
 
-    std::env::temp_dir().join(format!("signex_renderer_pcb3d_runtime_{nanos}.{extension}"))
+    std::env::temp_dir().join(format!("oxide_renderer_pcb3d_runtime_{nanos}.{extension}"))
 }
 
 #[test]

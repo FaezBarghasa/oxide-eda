@@ -10,10 +10,10 @@ use super::*;
 /// Atomic write — write `bytes` to `<path>.tmp` then `rename` over
 /// `path`. A crash mid-write leaves either the original file intact
 /// Re-export of the shared atomic-write helper (HI-6). Lives in
-/// `signex-types::atomic_io` so engine, library, and app share one
+/// `oxide-types::atomic_io` so engine, library, and app share one
 /// implementation; the function used to be a private duplicate here.
 pub(super) fn atomic_write(path: &std::path::Path, bytes: &[u8]) -> std::io::Result<()> {
-    signex_types::atomic_io::atomic_write(path, bytes)
+    oxide_types::atomic_io::atomic_write(path, bytes)
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -31,7 +31,7 @@ use crate::library::recovery::{
     BrokenBindingChoice, GitMissingChoice, LibraryMissingChoice, RecoveryDialog,
 };
 use crate::library::state::LibraryState;
-use signex_library::{LibraryError, LocalGitAdapter};
+use oxide_library::{LibraryError, LocalGitAdapter};
 
 /// Classify a `LocalGitAdapter::open` error and, if recoverable,
 /// stash the matching `RecoveryDialog` on `LibraryState::recovery`.

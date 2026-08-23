@@ -17,8 +17,8 @@
 //! - a label where a junction sits — the crossing wires are one net there, so
 //!   whichever segment wins names the same net.
 
-use signex_net::{point_on_segment, pt_key};
-use signex_types::schematic::SelectedKind;
+use oxide_net::{point_on_segment, pt_key};
+use oxide_types::schematic::SelectedKind;
 
 use crate::context::ErcContext;
 use crate::diagnostic::Diagnostic;
@@ -71,7 +71,7 @@ pub(crate) fn ambiguous_label_anchor(ctx: &ErcContext, out: &mut Vec<Diagnostic>
 mod tests {
     use super::*;
     use crate::context::{ErcJunction, ErcLabel, ErcWire, PaperSize};
-    use signex_types::schematic::{LabelType, Point};
+    use oxide_types::schematic::{LabelType, Point};
     use std::collections::HashMap;
     use uuid::Uuid;
 

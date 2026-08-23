@@ -1,6 +1,6 @@
 //! OS keyring credential storage for distributor adapters.
 //!
-//! - Service name format: `signex-distributor-<provider>`
+//! - Service name format: `oxide-distributor-<provider>`
 //! - Used by Mouser (API key) and DigiKey (OAuth refresh token).
 //! - Tests gated by platform: Windows Credential Manager works; Linux/macOS
 //!   CI runners may lack a backend → callers must handle
@@ -8,7 +8,7 @@
 
 use ::keyring::Entry;
 
-const SERVICE_PREFIX: &str = "signex-distributor-";
+const SERVICE_PREFIX: &str = "oxide-distributor-";
 
 #[derive(Debug, thiserror::Error)]
 pub enum KeyringError {
@@ -30,8 +30,8 @@ impl From<::keyring::Error> for KeyringError {
 /// Wrapper around a single keyring entry, scoped to one distributor provider.
 ///
 /// One `KeyringStore` instance maps to one underlying OS keychain item. The
-/// service name follows the spec: `signex-distributor-<provider>` (e.g.
-/// `signex-distributor-digikey`). The username slot lets callers separate
+/// service name follows the spec: `oxide-distributor-<provider>` (e.g.
+/// `oxide-distributor-digikey`). The username slot lets callers separate
 /// e.g. an OAuth access token from a refresh token (`"access"`/`"refresh"`).
 #[derive(Debug)]
 pub struct KeyringStore {
@@ -96,7 +96,7 @@ mod tests {
 
     #[test]
     fn service_prefix_is_stable() {
-        assert_eq!(SERVICE_PREFIX, "signex-distributor-");
+        assert_eq!(SERVICE_PREFIX, "oxide-distributor-");
     }
 
     #[test]
@@ -107,7 +107,7 @@ mod tests {
         let Ok(s) = KeyringStore::for_provider("mouser", "default") else {
             return;
         };
-        assert_eq!(s.service_name(), "signex-distributor-mouser");
+        assert_eq!(s.service_name(), "oxide-distributor-mouser");
         assert_eq!(s.username(), "default");
     }
 }

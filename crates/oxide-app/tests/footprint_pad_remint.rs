@@ -24,10 +24,10 @@
     reason = "integration tests discard Results with `let _ = ...` routinely; this is test scaffolding, not a production `iced::Task` being dropped, and `[lints]` in Cargo.toml is package-scoped so each integration-test crate root needs its own"
 )]
 
-use signex_app::app::{EditMsg, Message, Signex};
-use signex_app::library::editor::footprint::state::EditorPad;
-use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-use signex_sketch::sketch::SketchData;
+use oxide_app::app::{EditMsg, Message, Signex};
+use oxide_app::library::editor::footprint::state::EditorPad;
+use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+use oxide_sketch::sketch::SketchData;
 use std::path::{Path, PathBuf};
 
 fn dispatch(app: &mut Signex, path: &Path, msg: FootprintEditorMsg) {
@@ -40,8 +40,8 @@ fn dispatch(app: &mut Signex, path: &Path, msg: FootprintEditorMsg) {
 /// The exact repro from issue #390: a Chamfered 2×1 mm pad at the
 /// origin with the chamfer on the top-right corner.
 fn chamfered_repro_pad() -> EditorPad {
-    use signex_library::PadShape;
-    use signex_library::primitive::footprint::ChamferedCorners;
+    use oxide_library::PadShape;
+    use oxide_library::primitive::footprint::ChamferedCorners;
 
     let mut pad = EditorPad::new_default("1".into(), (0.0, 0.0));
     pad.size_mm = (2.0, 1.0);
@@ -59,9 +59,9 @@ fn chamfered_repro_pad() -> EditorPad {
 /// has already been minted, plus the tab wiring `Message::Edit` needs
 /// to resolve the active editor.
 fn editor_with_minted_pad(stem: &str, mut pad: EditorPad) -> (Signex, PathBuf) {
-    use signex_app::app::{FootprintEditorState, TabInfo, TabKind};
-    use signex_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
-    use signex_library::{Footprint, FootprintFile};
+    use oxide_app::app::{FootprintEditorState, TabInfo, TabKind};
+    use oxide_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
+    use oxide_library::{Footprint, FootprintFile};
 
     let path = PathBuf::from(format!("{stem}.snxfpt"));
     let mut fp = Footprint::empty(stem);
@@ -94,7 +94,7 @@ fn editor_with_minted_pad(stem: &str, mut pad: EditorPad) -> (Signex, PathBuf) {
 /// UUIDs. Positions are compared at nanometre resolution — the unit
 /// signex coordinates are integral in downstream.
 fn geometry_fingerprint(sketch: &SketchData) -> (Vec<(i64, i64)>, [usize; 4]) {
-    use signex_sketch::entity::EntityKind;
+    use oxide_sketch::entity::EntityKind;
 
     let mut points: Vec<(i64, i64)> = Vec::new();
     let mut census = [0usize; 4];
@@ -115,7 +115,7 @@ fn geometry_fingerprint(sketch: &SketchData) -> (Vec<(i64, i64)>, [usize; 4]) {
 
 /// Position of the pad's centre `Point`.
 fn centre_point(sketch: &SketchData, pad: &EditorPad) -> (f64, f64) {
-    use signex_sketch::entity::EntityKind;
+    use oxide_sketch::entity::EntityKind;
 
     sketch
         .entities
@@ -130,7 +130,7 @@ fn centre_point(sketch: &SketchData, pad: &EditorPad) -> (f64, f64) {
 
 /// Position of the `Point` that a `shape_params` sidecar key names.
 fn sidecar_point(sketch: &SketchData, pad: &EditorPad, key: &str) -> (f64, f64) {
-    use signex_sketch::entity::EntityKind;
+    use oxide_sketch::entity::EntityKind;
 
     let raw = pad.shape_params.get(key).unwrap_or_else(|| {
         panic!(
@@ -138,7 +138,7 @@ fn sidecar_point(sketch: &SketchData, pad: &EditorPad, key: &str) -> (f64, f64) 
             pad.shape_params.keys().collect::<Vec<_>>()
         )
     });
-    let id = signex_sketch::id::SketchEntityId(
+    let id = oxide_sketch::id::SketchEntityId(
         uuid::Uuid::parse_str(raw).expect("sidecar values are UUID slugs"),
     );
     sketch
@@ -164,8 +164,8 @@ fn sidecar_point(sketch: &SketchData, pad: &EditorPad, key: &str) -> (f64, f64) 
 /// the old shape nor the new one.
 #[test]
 fn rotate_leaves_the_sketch_equal_to_a_fresh_mint_at_the_new_angle() {
-    use signex_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
-    use signex_library::Footprint;
+    use oxide_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
+    use oxide_library::Footprint;
 
     let (mut app, path) = editor_with_minted_pad("chamfer-rotate", chamfered_repro_pad());
 
@@ -210,7 +210,7 @@ fn rotate_leaves_the_sketch_equal_to_a_fresh_mint_at_the_new_angle() {
     );
 }
 
-/// THE INVARIANT (b). `signex_bake::pad` reads `PadAttr::shape` off the
+/// THE INVARIANT (b). `oxide_bake::pad` reads `PadAttr::shape` off the
 /// sketch, so that field IS the baked shape. After a flip the editor
 /// pad's chamfer corners are mirrored; if the sketch attribute still
 /// carries the pre-flip corners then the editor and the bake disagree
@@ -220,8 +220,8 @@ fn rotate_leaves_the_sketch_equal_to_a_fresh_mint_at_the_new_angle() {
 /// representations AGREEING that matters.
 #[test]
 fn flip_keeps_the_baked_shape_equal_to_the_editor_shape() {
-    use signex_library::PadShape;
-    use signex_sketch::attr::PadShape as SkPadShape;
+    use oxide_library::PadShape;
+    use oxide_sketch::attr::PadShape as SkPadShape;
 
     let (mut app, path) = editor_with_minted_pad("chamfer-flip", chamfered_repro_pad());
 
@@ -276,7 +276,7 @@ fn flip_keeps_the_baked_shape_equal_to_the_editor_shape() {
             editor_corners.bottom_left,
             editor_corners.bottom_right,
         ),
-        "the shape `signex_bake::pad` reads off `PadAttr` must equal the shape the editor \
+        "the shape `oxide_bake::pad` reads off `PadAttr` must equal the shape the editor \
          shows. Baked {baked_corners:?} vs editor {editor_corners:?} — two representations, \
          two answers, and the chamfer is fabricated on the wrong corner"
     );
@@ -373,8 +373,8 @@ fn one_undo_after_a_rotate_restores_the_prior_sketch_geometry() {
 /// shape exposes it.
 #[test]
 fn properties_panel_rotation_regenerates_the_chamfer_anchor() {
-    use signex_app::dock::DockMessage;
-    use signex_app::panels::PanelMsg;
+    use oxide_app::dock::DockMessage;
+    use oxide_app::panels::PanelMsg;
 
     let (mut app, path) = editor_with_minted_pad("chamfer-panel-rotate", chamfered_repro_pad());
 
@@ -406,8 +406,8 @@ fn properties_panel_rotation_regenerates_the_chamfer_anchor() {
 /// anchors on the old ones.
 #[test]
 fn resizing_a_chamfered_pad_regenerates_its_chamfer_anchor() {
-    use signex_app::dock::DockMessage;
-    use signex_app::panels::PanelMsg;
+    use oxide_app::dock::DockMessage;
+    use oxide_app::panels::PanelMsg;
 
     let (mut app, path) = editor_with_minted_pad("chamfer-resize", chamfered_repro_pad());
 
@@ -480,9 +480,9 @@ fn translating_a_chamfered_pad_carries_its_chamfer_anchor_with_it() {
 
 /// The `Line` whose two endpoints both sit at world y == `y` — a pad's
 /// top or bottom bbox edge, the handle a Sketch-mode edge drag grabs.
-fn horizontal_edge_at_y(app: &Signex, path: &PathBuf, y: f64) -> signex_sketch::id::SketchEntityId {
-    use signex_sketch::entity::EntityKind;
-    use signex_sketch::id::SketchEntityId;
+fn horizontal_edge_at_y(app: &Signex, path: &PathBuf, y: f64) -> oxide_sketch::id::SketchEntityId {
+    use oxide_sketch::entity::EntityKind;
+    use oxide_sketch::id::SketchEntityId;
 
     let editor = app.document_state.footprint_editors.get(path).unwrap();
     let sketch = editor.primitive().sketch.as_ref().expect("sketch present");
@@ -528,8 +528,8 @@ fn horizontal_edge_at_y(app: &Signex, path: &PathBuf, y: f64) -> signex_sketch::
 /// anchor sits at pad-local (1 − 0.375, −0.75) = world (0.625, −1.0).
 #[test]
 fn sketch_edge_drag_regenerates_the_chamfer_anchor() {
-    use signex_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
-    use signex_library::Footprint;
+    use oxide_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
+    use oxide_library::Footprint;
 
     let (mut app, path) = editor_with_minted_pad("chamfer-edge-drag", chamfered_repro_pad());
     let edge_id = horizontal_edge_at_y(&app, &path, -0.5);

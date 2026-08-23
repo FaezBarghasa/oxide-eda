@@ -4,7 +4,7 @@ fn empty_snapshot() -> SchematicRenderSnapshot {
     SchematicRenderSnapshot {
         uuid: uuid::Uuid::nil(),
         version: 1,
-        generator: "signex-test".into(),
+        generator: "oxide-test".into(),
         generator_version: "0.0.0".into(),
         paper_size: "A4".into(),
         root_sheet_page: "1".into(),
@@ -28,7 +28,7 @@ fn empty_snapshot() -> SchematicRenderSnapshot {
 fn hit_test_wire_uses_segment_tolerance() {
     let mut snapshot = empty_snapshot();
     let wire_uuid = uuid::Uuid::new_v4();
-    snapshot.wires.push(signex_types::schematic::Wire {
+    snapshot.wires.push(oxide_types::schematic::Wire {
         uuid: wire_uuid,
         start: Point::new(0.0, 0.0),
         end: Point::new(10.0, 0.0),
@@ -43,7 +43,7 @@ fn hit_test_wire_uses_segment_tolerance() {
 fn hit_test_rect_mode_distinguishes_inside_and_touching() {
     let mut snapshot = empty_snapshot();
     let wire_uuid = uuid::Uuid::new_v4();
-    snapshot.wires.push(signex_types::schematic::Wire {
+    snapshot.wires.push(oxide_types::schematic::Wire {
         uuid: wire_uuid,
         start: Point::new(-4.0, 0.0),
         end: Point::new(4.0, 0.0),
@@ -65,7 +65,7 @@ fn hit_test_polygon_selects_wire_and_label_by_anchor() {
     let wire_uuid = uuid::Uuid::new_v4();
     let label_uuid = uuid::Uuid::new_v4();
 
-    snapshot.wires.push(signex_types::schematic::Wire {
+    snapshot.wires.push(oxide_types::schematic::Wire {
         uuid: wire_uuid,
         start: Point::new(1.0, 1.0),
         end: Point::new(9.0, 1.0),
@@ -78,7 +78,7 @@ fn hit_test_polygon_selects_wire_and_label_by_anchor() {
         rotation: 0.0,
         label_type: LabelType::Net,
         shape: String::new(),
-        font_size: signex_types::schematic::SCHEMATIC_TEXT_MM,
+        font_size: oxide_types::schematic::SCHEMATIC_TEXT_MM,
         justify: HAlign::Left,
         justify_v: VAlign::Bottom,
     });

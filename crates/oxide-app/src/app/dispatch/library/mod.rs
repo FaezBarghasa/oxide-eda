@@ -31,7 +31,7 @@ use crate::library::state::{
     EditRowModalState, EditorAddress, LibraryCreateOptionsState, NewComponentState, PickerState,
     PreviewTab, PrimitivePickerState, PrimitivePickerTarget,
 };
-use signex_library::{PrimitiveKind, PrimitiveRef, RowId};
+use oxide_library::{PrimitiveKind, PrimitiveRef, RowId};
 
 mod browser;
 mod component_preview;

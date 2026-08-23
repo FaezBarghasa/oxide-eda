@@ -10,7 +10,7 @@ impl Engine {
     ) -> Result<CommandResult, EngineError> {
         match cmd {
             Command::UpdateSchDrawing { drawing } => {
-                use signex_types::schematic::SchDrawing;
+                use oxide_types::schematic::SchDrawing;
                 let target_uuid = match &drawing {
                     SchDrawing::Line { uuid, .. }
                     | SchDrawing::Rect { uuid, .. }
@@ -98,7 +98,7 @@ impl Engine {
                 // are net anchors, not real components. Their references
                 // carry the net name, not a designator. Skip them in every
                 // phase so annotation only touches real parts.
-                let is_designator_target = |sym: &signex_types::schematic::Symbol| -> bool {
+                let is_designator_target = |sym: &oxide_types::schematic::Symbol| -> bool {
                     !sym.is_power && !sym.reference.starts_with('#')
                 };
                 // Phase 1: optionally reset existing numbers back to '?'.
@@ -236,7 +236,7 @@ impl Engine {
             }
             Command::ReorderObjects { items, direction } => {
                 use crate::command::ReorderDirection;
-                use signex_types::schematic::SelectedKind;
+                use oxide_types::schematic::SelectedKind;
                 if items.is_empty() {
                     return Ok(CommandResult::unchanged());
                 }

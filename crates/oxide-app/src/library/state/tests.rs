@@ -80,9 +80,9 @@ fn open_library_total_rows_sums_tables() {
 }
 
 /// Helper — minimal `ComponentRow` for the panel-side cache tests.
-/// The full row schema lives in `signex_library`'s tests.
+/// The full row schema lives in `oxide_library`'s tests.
 fn fixture_row(pn: &str) -> ComponentRow {
-    use signex_library::{
+    use oxide_library::{
         DatasheetRef, InternalPn, LifecycleState, ManufacturerPart, ParamMap, PinPadOverride,
         PlmReserved,
     };
@@ -93,7 +93,7 @@ fn fixture_row(pn: &str) -> ComponentRow {
         class: ComponentClass::generic(),
         datasheet: DatasheetRef::default(),
         state: LifecycleState::Draft,
-        symbol_ref: signex_library::PrimitiveRef::new(Uuid::nil(), Uuid::new_v4()),
+        symbol_ref: oxide_library::PrimitiveRef::new(Uuid::nil(), Uuid::new_v4()),
         footprint_ref: None,
         sim_ref: None,
         pin_map_overrides: Vec::new(),
@@ -118,7 +118,7 @@ fn fixture_row(pn: &str) -> ComponentRow {
 /// pivot from drifting back to "active + preferred".
 #[test]
 fn lifecycle_filter_preferred_only_isolates_released() {
-    use signex_library::LifecycleState as L;
+    use oxide_library::LifecycleState as L;
     let f = LifecycleFilter::PreferredOnly;
     assert!(f.allows(L::Released));
     assert!(!f.allows(L::Draft));
@@ -129,7 +129,7 @@ fn lifecycle_filter_preferred_only_isolates_released() {
 
 #[test]
 fn lifecycle_filter_default_hides_obsolete_and_deprecated() {
-    use signex_library::LifecycleState as L;
+    use oxide_library::LifecycleState as L;
     let f = LifecycleFilter::default();
     assert!(matches!(f, LifecycleFilter::ActiveAndPreferred));
     assert!(f.allows(L::Released));
@@ -141,7 +141,7 @@ fn lifecycle_filter_default_hides_obsolete_and_deprecated() {
 
 #[test]
 fn lifecycle_filter_include_deprecated_keeps_deprecated_only() {
-    use signex_library::LifecycleState as L;
+    use oxide_library::LifecycleState as L;
     let f = LifecycleFilter::IncludeDeprecated;
     assert!(f.allows(L::Released));
     assert!(f.allows(L::Deprecated));
@@ -150,7 +150,7 @@ fn lifecycle_filter_include_deprecated_keeps_deprecated_only() {
 
 #[test]
 fn lifecycle_filter_all_admits_every_state() {
-    use signex_library::LifecycleState as L;
+    use oxide_library::LifecycleState as L;
     let f = LifecycleFilter::All;
     for s in [
         L::Released,
@@ -178,7 +178,7 @@ fn library_browser_state_defaults_lifecycle_filter() {
 /// tags rendered in the input — Stage 18 lifecycle/tag UX.
 #[test]
 fn edit_row_modal_state_seeds_tags_buffer() {
-    use signex_library::{
+    use oxide_library::{
         ComponentClass, DatasheetRef, InternalPn, LifecycleState, ManufacturerPart, ParamMap,
         ParamValue, PinPadOverride, PlmReserved,
     };
@@ -194,7 +194,7 @@ fn edit_row_modal_state_seeds_tags_buffer() {
         class: ComponentClass::generic(),
         datasheet: DatasheetRef::default(),
         state: LifecycleState::Draft,
-        symbol_ref: signex_library::PrimitiveRef::new(Uuid::nil(), Uuid::new_v4()),
+        symbol_ref: oxide_library::PrimitiveRef::new(Uuid::nil(), Uuid::new_v4()),
         footprint_ref: None,
         sim_ref: None,
         pin_map_overrides: Vec::new(),

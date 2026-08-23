@@ -6,18 +6,18 @@
 
 use crate::schematic::ViewRenderer;
 use crate::theme::ResolvedTheme;
-use signex_gfx::primitive::circle::Circle;
-use signex_gfx::primitive::line::LineSegment;
-use signex_gfx::primitive::polygon::GpuPolygon;
-use signex_gfx::scene::{DirtyFlags, Scene};
-use signex_gfx::style::ColorSlot;
-use signex_types::pcb::{
+use oxide_gfx::primitive::circle::Circle;
+use oxide_gfx::primitive::line::LineSegment;
+use oxide_gfx::primitive::polygon::GpuPolygon;
+use oxide_gfx::scene::{DirtyFlags, Scene};
+use oxide_gfx::style::ColorSlot;
+use oxide_types::pcb::{
     Footprint, PCB_DEFAULT_PAD_SIZE_MM, PCB_DEFAULT_TRACE_WIDTH_MM, PCB_DEFAULT_VIA_DIAMETER_MM,
     PCB_DEFAULT_VIA_DRILL_MM, PCB_TRACK_MIN_MM, PCB_VIA_MIN_DIAMETER_MM, PCB_VIA_MIN_DRILL_MM, Pad,
     PadShape, PadType, PcbBoard, Segment, Via, Zone,
 };
-use signex_types::schematic::Point;
-use signex_types::violation::{DrcViolationType, Severity};
+use oxide_types::schematic::Point;
+use oxide_types::violation::{DrcViolationType, Severity};
 use std::collections::HashMap;
 
 const PAD_ELLIPSE_SEGMENTS: usize = 18;
@@ -267,9 +267,9 @@ mod tests {
     };
     use crate::schematic::ViewRenderer;
     use crate::theme::ResolvedTheme;
-    use signex_gfx::scene::{DirtyFlags, Scene};
-    use signex_types::pcb::PcbBoard;
-    use signex_types::violation::{DrcViolationType, Severity};
+    use oxide_gfx::scene::{DirtyFlags, Scene};
+    use oxide_types::pcb::PcbBoard;
+    use oxide_types::violation::{DrcViolationType, Severity};
 
     fn sample_board() -> PcbBoard {
         serde_json::from_str(

@@ -1,6 +1,6 @@
 //! Integration tests for runtime bridge: source model -> importer -> GLB ingest.
 
-use signex_renderer::pcb3d::{
+use oxide_renderer::pcb3d::{
     ModelTransform, RuntimeMaterialPolicy, RuntimeModelBridgeError, RuntimeModelBridgeRequest,
     RuntimeModelSource, ingest_runtime_model_with_bridge,
 };

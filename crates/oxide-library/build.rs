@@ -1,4 +1,4 @@
-//! Build script for `signex-library`.
+//! Build script for `oxide-library`.
 //!
 //! libgit2-sys 0.17 (transitively pulled by `git2 = "0.19"` under the
 //! `local-git` feature) calls `OpenProcessToken`, `CryptGenRandom`,

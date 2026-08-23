@@ -109,7 +109,7 @@ impl Entity {
 
     /// v0.22 Phase A5 — `true` if the bake pipeline should skip this
     /// entity. Construction and Centerline both qualify. Used by every
-    /// `bake_*` site in `signex-bake` to avoid lit-by-N copy of the
+    /// `bake_*` site in `oxide-bake` to avoid lit-by-N copy of the
     /// same `if entity.construction || entity.centerline` check.
     pub fn bake_skipped(&self) -> bool {
         self.construction || self.centerline

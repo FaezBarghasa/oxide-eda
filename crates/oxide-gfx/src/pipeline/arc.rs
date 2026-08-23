@@ -22,18 +22,18 @@ impl ArcPipeline {
         camera_bind_group_layout: &wgpu::BindGroupLayout,
     ) -> Self {
         let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("signex_gfx_arc_shader"),
+            label: Some("oxide_gfx_arc_shader"),
             source: wgpu::ShaderSource::Wgsl(shader::ARC_WGSL.into()),
         });
 
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: Some("signex_gfx_arc_pipeline_layout"),
+            label: Some("oxide_gfx_arc_pipeline_layout"),
             bind_group_layouts: &[camera_bind_group_layout],
             push_constant_ranges: &[],
         });
 
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("signex_gfx_arc_pipeline"),
+            label: Some("oxide_gfx_arc_pipeline"),
             layout: Some(&pipeline_layout),
             vertex: wgpu::VertexState {
                 module: &shader_module,
@@ -103,7 +103,7 @@ impl ArcPipeline {
 
         let initial_capacity = 1usize;
         let instance_buffer = device.create_buffer(&wgpu::BufferDescriptor {
-            label: Some("signex_gfx_arc_instances"),
+            label: Some("oxide_gfx_arc_instances"),
             size: std::mem::size_of::<Arc>() as wgpu::BufferAddress,
             usage: wgpu::BufferUsages::VERTEX | wgpu::BufferUsages::COPY_DST,
             mapped_at_creation: false,
@@ -130,7 +130,7 @@ impl ArcPipeline {
             arcs.len(),
             &super::growth::GrowthParams {
                 elem_size: std::mem::size_of::<Arc>(),
-                label: "signex_gfx_arc_instances",
+                label: "oxide_gfx_arc_instances",
                 usage: wgpu::BufferUsages::VERTEX | wgpu::BufferUsages::COPY_DST,
                 max_buffer_size: device.limits().max_buffer_size,
             },

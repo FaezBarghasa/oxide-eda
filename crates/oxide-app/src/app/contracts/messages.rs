@@ -184,7 +184,7 @@ pub enum OverlayMsg {
     FocusAt {
         world_x: f64,
         world_y: f64,
-        select: Option<signex_types::schematic::SelectedItem>,
+        select: Option<oxide_types::schematic::SelectedItem>,
     },
     /// Toggle AutoFocus — dim everything not in the current selection.
     ToggleAutoFocus,
@@ -270,9 +270,9 @@ pub enum MoveSelectionMsg {
 #[derive(Debug, Clone)]
 pub enum BomPreviewMsg {
     /// User changed BOM grouping (Grouped / Ungrouped / Flat).
-    SetGrouping(signex_output::BomGrouping),
+    SetGrouping(oxide_output::BomGrouping),
     /// User changed BOM output format (CSV / XLSX / HTML).
-    SetFormat(signex_output::BomFormat),
+    SetFormat(oxide_output::BomFormat),
     /// User toggled "Include DNP" in the BOM preview modal.
     SetIncludeDnp(bool),
     /// User toggled "Include Not Fitted" in the BOM preview modal.
@@ -281,7 +281,7 @@ pub enum BomPreviewMsg {
     /// column picker. The handler flips the column's presence in
     /// `BomOptions.columns`, preserving the existing display order
     /// when re-adding so the user's column ordering survives toggles.
-    ToggleColumn(signex_output::BomColumn),
+    ToggleColumn(oxide_output::BomColumn),
     /// User picked a variant in the BOM preview variant dropdown.
     /// `None` means the "Base" (no-variant) view.
     SetVariant(Option<String>),
@@ -329,7 +329,7 @@ pub enum PrintPreviewMsg {
     /// User selected a page in the print preview thumbnail list.
     SelectPage(usize),
     /// User changed preview colour mode.
-    SetColourMode(signex_output::ColourMode),
+    SetColourMode(oxide_output::ColourMode),
     /// User changed preview page range to all sheets.
     SetPageRangeAll,
     /// User changed preview page range to current sheet.
@@ -390,7 +390,7 @@ pub enum PrintPreviewMsg {
     SetBookmarkPorts(bool),
     SetIncludeComponentParameters(bool),
     SetGlobalBookmarks(bool),
-    SetPcbColourMode(signex_output::ColourMode),
+    SetPcbColourMode(oxide_output::ColourMode),
 }
 
 /// Grid Properties dialog message family (ADR-0001 D3). Namespaced

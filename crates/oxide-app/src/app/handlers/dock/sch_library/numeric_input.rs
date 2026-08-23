@@ -11,7 +11,7 @@
 //! That single `None` was then written straight over whatever was
 //! stored, so a pad at 25 % corner radius edited to `60` lost the 25.
 //! `corner_radius_pct` is a persisted UI mirror rather than geometry
-//! (`signex-library/src/primitive/footprint/pad.rs` documents that), and
+//! (`oxide-library/src/primitive/footprint/pad.rs` documents that), and
 //! it is serialised with `skip_serializing_if = "Option::is_none"`, so
 //! clearing it drops the key from the saved `.snxfpt` outright — the
 //! value no longer survives a shape switch and back.

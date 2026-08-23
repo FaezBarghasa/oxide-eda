@@ -86,7 +86,7 @@ impl<'a> CanonView<'a> {
 /// 2. **Less-invasive than upstream validation.** Tightening `ParamValue` to
 ///    reject non-finite floats at construction would require making variants
 ///    `#[non_exhaustive]` and rewriting ~50 enum-literal call sites in
-///    signex-app and tests. Boundary validation here keeps the change
+///    oxide-app and tests. Boundary validation here keeps the change
 ///    localised to the two functions whose semantics actually depend on it.
 pub fn hash_row_content(row: &ComponentRow) -> Result<[u8; 32], LibraryError> {
     check_param_map_finite(&row.parameters)?;

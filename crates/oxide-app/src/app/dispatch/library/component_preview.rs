@@ -209,7 +209,7 @@ impl Signex {
                 return;
             }
         };
-        match adapter.update_row(&table, row.clone(), "edit row (signex-app)") {
+        match adapter.update_row(&table, row.clone(), "edit row (oxide-app)") {
             Ok(()) => {
                 if let Some(state) = self.library.editors.get_mut(address) {
                     state.row = row;

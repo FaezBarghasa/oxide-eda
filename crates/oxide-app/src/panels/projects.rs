@@ -74,7 +74,7 @@ pub struct ProjectPanelInfo {
 }
 
 /// Per-library bundle for the project tree's `Libraries` group.
-/// Mirrors what [`signex_types::project::LibraryEntry`] records on
+/// Mirrors what [`oxide_types::project::LibraryEntry`] records on
 /// the project, plus a couple of cached fields the panel pulls from
 /// `LibraryState` so the view doesn't have to re-borrow the library
 /// crate at render time.

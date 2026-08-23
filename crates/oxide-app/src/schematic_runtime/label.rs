@@ -25,7 +25,7 @@ pub fn draw_label_preview(
             position: [label.position.x as f32, label.position.y as f32],
             size_mm: label
                 .font_size
-                .max(signex_types::schematic::SCHEMATIC_TEXT_MM) as f32,
+                .max(oxide_types::schematic::SCHEMATIC_TEXT_MM) as f32,
             color: to_rgba(stroke_color),
             bold: false,
             italic: false,
@@ -39,7 +39,7 @@ pub fn draw_label_preview(
             position: [label.position.x as f32, label.position.y as f32],
             size_mm: label
                 .font_size
-                .max(signex_types::schematic::SCHEMATIC_TEXT_MM) as f32,
+                .max(oxide_types::schematic::SCHEMATIC_TEXT_MM) as f32,
             color: to_rgba(stroke_color),
             bold: false,
             italic: false,
@@ -66,8 +66,8 @@ pub fn draw_label_preview(
     draw_renderer_snapshot(
         frame,
         &snapshot,
-        &ResolvedTheme::from_canvas_colors(signex_types::theme::canvas_colors(
-            signex_types::theme::ThemeId::Signex,
+        &ResolvedTheme::from_canvas_colors(oxide_types::theme::canvas_colors(
+            oxide_types::theme::ThemeId::Signex,
         )),
         DirtyFlags::POLYGONS | DirtyFlags::TEXT,
         transform,

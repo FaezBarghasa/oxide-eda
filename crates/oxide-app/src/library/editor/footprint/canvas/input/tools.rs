@@ -97,7 +97,7 @@ impl FootprintCanvas<'_> {
         {
             const HANDLE_HIT_RADIUS_PX: f32 = 6.0;
             for (idx, pad) in self.state.pads.iter().enumerate() {
-                if !matches!(pad.shape, signex_library::PadShape::Round) {
+                if !matches!(pad.shape, oxide_library::PadShape::Round) {
                     continue;
                 }
                 if pad.sketch_entity_id.is_none() {
@@ -167,9 +167,9 @@ impl FootprintCanvas<'_> {
         // endpoints the solver has moved) it hit-tests stale positions and
         // misses the very lines this tool targets. Hit-test with the same
         // solve-aware resolution `try_sketch_line_grab` uses instead.
-        let pos_of = |id: signex_sketch::id::SketchEntityId| -> Option<(f64, f64)> {
+        let pos_of = |id: oxide_sketch::id::SketchEntityId| -> Option<(f64, f64)> {
             if let Some(solve) = self.state.last_solve.as_ref()
-                && let Some(p) = signex_sketch::solver::state::point_xy(
+                && let Some(p) = oxide_sketch::solver::state::point_xy(
                     id,
                     &solve.result.state,
                     &solve.result.index,
@@ -183,7 +183,7 @@ impl FootprintCanvas<'_> {
                 .iter()
                 .find(|e| e.id == id)
                 .and_then(|e| match e.kind {
-                    signex_sketch::entity::EntityKind::Point { x, y } => Some((x, y)),
+                    oxide_sketch::entity::EntityKind::Point { x, y } => Some((x, y)),
                     _ => None,
                 })
         };
@@ -195,11 +195,11 @@ impl FootprintCanvas<'_> {
         let tol_mm = (LINE_HIT_TOL_PX / cstate.scale.max(1.0)) as f64;
         let mut best_line: Option<(
             f64,
-            signex_sketch::id::SketchEntityId,
-            signex_sketch::id::SketchEntityId,
+            oxide_sketch::id::SketchEntityId,
+            oxide_sketch::id::SketchEntityId,
         )> = None;
         for ent in &sketch_ref.entities {
-            if let signex_sketch::entity::EntityKind::Line { start, end } = ent.kind
+            if let oxide_sketch::entity::EntityKind::Line { start, end } = ent.kind
                 && let (Some(a), Some(b)) = (pos_of(start), pos_of(end))
             {
                 let dx = b.0 - a.0;
@@ -314,10 +314,10 @@ impl FootprintCanvas<'_> {
         {
             const LINE_HIT_TOL_PX: f32 = 10.0;
             let tol_mm = (LINE_HIT_TOL_PX / cstate.scale.max(1.0)) as f64;
-            let mut best_line: Option<(f64, signex_sketch::id::SketchEntityId)> = None;
-            let pos_of = |id: signex_sketch::id::SketchEntityId| -> Option<(f64, f64)> {
+            let mut best_line: Option<(f64, oxide_sketch::id::SketchEntityId)> = None;
+            let pos_of = |id: oxide_sketch::id::SketchEntityId| -> Option<(f64, f64)> {
                 if let Some(solve) = self.state.last_solve.as_ref()
-                    && let Some(p) = signex_sketch::solver::state::point_xy(
+                    && let Some(p) = oxide_sketch::solver::state::point_xy(
                         id,
                         &solve.result.state,
                         &solve.result.index,
@@ -331,12 +331,12 @@ impl FootprintCanvas<'_> {
                     .iter()
                     .find(|e| e.id == id)
                     .and_then(|e| match e.kind {
-                        signex_sketch::entity::EntityKind::Point { x, y } => Some((x, y)),
+                        oxide_sketch::entity::EntityKind::Point { x, y } => Some((x, y)),
                         _ => None,
                     })
             };
             for ent in &sketch_ref.entities {
-                if let signex_sketch::entity::EntityKind::Line { start, end } = ent.kind
+                if let oxide_sketch::entity::EntityKind::Line { start, end } = ent.kind
                     && let (Some(a), Some(b)) = (pos_of(start), pos_of(end))
                 {
                     let dx = b.0 - a.0;
@@ -408,7 +408,7 @@ impl FootprintCanvas<'_> {
                 }
             }
             if let Some(lp) = hit {
-                let mut ids: Vec<signex_sketch::id::SketchEntityId> = lp.lines.clone();
+                let mut ids: Vec<oxide_sketch::id::SketchEntityId> = lp.lines.clone();
                 ids.extend(lp.points.iter().copied());
                 return Some(
                     canvas::Action::publish(LibraryMessage::EditorEvent {
@@ -500,7 +500,7 @@ impl FootprintCanvas<'_> {
         {
             let tolerance = 4.0_f64 / (cstate.scale.max(1.0) as f64);
             if let Some(silk_idx) = silk_f_hit_at(self.silk_f, world.0, world.1, tolerance) {
-                use signex_library::primitive::footprint::FpGraphicKind;
+                use oxide_library::primitive::footprint::FpGraphicKind;
                 let g = &self.silk_f[silk_idx];
                 let allowed = match &g.kind {
                     FpGraphicKind::Line { .. } => self.state.selection_filter.tracks,

@@ -119,7 +119,7 @@ pub enum FootprintEditorMsg {
     /// v0.27 — Multi-select for sketch entities. Replaces the
     /// sketch selection. First → primary, second → secondary,
     /// rest → `selected_sketch_extra`. Empty = clear.
-    SketchSelectMany(Vec<signex_sketch::id::SketchEntityId>),
+    SketchSelectMany(Vec<oxide_sketch::id::SketchEntityId>),
 
     /// Delete-key — remove the currently-selected pad.
     DeleteSelected,
@@ -201,7 +201,7 @@ pub enum FootprintEditorMsg {
     /// dispatcher routes through
     /// `apply_sketch_role_with_warnings`.
     SketchSetRole {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         role: RoleTag,
     },
 
@@ -226,7 +226,7 @@ pub enum FootprintEditorMsg {
     /// the rest in lockstep. No-op (with a `tracing::warn`) when the
     /// arc doesn't belong to any pad's `shape_params` graph.
     SketchUnlinkCornerRadius {
-        arc_entity_id: signex_sketch::id::SketchEntityId,
+        arc_entity_id: oxide_sketch::id::SketchEntityId,
     },
 
     /// v0.15 — Pads-mode tool switch (Select / PlacePad). Right-
@@ -394,7 +394,7 @@ pub enum FootprintEditorMsg {
     SketchToolClick {
         x_mm: f64,
         y_mm: f64,
-        snap_id: Option<signex_sketch::id::SketchEntityId>,
+        snap_id: Option<oxide_sketch::id::SketchEntityId>,
     },
 
     /// v0.13.2 — Escape during a multi-click gesture: discard
@@ -437,7 +437,7 @@ pub enum FootprintEditorMsg {
     /// `Some(id, false)` replaces the primary selection;
     /// `Some(id, true)` adds to the secondary selection slot.
     SketchSelect {
-        id: Option<signex_sketch::id::SketchEntityId>,
+        id: Option<oxide_sketch::id::SketchEntityId>,
         shift: bool,
     },
 
@@ -445,7 +445,7 @@ pub enum FootprintEditorMsg {
     /// from the canvas while the user drags a selected Point in
     /// Sketch mode. Emits `SketchEdit::MovePoint`.
     SketchMovePoint {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         dx: f64,
         dy: f64,
     },
@@ -453,7 +453,7 @@ pub enum FootprintEditorMsg {
     /// v0.27 — Drag-move a Line entity by translating both its
     /// endpoints. Per-tick `(dx, dy)` delta in mm.
     SketchMoveLine {
-        id: signex_sketch::id::SketchEntityId,
+        id: oxide_sketch::id::SketchEntityId,
         dx: f64,
         dy: f64,
     },

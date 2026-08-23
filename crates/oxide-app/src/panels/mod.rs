@@ -1,14 +1,14 @@
-//! Panel implementations — uses signex-widgets for proper Altium-style content.
+//! Panel implementations — uses oxide-widgets for proper Altium-style content.
 
 use iced::mouse;
 use iced::widget::canvas;
 use iced::widget::{Column, Row, Space, button, container, row, scrollable, svg, text};
 use iced::{Background, Border, Color, Element, Length, Point, Rectangle, Renderer, Theme};
 use iced_aw::{NumberInput, Wrap};
-use signex_types::coord::Unit;
-use signex_types::theme::ThemeTokens;
-use signex_widgets::theme_ext;
-use signex_widgets::tree_view::{TreeIcon, TreeMsg, TreeNode, TreeView};
+use oxide_types::coord::Unit;
+use oxide_types::theme::ThemeTokens;
+use oxide_widgets::theme_ext;
+use oxide_widgets::tree_view::{TreeIcon, TreeMsg, TreeNode, TreeView};
 use std::sync::OnceLock;
 
 pub mod components_panel;
@@ -127,7 +127,7 @@ pub enum PanelKind {
     FootprintLibrary,
     /// VSCode-style per-file Git history. Right-dock surface that
     /// follows the active tab and shows the file's last 50 commits
-    /// via `signex_widgets::history_pane`.
+    /// via `oxide_widgets::history_pane`.
     History,
 }
 

@@ -21,9 +21,9 @@ pub struct PrePlacementData {
     /// Font size in points (10 pt = Altium default).
     pub font_size_pt: u32,
     /// Horizontal justification.
-    pub justify_h: signex_types::schematic::HAlign,
+    pub justify_h: oxide_types::schematic::HAlign,
     /// Vertical justification (TextNote / Component fields).
-    pub justify_v: signex_types::schematic::VAlign,
+    pub justify_v: oxide_types::schematic::VAlign,
     /// Style toggles (currently cosmetic — engine wiring tracks v0.7+).
     pub bold: bool,
     pub italic: bool,
@@ -35,7 +35,7 @@ pub struct PrePlacementData {
     /// Polygon). 0 = Standard default ≈ 0.15 mm.
     pub shape_width_mm: f64,
     /// Fill style for shapes that support it (Rect / Circle / Polygon).
-    pub shape_fill: signex_types::schematic::FillType,
+    pub shape_fill: oxide_types::schematic::FillType,
 }
 
 /// Stable identifiers for every numeric drawing-field editor so the

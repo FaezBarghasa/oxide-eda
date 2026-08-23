@@ -1,4 +1,4 @@
-use signex_widgets::passive_calculator::{
+use oxide_widgets::passive_calculator::{
     BoundaryCondition, ComponentKind, ESeries, Network, PreferredComponent, SolveOptions,
     Tolerance, solve,
 };

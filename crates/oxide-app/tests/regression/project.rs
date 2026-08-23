@@ -1,11 +1,11 @@
 //! Project/document lifecycle: modals, git pipeline, exit guard, open-gating.
 
-use signex_app::app::{
+use oxide_app::app::{
     ContextMenuMsg, EditMsg, FileMsg, LoadedProject, Message, ProjectCloseChoice, ProjectMsg,
     ProjectTreeAction, RemoveChoice, RemoveDialogState, RemoveMsg, RenameDialogState, RenameMsg,
     Signex, WindowMsg,
 };
-use signex_types::project::{ProjectData, SheetEntry};
+use oxide_types::project::{ProjectData, SheetEntry};
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -296,7 +296,7 @@ fn f10_save_persists_snxprj_as_valid_json() {
     let _ = app.update(Message::File(FileMsg::Save));
 
     // Re-parse the file from disk — assert the mutations landed.
-    let reloaded = signex_types::project::parse_project(&prj_path).expect("parse");
+    let reloaded = oxide_types::project::parse_project(&prj_path).expect("parse");
     assert_eq!(reloaded.name, "Hospital");
     assert_eq!(reloaded.variant_definitions.len(), 2);
     assert_eq!(reloaded.active_variant.as_deref(), Some("Production"));
@@ -551,7 +551,7 @@ fn f13_register_pending_library_does_not_touch_disk() {
     let tmp = TempDir::new().unwrap();
     let lib_path = tmp.path().join("MyLib.snxlib");
 
-    let (library_id, spec) = signex_app::library::commands::register_pending_library(
+    let (library_id, spec) = oxide_app::library::commands::register_pending_library(
         lib_path.clone(),
         false, // enable_git
         false, // use_lfs
@@ -575,7 +575,7 @@ fn f13_register_pending_rejects_existing_path() {
     fs::create_dir_all(&lib_path).unwrap();
 
     let result =
-        signex_app::library::commands::register_pending_library(lib_path.clone(), false, false);
+        oxide_app::library::commands::register_pending_library(lib_path.clone(), false, false);
     assert!(result.is_err(), "must reject paths that already exist");
 }
 
@@ -584,7 +584,7 @@ fn f13_register_pending_rejects_non_snxlib_extension() {
     let tmp = TempDir::new().unwrap();
     let bad_path = tmp.path().join("BadExt.snxsch");
 
-    let result = signex_app::library::commands::register_pending_library(bad_path, false, false);
+    let result = oxide_app::library::commands::register_pending_library(bad_path, false, false);
     assert!(
         result.is_err(),
         "must reject paths whose extension isn't .snxlib"
@@ -593,8 +593,8 @@ fn f13_register_pending_rejects_non_snxlib_extension() {
 
 // ─────────────────────────────────────────────────────────────────
 // §8.2 — `.snxprj` round-trip (engine-level — adds to the
-// `signex-types::project` tests by exercising the multi-project
-// `LoadedProject` shape that signex-app actually uses)
+// `oxide-types::project` tests by exercising the multi-project
+// `LoadedProject` shape that oxide-app actually uses)
 // ─────────────────────────────────────────────────────────────────
 
 #[test]
@@ -613,8 +613,8 @@ fn loaded_project_data_round_trips_via_write_then_parse() {
         enable_git: false,
     };
 
-    signex_types::project::write_project(&path, &data).expect("write");
-    let loaded = signex_types::project::parse_project(&path).expect("parse");
+    oxide_types::project::write_project(&path, &data).expect("write");
+    let loaded = oxide_types::project::parse_project(&path).expect("parse");
 
     assert_eq!(loaded.name, "Hotel");
     assert_eq!(loaded.schematic_root.as_deref(), Some("Hotel.snxsch"));
@@ -843,7 +843,7 @@ fn new_project_over_existing_non_empty_snxprj_is_refused() {
 // v0.13.0 — footprint editor gated off for release
 //
 // The footprint / sketch editor is feature-incomplete and is hidden
-// behind `signex_app::feature_flags::FOOTPRINT_EDITOR_ENABLED` for the
+// behind `oxide_app::feature_flags::FOOTPRINT_EDITOR_ENABLED` for the
 // v0.13.0 "Symbol & Library" release. These tests pin the gate at the
 // two behavioural funnels every footprint-editor entry routes through:
 //
@@ -864,7 +864,7 @@ fn new_project_over_existing_non_empty_snxprj_is_refused() {
 /// cleanly — the test then proves the *gate* blocks the open, not a
 /// parse failure (which would be a false green).
 fn write_valid_snxfpt(path: &Path, name: &str) {
-    use signex_library::{Footprint, FootprintFile};
+    use oxide_library::{Footprint, FootprintFile};
     let file = FootprintFile::from_footprint(Footprint::empty(name));
     let toml = file.to_toml_string().expect("serialise .snxfpt envelope");
     fs::write(path, toml).expect("write .snxfpt");
@@ -872,7 +872,7 @@ fn write_valid_snxfpt(path: &Path, name: &str) {
 
 /// Write a valid single-symbol `.snxsym` envelope to `path`.
 fn write_valid_snxsym(path: &Path, name: &str) {
-    use signex_library::{Symbol, SymbolFile};
+    use oxide_library::{Symbol, SymbolFile};
     let file = SymbolFile::from_symbol(Symbol::empty(name));
     let toml = file.to_toml_string().expect("serialise .snxsym envelope");
     fs::write(path, toml).expect("write .snxsym");
@@ -880,7 +880,7 @@ fn write_valid_snxsym(path: &Path, name: &str) {
 
 #[test]
 fn opening_snxfpt_does_not_create_editable_tab_when_gated() {
-    use signex_app::app::TabKind;
+    use oxide_app::app::TabKind;
     let tmp = TempDir::new().expect("tempdir");
     let fpt = tmp.path().join("gated.snxfpt");
     write_valid_snxfpt(&fpt, "GATED");
@@ -891,7 +891,7 @@ fn opening_snxfpt_does_not_create_editable_tab_when_gated() {
         .tabs
         .iter()
         .any(|t| matches!(t.kind, TabKind::FootprintEditor(_)));
-    if signex_app::feature_flags::FOOTPRINT_EDITOR_ENABLED {
+    if oxide_app::feature_flags::FOOTPRINT_EDITOR_ENABLED {
         assert!(
             opened_footprint_tab,
             "flag is ON — a valid .snxfpt should open a FootprintEditor tab"
@@ -910,7 +910,7 @@ fn opening_snxfpt_does_not_create_editable_tab_when_gated() {
 
 #[test]
 fn opening_snxsym_still_creates_editable_tab() {
-    use signex_app::app::TabKind;
+    use oxide_app::app::TabKind;
     let tmp = TempDir::new().expect("tempdir");
     let sym = tmp.path().join("control.snxsym");
     write_valid_snxsym(&sym, "CONTROL");
@@ -990,7 +990,7 @@ fn a_valid_snxsym_leaves_the_error_card_clear() {
 
 #[test]
 fn dismissing_the_card_clears_it() {
-    use signex_app::app::contracts::OverlayMsg;
+    use oxide_app::app::contracts::OverlayMsg;
     let tmp = TempDir::new().expect("tempdir");
     let sym = tmp.path().join("corrupt.snxsym");
     fs::write(&sym, b"not a symbol envelope").expect("write corrupt .snxsym");
@@ -1018,8 +1018,8 @@ fn dismissing_the_card_clears_it() {
 /// `handle_selection_cut_requested` against real engine state.
 /// Returns the app plus both element UUIDs.
 fn fixture_schematic_with_symbol_and_child_sheet()
--> (signex_app::app::Signex, uuid::Uuid, uuid::Uuid) {
-    use signex_types::schematic::{ChildSheet, FillType, Point, SchematicSheet, Symbol};
+-> (oxide_app::app::Signex, uuid::Uuid, uuid::Uuid) {
+    use oxide_types::schematic::{ChildSheet, FillType, Point, SchematicSheet, Symbol};
     use std::collections::HashMap;
 
     let symbol_uuid = uuid::Uuid::new_v4();
@@ -1090,7 +1090,7 @@ fn fixture_schematic_with_symbol_and_child_sheet()
     };
 
     let path = PathBuf::from("cut-gating.snxsch");
-    let engine = signex_engine::Engine::new(sheet).expect("engine");
+    let engine = oxide_engine::Engine::new(sheet).expect("engine");
     let (mut app, _initial_task) = Signex::new();
     app.document_state.engines.insert(path.clone(), engine);
     app.document_state.active_path = Some(path.clone());
@@ -1099,13 +1099,13 @@ fn fixture_schematic_with_symbol_and_child_sheet()
     // `with_active_schematic_session_mut`, which requires a `TabInfo`
     // at `active_tab` whose path matches — without one it silently
     // no-ops and the post-delete `selected.clear()` never runs.
-    app.document_state.tabs.push(signex_app::app::TabInfo {
+    app.document_state.tabs.push(oxide_app::app::TabInfo {
         title: "cut-gating".to_string(),
         path: path.clone(),
         cached_document: None,
         dirty: false,
         project_id: None,
-        kind: signex_app::app::TabKind::Schematic,
+        kind: oxide_app::app::TabKind::Schematic,
     });
     app.document_state.active_tab = 0;
 
@@ -1114,7 +1114,7 @@ fn fixture_schematic_with_symbol_and_child_sheet()
 
 #[test]
 fn cut_leaves_non_cuttable_child_sheet_in_place_and_selected() {
-    use signex_types::schematic::{SelectedItem, SelectedKind};
+    use oxide_types::schematic::{SelectedItem, SelectedKind};
 
     let (mut app, symbol_uuid, sheet_uuid) = fixture_schematic_with_symbol_and_child_sheet();
 
@@ -1192,7 +1192,7 @@ fn save_all_writes_dirty_snxprj_and_clears_dirty_marker() {
     // The file on disk must exist, be non-empty, and round-trip.
     let bytes = fs::read(&prj_path).expect("save_project_at_path must write the .snxprj");
     assert!(!bytes.is_empty(), "saved .snxprj must not be empty");
-    let reloaded = signex_types::project::parse_project(&prj_path)
+    let reloaded = oxide_types::project::parse_project(&prj_path)
         .expect("saved .snxprj must parse back as valid project JSON");
     assert_eq!(reloaded.name, "SaveAllProj");
 }

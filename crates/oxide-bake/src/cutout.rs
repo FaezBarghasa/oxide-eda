@@ -14,15 +14,15 @@
 use std::collections::BTreeMap;
 use std::collections::HashMap;
 
-use signex_library::primitive::footprint::{FpCutout, Polygon};
-use signex_sketch::SketchError;
-use signex_sketch::entity::EntityKind;
-use signex_sketch::expr::ast::ExprNode;
-use signex_sketch::expr::eval::{EvalContext, eval};
-use signex_sketch::expr::parse::parse;
-use signex_sketch::sketch::SketchData;
-use signex_sketch::solver::FullSolveOutput;
-use signex_sketch::unit::Quantity;
+use oxide_library::primitive::footprint::{FpCutout, Polygon};
+use oxide_sketch::SketchError;
+use oxide_sketch::entity::EntityKind;
+use oxide_sketch::expr::ast::ExprNode;
+use oxide_sketch::expr::eval::{EvalContext, eval};
+use oxide_sketch::expr::parse::parse;
+use oxide_sketch::sketch::SketchData;
+use oxide_sketch::solver::FullSolveOutput;
+use oxide_sketch::unit::Quantity;
 
 use crate::profile::{TraceError, trace_closed_profile};
 
@@ -119,12 +119,12 @@ fn opt_eval_mm(expr: &Option<String>, ctx: &EvalContext) -> Result<Option<f64>, 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_sketch::attr::BoardCutoutAttr;
-    use signex_sketch::entity::Entity;
-    use signex_sketch::id::SketchEntityId;
-    use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
-    use signex_sketch::solver::Solver;
-    use signex_sketch::solver::residual::ResolvedParams;
+    use oxide_sketch::attr::BoardCutoutAttr;
+    use oxide_sketch::entity::Entity;
+    use oxide_sketch::id::SketchEntityId;
+    use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
+    use oxide_sketch::solver::Solver;
+    use oxide_sketch::solver::residual::ResolvedParams;
 
     fn solve(sketch: &SketchData) -> FullSolveOutput {
         Solver::default()

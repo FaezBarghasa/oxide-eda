@@ -5,7 +5,7 @@ impl Signex {
         if let Some(engine) = self.document_state.active_engine()
             && engine.has_selected_items(&self.interaction_state.active_canvas().selected)
             && self.apply_engine_command(
-                signex_engine::Command::DeleteSelection {
+                oxide_engine::Command::DeleteSelection {
                     items: self.interaction_state.active_canvas().selected.clone(),
                 },
                 true,
@@ -109,7 +109,7 @@ impl Signex {
             && engine.selection_is_single_symbol(&self.interaction_state.active_canvas().selected)
         {
             self.apply_engine_command(
-                signex_engine::Command::RotateSelection {
+                oxide_engine::Command::RotateSelection {
                     items: self.interaction_state.active_canvas().selected.clone(),
                     angle_degrees: 90.0,
                 },
@@ -124,9 +124,9 @@ impl Signex {
             && engine.selection_is_single_symbol(&self.interaction_state.active_canvas().selected)
         {
             self.apply_engine_command(
-                signex_engine::Command::MirrorSelection {
+                oxide_engine::Command::MirrorSelection {
                     items: self.interaction_state.active_canvas().selected.clone(),
-                    axis: signex_engine::MirrorAxis::Vertical,
+                    axis: oxide_engine::MirrorAxis::Vertical,
                 },
                 true,
                 true,
@@ -139,9 +139,9 @@ impl Signex {
             && engine.selection_is_single_symbol(&self.interaction_state.active_canvas().selected)
         {
             self.apply_engine_command(
-                signex_engine::Command::MirrorSelection {
+                oxide_engine::Command::MirrorSelection {
                     items: self.interaction_state.active_canvas().selected.clone(),
-                    axis: signex_engine::MirrorAxis::Horizontal,
+                    axis: oxide_engine::MirrorAxis::Horizontal,
                 },
                 true,
                 true,
@@ -154,7 +154,7 @@ impl Signex {
         target_uuid: uuid::Uuid,
         edit: crate::app::contracts::DrawingFieldEdit,
     ) -> iced::Task<crate::app::Message> {
-        use signex_types::schematic::SchDrawing;
+        use oxide_types::schematic::SchDrawing;
         let Some(engine) = self.document_state.active_engine() else {
             return iced::Task::none();
         };
@@ -179,7 +179,7 @@ impl Signex {
         let next = apply_drawing_edit(current, edit);
         if let Some(next) = next {
             self.apply_engine_command(
-                signex_engine::Command::UpdateSchDrawing { drawing: next },
+                oxide_engine::Command::UpdateSchDrawing { drawing: next },
                 true,
                 true,
             );
@@ -196,11 +196,11 @@ impl Signex {
 /// Altium-style (center, radius, start/end angle) fields back to
 /// Standard's stored (start, mid, end) triple.
 fn apply_drawing_edit(
-    current: signex_types::schematic::SchDrawing,
+    current: oxide_types::schematic::SchDrawing,
     edit: crate::app::contracts::DrawingFieldEdit,
-) -> Option<signex_types::schematic::SchDrawing> {
+) -> Option<oxide_types::schematic::SchDrawing> {
     use crate::app::contracts::DrawingFieldEdit as E;
-    use signex_types::schematic::{Point, SchDrawing, circumcircle};
+    use oxide_types::schematic::{Point, SchDrawing, circumcircle};
     let mut next = current;
     match (&mut next, edit) {
         // Stroke width applies to every variant.

@@ -50,7 +50,7 @@ impl Engine {
     /// Batches do not nest. A nested call would consume the outer batch's
     /// history entry, so it trips a `debug_assert`.
     ///
-    /// No error is logged here. `signex-engine` has no logging dependency,
+    /// No error is logged here. `oxide-engine` has no logging dependency,
     /// and the `Result` is the observability: `unused_must_use` is denied
     /// workspace-wide, so no caller can drop it silently.
     pub fn execute_batch(
@@ -129,7 +129,7 @@ mod tests {
     use super::*;
     use crate::history::MAX_HISTORY_ENTRIES;
     use crate::test_support::test_sheet;
-    use signex_types::schematic::{HAlign, Label, LabelType, NoConnect, Point, VAlign};
+    use oxide_types::schematic::{HAlign, Label, LabelType, NoConnect, Point, VAlign};
 
     fn engine() -> Engine {
         Engine::new(test_sheet()).unwrap()

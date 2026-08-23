@@ -1,8 +1,8 @@
 use std::path::PathBuf;
 
 use iced::Point;
-use signex_library::{Footprint, Symbol};
-use signex_types::pcb::PcbBoard;
+use oxide_library::{Footprint, Symbol};
+use oxide_types::pcb::PcbBoard;
 
 // v0.9-refactor-2: DBLib model. Identity payload for a Component
 // Preview tab — `(library_path, table, row_id)` triple from
@@ -12,7 +12,7 @@ use signex_types::pcb::PcbBoard;
 pub struct ComponentEditorTab {
     pub library_path: PathBuf,
     pub table: String,
-    pub row_id: signex_library::RowId,
+    pub row_id: oxide_library::RowId,
 }
 
 // Per-tab role marker. Schematic / Pcb retain the path on `TabInfo`
@@ -111,11 +111,11 @@ pub struct SchematicTabSession {
     title: String,
     path: PathBuf,
     dirty: bool,
-    engine: signex_engine::Engine,
+    engine: oxide_engine::Engine,
 }
 
 impl SchematicTabSession {
-    pub fn new(engine: signex_engine::Engine, title: String, path: PathBuf, dirty: bool) -> Self {
+    pub fn new(engine: oxide_engine::Engine, title: String, path: PathBuf, dirty: bool) -> Self {
         Self {
             title,
             path,
@@ -128,14 +128,14 @@ impl SchematicTabSession {
         self.dirty = dirty;
     }
 
-    pub fn save(&mut self) -> Result<(), signex_engine::EngineError> {
+    pub fn save(&mut self) -> Result<(), oxide_engine::EngineError> {
         self.engine.set_path(Some(self.path.clone()));
         self.engine.save()?;
         self.dirty = false;
         Ok(())
     }
 
-    pub fn save_as(&mut self, path: PathBuf) -> Result<(), signex_engine::EngineError> {
+    pub fn save_as(&mut self, path: PathBuf) -> Result<(), oxide_engine::EngineError> {
         self.engine.save_as(&path)?;
         self.title = path
             .file_stem()
@@ -146,7 +146,7 @@ impl SchematicTabSession {
         Ok(())
     }
 
-    pub fn into_parts(self) -> (signex_engine::Engine, String, PathBuf, bool) {
+    pub fn into_parts(self) -> (oxide_engine::Engine, String, PathBuf, bool) {
         (self.engine, self.title, self.path, self.dirty)
     }
 }
@@ -233,7 +233,7 @@ pub struct SymbolEditorState {
     /// Multi-symbol container backing this `.snxsym` tab. The editor
     /// works against `file.symbols[active_idx]`; access via
     /// [`primitive`](Self::primitive) / [`primitive_mut`](Self::primitive_mut).
-    pub file: signex_library::SymbolFile,
+    pub file: oxide_library::SymbolFile,
     /// Which symbol within the file is currently being edited. The
     /// SCH-Library left-dock panel will eventually drive this index;
     /// for now it always lands on the first symbol.
@@ -271,11 +271,11 @@ pub struct SymbolEditorState {
     /// Snapshot stack for undo. Each entry is a full clone of the
     /// `Symbol` at the moment before a mutation was applied. Max 100
     /// entries; oldest entries are dropped when the limit is exceeded.
-    pub undo_snapshots: Vec<signex_library::Symbol>,
+    pub undo_snapshots: Vec<oxide_library::Symbol>,
     /// Snapshot stack for redo. Cleared whenever a new mutation is
     /// recorded; populated by `SymbolUndo` so the user can step
     /// forward again after undoing.
-    pub redo_snapshots: Vec<signex_library::Symbol>,
+    pub redo_snapshots: Vec<oxide_library::Symbol>,
     /// Set to `true` on the first `Move`/`MoveAll`/`MoveGraphicHandle`
     /// in a drag sequence so subsequent move events in the same drag do
     /// NOT push additional snapshots (the pre-drag snapshot is already
@@ -327,7 +327,7 @@ impl SymbolEditorState {
     /// Build a fresh standalone editor state from a `SymbolFile`
     /// container loaded off disk. `path` is the `.snxsym` file the
     /// user opened. The editor opens on the first symbol in the file.
-    pub fn new(path: PathBuf, file: signex_library::SymbolFile) -> Self {
+    pub fn new(path: PathBuf, file: oxide_library::SymbolFile) -> Self {
         let mut state = Self {
             path,
             file,
@@ -407,7 +407,7 @@ pub struct FootprintEditorState {
     /// editor works against `file.footprints[active_idx]`; access
     /// via [`primitive`](Self::primitive) /
     /// [`primitive_mut`](Self::primitive_mut).
-    pub file: signex_library::FootprintFile,
+    pub file: oxide_library::FootprintFile,
     /// Which footprint within the file is currently being edited.
     /// The Footprint Library left-dock panel + canvas tab strip
     /// drive this; defaults to the first footprint.
@@ -447,12 +447,12 @@ pub struct FootprintEditorState {
 /// later if memory becomes load-bearing.
 #[derive(Debug, Clone)]
 pub struct FootprintHistorySnapshot {
-    pub file: signex_library::FootprintFile,
+    pub file: oxide_library::FootprintFile,
     pub active_idx: usize,
     pub pads: Vec<crate::library::editor::footprint::state::EditorPad>,
     pub selected_pad: Option<usize>,
-    pub selected_sketch: Option<signex_sketch::id::SketchEntityId>,
-    pub selected_sketch_secondary: Option<signex_sketch::id::SketchEntityId>,
+    pub selected_sketch: Option<oxide_sketch::id::SketchEntityId>,
+    pub selected_sketch_secondary: Option<oxide_sketch::id::SketchEntityId>,
 }
 
 impl FootprintEditorState {
@@ -461,7 +461,7 @@ impl FootprintEditorState {
     /// user opened. The editor opens on the first footprint in the
     /// file. The caller is responsible for confirming the file is
     /// non-empty before this call.
-    pub fn new(path: PathBuf, file: signex_library::FootprintFile) -> Self {
+    pub fn new(path: PathBuf, file: oxide_library::FootprintFile) -> Self {
         let active_idx = 0;
         let state = crate::library::editor::footprint::state::FootprintEditorState::from_footprint(
             &file.footprints[active_idx],

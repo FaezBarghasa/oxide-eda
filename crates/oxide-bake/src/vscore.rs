@@ -16,16 +16,16 @@
 
 use std::collections::BTreeMap;
 
-use signex_library::primitive::footprint::FpVScore;
-use signex_sketch::SketchError;
-use signex_sketch::entity::EntityKind;
-use signex_sketch::expr::ast::ExprNode;
-use signex_sketch::expr::eval::{EvalContext, eval};
-use signex_sketch::expr::parse::parse;
-use signex_sketch::sketch::SketchData;
-use signex_sketch::solver::FullSolveOutput;
-use signex_sketch::solver::state::point_xy;
-use signex_sketch::unit::Quantity;
+use oxide_library::primitive::footprint::FpVScore;
+use oxide_sketch::SketchError;
+use oxide_sketch::entity::EntityKind;
+use oxide_sketch::expr::ast::ExprNode;
+use oxide_sketch::expr::eval::{EvalContext, eval};
+use oxide_sketch::expr::parse::parse;
+use oxide_sketch::sketch::SketchData;
+use oxide_sketch::solver::FullSolveOutput;
+use oxide_sketch::solver::state::point_xy;
+use oxide_sketch::unit::Quantity;
 use std::collections::HashMap;
 
 /// Nominal board thickness used to convert `depth_fraction` to mm.
@@ -115,10 +115,10 @@ pub fn bake_v_scores(
 }
 
 fn map_side(
-    s: signex_sketch::attr::VScoreSide,
-) -> signex_library::primitive::footprint::VScoreSide {
-    use signex_library::primitive::footprint::VScoreSide as Lib;
-    use signex_sketch::attr::VScoreSide as Sk;
+    s: oxide_sketch::attr::VScoreSide,
+) -> oxide_library::primitive::footprint::VScoreSide {
+    use oxide_library::primitive::footprint::VScoreSide as Lib;
+    use oxide_sketch::attr::VScoreSide as Sk;
     match s {
         Sk::Both => Lib::Both,
         Sk::Top => Lib::Top,
@@ -160,12 +160,12 @@ fn eval_dimensionless(expr: &str, ctx: &EvalContext) -> Result<f64, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_sketch::attr::{VScoreHintAttr, VScoreSide};
-    use signex_sketch::entity::Entity;
-    use signex_sketch::id::SketchEntityId;
-    use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
-    use signex_sketch::solver::Solver;
-    use signex_sketch::solver::residual::ResolvedParams;
+    use oxide_sketch::attr::{VScoreHintAttr, VScoreSide};
+    use oxide_sketch::entity::Entity;
+    use oxide_sketch::id::SketchEntityId;
+    use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
+    use oxide_sketch::solver::Solver;
+    use oxide_sketch::solver::residual::ResolvedParams;
 
     fn solve(sketch: &SketchData) -> FullSolveOutput {
         Solver::default()
@@ -284,7 +284,7 @@ mod tests {
         );
         assert_eq!(
             out[0].side,
-            signex_library::primitive::footprint::VScoreSide::Both
+            oxide_library::primitive::footprint::VScoreSide::Both
         );
         assert!(warnings.is_empty());
     }

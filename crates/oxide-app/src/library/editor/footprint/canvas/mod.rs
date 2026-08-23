@@ -124,12 +124,12 @@ struct DragState {
     /// `Point` entity. Active in Sketch mode + Select tool;
     /// per-tick CursorMoved publishes `FootprintSketchMovePoint`
     /// with the world-mm delta.
-    sketch_point: Option<signex_sketch::id::SketchEntityId>,
+    sketch_point: Option<oxide_sketch::id::SketchEntityId>,
     /// v0.27 — `Some(id)` when the drag originated on a sketch
     /// `Line` entity. Per-tick CursorMoved publishes
     /// `FootprintSketchMoveLine` with the world-mm delta; the
     /// dispatcher translates both endpoints in one solver pass.
-    sketch_line: Option<signex_sketch::id::SketchEntityId>,
+    sketch_line: Option<oxide_sketch::id::SketchEntityId>,
     /// World-mm offset between the drag origin and the pad/Point
     /// centre. Subtract from cursor position to get the pad's new
     /// centre OR (for sketch Point drags) compute the per-tick
@@ -212,15 +212,15 @@ pub struct FootprintCanvas<'a> {
     /// v0.13.1 Phase 6.2 — sketch entities are read-only here so the
     /// canvas can render them when [`EditorMode::Sketch`] is active.
     /// `None` for footprints with no sketch field set (legacy v1).
-    pub sketch: Option<&'a signex_sketch::SketchData>,
+    pub sketch: Option<&'a oxide_sketch::SketchData>,
     /// v0.18.16 — silk-front graphics (`Line` / `Arc` / `Text` /
     /// `Rectangle` / `Circle`). Read-only on the canvas side; the
     /// active-bar tools (Place String / Track / Arc / Polygon)
     /// commit through the dispatcher into
     /// `editor.primitive_mut().silk_f`.
-    pub silk_f: &'a [signex_library::primitive::footprint::FpGraphic],
+    pub silk_f: &'a [oxide_library::primitive::footprint::FpGraphic],
     /// v0.18.16 — silk-back graphics (mirror layer for B.SilkS).
-    pub silk_b: &'a [signex_library::primitive::footprint::FpGraphic],
+    pub silk_b: &'a [oxide_library::primitive::footprint::FpGraphic],
 }
 
 impl<'a> canvas::Program<LibraryMessage> for FootprintCanvas<'a> {
@@ -400,9 +400,9 @@ impl<'a> canvas::Program<LibraryMessage> for FootprintCanvas<'a> {
                     const LINE_HIT_TOL_PX: f32 = 6.0;
                     let world = cstate.screen_to_world(c);
                     let tol_mm = (LINE_HIT_TOL_PX / cstate.scale.max(1.0)) as f64;
-                    let pos_of = |id: signex_sketch::id::SketchEntityId| -> Option<(f64, f64)> {
+                    let pos_of = |id: oxide_sketch::id::SketchEntityId| -> Option<(f64, f64)> {
                         if let Some(solve) = self.state.last_solve.as_ref()
-                            && let Some(p) = signex_sketch::solver::state::point_xy(
+                            && let Some(p) = oxide_sketch::solver::state::point_xy(
                                 id,
                                 &solve.result.state,
                                 &solve.result.index,
@@ -416,12 +416,12 @@ impl<'a> canvas::Program<LibraryMessage> for FootprintCanvas<'a> {
                             .iter()
                             .find(|e| e.id == id)
                             .and_then(|e| match e.kind {
-                                signex_sketch::entity::EntityKind::Point { x, y } => Some((x, y)),
+                                oxide_sketch::entity::EntityKind::Point { x, y } => Some((x, y)),
                                 _ => None,
                             })
                     };
                     for ent in &sketch_ref.entities {
-                        if let signex_sketch::entity::EntityKind::Line { start, end } = ent.kind
+                        if let oxide_sketch::entity::EntityKind::Line { start, end } = ent.kind
                             && let (Some(a), Some(b)) = (pos_of(start), pos_of(end))
                         {
                             let dx = b.0 - a.0;
@@ -481,12 +481,12 @@ impl<'a> canvas::Program<LibraryMessage> for FootprintCanvas<'a> {
 /// the stroke. Text continues to use AABB (the bake step doesn't
 /// expose per-glyph geometry yet).
 pub(super) fn silk_f_hit_at(
-    silk_f: &[signex_library::primitive::footprint::FpGraphic],
+    silk_f: &[oxide_library::primitive::footprint::FpGraphic],
     x: f64,
     y: f64,
     tolerance_mm: f64,
 ) -> Option<usize> {
-    use signex_library::primitive::footprint::FpGraphicKind;
+    use oxide_library::primitive::footprint::FpGraphicKind;
     let t = tolerance_mm.max(0.05);
     for (idx, g) in silk_f.iter().enumerate().rev() {
         let hit = match &g.kind {

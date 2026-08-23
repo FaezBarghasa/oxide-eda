@@ -44,7 +44,7 @@ pub enum ContextSubmenu {
 #[derive(Debug, Clone)]
 pub struct TextEditState {
     pub uuid: uuid::Uuid,
-    pub kind: signex_types::schematic::SelectedKind,
+    pub kind: oxide_types::schematic::SelectedKind,
     pub text: String,
     pub original_text: String,
     /// World-space position of the object being edited (mm). Converted to

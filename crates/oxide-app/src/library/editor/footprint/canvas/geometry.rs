@@ -26,16 +26,16 @@ pub(super) fn screen_dist_to_segment_sq(p: Point, a: Point, b: Point) -> f32 {
 }
 
 /// Distance (world-mm) from a point to a line segment — a thin adapter
-/// over [`signex_sketch::geom::point_to_segment_distance`].
+/// over [`oxide_sketch::geom::point_to_segment_distance`].
 pub(super) fn point_to_segment_dist(px: f64, py: f64, ax: f64, ay: f64, bx: f64, by: f64) -> f64 {
-    signex_sketch::geom::point_to_segment_distance([px, py], [ax, ay], [bx, by])
+    oxide_sketch::geom::point_to_segment_distance([px, py], [ax, ay], [bx, by])
 }
 
 /// Even-odd point-in-polygon test (implicitly-closed vertex ring) — a thin
-/// adapter over [`signex_sketch::geom::point_in_polygon`].
+/// adapter over [`oxide_sketch::geom::point_in_polygon`].
 pub(super) fn point_in_polygon(px: f64, py: f64, vertices: &[[f64; 2]]) -> bool {
-    let polygon: Vec<signex_sketch::geom::Point2> = vertices.iter().map(|&v| v.into()).collect();
-    signex_sketch::geom::point_in_polygon([px, py], &polygon)
+    let polygon: Vec<oxide_sketch::geom::Point2> = vertices.iter().map(|&v| v.into()).collect();
+    oxide_sketch::geom::point_in_polygon([px, py], &polygon)
 }
 
 /// v0.18.25 — `true` when the point lies within `tol` of any closed-

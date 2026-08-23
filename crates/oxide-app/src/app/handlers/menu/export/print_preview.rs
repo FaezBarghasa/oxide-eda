@@ -3,7 +3,7 @@
 use std::path::PathBuf;
 
 use iced::Task;
-use signex_output::{PageRange, PageSize, PdfOptions, PreviewOptions, PreviewRasterizer};
+use oxide_output::{PageRange, PageSize, PdfOptions, PreviewOptions, PreviewRasterizer};
 
 use super::super::super::super::*;
 
@@ -39,8 +39,8 @@ impl Signex {
                 .unwrap_or("A4");
             let page_size = PageSize::from_standard_str(paper_str);
             let orientation = PageSize::default_orientation_for_standard(paper_str);
-            let palette = signex_output::SchematicPalette::from(
-                &signex_types::theme::canvas_colors(self.ui_state.theme_id),
+            let palette = oxide_output::SchematicPalette::from(
+                &oxide_types::theme::canvas_colors(self.ui_state.theme_id),
             );
             PdfOptions {
                 page_size,
@@ -133,7 +133,7 @@ impl Signex {
         }
     }
 
-    pub(crate) fn handle_print_preview_set_colour_mode(&mut self, mode: signex_output::ColourMode) {
+    pub(crate) fn handle_print_preview_set_colour_mode(&mut self, mode: oxide_output::ColourMode) {
         if let Some(preview) = self.document_state.preview.as_mut() {
             preview.pdf_options.colour_mode = mode;
         }
@@ -180,9 +180,9 @@ impl Signex {
     pub(crate) fn handle_print_preview_set_fit_to_page(&mut self, fit: bool) {
         if let Some(preview) = self.document_state.preview.as_mut() {
             preview.pdf_options.scale = if fit {
-                signex_output::PdfScale::FitToPage
+                oxide_output::PdfScale::FitToPage
             } else {
-                signex_output::PdfScale::OneToOne
+                oxide_output::PdfScale::OneToOne
             };
         }
         self.rerasterize_print_preview();

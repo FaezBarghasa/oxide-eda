@@ -23,7 +23,7 @@ impl Signex {
     ) -> Element<'_, Message> {
         use crate::app::state::PdfPreviewTab;
         use iced::widget::{Space, container, mouse_area, row, text};
-        use signex_widgets::tab_pill::{AccentPosition, TabPill, TabPillStyle};
+        use oxide_widgets::tab_pill::{AccentPosition, TabPill, TabPillStyle};
         let tokens = &self.document_state.panel_ctx.tokens;
         let text_c = crate::styles::ti(tokens.text);
         let text_muted = crate::styles::ti(tokens.text_secondary);

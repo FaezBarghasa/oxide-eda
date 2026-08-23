@@ -1,11 +1,11 @@
 //! Git history panel — right-dock surface that follows the active
-//! tab. Reuses [`signex_widgets::history_pane`] to render the
+//! tab. Reuses [`oxide_widgets::history_pane`] to render the
 //! actual cards. State is kept minimal: an active path resolved
 //! from the active tab + the last loaded vec of entries + a
 //! "loading" generation counter to discard stale async results.
 //!
 //! Phase 0 (this module) wires the read-only view; the load path
-//! is driven by `signex_app`'s dispatcher via
+//! is driven by `oxide_app`'s dispatcher via
 //! [`crate::app::HistoryLoad`] (a `Message::HistoryLoaded` variant
 //! threads each result back to the panel context with a generation
 //! token, so a tab switch in flight discards any pending result).
@@ -13,7 +13,7 @@
 use chrono::Utc;
 use iced::widget::{Column, button, column, container, scrollable, text};
 use iced::{Border, Color, Element, Length, Theme};
-use signex_widgets::theme_ext;
+use oxide_widgets::theme_ext;
 
 use super::{PanelContext, PanelMsg};
 
@@ -35,9 +35,9 @@ pub struct HistoryPanelState {
     pub loading: bool,
     /// Loaded entries from the most-recent successful load.
     /// Newest-first per
-    /// [`signex_library::project_file_history`]. Empty when the
+    /// [`oxide_library::project_file_history`]. Empty when the
     /// path has no history yet.
-    pub entries: Vec<signex_widgets::HistoryEntry>,
+    pub entries: Vec<oxide_widgets::HistoryEntry>,
     /// Render mode for the active load. Distinguishes "not in a git
     /// repo" (NoRepo) and "the walk failed" (Error) from "no commits
     /// yet" (Ready with `entries.is_empty()`).
@@ -77,7 +77,7 @@ pub enum HistoryRenderMode {
 }
 
 /// Render the History panel. Delegates row rendering to
-/// [`signex_widgets::history_pane`]; layers on the "no active
+/// [`oxide_widgets::history_pane`]; layers on the "no active
 /// file" / "not in a git repo" / "loading" header + the working-
 /// tree pseudo-card.
 pub fn view_history<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
@@ -118,12 +118,12 @@ pub fn view_history<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
 
             // v0.22 Phase 8.5 — render rows inline so each card can
             // carry a "Restore this version" button. Bypasses the
-            // signex_widgets::history_pane (which is render-only) so
+            // oxide_widgets::history_pane (which is render-only) so
             // the panel can dispatch PanelMsg::HistoryRestoreClicked
             // on click. Empty list still falls back to the widget's
             // "No history yet." card via the helper below.
             if state.entries.is_empty() {
-                col = col.push(signex_widgets::history_pane::<PanelMsg>(
+                col = col.push(oxide_widgets::history_pane::<PanelMsg>(
                     &state.entries,
                     Utc::now(),
                     &ctx.tokens,
@@ -173,14 +173,14 @@ fn message_card<'a, M: 'a>(
 }
 
 /// v0.22 Phase 8.5 — Commit-row card with a "Restore this version"
-/// button. Same visual shape as `signex_widgets::history_pane`'s
+/// button. Same visual shape as `oxide_widgets::history_pane`'s
 /// cards (author + relative time + subject + short SHA) plus a
 /// muted button on the bottom that fires
 /// `PanelMsg::HistoryRestoreClicked { sha }` on press. The handler
 /// runs `LocalGitProjectAdapter::restore_at` against the active
 /// tab's owning project.
 fn commit_card<'a>(
-    entry: &'a signex_widgets::HistoryEntry,
+    entry: &'a oxide_widgets::HistoryEntry,
     now: chrono::DateTime<Utc>,
     primary: Color,
     muted: Color,
@@ -248,7 +248,7 @@ fn short_sha(full: &str) -> String {
 }
 
 /// Coarse relative-time helper. Mirrors what
-/// `signex_widgets::history_pane::format_relative` does but is
+/// `oxide_widgets::history_pane::format_relative` does but is
 /// inlined here so the panel doesn't need to expose the widget's
 /// internal helper.
 fn format_relative_simple(time: chrono::DateTime<Utc>, now: chrono::DateTime<Utc>) -> String {
@@ -278,7 +278,7 @@ fn format_relative_simple(time: chrono::DateTime<Utc>, now: chrono::DateTime<Utc
 
 /// "Working tree (uncommitted changes)" pseudo-card pinned above the
 /// committed history when the active file is dirty. Same visual
-/// shape as a `signex_widgets::history_pane` card so it reads as a
+/// shape as a `oxide_widgets::history_pane` card so it reads as a
 /// peer of the actual commits.
 fn working_tree_card<'a, M: 'a>(
     primary: iced::Color,

@@ -1,4 +1,4 @@
-use signex_types::schematic::{
+use oxide_types::schematic::{
     Bus, Junction, Label, NoConnect, SCHEMATIC_PT_TO_MM, SchDrawing, SelectedItem, SelectedKind,
     Symbol, TextNote, Wire, circumcircle,
 };
@@ -184,19 +184,19 @@ impl Engine {
         };
 
         let h_align_label = |align| match align {
-            signex_types::schematic::HAlign::Left => "Left",
-            signex_types::schematic::HAlign::Center => "Center",
-            signex_types::schematic::HAlign::Right => "Right",
+            oxide_types::schematic::HAlign::Left => "Left",
+            oxide_types::schematic::HAlign::Center => "Center",
+            oxide_types::schematic::HAlign::Right => "Right",
         };
         let v_align_label = |align| match align {
-            signex_types::schematic::VAlign::Top => "Top",
-            signex_types::schematic::VAlign::Center => "Center",
-            signex_types::schematic::VAlign::Bottom => "Bottom",
+            oxide_types::schematic::VAlign::Top => "Top",
+            oxide_types::schematic::VAlign::Center => "Center",
+            oxide_types::schematic::VAlign::Bottom => "Bottom",
         };
         let fill_type_label = |fill| match fill {
-            signex_types::schematic::FillType::None => "None",
-            signex_types::schematic::FillType::Outline => "Outline",
-            signex_types::schematic::FillType::Background => "Background",
+            oxide_types::schematic::FillType::None => "None",
+            oxide_types::schematic::FillType::Outline => "Outline",
+            oxide_types::schematic::FillType::Background => "Background",
         };
 
         let mut info: Vec<(String, String)> = Vec::new();

@@ -18,9 +18,9 @@
 //! `multisheet_style` and `grid_style`. Closing that gap needs a lock
 //! shared across modules first.
 
-use signex_app::app::{Message, PreferencesMsg, Signex};
-use signex_app::preferences::PrefMsg;
-use signex_app::render_config::{GridStyle, PinSelectionMode};
+use oxide_app::app::{Message, PreferencesMsg, Signex};
+use oxide_app::preferences::PrefMsg;
+use oxide_app::render_config::{GridStyle, PinSelectionMode};
 
 fn inner(msg: PrefMsg) -> Message {
     Message::Preferences(PreferencesMsg::Inner(msg))

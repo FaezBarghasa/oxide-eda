@@ -1,8 +1,8 @@
 //! Wiremock-backed validation for the Mouser test flow.
 //!
-//! The signex-app handler runs `MouserAdapter::lookup_by_mpn(SENTINEL)`
+//! The oxide-app handler runs `MouserAdapter::lookup_by_mpn(SENTINEL)`
 //! against the Mouser API; on success it writes the API key to the OS
-//! keyring. This test mirrors `signex-library/tests/distributor_mouser.rs`
+//! keyring. This test mirrors `oxide-library/tests/distributor_mouser.rs`
 //! by hitting the same code path against a wiremock instance — proves
 //! the app's choice of sentinel MPN + adapter wiring matches the
 //! library-level integration shape.
@@ -11,7 +11,7 @@
 //! real OS keyring backend (Windows Credential Manager / Secret
 //! Service); the writeback path lives behind one extra `if Ok` arm in
 //! the dispatcher and is covered by the underlying
-//! `KeyringStore::set_secret` tests in `signex-library`.
+//! `KeyringStore::set_secret` tests in `oxide-library`.
 
 // This integration-test binary discards fallible test-setup calls with
 // `let _ = ...` routinely (not a production `Task` getting dropped — see
@@ -21,13 +21,13 @@
 use std::future::Future;
 
 use serde_json::json;
-use signex_library::distributor::DistributorAdapter;
-use signex_library::distributors::mouser::MouserAdapter;
+use oxide_library::distributor::DistributorAdapter;
+use oxide_library::distributors::mouser::MouserAdapter;
 use wiremock::matchers::{header, method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
 /// Sentinel MPN — must stay in sync with the constant in
-/// `crates/signex-app/src/app/dispatch/library.rs::handle_library_settings_message`.
+/// `crates/oxide-app/src/app/dispatch/library.rs::handle_library_settings_message`.
 const SENTINEL_MPN: &str = "RC0805FR-0710KL";
 
 fn fixture_response(mpn: &str) -> serde_json::Value {

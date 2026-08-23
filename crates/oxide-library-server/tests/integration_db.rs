@@ -2,27 +2,27 @@
 //! and `/rows` HTTP routes for the DBLib row model.
 //!
 //! Default backend: in-memory SQLite. Postgres path is gated behind
-//! `SIGNEX_TEST_PG_URL` env var so CI without Postgres still passes.
+//! `OXIDE_TEST_PG_URL` env var so CI without Postgres still passes.
 
 use std::time::Duration;
 
 use axum::body::Body;
 use axum::http::{Request, StatusCode};
 use chrono::Utc;
-use signex_library::adapter::FieldSet;
-use signex_library::component::{ComponentRow, DatasheetRef, PinPadOverride, PlmReserved};
-use signex_library::identity::{ComponentClass, InternalPn, RowId};
-use signex_library::lifecycle::LifecycleState;
-use signex_library::manufacturer::ManufacturerPart;
-use signex_library::param::ParamMap;
-use signex_library::primitive::PrimitiveRef;
-use signex_library_server::db::AppState;
-use signex_library_server::{API_TOKEN_ENV, router_with_state};
+use oxide_library::adapter::FieldSet;
+use oxide_library::component::{ComponentRow, DatasheetRef, PinPadOverride, PlmReserved};
+use oxide_library::identity::{ComponentClass, InternalPn, RowId};
+use oxide_library::lifecycle::LifecycleState;
+use oxide_library::manufacturer::ManufacturerPart;
+use oxide_library::param::ParamMap;
+use oxide_library::primitive::PrimitiveRef;
+use oxide_library_server::db::AppState;
+use oxide_library_server::{API_TOKEN_ENV, router_with_state};
 use tower::ServiceExt;
 use uuid::Uuid;
 
 /// Test-fixture bearer token. H1: every protected route in the test harness
-/// must pass `Authorization: Bearer <TEST_BEARER>`. Set via `SIGNEX_API_TOKEN`
+/// must pass `Authorization: Bearer <TEST_BEARER>`. Set via `OXIDE_API_TOKEN`
 /// on the test process so `router_with_state` picks it up at construction.
 const TEST_BEARER: &str = "test-bearer-token";
 
@@ -439,7 +439,7 @@ async fn lock_contention_second_attempt_blocks_until_release() {
         .unwrap_err();
     assert!(matches!(
         err.kind,
-        signex_library_server::locks::LockErrorKind::Held { .. }
+        oxide_library_server::locks::LockErrorKind::Held { .. }
     ));
 
     state
@@ -490,7 +490,7 @@ async fn locks_endpoint_returns_409_when_held() {
             .uri(format!("/rows/{row_id}/locks"))
             .header("content-type", "application/json")
             .header("authorization", bearer_header())
-            .header("x-signex-holder", holder)
+            .header("x-oxide-holder", holder)
             .body(Body::from(
                 serde_json::to_vec(&serde_json::json!({"field_set": "Symbol"})).unwrap(),
             ))
@@ -505,9 +505,9 @@ async fn locks_endpoint_returns_409_when_held() {
 }
 
 #[tokio::test]
-#[ignore = "requires SIGNEX_TEST_PG_URL"]
+#[ignore = "requires OXIDE_TEST_PG_URL"]
 async fn postgres_migrations_apply_when_env_set() {
-    let url = match std::env::var("SIGNEX_TEST_PG_URL") {
+    let url = match std::env::var("OXIDE_TEST_PG_URL") {
         Ok(u) => u,
         Err(_) => return, // Belt-and-braces — `#[ignore]` already skips by default.
     };

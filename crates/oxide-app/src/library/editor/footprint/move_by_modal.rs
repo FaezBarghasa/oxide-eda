@@ -21,7 +21,7 @@ use std::path::PathBuf;
 use iced::widget::{button, column, container, row, text, text_input};
 use iced::{Background, Border, Color, Element, Length};
 
-use signex_types::theme::ThemeTokens;
+use oxide_types::theme::ThemeTokens;
 
 use crate::app::FootprintEditorState;
 use crate::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};

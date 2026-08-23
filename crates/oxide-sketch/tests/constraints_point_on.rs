@@ -3,10 +3,10 @@
 mod common;
 use common::Sketch;
 
-use signex_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
-use signex_sketch::id::ConstraintId;
-use signex_sketch::solver::residual::{ResolvedParams, residual};
-use signex_sketch::solver::state::pack;
+use oxide_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
+use oxide_sketch::id::ConstraintId;
+use oxide_sketch::solver::residual::{ResolvedParams, residual};
+use oxide_sketch::solver::state::pack;
 
 const EPS: f64 = 1e-12;
 
@@ -118,7 +118,7 @@ fn point_on_line_diagonal_normalises_by_length() {
 fn point_on_line_degenerate_zero_length_line_errors() {
     // A line whose endpoints coincide has no defined direction;
     // implementation reports EntityNotFound for the line.
-    use signex_sketch::error::SketchError;
+    use oxide_sketch::error::SketchError;
     let mut s = Sketch::new();
     let a = s.add_point(2.0, 2.0);
     let b = s.add_point(2.0, 2.0);

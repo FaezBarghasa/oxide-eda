@@ -19,7 +19,7 @@
 //! neither `true` nor `false` used to become `Text` and take the
 //! boolean type with it.
 
-use signex_library::ParamValue;
+use oxide_library::ParamValue;
 
 /// A refused commit — the buffer could not be read as the cell's type.
 pub(super) struct ParamRefusal {

@@ -243,7 +243,7 @@ impl Signex {
                 tab_dragging: None,
                 main_window_id: None,
                 windows: std::collections::HashMap::new(),
-                passive_calculator: signex_widgets::passive_calculator::CalculatorControl::default(
+                passive_calculator: oxide_widgets::passive_calculator::CalculatorControl::default(
                 ),
                 passive_calculator_open: false,
                 move_selection: crate::app::state::MoveSelectionState::default(),
@@ -286,7 +286,7 @@ impl Signex {
                     lib_symbol_count: 0,
                     lib_symbol_names: vec![],
                     placed_symbols: vec![],
-                    tokens: signex_types::theme::theme_tokens(ThemeId::Signex),
+                    tokens: oxide_types::theme::theme_tokens(ThemeId::Signex),
                     theme_id: ThemeId::Signex,
                     unit: Unit::Mm,
                     grid_visible: true,

@@ -134,14 +134,14 @@ impl FootprintCanvas<'_> {
     /// every entity fully inside the rectangle.
     fn box_select_sketch(
         &self,
-        sketch: &signex_sketch::SketchData,
+        sketch: &oxide_sketch::SketchData,
         x0: f64,
         y0: f64,
         x1: f64,
         y1: f64,
     ) -> Option<canvas::Action<LibraryMessage>> {
-        use signex_sketch::entity::EntityKind;
-        let resolve = |id: signex_sketch::id::SketchEntityId| -> Option<(f64, f64)> {
+        use oxide_sketch::entity::EntityKind;
+        let resolve = |id: oxide_sketch::id::SketchEntityId| -> Option<(f64, f64)> {
             sketch
                 .entities
                 .iter()
@@ -151,7 +151,7 @@ impl FootprintCanvas<'_> {
                     _ => None,
                 })
         };
-        let bbox_of = |e: &signex_sketch::entity::Entity| -> Option<(f64, f64, f64, f64)> {
+        let bbox_of = |e: &oxide_sketch::entity::Entity| -> Option<(f64, f64, f64, f64)> {
             match e.kind {
                 EntityKind::Point { x, y } => Some((x, y, x, y)),
                 EntityKind::Line { start, end } => {
@@ -171,7 +171,7 @@ impl FootprintCanvas<'_> {
                 }
             }
         };
-        let mut hits: Vec<signex_sketch::id::SketchEntityId> = Vec::new();
+        let mut hits: Vec<oxide_sketch::id::SketchEntityId> = Vec::new();
         for e in &sketch.entities {
             let Some((bx0, by0, bx1, by1)) = bbox_of(e) else {
                 continue;

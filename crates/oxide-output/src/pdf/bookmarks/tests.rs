@@ -4,7 +4,7 @@ use crate::pdf::{
     ColourMode, Margins, Orientation, PageRange, PageSize, PdfScale, SchematicPalette,
 };
 use crate::{ExportContext, ProjectMetadata, SheetSnapshot};
-use signex_types::schematic::{Label, LabelType, Point, SchematicSheet, Symbol};
+use oxide_types::schematic::{Label, LabelType, Point, SchematicSheet, Symbol};
 use std::collections::HashMap;
 
 fn empty_sheet() -> SchematicSheet {
@@ -71,8 +71,8 @@ fn ctx_with_one_sheet() -> ExportContext {
         label_type: LabelType::Net,
         shape: String::new(),
         font_size: 0.0,
-        justify: signex_types::schematic::HAlign::Center,
-        justify_v: signex_types::schematic::VAlign::Bottom,
+        justify: oxide_types::schematic::HAlign::Center,
+        justify_v: oxide_types::schematic::VAlign::Bottom,
     });
     ExportContext {
         sheets: vec![SheetSnapshot {

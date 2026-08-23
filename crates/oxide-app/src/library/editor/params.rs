@@ -20,9 +20,9 @@ use std::collections::BTreeSet;
 
 use iced::widget::{Space, button, column, container, row, scrollable, text, text_input};
 use iced::{Border, Element, Length, Theme};
-use signex_library::{ParamKind, ParamSlot, ParamValue, ParameterTemplate};
-use signex_types::theme::ThemeTokens;
-use signex_widgets::theme_ext;
+use oxide_library::{ParamKind, ParamSlot, ParamValue, ParameterTemplate};
+use oxide_types::theme::ThemeTokens;
+use oxide_widgets::theme_ext;
 
 use super::super::messages::{EditorMsg, LibraryMessage, ParamKindMsg};
 use super::super::state::{ComponentPreviewState, EditorAddress, LibraryState};
@@ -514,12 +514,12 @@ fn add_custom_row<'a>(
 /// against a stable shape regardless of the registry's internal layout.
 #[cfg(test)]
 fn missing_required_for_test(
-    registry: &signex_library::TemplateRegistry,
+    registry: &oxide_library::TemplateRegistry,
     library_id: uuid::Uuid,
     class: &str,
-    params: &signex_library::ParamMap,
+    params: &oxide_library::ParamMap,
 ) -> Vec<String> {
-    use signex_library::TemplateViolation;
+    use oxide_library::TemplateViolation;
     registry
         .validate_params(library_id, class, params)
         .into_iter()
@@ -533,7 +533,7 @@ fn missing_required_for_test(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_library::{ParamMap, ParamValue, TemplateRegistry};
+    use oxide_library::{ParamMap, ParamValue, TemplateRegistry};
     use uuid::Uuid;
 
     /// Empty state path: no template registered for the component class

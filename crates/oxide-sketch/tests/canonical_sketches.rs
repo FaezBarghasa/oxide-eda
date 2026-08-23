@@ -27,11 +27,11 @@ use common::Sketch;
 
 use std::f64::consts::PI;
 
-use signex_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
-use signex_sketch::id::ConstraintId;
-use signex_sketch::solver::lm::solve_lm;
-use signex_sketch::solver::residual::ResolvedParams;
-use signex_sketch::solver::state::point_xy;
+use oxide_sketch::constraint::{Constraint, ConstraintKind, DimTarget};
+use oxide_sketch::id::ConstraintId;
+use oxide_sketch::solver::lm::solve_lm;
+use oxide_sketch::solver::residual::ResolvedParams;
+use oxide_sketch::solver::state::point_xy;
 
 /// Tolerance for asserting solved coordinates against hand-computed
 /// expected values.

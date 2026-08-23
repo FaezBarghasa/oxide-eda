@@ -9,18 +9,18 @@
 
 use std::collections::BTreeMap;
 
-use signex_library::primitive::footprint::{
+use oxide_library::primitive::footprint::{
     FpPour, LayerId, NetRef, Polygon, PourFillType as LibPourFill, ThermalReliefStyle as LibThermal,
 };
-use signex_sketch::SketchError;
-use signex_sketch::attr::PourFillType as SkPourFill;
-use signex_sketch::entity::EntityKind;
-use signex_sketch::expr::ast::ExprNode;
-use signex_sketch::expr::eval::{EvalContext, eval};
-use signex_sketch::expr::parse::parse;
-use signex_sketch::sketch::SketchData;
-use signex_sketch::solver::FullSolveOutput;
-use signex_sketch::unit::Quantity;
+use oxide_sketch::SketchError;
+use oxide_sketch::attr::PourFillType as SkPourFill;
+use oxide_sketch::entity::EntityKind;
+use oxide_sketch::expr::ast::ExprNode;
+use oxide_sketch::expr::eval::{EvalContext, eval};
+use oxide_sketch::expr::parse::parse;
+use oxide_sketch::sketch::SketchData;
+use oxide_sketch::solver::FullSolveOutput;
+use oxide_sketch::unit::Quantity;
 use std::collections::HashMap;
 
 use crate::profile::{TraceError, trace_closed_profile};
@@ -144,7 +144,7 @@ fn map_fill(s: SkPourFill) -> LibPourFill {
     }
 }
 
-fn map_thermal(t: &signex_sketch::attr::ThermalRelief) -> LibThermal {
+fn map_thermal(t: &oxide_sketch::attr::ThermalRelief) -> LibThermal {
     if !t.enabled {
         LibThermal::Direct
     } else if t.spoke_count == 0 {
@@ -157,13 +157,13 @@ fn map_thermal(t: &signex_sketch::attr::ThermalRelief) -> LibThermal {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_sketch::attr::{PourAttr, PourFillType, ThermalRelief};
-    use signex_sketch::entity::Entity;
-    use signex_sketch::id::SketchEntityId;
-    use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
-    use signex_sketch::solver::Solver;
-    use signex_sketch::solver::residual::ResolvedParams;
-    use signex_types::layer::SignexLayer;
+    use oxide_sketch::attr::{PourAttr, PourFillType, ThermalRelief};
+    use oxide_sketch::entity::Entity;
+    use oxide_sketch::id::SketchEntityId;
+    use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
+    use oxide_sketch::solver::Solver;
+    use oxide_sketch::solver::residual::ResolvedParams;
+    use oxide_types::layer::OxideLayer;
 
     fn solve(sketch: &SketchData) -> FullSolveOutput {
         Solver::default()
@@ -215,7 +215,7 @@ mod tests {
     #[test]
     fn bake_pour_records_metadata() {
         let attr = PourAttr {
-            layer: SignexLayer::TopCopper,
+            layer: OxideLayer::TopCopper,
             net: Some("GND".into()),
             fill_type: PourFillType::Solid,
             thermal_relief: ThermalRelief::default(),
@@ -244,7 +244,7 @@ mod tests {
     #[test]
     fn bake_pour_thermal_disabled_maps_to_direct() {
         let mut attr = PourAttr {
-            layer: SignexLayer::TopCopper,
+            layer: OxideLayer::TopCopper,
             net: None,
             fill_type: PourFillType::Hatched,
             thermal_relief: ThermalRelief::default(),
@@ -265,7 +265,7 @@ mod tests {
     #[test]
     fn bake_pour_outline_fill_maps_to_none() {
         let attr = PourAttr {
-            layer: SignexLayer::BottomCopper,
+            layer: OxideLayer::BottomCopper,
             net: None,
             fill_type: PourFillType::Outline,
             thermal_relief: ThermalRelief::default(),

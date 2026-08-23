@@ -1,6 +1,6 @@
 use iced::widget::{column, container, row, text};
 use iced::{Alignment, Background, Border, Element, Length};
-use signex_types::theme::ThemeTokens;
+use oxide_types::theme::ThemeTokens;
 
 use super::color_code::ComponentColorCode;
 use super::domain::ComponentKind;
@@ -77,6 +77,6 @@ fn color_code_unavailable_label(kind: ComponentKind) -> &'static str {
     }
 }
 
-fn token_color(color: signex_types::theme::Color) -> iced::Color {
+fn token_color(color: oxide_types::theme::Color) -> iced::Color {
     iced::Color::from_rgba8(color.r, color.g, color.b, f32::from(color.a) / 255.0)
 }

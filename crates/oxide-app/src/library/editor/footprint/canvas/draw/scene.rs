@@ -100,13 +100,13 @@ impl FootprintCanvas<'_> {
     ) {
         if let Some(sketch) = self.sketch {
             let array_source_counts: std::collections::HashMap<
-                signex_sketch::id::SketchEntityId,
+                oxide_sketch::id::SketchEntityId,
                 usize,
             > = sketch
                 .arrays
                 .iter()
                 .filter_map(|a| {
-                    use signex_sketch::array::ArrayKind;
+                    use oxide_sketch::array::ArrayKind;
                     let (source, count) = match &a.kind {
                         ArrayKind::Linear {
                             source, count_expr, ..

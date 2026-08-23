@@ -155,9 +155,9 @@ impl Signex {
             // widget — only when the single selection is a drawing.
             if matches!(
                 details.selected_kind,
-                signex_types::schematic::SelectedKind::Drawing
+                oxide_types::schematic::SelectedKind::Drawing
             ) {
-                use signex_types::schematic::SchDrawing;
+                use oxide_types::schematic::SchDrawing;
                 self.document_state.panel_ctx.selected_drawing = engine
                     .document()
                     .drawings
@@ -176,7 +176,7 @@ impl Signex {
             }
             if matches!(
                 details.selected_kind,
-                signex_types::schematic::SelectedKind::ChildSheet
+                oxide_types::schematic::SelectedKind::ChildSheet
             ) {
                 self.document_state.panel_ctx.selected_child_sheet = engine
                     .document()
@@ -197,15 +197,15 @@ impl Signex {
     /// could disagree.
     /// Canvas colours for a given theme id. `Custom` reads the loaded
     /// custom theme and falls back to Signex when none is loaded.
-    pub(crate) fn canvas_colors_for(&self, id: ThemeId) -> signex_types::theme::CanvasColors {
+    pub(crate) fn canvas_colors_for(&self, id: ThemeId) -> oxide_types::theme::CanvasColors {
         if id == ThemeId::Custom {
             self.ui_state
                 .custom_theme
                 .as_ref()
                 .map(|custom_theme| custom_theme.canvas)
-                .unwrap_or_else(|| signex_types::theme::canvas_colors(ThemeId::Signex))
+                .unwrap_or_else(|| oxide_types::theme::canvas_colors(ThemeId::Signex))
         } else {
-            signex_types::theme::canvas_colors(id)
+            oxide_types::theme::canvas_colors(id)
         }
     }
 
@@ -248,9 +248,9 @@ impl Signex {
                 .custom_theme
                 .as_ref()
                 .map(|custom_theme| custom_theme.canvas)
-                .unwrap_or_else(|| signex_types::theme::canvas_colors(ThemeId::Signex))
+                .unwrap_or_else(|| oxide_types::theme::canvas_colors(ThemeId::Signex))
         } else {
-            signex_types::theme::canvas_colors(self.ui_state.theme_id)
+            oxide_types::theme::canvas_colors(self.ui_state.theme_id)
         };
         self.interaction_state.pcb_canvas.set_theme_colors(
             crate::render_config::to_iced(&colors.background),
@@ -326,7 +326,7 @@ mod tests {
         // Assert
         assert_eq!(
             app.canvas_view_prefs().canvas_colors,
-            signex_types::theme::canvas_colors(other),
+            oxide_types::theme::canvas_colors(other),
             "the canvas must render the previewed theme"
         );
         assert_eq!(
@@ -367,7 +367,7 @@ mod tests {
         // Arrange
         let (mut app, _t) = Signex::new();
         let uuid = uuid::Uuid::new_v4();
-        let color = signex_types::theme::Color {
+        let color = oxide_types::theme::Color {
             r: 1,
             g: 2,
             b: 3,

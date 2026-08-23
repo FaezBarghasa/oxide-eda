@@ -1,6 +1,6 @@
 //! Library recovery dialogs (`v0.9-snxlib-as-file-plan.md` §2 Stage H).
 //!
-//! When [`signex_library::LocalGitAdapter::open`] fails with a
+//! When [`oxide_library::LocalGitAdapter::open`] fails with a
 //! recoverable error — the `.snxlib` file went missing, the `.git/`
 //! directory was deleted, or a row's primitive binding points at a
 //! file that's no longer on disk — the dispatcher routes the error
@@ -15,7 +15,7 @@
 //!    `[libraries]` list.
 //!
 //! 2. **Git missing** (`.snxlib` is fine but `.git/` was deleted) —
-//!    *Re-init* runs [`signex_library::LocalGitAdapter::recover_init`]
+//!    *Re-init* runs [`oxide_library::LocalGitAdapter::recover_init`]
 //!    which `git init`s a fresh repo at the parent directory and
 //!    stages the current working tree as a single
 //!    "snxlib re-init" commit. Past per-primitive history is lost
@@ -45,9 +45,9 @@ use std::path::PathBuf;
 
 use iced::widget::{Space, button, column, container, row, text};
 use iced::{Border, Element, Length, Theme};
-use signex_library::PrimitiveKind;
-use signex_types::theme::ThemeTokens;
-use signex_widgets::theme_ext;
+use oxide_library::PrimitiveKind;
+use oxide_types::theme::ThemeTokens;
+use oxide_widgets::theme_ext;
 use uuid::Uuid;
 
 use super::messages::LibraryMessage;

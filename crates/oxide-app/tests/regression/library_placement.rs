@@ -1,6 +1,6 @@
 //! Sketch-tool gestures and live numeric placement input (typed distance/angle, Tab-cycling, Escape).
 
-use signex_app::app::{Message, Signex};
+use oxide_app::app::{Message, Signex};
 
 use std::fs;
 use std::path::PathBuf;
@@ -19,12 +19,12 @@ use tempfile::TempDir;
 
 #[test]
 fn tangent_arc_tool_first_click_sets_pending() {
-    use signex_app::app::FootprintEditorState;
-    use signex_app::library::editor::footprint::state::{SketchTool, ToolPending};
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::{Footprint, FootprintFile};
-    use signex_sketch::SketchData;
-    use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
+    use oxide_app::app::FootprintEditorState;
+    use oxide_app::library::editor::footprint::state::{SketchTool, ToolPending};
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::{Footprint, FootprintFile};
+    use oxide_sketch::SketchData;
+    use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
 
     let path = PathBuf::from("test-tangent-arc-c1.snxfpt");
     let mut fp = Footprint::empty("test");
@@ -85,22 +85,22 @@ fn tangent_arc_tool_first_click_sets_pending() {
         sketch
             .entities
             .iter()
-            .any(|e| matches!(e.kind, signex_sketch::entity::EntityKind::Point { x, y } if x == 0.0 && y == 0.0)),
+            .any(|e| matches!(e.kind, oxide_sketch::entity::EntityKind::Point { x, y } if x == 0.0 && y == 0.0)),
         "first-click Point not minted"
     );
 }
 
 #[test]
 fn tangent_arc_tool_second_click_mints_arc_and_tangent_constraint() {
-    use signex_app::app::FootprintEditorState;
-    use signex_app::library::editor::footprint::state::{SketchTool, ToolPending};
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::{Footprint, FootprintFile};
-    use signex_sketch::SketchData;
-    use signex_sketch::constraint::ConstraintKind;
-    use signex_sketch::entity::{Entity, EntityKind};
-    use signex_sketch::id::SketchEntityId;
-    use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
+    use oxide_app::app::FootprintEditorState;
+    use oxide_app::library::editor::footprint::state::{SketchTool, ToolPending};
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::{Footprint, FootprintFile};
+    use oxide_sketch::SketchData;
+    use oxide_sketch::constraint::ConstraintKind;
+    use oxide_sketch::entity::{Entity, EntityKind};
+    use oxide_sketch::id::SketchEntityId;
+    use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
 
     let path = PathBuf::from("test-tangent-arc-c2.snxfpt");
     let mut fp = Footprint::empty("test");
@@ -238,13 +238,13 @@ fn tangent_arc_tool_second_click_mints_arc_and_tangent_constraint() {
 /// keyboard handler emit.
 #[test]
 fn placement_input_line_length_pins_second_click_at_exact_distance() {
-    use signex_app::app::FootprintEditorState;
-    use signex_app::library::editor::footprint::state::{
+    use oxide_app::app::FootprintEditorState;
+    use oxide_app::library::editor::footprint::state::{
         EditorMode, PlacementInput, PlacementInputKind, SketchTool,
     };
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::{Footprint, FootprintFile};
-    use signex_sketch::entity::EntityKind;
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::{Footprint, FootprintFile};
+    use oxide_sketch::entity::EntityKind;
 
     let tmp = TempDir::new().expect("tempdir");
     let path = tmp.path().join("track-d.snxfpt");
@@ -363,12 +363,12 @@ fn placement_input_line_length_pins_second_click_at_exact_distance() {
 /// the next gesture step to keep the chain explicit.
 #[test]
 fn placement_input_clears_after_commit() {
-    use signex_app::app::FootprintEditorState;
-    use signex_app::library::editor::footprint::state::{
+    use oxide_app::app::FootprintEditorState;
+    use oxide_app::library::editor::footprint::state::{
         EditorMode, PlacementInput, PlacementInputKind, SketchTool,
     };
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::{Footprint, FootprintFile};
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::{Footprint, FootprintFile};
 
     let tmp = TempDir::new().expect("tempdir");
     let path = tmp.path().join("track-d-clear.snxfpt");
@@ -437,12 +437,12 @@ fn placement_input_clears_after_commit() {
 /// `LineLength`.
 #[test]
 fn placement_input_char_append_validates_decimal_point() {
-    use signex_app::app::FootprintEditorState;
-    use signex_app::library::editor::footprint::state::{
+    use oxide_app::app::FootprintEditorState;
+    use oxide_app::library::editor::footprint::state::{
         EditorMode, PlacementInputKind, SketchTool,
     };
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::{Footprint, FootprintFile};
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::{Footprint, FootprintFile};
 
     let tmp = TempDir::new().expect("tempdir");
     let path = tmp.path().join("track-d-buffer.snxfpt");
@@ -500,12 +500,12 @@ fn placement_input_char_append_validates_decimal_point() {
 /// had been typed.
 #[test]
 fn placement_input_escape_clears_buffer() {
-    use signex_app::app::FootprintEditorState;
-    use signex_app::library::editor::footprint::state::{
+    use oxide_app::app::FootprintEditorState;
+    use oxide_app::library::editor::footprint::state::{
         EditorMode, PlacementInput, PlacementInputKind, SketchTool,
     };
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::{Footprint, FootprintFile};
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::{Footprint, FootprintFile};
 
     let tmp = TempDir::new().expect("tempdir");
     let path = tmp.path().join("track-d-escape.snxfpt");
@@ -553,16 +553,16 @@ fn placement_input_escape_clears_buffer() {
 
 #[test]
 fn v025_offset_placement_input_pins_typed_distance_over_cursor() {
-    use signex_app::app::FootprintEditorState;
-    use signex_app::library::editor::footprint::state::{
+    use oxide_app::app::FootprintEditorState;
+    use oxide_app::library::editor::footprint::state::{
         EditorMode, PlacementInput, PlacementInputKind, SketchTool,
     };
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::{Footprint, FootprintFile};
-    use signex_sketch::SketchData;
-    use signex_sketch::entity::{Entity, EntityKind};
-    use signex_sketch::id::SketchEntityId;
-    use signex_sketch::plane::{Plane, PlaneId, PlaneKind};
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::{Footprint, FootprintFile};
+    use oxide_sketch::SketchData;
+    use oxide_sketch::entity::{Entity, EntityKind};
+    use oxide_sketch::id::SketchEntityId;
+    use oxide_sketch::plane::{Plane, PlaneId, PlaneKind};
     let path = PathBuf::from("v025-offset-placement.snxfpt");
     let plane_id = PlaneId::new();
     // Pre-seed: source Line from (0, 0) to (10, 0). Offset tool will
@@ -668,12 +668,12 @@ fn v025_offset_placement_input_pins_typed_distance_over_cursor() {
 /// so the rendered pad copper underneath the moving line stayed put.
 #[test]
 fn v027_sketch_line_drag_resizes_rect_pad_bbox() {
-    use signex_app::app::{FootprintEditorState, TabInfo, TabKind};
-    use signex_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
-    use signex_app::library::editor::footprint::state::EditorPad;
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::{Footprint, FootprintFile, PadShape};
-    use signex_sketch::entity::EntityKind;
+    use oxide_app::app::{FootprintEditorState, TabInfo, TabKind};
+    use oxide_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
+    use oxide_app::library::editor::footprint::state::EditorPad;
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::{Footprint, FootprintFile, PadShape};
+    use oxide_sketch::entity::EntityKind;
     let path = PathBuf::from("v027-sketch-line-drag-resize.snxfpt");
     let mut fp = Footprint::empty("v027-line-drag");
     let mut pad = EditorPad::new_default("1".into(), (0.0, 0.0));
@@ -683,7 +683,7 @@ fn v027_sketch_line_drag_resizes_rect_pad_bbox() {
     // Locate the top construction line. Rect mints 4 corner Points
     // + 4 connecting lines; the top one runs along y = ymin.
     let sketch = fp.sketch.as_ref().expect("mirror minted a sketch");
-    let pos_of = |id: signex_sketch::id::SketchEntityId| -> Option<(f64, f64)> {
+    let pos_of = |id: oxide_sketch::id::SketchEntityId| -> Option<(f64, f64)> {
         sketch.entities.iter().find(|e| e.id == id).and_then(|e| {
             if let EntityKind::Point { x, y } = e.kind {
                 Some((x, y))
@@ -780,10 +780,10 @@ fn v027_sketch_line_drag_resizes_rect_pad_bbox() {
 /// the sketch-click dispatcher arm.
 #[test]
 fn placement_paused_suppresses_rounded_rect_commit_click() {
-    use signex_app::app::FootprintEditorState;
-    use signex_app::library::editor::footprint::state::{EditorMode, SketchTool, ToolPending};
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::{Footprint, FootprintFile};
+    use oxide_app::app::FootprintEditorState;
+    use oxide_app::library::editor::footprint::state::{EditorMode, SketchTool, ToolPending};
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::{Footprint, FootprintFile};
     let tmp = TempDir::new().expect("tempdir");
     let path = tmp.path().join("pause-rrect.snxfpt");
     fs::write(&path, b"{}").expect("write .snxfpt placeholder");
@@ -885,12 +885,12 @@ fn placement_paused_suppresses_rounded_rect_commit_click() {
 /// across the round-trip (length "10" survives length→angle→length).
 #[test]
 fn placement_input_tab_swaps_line_length_and_angle() {
-    use signex_app::app::FootprintEditorState;
-    use signex_app::library::editor::footprint::state::{
+    use oxide_app::app::FootprintEditorState;
+    use oxide_app::library::editor::footprint::state::{
         EditorMode, PlacementInput, PlacementInputKind, SketchTool, ToolPending,
     };
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::{Footprint, FootprintFile};
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::{Footprint, FootprintFile};
     let tmp = TempDir::new().expect("tempdir");
     let path = tmp.path().join("line-tab.snxfpt");
     fs::write(&path, b"{}").expect("write .snxfpt placeholder");
@@ -1001,13 +1001,13 @@ fn placement_input_tab_swaps_line_length_and_angle() {
 /// endpoint at (0, 10) even though the cursor sits at (20, 0).
 #[test]
 fn placement_input_line_length_and_angle_commit_at_polar_offset() {
-    use signex_app::app::FootprintEditorState;
-    use signex_app::library::editor::footprint::state::{
+    use oxide_app::app::FootprintEditorState;
+    use oxide_app::library::editor::footprint::state::{
         EditorMode, PlacementInput, PlacementInputKind, SketchTool,
     };
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::{Footprint, FootprintFile};
-    use signex_sketch::entity::EntityKind;
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::{Footprint, FootprintFile};
+    use oxide_sketch::entity::EntityKind;
     let tmp = TempDir::new().expect("tempdir");
     let path = tmp.path().join("line-polar.snxfpt");
     fs::write(&path, b"{}").expect("write .snxfpt placeholder");
@@ -1097,13 +1097,13 @@ fn placement_input_line_length_and_angle_commit_at_polar_offset() {
 /// must commit a circle of radius 4 (the typed value), not 10.
 #[test]
 fn placement_input_circle_radius_pins_typed_radius() {
-    use signex_app::app::FootprintEditorState;
-    use signex_app::library::editor::footprint::state::{
+    use oxide_app::app::FootprintEditorState;
+    use oxide_app::library::editor::footprint::state::{
         EditorMode, PlacementInput, PlacementInputKind, SketchTool,
     };
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::{Footprint, FootprintFile};
-    use signex_sketch::entity::EntityKind;
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::{Footprint, FootprintFile};
+    use oxide_sketch::entity::EntityKind;
     let tmp = TempDir::new().expect("tempdir");
     let path = tmp.path().join("circle-r.snxfpt");
     fs::write(&path, b"{}").expect("write .snxfpt placeholder");
@@ -1165,13 +1165,13 @@ fn placement_input_circle_radius_pins_typed_radius() {
 /// ignoring the cursor's 10×10 position.
 #[test]
 fn placement_input_rectangle_commits_typed_width_height() {
-    use signex_app::app::FootprintEditorState;
-    use signex_app::library::editor::footprint::state::{
+    use oxide_app::app::FootprintEditorState;
+    use oxide_app::library::editor::footprint::state::{
         EditorMode, PlacementInput, PlacementInputKind, SketchTool,
     };
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::{Footprint, FootprintFile};
-    use signex_sketch::entity::EntityKind;
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::{Footprint, FootprintFile};
+    use oxide_sketch::entity::EntityKind;
     let tmp = TempDir::new().expect("tempdir");
     let path = tmp.path().join("rect-wh.snxfpt");
     fs::write(&path, b"{}").expect("write .snxfpt placeholder");
@@ -1246,12 +1246,12 @@ fn placement_input_rectangle_commits_typed_width_height() {
 /// across a full round-trip.
 #[test]
 fn placement_input_tab_cycles_rounded_rect_three_fields() {
-    use signex_app::app::FootprintEditorState;
-    use signex_app::library::editor::footprint::state::{
+    use oxide_app::app::FootprintEditorState;
+    use oxide_app::library::editor::footprint::state::{
         EditorMode, PlacementInput, PlacementInputKind, SketchTool, ToolPending,
     };
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::{Footprint, FootprintFile};
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::{Footprint, FootprintFile};
     let tmp = TempDir::new().expect("tempdir");
     let path = tmp.path().join("rrect-tab.snxfpt");
     fs::write(&path, b"{}").expect("write .snxfpt placeholder");
@@ -1340,13 +1340,13 @@ fn placement_input_tab_cycles_rounded_rect_three_fields() {
 /// has radius 1.5, regardless of the cursor's position.
 #[test]
 fn placement_input_rounded_rect_commits_typed_size_and_radius() {
-    use signex_app::app::FootprintEditorState;
-    use signex_app::library::editor::footprint::state::{
+    use oxide_app::app::FootprintEditorState;
+    use oxide_app::library::editor::footprint::state::{
         EditorMode, PlacementInput, PlacementInputKind, SketchTool,
     };
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::{Footprint, FootprintFile};
-    use signex_sketch::entity::EntityKind;
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::{Footprint, FootprintFile};
+    use oxide_sketch::entity::EntityKind;
     let tmp = TempDir::new().expect("tempdir");
     let path = tmp.path().join("rrect-commit.snxfpt");
     fs::write(&path, b"{}").expect("write .snxfpt placeholder");
@@ -1459,12 +1459,12 @@ fn placement_input_rounded_rect_commits_typed_size_and_radius() {
 /// of silently doing nothing.
 #[test]
 fn issue_180_sketch_placement_tab_advances_placement_input_kind() {
-    use signex_app::app::FootprintEditorState;
-    use signex_app::library::editor::footprint::state::{
+    use oxide_app::app::FootprintEditorState;
+    use oxide_app::library::editor::footprint::state::{
         EditorMode, PlacementInput, PlacementInputKind, SketchTool, ToolPending,
     };
-    use signex_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
-    use signex_library::{Footprint, FootprintFile};
+    use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
+    use oxide_library::{Footprint, FootprintFile};
     let tmp = TempDir::new().expect("tempdir");
     let path = tmp.path().join("issue-180-tab.snxfpt");
     fs::write(&path, b"{}").expect("write .snxfpt placeholder");

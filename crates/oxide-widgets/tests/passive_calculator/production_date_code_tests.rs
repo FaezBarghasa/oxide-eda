@@ -1,5 +1,5 @@
 use chrono::{Datelike, Local};
-use signex_widgets::passive_calculator::{
+use oxide_widgets::passive_calculator::{
     ProductionDateCode, ProductionDateCycle, ProductionMonth, RkmEncoder,
 };
 

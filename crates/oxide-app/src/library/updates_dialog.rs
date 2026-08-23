@@ -5,7 +5,7 @@
 //! `Symbol`s and their source library rows. Each placed Symbol that
 //! went through the `.snxlib` picker carries `library_id`, `row_id`,
 //! and `library_version` (Stage 16's schema additions on
-//! `signex_types::schematic::Symbol`). On schematic open the
+//! `oxide_types::schematic::Symbol`). On schematic open the
 //! dispatcher walks every Symbol that has a `library_id` set and
 //! compares its pinned version to the row's current version through
 //! the mounted `LibrarySet`. Mismatches accumulate into a
@@ -40,9 +40,9 @@ use std::path::PathBuf;
 
 use iced::widget::{Space, button, checkbox, column, container, row, scrollable, text};
 use iced::{Border, Element, Length, Theme};
-use signex_library::RowId;
-use signex_types::theme::ThemeTokens;
-use signex_widgets::theme_ext;
+use oxide_library::RowId;
+use oxide_types::theme::ThemeTokens;
+use oxide_widgets::theme_ext;
 use uuid::Uuid;
 
 use super::messages::LibraryMessage;
@@ -167,7 +167,7 @@ impl LibraryUpdatesState {
     /// rule to each entry's checkbox.
     pub fn new(schematic_path: PathBuf, mut entries: Vec<LibraryUpdateEntry>) -> Self {
         entries
-            .sort_by(|a, b| signex_types::designator::compare_references(&a.ref_des, &b.ref_des));
+            .sort_by(|a, b| oxide_types::designator::compare_references(&a.ref_des, &b.ref_des));
         for entry in &mut entries {
             entry.selected = entry.bump_kind.default_checked();
         }

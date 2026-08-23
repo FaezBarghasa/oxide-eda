@@ -23,7 +23,7 @@ pub struct Junction {
     pub diameter: f64,
     /// `true` when this dot was minted by the wire-junction autoplacer
     /// (`reconcile_wire_junctions` / `junctions_for_wire` in
-    /// `signex-engine`) rather than placed by the user. Minted dots are
+    /// `oxide-engine`) rather than placed by the user. Minted dots are
     /// re-validated on every wire-geometry command and removed once no
     /// wire meeting justifies them any more; a user-placed dot — which
     /// includes every junction in a `.snxsch` written before this field

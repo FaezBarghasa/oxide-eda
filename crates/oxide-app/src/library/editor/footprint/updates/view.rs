@@ -155,8 +155,8 @@ fn set_pads_tool(
             let primitive = editor.primitive_mut();
             primitive
                 .silk_f
-                .push(signex_library::primitive::footprint::FpGraphic {
-                    kind: signex_library::primitive::footprint::FpGraphicKind::Polygon { vertices },
+                .push(oxide_library::primitive::footprint::FpGraphic {
+                    kind: oxide_library::primitive::footprint::FpGraphicKind::Polygon { vertices },
                     stroke_width: 0.15,
                     filled: false,
                 });

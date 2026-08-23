@@ -196,7 +196,7 @@ fn active_bar_flip_selection(editor: &mut crate::app::FootprintEditorState) {
     // #146 + #433 — gate history + dirty on a real selection (see
     // rotate), then flip EVERY selected pad in place (#390 multi-
     // select). Flipping to the other side mirrors the pad's copper
-    // about its own vertical axis: `signex_bake::pad` consumes the
+    // about its own vertical axis: `oxide_bake::pad` consumes the
     // stored fields verbatim, so the WHOLE mirror-sensitive set moves
     // together (angle, hole angle, copper X offset, chamfer corners,
     // custom outline) — mirroring only the angle bakes a shape that is
@@ -485,7 +485,7 @@ fn active_bar_set_sketch_tool(
 /// Swap a layer between the front and back side. Anything without an
 /// `F.` / `B.` prefix (`*.Cu`, bare names) is side-agnostic and passes
 /// through unchanged.
-fn flip_layer(layer: &signex_library::LayerId) -> signex_library::LayerId {
+fn flip_layer(layer: &oxide_library::LayerId) -> oxide_library::LayerId {
     let s = layer.as_str();
     let flipped = if let Some(rest) = s.strip_prefix("F.") {
         format!("B.{rest}")
@@ -494,5 +494,5 @@ fn flip_layer(layer: &signex_library::LayerId) -> signex_library::LayerId {
     } else {
         s.to_string()
     };
-    signex_library::LayerId::new(flipped)
+    oxide_library::LayerId::new(flipped)
 }

@@ -1,7 +1,7 @@
 //! Shared assembly of the project's sheet view — [`assemble_project_sheets`]
 //! answers "what sheets does this project consist of", and [`project_graph`]
 //! re-keys that answer by resolved path the way
-//! [`signex_net::build_project_netlist`] and ERC read it (ADR-0002 D8, #466).
+//! [`oxide_net::build_project_netlist`] and ERC read it (ADR-0002 D8, #466).
 //!
 //! There is exactly one assembler on purpose. Five operations ask this
 //! question — the export scope, the cached canvas/ERC netlist, the ERC run,
@@ -13,7 +13,7 @@
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
-use signex_types::schematic::SchematicSheet;
+use oxide_types::schematic::SchematicSheet;
 
 use crate::app::state::DocumentState;
 use crate::app::state::scope::path_key;
@@ -138,7 +138,7 @@ fn load_sheet(
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(None),
         Err(e) => return Err(format!("could not be read: {e}")),
     };
-    match signex_types::format::SnxSchematic::parse(&text) {
+    match oxide_types::format::SnxSchematic::parse(&text) {
         Ok(parsed) => Ok(Some(parsed.sheet)),
         Err(e) => Err(format!("could not be parsed: {e}")),
     }
@@ -234,21 +234,21 @@ fn walk(
 }
 
 /// The result of [`project_graph`] re-keying [`ProjectSheetSet::sheets`]
-/// (`PathBuf -> SchematicSheet`) into [`signex_net::ProjectGraph`]'s `sheets`
+/// (`PathBuf -> SchematicSheet`) into [`oxide_net::ProjectGraph`]'s `sheets`
 /// / `resolved` inputs — plus what went wrong while re-keying, and the
 /// reverse map back to a path for navigation / `unreadable` messages.
 pub(crate) struct AssembledGraph {
-    /// Every sheet, keyed by its [`signex_net::SheetKey`] (root included).
-    pub(crate) sheets: HashMap<signex_net::SheetKey, SchematicSheet>,
+    /// Every sheet, keyed by its [`oxide_net::SheetKey`] (root included).
+    pub(crate) sheets: HashMap<oxide_net::SheetKey, SchematicSheet>,
     /// Per-parent resolution: `resolved[parent_key][cs.filename]` is the
-    /// child's key — the shape [`signex_net::ProjectGraph::resolved`] and
-    /// [`signex_erc::run_with_project`] both take.
-    pub(crate) resolved: HashMap<signex_net::SheetKey, HashMap<String, signex_net::SheetKey>>,
+    /// child's key — the shape [`oxide_net::ProjectGraph::resolved`] and
+    /// [`oxide_erc::run_with_project`] both take.
+    pub(crate) resolved: HashMap<oxide_net::SheetKey, HashMap<String, oxide_net::SheetKey>>,
     /// Structural problems found while assembling the graph.
-    pub(crate) issues: Vec<signex_net::StitchIssue>,
+    pub(crate) issues: Vec<oxide_net::StitchIssue>,
 }
 
-/// The entry points [`signex_net::build_project_netlist`] must walk: the
+/// The entry points [`oxide_net::build_project_netlist`] must walk: the
 /// project root first, then every declared page the root's hierarchy does not
 /// reach (#430).
 ///
@@ -273,7 +273,7 @@ pub(crate) struct AssembledGraph {
 ///
 /// Order is the caller's contract — it decides occurrence numbering and hence
 /// `NetId` assignment, so it is part of the exported `.net` — and pages are
-/// therefore sorted by their own [`signex_net::SheetKey`], the identity every
+/// therefore sorted by their own [`oxide_net::SheetKey`], the identity every
 /// other part of the graph is keyed by (#541).
 ///
 /// Sorting `pages_outside_the_hierarchy` directly would be the obvious
@@ -293,12 +293,12 @@ pub(crate) struct AssembledGraph {
 /// directory happens to sit on disk, which an absolute-path sort can for any
 /// page declared outside it.
 pub(crate) fn project_roots(
-    root_key: signex_net::SheetKey,
+    root_key: oxide_net::SheetKey,
     project_set: &ProjectSheetSet,
     graph: &AssembledGraph,
     base_dir: Option<&Path>,
-) -> Vec<signex_net::ProjectRoot> {
-    let mut page_keys: Vec<signex_net::SheetKey> = project_set
+) -> Vec<oxide_net::ProjectRoot> {
+    let mut page_keys: Vec<oxide_net::SheetKey> = project_set
         .pages_outside_the_hierarchy
         .iter()
         .map(|page| sheet_key(page, base_dir))
@@ -309,18 +309,18 @@ pub(crate) fn project_roots(
         .collect();
     page_keys.sort();
 
-    let mut roots = vec![signex_net::ProjectRoot {
+    let mut roots = vec![oxide_net::ProjectRoot {
         key: root_key.clone(),
     }];
     roots.extend(
         page_keys
             .into_iter()
-            .map(|key| signex_net::ProjectRoot { key }),
+            .map(|key| oxide_net::ProjectRoot { key }),
     );
     roots
 }
 
-/// The [`signex_net::SheetKey`] for `path` — its path relative to `base`,
+/// The [`oxide_net::SheetKey`] for `path` — its path relative to `base`,
 /// normalized by [`path_key`], falling back to the bare basename when `path`
 /// does not live under `base` (or there is no `base` — a loose document with
 /// no project). Keying a project by resolved path rather than by the bare
@@ -340,18 +340,18 @@ pub(crate) fn project_roots(
 /// `path_key` behaviour that this function inherits rather than introduces;
 /// tightening it belongs with `path_key`, which project membership also
 /// depends on.
-pub(crate) fn sheet_key(path: &Path, base: Option<&Path>) -> signex_net::SheetKey {
+pub(crate) fn sheet_key(path: &Path, base: Option<&Path>) -> oxide_net::SheetKey {
     let relative = base
         .and_then(|dir| path.strip_prefix(dir).ok())
         .map(Path::to_path_buf)
         .or_else(|| path.file_name().map(PathBuf::from))
         .unwrap_or_else(|| path.to_path_buf());
-    signex_net::SheetKey::new(path_key(&relative))
+    oxide_net::SheetKey::new(path_key(&relative))
 }
 
 /// Re-key `sheets` (the app's `path → SchematicSheet` set) into the
-/// [`signex_net::ProjectGraph`] shape — every sheet under its own
-/// [`signex_net::SheetKey`], plus a per-parent `ChildSheet.filename ->
+/// [`oxide_net::ProjectGraph`] shape — every sheet under its own
+/// [`oxide_net::SheetKey`], plus a per-parent `ChildSheet.filename ->
 /// SheetKey` resolution map — so a cross-directory same-filename child
 /// stitches from its own file instead of colliding with another parent's
 /// (#466).
@@ -364,7 +364,7 @@ pub(crate) fn sheet_key(path: &Path, base: Option<&Path>) -> signex_net::SheetKe
 /// [`sheet_key`] normalizes, and on a case-insensitive host it also folds
 /// case, so `A.snxsch` and `a.snxsch` assemble to one key. Sorted-path
 /// first-wins keeps which one survives deterministic; the loser is reported as
-/// [`signex_net::StitchIssue::SheetKeyCollision`] and contributes nothing to
+/// [`oxide_net::StitchIssue::SheetKeyCollision`] and contributes nothing to
 /// the netlist, which is silent without that issue.
 ///
 /// `root` is the path the caller is about to stitch from, and it is exempt
@@ -382,9 +382,9 @@ pub(crate) fn project_graph(
     base_dir: Option<&Path>,
     root: Option<&Path>,
 ) -> AssembledGraph {
-    let mut keyed_sheets: HashMap<signex_net::SheetKey, SchematicSheet> = HashMap::new();
-    let mut key_to_path: HashMap<signex_net::SheetKey, PathBuf> = HashMap::new();
-    let mut issues: Vec<signex_net::StitchIssue> = Vec::new();
+    let mut keyed_sheets: HashMap<oxide_net::SheetKey, SchematicSheet> = HashMap::new();
+    let mut key_to_path: HashMap<oxide_net::SheetKey, PathBuf> = HashMap::new();
+    let mut issues: Vec<oxide_net::StitchIssue> = Vec::new();
 
     // Root first, then sorted-path order for everything else. First-wins
     // below then cannot evict the root, and the tie-break is still a total
@@ -399,7 +399,7 @@ pub(crate) fn project_graph(
     for path in paths {
         let key = sheet_key(path, base_dir);
         if let Some(existing) = key_to_path.get(&key) {
-            issues.push(signex_net::StitchIssue::SheetKeyCollision {
+            issues.push(oxide_net::StitchIssue::SheetKeyCollision {
                 key: key.to_string(),
                 kept: existing.display().to_string(),
                 dropped: path.display().to_string(),
@@ -413,14 +413,14 @@ pub(crate) fn project_graph(
     // Built from `key_to_path` (the post-collision winners), not the raw
     // `sheets` input — a case-fold-collision loser must not clobber the
     // winner's resolution submap by sorting later here than it did above.
-    let mut resolved: HashMap<signex_net::SheetKey, HashMap<String, signex_net::SheetKey>> =
+    let mut resolved: HashMap<oxide_net::SheetKey, HashMap<String, oxide_net::SheetKey>> =
         HashMap::new();
-    let mut winners: Vec<(&signex_net::SheetKey, &PathBuf)> = key_to_path.iter().collect();
+    let mut winners: Vec<(&oxide_net::SheetKey, &PathBuf)> = key_to_path.iter().collect();
     winners.sort_by(|a, b| a.1.cmp(b.1));
     for (parent_key, parent_path) in winners {
         let sheet = &keyed_sheets[parent_key];
         let dir = parent_path.parent().unwrap_or_else(|| Path::new(""));
-        let mut submap: HashMap<String, signex_net::SheetKey> = HashMap::new();
+        let mut submap: HashMap<String, oxide_net::SheetKey> = HashMap::new();
         for cs in &sheet.child_sheets {
             let Some(child_path) = resolve_child_reference(dir, &cs.filename) else {
                 continue;
@@ -540,11 +540,11 @@ fn lexically_normalize(path: &Path) -> PathBuf {
 /// part 3) — shown in the Messages panel alongside other diagnostics.
 ///
 /// Lives here rather than in one consumer because *every* caller of
-/// [`signex_net::build_project_netlist`] must surface its issues: the netlist
+/// [`oxide_net::build_project_netlist`] must surface its issues: the netlist
 /// is always produced, so a dropped `MissingChild` means an exported netlist
 /// that is quietly missing a whole subtree.
-pub(crate) fn stitch_issue_message(issue: &signex_net::StitchIssue) -> String {
-    use signex_net::StitchIssue as I;
+pub(crate) fn stitch_issue_message(issue: &oxide_net::StitchIssue) -> String {
+    use oxide_net::StitchIssue as I;
     match issue {
         I::MissingChild {
             parent_path,
@@ -588,7 +588,7 @@ pub(crate) fn stitch_issue_message(issue: &signex_net::StitchIssue) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use signex_types::schematic::{ChildSheet, FillType, Point};
+    use oxide_types::schematic::{ChildSheet, FillType, Point};
     use uuid::Uuid;
 
     fn child_ref(filename: &str) -> ChildSheet {
@@ -608,10 +608,10 @@ mod tests {
         }
     }
 
-    /// A [`signex_net::SheetKey`] from a literal already in the normalized
+    /// A [`oxide_net::SheetKey`] from a literal already in the normalized
     /// form `sheet_key` produces — for asserting against an assembled graph.
-    fn key(k: &str) -> signex_net::SheetKey {
-        signex_net::SheetKey::new(k)
+    fn key(k: &str) -> oxide_net::SheetKey {
+        oxide_net::SheetKey::new(k)
     }
 
     fn sheet(uuid: u128, children: &[&str]) -> SchematicSheet {
@@ -769,7 +769,7 @@ mod tests {
             assert_eq!(graph.issues.len(), 1, "the collision must not be silent");
             assert!(matches!(
                 &graph.issues[0],
-                signex_net::StitchIssue::SheetKeyCollision { .. }
+                oxide_net::StitchIssue::SheetKeyCollision { .. }
             ));
             // Sorted-path first-wins: "/proj/A.snxsch" < "/proj/a.snxsch".
             assert_eq!(
@@ -1028,7 +1028,7 @@ mod tests {
         assert!(
             matches!(
                 graph.issues.as_slice(),
-                [signex_net::StitchIssue::SheetKeyCollision { key, kept, dropped }]
+                [oxide_net::StitchIssue::SheetKeyCollision { key, kept, dropped }]
                     if key == "top.snxsch"
                         && kept == "/proj/top.snxsch"
                         && dropped == "/other/top.snxsch"

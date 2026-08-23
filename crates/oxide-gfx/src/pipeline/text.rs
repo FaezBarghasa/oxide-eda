@@ -352,7 +352,7 @@ impl GlyphonTextPipeline {
         // queue directly). This pipeline owns its device/queue, so it runs a
         // dedicated encoder and submits it immediately.
         let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: Some("signex_gfx_text_prepare"),
+            label: Some("oxide_gfx_text_prepare"),
         });
         let result = self.text_renderer.prepare(
             device,

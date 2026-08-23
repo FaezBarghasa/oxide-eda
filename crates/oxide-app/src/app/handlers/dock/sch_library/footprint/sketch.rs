@@ -86,7 +86,7 @@ impl Signex {
 
     pub(in crate::app::handlers::dock::sch_library) fn handle_fp_editor_unlink_corner_radius(
         &mut self,
-        arc_entity_id: &signex_sketch::id::SketchEntityId,
+        arc_entity_id: &oxide_sketch::id::SketchEntityId,
     ) -> Task<Message> {
         let mut follow = Task::none();
         // v0.24 Phase 3 (Track A3) — forward to the
@@ -116,7 +116,7 @@ impl Signex {
 
     pub(in crate::app::handlers::dock::sch_library) fn handle_fp_editor_edit_sketch_pad_in_pads(
         &mut self,
-        id: &signex_sketch::id::SketchEntityId,
+        id: &oxide_sketch::id::SketchEntityId,
     ) -> bool {
         // v0.22 Phase D6 — mirror of FpEditorEditPadInSketch:
         // resolve the EditorPad whose `sketch_entity_id` ==
@@ -139,7 +139,7 @@ impl Signex {
 
     pub(in crate::app::handlers::dock::sch_library) fn handle_fp_editor_select_sketch_entity(
         &mut self,
-        id: &signex_sketch::id::SketchEntityId,
+        id: &oxide_sketch::id::SketchEntityId,
     ) -> bool {
         // v0.22 Phase E3+E4 — Properties-panel "Conflicts"
         // row click → set the sketch entity as the primary
@@ -156,7 +156,7 @@ impl Signex {
 
     pub(in crate::app::handlers::dock::sch_library) fn handle_fp_editor_hover_over_constraint(
         &mut self,
-        constraint: &Option<signex_sketch::id::ConstraintId>,
+        constraint: &Option<oxide_sketch::id::ConstraintId>,
     ) -> bool {
         // v0.23 — per-row precision. `Some(id)` isolates a
         // single constraint at full red while every other

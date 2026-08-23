@@ -16,9 +16,9 @@ pub fn draw_selection_overlay(
             let max = transform.world_to_screen((bbox.max_x, bbox.max_y));
             let size = iced::Size::new((max.x - min.x).abs(), (max.y - min.y).abs());
 
-            if size.width <= signex_types::schematic::SCHEMATIC_RENDER_SELECTION_MARKER_THRESHOLD_PX
+            if size.width <= oxide_types::schematic::SCHEMATIC_RENDER_SELECTION_MARKER_THRESHOLD_PX
                 && size.height
-                    <= signex_types::schematic::SCHEMATIC_RENDER_SELECTION_MARKER_THRESHOLD_PX
+                    <= oxide_types::schematic::SCHEMATIC_RENDER_SELECTION_MARKER_THRESHOLD_PX
             {
                 let center = [
                     ((bbox.min_x + bbox.max_x) * 0.5) as f32,
@@ -27,7 +27,7 @@ pub fn draw_selection_overlay(
                 overlays.snap_circles.push(OverlayCircleInput {
                     center,
                     radius_mm: screen_px_to_world_mm(
-                        signex_types::schematic::SCHEMATIC_RENDER_SELECTION_MARKER_RADIUS_PX,
+                        oxide_types::schematic::SCHEMATIC_RENDER_SELECTION_MARKER_RADIUS_PX,
                         transform.scale,
                     ) as f32,
                     stroke_width_mm: 0.0,
@@ -36,11 +36,11 @@ pub fn draw_selection_overlay(
                 overlays.snap_circles.push(OverlayCircleInput {
                     center,
                     radius_mm: screen_px_to_world_mm(
-                        signex_types::schematic::SCHEMATIC_RENDER_SELECTION_MARKER_RADIUS_PX,
+                        oxide_types::schematic::SCHEMATIC_RENDER_SELECTION_MARKER_RADIUS_PX,
                         transform.scale,
                     ) as f32,
                     stroke_width_mm: stroke_world_mm(
-                        signex_types::schematic::SCHEMATIC_RENDER_SELECTION_MARKER_STROKE_PX,
+                        oxide_types::schematic::SCHEMATIC_RENDER_SELECTION_MARKER_STROKE_PX,
                         transform.scale,
                     ),
                     color: to_rgba(stroke),
@@ -56,7 +56,7 @@ pub fn draw_selection_overlay(
                     fill_color: to_rgba(fill),
                     stroke_color: Some(to_rgba(stroke)),
                     stroke_width_mm: stroke_world_mm(
-                        signex_types::schematic::SCHEMATIC_RENDER_SELECTION_RECT_STROKE_PX,
+                        oxide_types::schematic::SCHEMATIC_RENDER_SELECTION_RECT_STROKE_PX,
                         transform.scale,
                     ),
                 });
@@ -89,8 +89,8 @@ pub fn draw_selection_overlay(
     draw_renderer_snapshot(
         frame,
         &snapshot,
-        &ResolvedTheme::from_canvas_colors(signex_types::theme::canvas_colors(
-            signex_types::theme::ThemeId::Signex,
+        &ResolvedTheme::from_canvas_colors(oxide_types::theme::canvas_colors(
+            oxide_types::theme::ThemeId::Signex,
         )),
         DirtyFlags::OVERLAY,
         transform,

@@ -1,5 +1,5 @@
 use iced::Task;
-use signex_types::coord::Unit;
+use oxide_types::coord::Unit;
 
 use super::super::*;
 
@@ -21,7 +21,7 @@ const DEFAULT_SHAPE_STROKE_MM: f64 = 0.15;
 /// user's Width/Fill edits when committing the next click.
 fn pre_placement_shape(
     doc: &super::super::state::DocumentState,
-) -> (f64, signex_types::schematic::FillType) {
+) -> (f64, oxide_types::schematic::FillType) {
     doc.panel_ctx
         .pre_placement
         .as_ref()
@@ -35,7 +35,7 @@ fn pre_placement_shape(
         })
         .unwrap_or((
             DEFAULT_SHAPE_STROKE_MM,
-            signex_types::schematic::FillType::None,
+            oxide_types::schematic::FillType::None,
         ))
 }
 
@@ -62,7 +62,7 @@ impl Signex {
                         crate::schematic_runtime::hit_test::hit_test(snap, x as f64, y as f64)
                     })
                     .and_then(|hit| {
-                        matches!(hit.kind, signex_types::schematic::SelectedKind::Symbol)
+                        matches!(hit.kind, oxide_types::schematic::SelectedKind::Symbol)
                             .then_some(hit.uuid)
                     });
                 if hover_uuid != self.interaction_state.hover_symbol_uuid {
@@ -101,7 +101,7 @@ impl Signex {
                     let dx = x as f64 - last.x;
                     let dy = y as f64 - last.y;
                     if (dx * dx + dy * dy).sqrt() >= sample_min_mm {
-                        pts.push(signex_types::schematic::Point::new(x as f64, y as f64));
+                        pts.push(oxide_types::schematic::Point::new(x as f64, y as f64));
                         true
                     } else {
                         false
@@ -153,7 +153,7 @@ impl Signex {
                         .is_empty()
                 {
                     self.apply_engine_command(
-                        signex_engine::Command::MoveSelection {
+                        oxide_engine::Command::MoveSelection {
                             items: self.interaction_state.active_canvas().selected.clone(),
                             dx,
                             dy,
@@ -295,7 +295,7 @@ impl Signex {
         let parse_result = std::fs::read_to_string(&path)
             .map_err(anyhow::Error::from)
             .and_then(|text| {
-                signex_types::format::SnxSchematic::parse(&text)
+                oxide_types::format::SnxSchematic::parse(&text)
                     .map(|snx| snx.sheet)
                     .map_err(anyhow::Error::from)
             });
@@ -326,7 +326,7 @@ impl Signex {
             .active_canvas()
             .selected
             .iter()
-            .find(|item| item.kind == signex_types::schematic::SelectedKind::ChildSheet)
+            .find(|item| item.kind == oxide_types::schematic::SelectedKind::ChildSheet)
             .and_then(|item| {
                 snapshot
                     .child_sheets
@@ -348,9 +348,9 @@ impl Signex {
 /// snap to the grid (connection point for labels/wires/symbols, etc.).
 fn primary_anchor_world(
     snap: &crate::schematic_runtime::SchematicRenderSnapshot,
-    item: &signex_types::schematic::SelectedItem,
+    item: &oxide_types::schematic::SelectedItem,
 ) -> Option<(f64, f64)> {
-    use signex_types::schematic::SelectedKind;
+    use oxide_types::schematic::SelectedKind;
     match item.kind {
         SelectedKind::Label => snap
             .labels

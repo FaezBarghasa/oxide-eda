@@ -5,7 +5,7 @@
 
 use iced::widget::{button, svg, text};
 use iced::{Background, Border, Color, Element, Theme};
-use signex_types::theme::{ThemeId, ThemeTokens};
+use oxide_types::theme::{ThemeId, ThemeTokens};
 
 use crate::styles;
 
@@ -82,7 +82,7 @@ pub(super) fn action_enabled(
 /// Theme-derived colors for Active Bar chrome (all Copy+ʼstatic).
 /// `bar_bg` / `bar_border` were used by the bespoke bar container;
 /// since `view_bar` now delegates to
-/// `signex_widgets::active_bar::view`, those fields are unused but
+/// `oxide_widgets::active_bar::view`, those fields are unused but
 /// kept on the struct so the dropdown helpers below don't have to
 /// rebuild a separate palette.
 #[derive(Clone, Copy)]
@@ -484,7 +484,7 @@ pub fn view_bar<'a>(
     has_selection: bool,
     has_net_colors: bool,
 ) -> Element<'a, ActiveBarMsg> {
-    use signex_widgets::active_bar::{ActiveBarButton, ActiveBarIcon, ActiveBarItem};
+    use oxide_widgets::active_bar::{ActiveBarButton, ActiveBarIcon, ActiveBarItem};
 
     // Helper: get last-used action for a group, or use default.
     let last = |group: &str, default: ActiveBarAction| -> ActiveBarMsg {
@@ -669,5 +669,5 @@ pub fn view_bar<'a>(
         items.push(ActiveBarItem::custom(pill, 42.0));
     }
 
-    signex_widgets::active_bar::view(items, tokens)
+    oxide_widgets::active_bar::view(items, tokens)
 }

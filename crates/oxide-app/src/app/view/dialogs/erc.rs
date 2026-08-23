@@ -173,13 +173,13 @@ impl Signex {
 }
 
 fn severity_segmented(
-    rule: signex_erc::RuleKind,
-    current: signex_erc::Severity,
+    rule: oxide_erc::RuleKind,
+    current: oxide_erc::Severity,
     border: Color,
     text_muted: Color,
 ) -> Element<'static, Message> {
     let seg = |label: &'static str,
-               value: signex_erc::Severity,
+               value: oxide_erc::Severity,
                color: Color|
      -> Element<'static, Message> {
         let selected = value == current;
@@ -206,22 +206,22 @@ fn severity_segmented(
     row![
         seg(
             "E",
-            signex_erc::Severity::Error,
+            oxide_erc::Severity::Error,
             Color::from_rgb(0.85, 0.25, 0.25)
         ),
         seg(
             "W",
-            signex_erc::Severity::Warning,
+            oxide_erc::Severity::Warning,
             Color::from_rgb(0.95, 0.70, 0.15)
         ),
         seg(
             "I",
-            signex_erc::Severity::Info,
+            oxide_erc::Severity::Info,
             Color::from_rgb(0.30, 0.60, 0.95)
         ),
         seg(
             "Off",
-            signex_erc::Severity::Off,
+            oxide_erc::Severity::Off,
             Color::from_rgb(0.35, 0.36, 0.42)
         ),
     ]
@@ -229,19 +229,19 @@ fn severity_segmented(
     .into()
 }
 
-const ALL_RULES: &[signex_erc::RuleKind] = &[
-    signex_erc::RuleKind::UnusedPin,
-    signex_erc::RuleKind::DuplicateRefDesignator,
-    signex_erc::RuleKind::HierPortDisconnected,
-    signex_erc::RuleKind::DanglingWire,
-    signex_erc::RuleKind::NetLabelConflict,
-    signex_erc::RuleKind::OrphanLabel,
-    signex_erc::RuleKind::BusBitWidthMismatch,
-    signex_erc::RuleKind::BadHierSheetPin,
-    signex_erc::RuleKind::MissingPowerFlag,
-    signex_erc::RuleKind::PowerPortShort,
-    signex_erc::RuleKind::SymbolOutsideSheet,
-    signex_erc::RuleKind::AmbiguousLabelAnchor,
+const ALL_RULES: &[oxide_erc::RuleKind] = &[
+    oxide_erc::RuleKind::UnusedPin,
+    oxide_erc::RuleKind::DuplicateRefDesignator,
+    oxide_erc::RuleKind::HierPortDisconnected,
+    oxide_erc::RuleKind::DanglingWire,
+    oxide_erc::RuleKind::NetLabelConflict,
+    oxide_erc::RuleKind::OrphanLabel,
+    oxide_erc::RuleKind::BusBitWidthMismatch,
+    oxide_erc::RuleKind::BadHierSheetPin,
+    oxide_erc::RuleKind::MissingPowerFlag,
+    oxide_erc::RuleKind::PowerPortShort,
+    oxide_erc::RuleKind::SymbolOutsideSheet,
+    oxide_erc::RuleKind::AmbiguousLabelAnchor,
 ];
 
 /// Pin-connection matrix. Click a cell to cycle Error → Warning →
@@ -250,8 +250,8 @@ const ALL_RULES: &[signex_erc::RuleKind] = &[
 /// the full Altium 12-type grid lands when the rule engine learns
 /// the remaining variants (Open Collector, Open Emitter, HiZ, …).
 fn pin_matrix_view(
-    tokens: &signex_types::theme::ThemeTokens,
-    overrides: &std::collections::HashMap<(u8, u8), signex_erc::Severity>,
+    tokens: &oxide_types::theme::ThemeTokens,
+    overrides: &std::collections::HashMap<(u8, u8), oxide_erc::Severity>,
 ) -> Element<'static, Message> {
     let text_c = crate::styles::ti(tokens.text);
     let text_muted = crate::styles::ti(tokens.text_secondary);
@@ -262,7 +262,7 @@ fn pin_matrix_view(
     // Emitter, HiZ, Unspecified, etc.).
     const TYPES: &[&str] = &["Input", "Output", "Bidir", "PowerIn", "PowerOut", "NC"];
     // Same baseline as the PinMatrixCellCycled handler — keep in sync.
-    use signex_erc::Severity;
+    use oxide_erc::Severity;
     #[rustfmt::skip]
     const BASELINE: [[Severity; 6]; 6] = [
         [Severity::Off, Severity::Off,     Severity::Off,     Severity::Off,   Severity::Off,     Severity::Off],

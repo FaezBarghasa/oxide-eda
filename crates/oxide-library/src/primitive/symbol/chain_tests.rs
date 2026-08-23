@@ -1,7 +1,7 @@
 //! Tests for `chain::chain_into_closed_contour` and friends.
 //!
 //! Split out of `chain.rs` into this sibling file (per the
-//! `crates/signex-app/src/keymap/editor_tests.rs` pattern:
+//! `crates/oxide-app/src/keymap/editor_tests.rs` pattern:
 //! `#[cfg(test)] mod chain_tests;` declared alongside `mod chain;` in
 //! the parent `primitive/symbol/mod.rs`) to keep `chain.rs` under the
 //! house 800-line file cap.

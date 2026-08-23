@@ -10,8 +10,8 @@
 
 use iced::widget::{Space, column, container, row, text};
 use iced::{Element, Length};
-use signex_types::theme::{ThemeId, ThemeTokens};
-use signex_widgets::passive_calculator::CalculatorControl;
+use oxide_types::theme::{ThemeId, ThemeTokens};
+use oxide_widgets::passive_calculator::CalculatorControl;
 
 use crate::app::view::dialogs::{
     MODAL_HEADER_HEIGHT, MODAL_HEADER_PADDING, MODAL_HEADER_TITLE_SIZE, close_x_button,

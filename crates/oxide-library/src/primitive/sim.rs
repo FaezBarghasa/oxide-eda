@@ -16,7 +16,7 @@ const SIM_FILE_FORMAT_TOKEN: &str = "snxsim/v1";
 /// Sentinel string substituted for each model's `body` field before
 /// TOML serialise; replaced post-emit with the literal multi-line
 /// `'''…'''` block so SPICE source is git-diffable.
-const BODY_PLACEHOLDER_PREFIX: &str = "__SIGNEX_SIM_BODY_a1b2c3d4_";
+const BODY_PLACEHOLDER_PREFIX: &str = "__OXIDE_SIM_BODY_a1b2c3d4_";
 
 /// SPICE / behavioural model dialect.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -202,7 +202,7 @@ impl SimFile {
             }
             // v0.18.12.1 — also reject the sentinel prefix in body
             // content. Without this, a SPICE source containing the
-            // literal string `__SIGNEX_SIM_BODY_a1b2c3d4_` would
+            // literal string `__OXIDE_SIM_BODY_a1b2c3d4_` would
             // confuse the post-emit `str::replace` pass and corrupt
             // the output. Practically improbable but cheap to guard.
             if model.body.contains(BODY_PLACEHOLDER_PREFIX) {
