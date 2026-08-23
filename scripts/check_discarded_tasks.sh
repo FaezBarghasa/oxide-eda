@@ -8,8 +8,8 @@
 #
 # It does catch the neighbouring one. `self.handle_x(...)?;` — a bare
 # expression-statement — has always made rustc emit `unused Task that must
-# be used`, and since GH #548 that is DENIED for signex-app
-# (crates/signex-app/Cargo.toml, `[lints.rust]`), so it fails the build
+# be used`, and since GH #548 that is DENIED for oxide-app
+# (crates/oxide-app/Cargo.toml, `[lints.rust]`), so it fails the build
 # rather than adding one more line to a ~324-warning wall. Do not widen this
 # grep to cover `expr?;`: that shape belongs to the type checker, and a bash
 # approximation of it would be strictly worse.
@@ -38,9 +38,9 @@
 #       * a discard through a differently-named method, e.g.
 #         `let _ = self.some_other_call();` (not prefixed `handle_`).
 #         This one is LIVE in production today:
-#         crates/signex-app/src/app/handlers/canvas/clicked.rs — `let _ =
+#         crates/oxide-app/src/app/handlers/canvas/clicked.rs — `let _ =
 #         self.place_selected_component(wx, wy);`. Benign only because that
-#         method returns `bool` (crates/signex-app/src/app/actions.rs);
+#         method returns `bool` (crates/oxide-app/src/app/actions.rs);
 #         change it to `Task<Message>` and the #99 bug class returns
 #         invisibly. Closing this needs `clippy::let_underscore_must_use`
 #         at deny, which is blocked on the 13 sites tracked in #533 — no
@@ -75,8 +75,8 @@
 # That exclusion is by FILENAME, not by `#[cfg(test)]` (#571). A `tests.rs`
 # or `*_tests.rs` sitting inside `src/` is skipped wherever it lives — ten
 # discards currently sit in
-# crates/signex-app/src/app/handlers/menu/export/tests.rs and
-# crates/signex-app/src/app/view/dialogs/annotate_preview/tests.rs. They are
+# crates/oxide-app/src/app/handlers/menu/export/tests.rs and
+# crates/oxide-app/src/app/view/dialogs/annotate_preview/tests.rs. They are
 # test code, so this is not a defect; it is a naming convention doing a
 # `cfg` attribute's job, and a production file that happens to be named
 # `tests.rs` would be invisible to this gate.

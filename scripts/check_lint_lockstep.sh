@@ -3,7 +3,7 @@
 # Lint-lockstep gate — a workspace lint must reach every member, including the
 # ones that cannot say `[lints] workspace = true`.
 #
-# Most members inherit with `[lints] workspace = true`. `signex-app` cannot:
+# Most members inherit with `[lints] workspace = true`. `oxide-app` cannot:
 # cargo rejects mixing inheritance with per-lint overrides —
 #
 #   cannot override `workspace.lints` in `lints`, either remove the overrides
@@ -11,7 +11,7 @@
 #
 # — and that crate needs `[lints.clippy] let_underscore_must_use = "warn"`,
 # which the workspace deliberately does not carry (lifting it fires 33 times
-# across signex-types / signex-output / signex-library / signex-gfx, none of
+# across oxide-types / oxide-output / oxide-library / oxide-gfx, none of
 # them `Task` discards). So it re-declares the workspace lints by hand.
 #
 # Nothing enforced that by-hand copy (GH #570). A lint added to
@@ -27,7 +27,7 @@
 # crate opted out. A missing key is a hole; a weaker level is a silent
 # downgrade. Both fail.
 #
-# Deliberately generic rather than hardcoding `signex-app`: the next crate
+# Deliberately generic rather than hardcoding `oxide-app`: the next crate
 # that needs its own override gets the same protection without a script edit.
 #
 # Usage:
