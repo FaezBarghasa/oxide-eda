@@ -1,11 +1,11 @@
-; Signex — Windows installer (InnoSetup)
+; Oxide — Windows installer (InnoSetup)
 ;
 ; Invoked from CI via:
-;   ISCC.exe installer\windows\signex.iss /DVersion=0.6.3 /DArch=x64
+;   ISCC.exe installer\windows\oxide.iss /DVersion=0.6.3 /DArch=x64
 ;
 ; /DVersion  — version string without the leading "v" (tag minus "v")
 ; /DArch     — "x64" or "arm64" — picks the right binary source path
-; /DBinary   — absolute path to the compiled signex.exe; overrides the
+; /DBinary   — absolute path to the compiled oxide.exe; overrides the
 ;              target-default when testing locally.
 
 #ifndef Version
@@ -29,38 +29,38 @@
 #endif
 
 #ifndef Binary
-  #define Binary "..\..\target\" + TargetTriple + "\release\signex.exe"
+  #define Binary "..\..\target\" + TargetTriple + "\release\oxide.exe"
 #endif
 
 [Setup]
 AppId={{C4E84F2F-1D41-4FA9-9D8F-67D37CA0F7FC}
-AppName=Signex
+AppName=Oxide
 AppVersion={#Version}
-AppVerName=Signex {#Version}
+AppVerName=Oxide {#Version}
 AppPublisher=alpCaner
-AppPublisherURL=https://github.com/alplabai/signex
-AppSupportURL=https://github.com/alplabai/signex/issues
-AppUpdatesURL=https://github.com/alplabai/signex/releases
-DefaultDirName={autopf}\Signex
-DefaultGroupName=Signex
+AppPublisherURL=https://github.com/alplabai/oxide
+AppSupportURL=https://github.com/alplabai/oxide/issues
+AppUpdatesURL=https://github.com/alplabai/oxide/releases
+DefaultDirName={autopf}\Oxide
+DefaultGroupName=Oxide
 AllowNoIcons=yes
 LicenseFile=
 OutputDir=.
-OutputBaseFilename=signex-setup-{#ArchSuffix}-{#Version}
+OutputBaseFilename=oxide-setup-{#ArchSuffix}-{#Version}
 Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
 ; The .ico is produced by installer/build-icons.sh and lives next to this script.
 ; Silently skipped if the file is absent (e.g. a first clone before running the script).
-#if FileExists("signex.ico")
-  SetupIconFile=signex.ico
+#if FileExists("oxide.ico")
+  SetupIconFile=oxide.ico
 #endif
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
 ArchitecturesAllowed={#ArchAllowed}
 ArchitecturesInstallIn64BitMode={#ArchInstallIn64Bit}
-UninstallDisplayIcon={app}\signex.exe
-UninstallDisplayName=Signex {#Version}
+UninstallDisplayIcon={app}\oxide.exe
+UninstallDisplayName=Oxide {#Version}
 DisableProgramGroupPage=auto
 
 [Languages]
@@ -71,10 +71,10 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "{#Binary}"; DestDir: "{app}"; Flags: ignoreversion
-#if FileExists("signex.ico")
-Source: "signex.ico"; DestDir: "{app}"; Flags: ignoreversion
+#if FileExists("oxide.ico")
+Source: "oxide.ico"; DestDir: "{app}"; Flags: ignoreversion
 #endif
-; Per-file-type .ico files for Signex's native .snx*** extensions.
+; Per-file-type .ico files for Oxide's native .snx*** extensions.
 ; Produced by installer/build-file-icons.sh into installer/windows/files/.
 ; Each `#if FileExists` branch is guarded so a fresh clone still builds
 ; even before `build-file-icons.sh` has been run.
@@ -113,76 +113,76 @@ Source: "files\snxmod.ico"; DestDir: "{app}\files"; Flags: ignoreversion
 #endif
 
 [Icons]
-#if FileExists("signex.ico")
-  #define IconOpt "; IconFilename: ""{app}\signex.ico"""
+#if FileExists("oxide.ico")
+  #define IconOpt "; IconFilename: ""{app}\oxide.ico"""
 #else
   #define IconOpt ""
 #endif
-Name: "{group}\Signex"; Filename: "{app}\signex.exe"{#IconOpt}
-Name: "{group}\{cm:UninstallProgram,Signex}"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\Signex"; Filename: "{app}\signex.exe"; Tasks: desktopicon{#IconOpt}
+Name: "{group}\Oxide"; Filename: "{app}\oxide.exe"{#IconOpt}
+Name: "{group}\{cm:UninstallProgram,Oxide}"; Filename: "{uninstallexe}"
+Name: "{autodesktop}\Oxide"; Filename: "{app}\oxide.exe"; Tasks: desktopicon{#IconOpt}
 
 [Registry]
-; File associations for Signex's native .snx*** extensions.
+; File associations for Oxide's native .snx*** extensions.
 ; Each extension: user-scope HKCU root (matches PrivilegesRequired=lowest),
-; a ProgId keyed under `Signex.<ext>`, a DefaultIcon pointing at the
+; a ProgId keyed under `Oxide.<ext>`, a DefaultIcon pointing at the
 ; per-type .ico shipped in {app}\files\, and an `open` verb that passes
-; the clicked file path to signex.exe via "%1".
+; the clicked file path to oxide.exe via "%1".
 ; Covers: snxprj, snxsch, snxpcb, snxfpt, snxsim, snxlib, snxsym.
-Root: HKCU; Subkey: "Software\Classes\.snxprj"; ValueType: string; ValueData: "Signex.snxprj"; Flags: uninsdeletevalue
-Root: HKCU; Subkey: "Software\Classes\Signex.snxprj"; ValueType: string; ValueData: "Signex Project"; Flags: uninsdeletekey
-Root: HKCU; Subkey: "Software\Classes\Signex.snxprj\DefaultIcon"; ValueType: string; ValueData: "{app}\files\snxprj.ico"
-Root: HKCU; Subkey: "Software\Classes\Signex.snxprj\shell\open\command"; ValueType: string; ValueData: """{app}\signex.exe"" ""%1"""
+Root: HKCU; Subkey: "Software\Classes\.snxprj"; ValueType: string; ValueData: "Oxide.snxprj"; Flags: uninsdeletevalue
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxprj"; ValueType: string; ValueData: "Oxide Project"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxprj\DefaultIcon"; ValueType: string; ValueData: "{app}\files\snxprj.ico"
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxprj\shell\open\command"; ValueType: string; ValueData: """{app}\oxide.exe"" ""%1"""
 
-Root: HKCU; Subkey: "Software\Classes\.snxsch"; ValueType: string; ValueData: "Signex.snxsch"; Flags: uninsdeletevalue
-Root: HKCU; Subkey: "Software\Classes\Signex.snxsch"; ValueType: string; ValueData: "Signex Schematic"; Flags: uninsdeletekey
-Root: HKCU; Subkey: "Software\Classes\Signex.snxsch\DefaultIcon"; ValueType: string; ValueData: "{app}\files\snxsch.ico"
-Root: HKCU; Subkey: "Software\Classes\Signex.snxsch\shell\open\command"; ValueType: string; ValueData: """{app}\signex.exe"" ""%1"""
+Root: HKCU; Subkey: "Software\Classes\.snxsch"; ValueType: string; ValueData: "Oxide.snxsch"; Flags: uninsdeletevalue
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxsch"; ValueType: string; ValueData: "Oxide Schematic"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxsch\DefaultIcon"; ValueType: string; ValueData: "{app}\files\snxsch.ico"
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxsch\shell\open\command"; ValueType: string; ValueData: """{app}\oxide.exe"" ""%1"""
 
-Root: HKCU; Subkey: "Software\Classes\.snxpcb"; ValueType: string; ValueData: "Signex.snxpcb"; Flags: uninsdeletevalue
-Root: HKCU; Subkey: "Software\Classes\Signex.snxpcb"; ValueType: string; ValueData: "Signex PCB"; Flags: uninsdeletekey
-Root: HKCU; Subkey: "Software\Classes\Signex.snxpcb\DefaultIcon"; ValueType: string; ValueData: "{app}\files\snxpcb.ico"
-Root: HKCU; Subkey: "Software\Classes\Signex.snxpcb\shell\open\command"; ValueType: string; ValueData: """{app}\signex.exe"" ""%1"""
+Root: HKCU; Subkey: "Software\Classes\.snxpcb"; ValueType: string; ValueData: "Oxide.snxpcb"; Flags: uninsdeletevalue
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxpcb"; ValueType: string; ValueData: "Oxide PCB"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxpcb\DefaultIcon"; ValueType: string; ValueData: "{app}\files\snxpcb.ico"
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxpcb\shell\open\command"; ValueType: string; ValueData: """{app}\oxide.exe"" ""%1"""
 
-Root: HKCU; Subkey: "Software\Classes\.snxfpt"; ValueType: string; ValueData: "Signex.snxfpt"; Flags: uninsdeletevalue
-Root: HKCU; Subkey: "Software\Classes\Signex.snxfpt"; ValueType: string; ValueData: "Signex Footprint"; Flags: uninsdeletekey
-Root: HKCU; Subkey: "Software\Classes\Signex.snxfpt\DefaultIcon"; ValueType: string; ValueData: "{app}\files\snxfpt.ico"
-Root: HKCU; Subkey: "Software\Classes\Signex.snxfpt\shell\open\command"; ValueType: string; ValueData: """{app}\signex.exe"" ""%1"""
+Root: HKCU; Subkey: "Software\Classes\.snxfpt"; ValueType: string; ValueData: "Oxide.snxfpt"; Flags: uninsdeletevalue
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxfpt"; ValueType: string; ValueData: "Oxide Footprint"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxfpt\DefaultIcon"; ValueType: string; ValueData: "{app}\files\snxfpt.ico"
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxfpt\shell\open\command"; ValueType: string; ValueData: """{app}\oxide.exe"" ""%1"""
 
-Root: HKCU; Subkey: "Software\Classes\.snxsim"; ValueType: string; ValueData: "Signex.snxsim"; Flags: uninsdeletevalue
-Root: HKCU; Subkey: "Software\Classes\Signex.snxsim"; ValueType: string; ValueData: "Signex Simulation"; Flags: uninsdeletekey
-Root: HKCU; Subkey: "Software\Classes\Signex.snxsim\DefaultIcon"; ValueType: string; ValueData: "{app}\files\snxsim.ico"
-Root: HKCU; Subkey: "Software\Classes\Signex.snxsim\shell\open\command"; ValueType: string; ValueData: """{app}\signex.exe"" ""%1"""
+Root: HKCU; Subkey: "Software\Classes\.snxsim"; ValueType: string; ValueData: "Oxide.snxsim"; Flags: uninsdeletevalue
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxsim"; ValueType: string; ValueData: "Oxide Simulation"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxsim\DefaultIcon"; ValueType: string; ValueData: "{app}\files\snxsim.ico"
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxsim\shell\open\command"; ValueType: string; ValueData: """{app}\oxide.exe"" ""%1"""
 
-Root: HKCU; Subkey: "Software\Classes\.snxlib"; ValueType: string; ValueData: "Signex.snxlib"; Flags: uninsdeletevalue
-Root: HKCU; Subkey: "Software\Classes\Signex.snxlib"; ValueType: string; ValueData: "Signex Library"; Flags: uninsdeletekey
-Root: HKCU; Subkey: "Software\Classes\Signex.snxlib\DefaultIcon"; ValueType: string; ValueData: "{app}\files\snxlib.ico"
-Root: HKCU; Subkey: "Software\Classes\Signex.snxlib\shell\open\command"; ValueType: string; ValueData: """{app}\signex.exe"" ""%1"""
+Root: HKCU; Subkey: "Software\Classes\.snxlib"; ValueType: string; ValueData: "Oxide.snxlib"; Flags: uninsdeletevalue
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxlib"; ValueType: string; ValueData: "Oxide Library"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxlib\DefaultIcon"; ValueType: string; ValueData: "{app}\files\snxlib.ico"
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxlib\shell\open\command"; ValueType: string; ValueData: """{app}\oxide.exe"" ""%1"""
 
-Root: HKCU; Subkey: "Software\Classes\.snxsym"; ValueType: string; ValueData: "Signex.snxsym"; Flags: uninsdeletevalue
-Root: HKCU; Subkey: "Software\Classes\Signex.snxsym"; ValueType: string; ValueData: "Signex Symbol"; Flags: uninsdeletekey
-Root: HKCU; Subkey: "Software\Classes\Signex.snxsym\DefaultIcon"; ValueType: string; ValueData: "{app}\files\snxsym.ico"
-Root: HKCU; Subkey: "Software\Classes\Signex.snxsym\shell\open\command"; ValueType: string; ValueData: """{app}\signex.exe"" ""%1"""
+Root: HKCU; Subkey: "Software\Classes\.snxsym"; ValueType: string; ValueData: "Oxide.snxsym"; Flags: uninsdeletevalue
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxsym"; ValueType: string; ValueData: "Oxide Symbol"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxsym\DefaultIcon"; ValueType: string; ValueData: "{app}\files\snxsym.ico"
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxsym\shell\open\command"; ValueType: string; ValueData: """{app}\oxide.exe"" ""%1"""
 
-Root: HKCU; Subkey: "Software\Classes\.snxpkg"; ValueType: string; ValueData: "Signex.snxpkg"; Flags: uninsdeletevalue
-Root: HKCU; Subkey: "Software\Classes\Signex.snxpkg"; ValueType: string; ValueData: "Signex Package"; Flags: uninsdeletekey
-Root: HKCU; Subkey: "Software\Classes\Signex.snxpkg\DefaultIcon"; ValueType: string; ValueData: "{app}\files\snxpkg.ico"
-Root: HKCU; Subkey: "Software\Classes\Signex.snxpkg\shell\open\command"; ValueType: string; ValueData: """{app}\signex.exe"" ""%1"""
+Root: HKCU; Subkey: "Software\Classes\.snxpkg"; ValueType: string; ValueData: "Oxide.snxpkg"; Flags: uninsdeletevalue
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxpkg"; ValueType: string; ValueData: "Oxide Package"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxpkg\DefaultIcon"; ValueType: string; ValueData: "{app}\files\snxpkg.ico"
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxpkg\shell\open\command"; ValueType: string; ValueData: """{app}\oxide.exe"" ""%1"""
 
-Root: HKCU; Subkey: "Software\Classes\.snxmat"; ValueType: string; ValueData: "Signex.snxmat"; Flags: uninsdeletevalue
-Root: HKCU; Subkey: "Software\Classes\Signex.snxmat"; ValueType: string; ValueData: "Signex PCB Material"; Flags: uninsdeletekey
-Root: HKCU; Subkey: "Software\Classes\Signex.snxmat\DefaultIcon"; ValueType: string; ValueData: "{app}\files\snxmat.ico"
-Root: HKCU; Subkey: "Software\Classes\Signex.snxmat\shell\open\command"; ValueType: string; ValueData: """{app}\signex.exe"" ""%1"""
+Root: HKCU; Subkey: "Software\Classes\.snxmat"; ValueType: string; ValueData: "Oxide.snxmat"; Flags: uninsdeletevalue
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxmat"; ValueType: string; ValueData: "Oxide PCB Material"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxmat\DefaultIcon"; ValueType: string; ValueData: "{app}\files\snxmat.ico"
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxmat\shell\open\command"; ValueType: string; ValueData: """{app}\oxide.exe"" ""%1"""
 
-Root: HKCU; Subkey: "Software\Classes\.snxcfg"; ValueType: string; ValueData: "Signex.snxcfg"; Flags: uninsdeletevalue
-Root: HKCU; Subkey: "Software\Classes\Signex.snxcfg"; ValueType: string; ValueData: "Signex Config"; Flags: uninsdeletekey
-Root: HKCU; Subkey: "Software\Classes\Signex.snxcfg\DefaultIcon"; ValueType: string; ValueData: "{app}\files\snxcfg.ico"
-Root: HKCU; Subkey: "Software\Classes\Signex.snxcfg\shell\open\command"; ValueType: string; ValueData: """{app}\signex.exe"" ""%1"""
+Root: HKCU; Subkey: "Software\Classes\.snxcfg"; ValueType: string; ValueData: "Oxide.snxcfg"; Flags: uninsdeletevalue
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxcfg"; ValueType: string; ValueData: "Oxide Config"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxcfg\DefaultIcon"; ValueType: string; ValueData: "{app}\files\snxcfg.ico"
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxcfg\shell\open\command"; ValueType: string; ValueData: """{app}\oxide.exe"" ""%1"""
 
-Root: HKCU; Subkey: "Software\Classes\.snxmod"; ValueType: string; ValueData: "Signex.snxmod"; Flags: uninsdeletevalue
-Root: HKCU; Subkey: "Software\Classes\Signex.snxmod"; ValueType: string; ValueData: "Signex SPICE Model"; Flags: uninsdeletekey
-Root: HKCU; Subkey: "Software\Classes\Signex.snxmod\DefaultIcon"; ValueType: string; ValueData: "{app}\files\snxmod.ico"
-Root: HKCU; Subkey: "Software\Classes\Signex.snxmod\shell\open\command"; ValueType: string; ValueData: """{app}\signex.exe"" ""%1"""
+Root: HKCU; Subkey: "Software\Classes\.snxmod"; ValueType: string; ValueData: "Oxide.snxmod"; Flags: uninsdeletevalue
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxmod"; ValueType: string; ValueData: "Oxide SPICE Model"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxmod\DefaultIcon"; ValueType: string; ValueData: "{app}\files\snxmod.ico"
+Root: HKCU; Subkey: "Software\Classes\Oxide.snxmod\shell\open\command"; ValueType: string; ValueData: """{app}\oxide.exe"" ""%1"""
 
 [Run]
-Filename: "{app}\signex.exe"; Description: "{cm:LaunchProgram,Signex}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\oxide.exe"; Description: "{cm:LaunchProgram,Oxide}"; Flags: nowait postinstall skipifsilent

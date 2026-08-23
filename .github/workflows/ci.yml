@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
-# Primary PR gate for the signex workspace: compile, test, format, and
+# Primary PR gate for the oxide workspace: compile, test, format, and
 # the license/dependency audit. Runs on every PR + push to main / trunk.
 # Job names use the org's `<check> · <detail>` convention so they read
 # cleanly as required status-check contexts under branch protection.
@@ -64,7 +64,7 @@ jobs:
       # (#567). `--all-targets` reaches `tests/`, `benches/`, `examples/` and
       # inline `#[cfg(test)] mod tests` — bare `cargo clippy` compiles the lib
       # without `cfg(test)`, so those bodies were never even parsed as live
-      # code. `--all-features` reaches signex-library's `local-git`,
+      # code. `--all-features` reaches oxide-library's `local-git`,
       # `database`, `search-tantivy`, `distributors-community` and `ai-stub`
       # modules.
       #
@@ -112,7 +112,7 @@ jobs:
             libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev \
             mesa-vulkan-drivers
 
-      # signex-gfx's debug_pass smoke tests request a real wgpu adapter and
+      # oxide-gfx's debug_pass smoke tests request a real wgpu adapter and
       # panic if none is found. GitHub's headless runners have no GPU, so we
       # provide lavapipe (mesa-vulkan-drivers, a software Vulkan ICD) above;
       # wgpu picks it up automatically and the tests run on the CPU rasterizer.
@@ -189,7 +189,7 @@ jobs:
       # counts as "used" under `unused_must_use`. That shape is this gate's
       # entire reason to exist. The neighbouring `self.handle_x(...)?;` shape
       # is the COMPILER's job, not this script's: `unused_must_use` is denied
-      # for signex-app in crates/signex-app/Cargo.toml, so it fails the build.
+      # for oxide-app in crates/oxide-app/Cargo.toml, so it fails the build.
       # An earlier version of this comment claimed the compiler was blind to
       # both. It never was blind to the second one — the warning was simply
       # buried among ~324 unrelated workspace warnings and nobody read it.
@@ -205,7 +205,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # `signex-app` cannot say `[lints] workspace = true` — cargo rejects
+      # `oxide-app` cannot say `[lints] workspace = true` — cargo rejects
       # mixing inheritance with per-lint overrides, and that crate carries its
       # own `[lints.clippy] let_underscore_must_use` that the workspace
       # deliberately does not. So it re-declares the workspace lints by hand,

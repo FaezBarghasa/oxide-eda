@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 #
-# Regenerate per-file-type icon bitmaps for Signex's native `.snx***`
+# Regenerate per-file-type icon bitmaps for Oxide's native `.snx***`
 # extensions from the SVG sources under
-# `crates/signex-app/assets/icons/files/`.
+# `crates/oxide-app/assets/icons/files/`.
 #
 # One SVG per file type — seven total:
-#   snxprj  Signex project
-#   snxsch  Signex schematic
-#   snxpcb  Signex PCB
-#   snxfpt  Signex footprint
-#   snxsim  Signex simulation
-#   snxlib  Signex library
-#   snxsym  Signex symbol
+#   snxprj  Oxide project
+#   snxsch  Oxide schematic
+#   snxpcb  Oxide PCB
+#   snxfpt  Oxide footprint
+#   snxsim  Oxide simulation
+#   snxlib  Oxide library
+#   snxsym  Oxide symbol
 #
 # Outputs (per file type):
 #   installer/windows/files/<ext>.ico            — multi-size ICO (16..256)
@@ -29,7 +29,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-SRC_DIR="$REPO_ROOT/crates/signex-app/assets/icons/files"
+SRC_DIR="$REPO_ROOT/crates/oxide-app/assets/icons/files"
 
 if [[ ! -d "$SRC_DIR" ]]; then
   echo "error: source SVG dir not found at $SRC_DIR" >&2

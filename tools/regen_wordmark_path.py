@@ -1,7 +1,7 @@
-"""Regenerate the 'signex' wordmark path in brand SVGs from Panton-Bold.ttf.
+"""Regenerate the 'oxide' wordmark path in brand SVGs from Panton-Bold.ttf.
 
-The three logo SVGs (signex-logo.svg, signex-logo-white.svg, signex-logo-black.svg)
-embed a <path id="text11"> whose 'd' attribute is the outlined 'signex' wordmark.
+The three logo SVGs (oxide-logo.svg, oxide-logo-white.svg, oxide-logo-black.svg)
+embed a <path id="text11"> whose 'd' attribute is the outlined 'oxide' wordmark.
 When that path was originally exported from Inkscape, Panton was not installed
 on the conversion machine, so the outlines came from a fallback font. This script
 rebuilds the 'd' attribute by reading Panton-Bold.ttf directly with fontTools,
@@ -27,19 +27,19 @@ from fontTools.pens.svgPathPen import SVGPathPen
 from fontTools.ttLib import TTFont
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-FONT_PATH = REPO_ROOT.parent / "signex-website" / "fonts" / "Panton-Bold.ttf"
-BRAND_DIR = REPO_ROOT / "crates" / "signex-app" / "assets" / "brand"
+FONT_PATH = REPO_ROOT.parent / "oxide-website" / "fonts" / "Panton-Bold.ttf"
+BRAND_DIR = REPO_ROOT / "crates" / "oxide-app" / "assets" / "brand"
 
-WORDMARK = "signex"
+WORDMARK = "oxide"
 FONT_SIZE = 300.0
 LETTER_SPACING = -7.0
 BASELINE_Y = 330.0
 LEFT_X = 496.75
-TARGETS = ["signex-logo.svg", "signex-logo-white.svg", "signex-logo-black.svg"]
+TARGETS = ["oxide-logo.svg", "oxide-logo-white.svg", "oxide-logo-black.svg"]
 
 
 def build_wordmark_path_d(font: TTFont) -> str:
-    """Trace 'signex' through Panton-Bold at FONT_SIZE and return SVG path 'd'."""
+    """Trace 'oxide' through Panton-Bold at FONT_SIZE and return SVG path 'd'."""
     cmap = font.getBestCmap()
     glyph_set = font.getGlyphSet()
     units_per_em = font["head"].unitsPerEm

@@ -1,4 +1,4 @@
-# Signex milestone set — the single source of truth for repo milestones.
+# Oxide milestone set — the single source of truth for repo milestones.
 #
 # Edited here, applied automatically by .github/workflows/milestones.yml
 # on push to trunk. Treat milestones as code: change them in a PR, get
@@ -31,7 +31,7 @@
   description: "iced shell, panels, themes, status bar, dock system."
   state: closed
 - title: "v0.2.0 — Parser"
-  description: "S-expression parse + write, domain types. (KiCad I/O; relocated to the signex-kicad-import companion at v0.9.0.)"
+  description: "S-expression parse + write, domain types. (KiCad I/O; relocated to the oxide-kicad-import companion at v0.9.0.)"
   state: closed
 - title: "v0.3.0 — Canvas"
   description: "wgpu canvas, pan/zoom/grid, coordinate system."
@@ -52,7 +52,7 @@
   description: "PDF / BOM / netlist export, sheet templates, multi-project workspaces."
   state: closed
 - title: "v0.9.0 — Apache-Clean Cutover"
-  description: "Issue #62: native .snxsch/.snxpcb (TOML+TSV) become canonical; KiCad I/O moves to the GPL-3.0 signex-kicad-import companion. Shipped 2026-04-29."
+  description: "Issue #62: native .snxsch/.snxpcb (TOML+TSV) become canonical; KiCad I/O moves to the GPL-3.0 oxide-kicad-import companion. Shipped 2026-04-29."
   state: closed
   aliases: ["v0.9.0 — Library & Polish"]
 - title: "v0.10.0 — Library Browser"
@@ -78,7 +78,7 @@
 # open because the work is outstanding; a spec section says only that
 # someone once intended it.
 - title: "v0.14.0 — Footprint, Symbol Units & Netlist"
-  description: "Everything since v0.13.0: footprint editor enabled + parity, symbol multi-unit, signex-net netlist contract, keyboard-shortcut profiles, schematic GPU render, ADR-0001 decomposition, symbol polygon primitive. Shipped 2026-07-18."
+  description: "Everything since v0.13.0: footprint editor enabled + parity, symbol multi-unit, oxide-net netlist contract, keyboard-shortcut profiles, schematic GPU render, ADR-0001 decomposition, symbol polygon primitive. Shipped 2026-07-18."
   state: closed
   # Was "Footprint Editor". Renamed because the section was written
   # 2026-05-31 and never tagged while 170 further commits landed past it;
@@ -182,7 +182,7 @@
   state: open
 
 - title: "v2.3.1 — Realistic 3D View Mode"
-  description: "Realistic3D mode + 2/3 toggle, orbit camera rig, signex-render-wgpu-3d PBR-lite pipeline, baked-texture board render."
+  description: "Realistic3D mode + 2/3 toggle, orbit camera rig, oxide-render-wgpu-3d PBR-lite pipeline, baked-texture board render."
   state: open
 
 - title: "v2.3.2 — 3D Selection & Cross-Probe"
@@ -194,7 +194,7 @@
   state: open
 
 - title: "v2.3.4 — STEP → glTF Cache Pipeline"
-  description: "signex-3d-models crate (STEP import, tessellation, glTF write), hashed model cache, material fallback, fallback extrusion."
+  description: "oxide-3d-models crate (STEP import, tessellation, glTF write), hashed model cache, material fallback, fallback extrusion."
   state: open
 
 - title: "v2.3.5 — Material Sidecars & Controls"
@@ -249,11 +249,11 @@
 # are published because they are scoped, not because they are committed.
 # Of every band on the roadmap these are the most likely to move.
 - title: "v2.6.0 — Render Manager & Scene Export"
-  description: "Render Manager dock panel, signex-render-blender scene-bundle export, Blender auto-detect. Blender is detected, never bundled."
+  description: "Render Manager dock panel, oxide-render-blender scene-bundle export, Blender auto-detect. Blender is detected, never bundled."
   state: open
 
 - title: "v2.6.1 — Blender Addon & Single-Frame Render"
-  description: "Signex Blender addon, render script generation, single-frame PNG / JPG / EXR output, Install Blender helper."
+  description: "Oxide Blender addon, render script generation, single-frame PNG / JPG / EXR output, Install Blender helper."
   state: open
 
 - title: "v2.6.2 — HDRI Presets & Lighting Rigs"
@@ -313,7 +313,7 @@
   state: open
 
 - title: "v3.4.0 — Realtime & CRDT"
-  description: "Speculative — Realtime WebSocket client (signex-collab), CRDT document model, auth with accounts / teams / roles."
+  description: "Speculative — Realtime WebSocket client (oxide-collab), CRDT document model, auth with accounts / teams / roles."
   state: open
 
 - title: "v3.4.1 — Presence & Cursors"
@@ -353,7 +353,7 @@
   state: open
 
 - title: "v4.3.0 — Altium & Eagle Import"
-  description: "Speculative — signex-altium-import and signex-eagle-import companion repos (one-way to native .snx*), creepage/clearance DRC (IEC 60950)."
+  description: "Speculative — oxide-altium-import and oxide-eagle-import companion repos (one-way to native .snx*), creepage/clearance DRC (IEC 60950)."
   state: open
 
 - title: "v4.3.1 — Built-in Git"
@@ -368,7 +368,7 @@
   description: "Speculative — Rigid-flex, embedded components, OrCAD / PADS / Mentor import companions, 3D clearance checking, antenna sim."
   state: open
 
-- title: "v5.0.0 — Signex 365"
+- title: "v5.0.0 — Oxide 365"
   description: "Speculative — Cloud PLM platform, BOM Studio, ECO workflow, ERP bridge (Odoo/ERPNext)."
   state: open
 
@@ -385,7 +385,7 @@
   state: open
 
 - title: "v5.2.0 — BOM & ECO Sync"
-  description: "Speculative — BOM push Signex → PLM, delta sync of changed lines, ECO creation from Signex."
+  description: "Speculative — BOM push Oxide → PLM, delta sync of changed lines, ECO creation from Oxide."
   state: open
 
 - title: "v5.2.1 — Documents & Lifecycle"
@@ -393,7 +393,7 @@
   state: open
 
 - title: "v5.3.0 — Odoo / ERPNext Sync"
-  description: "Speculative — Released BOMs Signex → PLM → ERP; ERP purchase pricing back into BOM Studio."
+  description: "Speculative — Released BOMs Oxide → PLM → ERP; ERP purchase pricing back into BOM Studio."
   state: open
 
 - title: "v5.3.1 — ECO & Vendor Sync"

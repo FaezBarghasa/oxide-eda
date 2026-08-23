@@ -42,7 +42,7 @@ jobs:
           if git grep -nE 'use\s+(kicad_parser|kicad_writer)::' -- 'crates/**/*.rs'; then
             echo ""
             echo "::error::Found 'use kicad_parser::' or 'use kicad_writer::' in crates/."
-            echo "::error::Those crates moved to the GPL-3.0 companion repo signex-kicad-import."
+            echo "::error::Those crates moved to the GPL-3.0 companion repo oxide-kicad-import."
             echo "::error::See docs/LICENSING.md for the rationale and CONTRIBUTING.md for routing."
             exit 1
           fi
@@ -59,7 +59,7 @@ jobs:
           if git grep -nE '^\s*kicad-(parser|writer)\s*=' -- 'crates/**/Cargo.toml' 'Cargo.toml'; then
             echo ""
             echo "::error::Found a Cargo.toml dependency on kicad-parser / kicad-writer."
-            echo "::error::Those crates moved to the GPL-3.0 companion repo signex-kicad-import."
+            echo "::error::Those crates moved to the GPL-3.0 companion repo oxide-kicad-import."
             exit 1
           fi
           echo "No kicad-parser / kicad-writer Cargo.toml deps."
@@ -72,14 +72,14 @@ jobs:
       - name: Forbid re-introduction of removed types and functions
         run: |
           set -e
-          # These names existed in pre-cutover signex-types and have
+          # These names existed in pre-cutover oxide-types and have
           # been replaced. A reintroduction (e.g. via a copy-paste
           # from the GPL companion) would regress the licensing
           # invariant.
           if git grep -nE '\bPinElectricalType\b|\bkicad_auto_net_name_from_pins\b|\bexpand_kicad_char_escapes\b|\bparse_markup\s*\(' -- 'crates/**/*.rs'; then
             echo ""
             echo "::error::Re-introduction of a KiCad-shaped API surface that was removed in the issue-62 cutover."
-            echo "::error::Use the Signex-curated equivalents instead (PinDirection, auto_net_name, parse_signex_markup)."
+            echo "::error::Use the Oxide-curated equivalents instead (PinDirection, auto_net_name, parse_oxide_markup)."
             exit 1
           fi
           echo "No removed API surface re-introduced."
@@ -113,8 +113,8 @@ jobs:
         run: |
           set -e
           # KiCad's pre-7 `PCB_LAYER_ID` used numeric constants for
-          # layer ids (F_CU=0, B_CU=31, …). signex-types replaced
-          # this with a semantic `SignexLayer` enum in v0.9.0; any
+          # layer ids (F_CU=0, B_CU=31, …). oxide-types replaced
+          # this with a semantic `OxideLayer` enum in v0.9.0; any
           # reintroduction of the numeric form is GPL-exposure.
           #
           # Pattern requires the `const`/`static` keyword immediately
@@ -124,7 +124,7 @@ jobs:
           if git grep -nE '\b(?:pub\s+)?(?:const|static)\s+(F_CU|B_CU|F_SILKS|B_SILKS|F_MASK|B_MASK)\b' -- 'crates/**/*.rs'; then
             echo ""
             echo "::error::KiCad-numbered layer-id const/static declaration detected."
-            echo "::error::Use signex_types::layer::SignexLayer instead — see crates/signex-types/src/layer.rs."
+            echo "::error::Use oxide_types::layer::OxideLayer instead — see crates/oxide-types/src/layer.rs."
             exit 1
           fi
           echo "No KiCad-numbered layer constants."
@@ -144,7 +144,7 @@ jobs:
           if git grep -nE 'Net-\([^)]*-Pad' -- 'crates/**/*.rs'; then
             echo ""
             echo "::error::KiCad auto-net-name format string Net-(...-Pad...) detected."
-            echo "::error::Use signex_types::net::auto_net_name instead."
+            echo "::error::Use oxide_types::net::auto_net_name instead."
             exit 1
           fi
           echo "No KiCad auto-net-name format string."
@@ -185,7 +185,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Forbid `\bStandard\b` substring in signex-render / signex-engine
+      - name: Forbid `\bStandard\b` substring in oxide-render / oxide-engine
         run: |
           set -e
           # The v0.10.0 "Standard" rename of KiCad-class names was a
@@ -198,7 +198,7 @@ jobs:
           # `LabelStyle::Standard`, `MultisheetStyle::Standard`) is
           # whitelisted because it serialises to disk and renaming
           # would break user files.
-          MATCHES=$(git grep -nE '\bStandard\b' -- 'crates/signex-render/' 'crates/signex-engine/' || true)
+          MATCHES=$(git grep -nE '\bStandard\b' -- 'crates/oxide-render/' 'crates/oxide-engine/' || true)
           if [ -n "$MATCHES" ]; then
             # Whitelist: render-style enum variant declarations + their
             # Display impls. Anything else is a comment-word euphemism
@@ -207,7 +207,7 @@ jobs:
             if [ -n "$FILTERED" ]; then
               echo "$FILTERED"
               echo ""
-              echo "::error::Bare 'Standard' comment-word detected in signex-render / signex-engine."
+              echo "::error::Bare 'Standard' comment-word detected in oxide-render / oxide-engine."
               echo "::error::Source comments must describe behaviour without the v0.10.0 Standard euphemism."
               echo "::error::Reference docs/RENDERING_RULES.md, IEEE-Std-91, or Altium parity instead."
               exit 1
@@ -223,7 +223,7 @@ jobs:
       - name: Forbid the GPL-tool published file-format extension substrings
         run: |
           set -e
-          # The Apache-clean Signex repo doesn't read or write KiCad
+          # The Apache-clean Oxide repo doesn't read or write KiCad
           # files; the GPL-3.0 companion does. Any literal containing
           # `.kicad_sch` / `.kicad_pcb` / `.kicad_sym` (test fixture
           # filenames, error messages, file dialogs) signals a probable
@@ -232,7 +232,7 @@ jobs:
           if git grep -nE '\.kicad_(sch|pcb|sym)\b' -- 'crates/**/*.rs' 'crates/**/*.toml'; then
             echo ""
             echo "::error::Published KiCad file-format extension substring detected in crates/."
-            echo "::error::This Apache crate doesn't interop with KiCad files. Use the Signex"
+            echo "::error::This Apache crate doesn't interop with KiCad files. Use the Oxide"
             echo "::error::extensions (.snxsch / .snxpcb / .snxsym) for fixtures and messages."
             exit 1
           fi
@@ -243,7 +243,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Forbid third-party constraint-solver substrings under crates/signex-sketch and crates/signex-bake
+      - name: Forbid third-party constraint-solver substrings under crates/oxide-sketch and crates/oxide-bake
         run: |
           set -e
           # The v0.13 sketch-mode solver is a cleanroom implementation
@@ -259,18 +259,18 @@ jobs:
           # files (Cargo.toml description, lib.rs heading, bench example
           # comment) — those are excluded via pathspec.
           if git grep -niE '\b(solvespace|freecad|planegcs|opencascade|sketcher)\b' -- \
-               'crates/signex-sketch/**/*.rs' 'crates/signex-sketch/**/*.toml' \
-               'crates/signex-bake/**/*.rs' 'crates/signex-bake/**/*.toml' \
-               ':!crates/signex-sketch/Cargo.toml' \
-               ':!crates/signex-sketch/src/lib.rs' \
-               ':!crates/signex-sketch/examples/bench_linalg.rs'; then
+               'crates/oxide-sketch/**/*.rs' 'crates/oxide-sketch/**/*.toml' \
+               'crates/oxide-bake/**/*.rs' 'crates/oxide-bake/**/*.toml' \
+               ':!crates/oxide-sketch/Cargo.toml' \
+               ':!crates/oxide-sketch/src/lib.rs' \
+               ':!crates/oxide-sketch/examples/bench_linalg.rs'; then
             echo ""
-            echo "::error::Third-party constraint-solver substring (SolveSpace / FreeCAD / planegcs / OpenCascade / Sketcher) detected under crates/signex-sketch or crates/signex-bake."
+            echo "::error::Third-party constraint-solver substring (SolveSpace / FreeCAD / planegcs / OpenCascade / Sketcher) detected under crates/oxide-sketch or crates/oxide-bake."
             echo "::error::Phase 1-7 of v0.13 ships a cleanroom implementation; references must come from textbooks (Hearn & Baker, Numerical Recipes) only."
             echo "::error::See docs/audit/sketch-solver-2026-05-03.md for the audit trail."
             exit 1
           fi
-          echo "No third-party constraint-solver substrings under signex-sketch / signex-bake."
+          echo "No third-party constraint-solver substrings under oxide-sketch / oxide-bake."
 
   no-third-party-constraint-solver-attribution:
     name: No "from SolveSpace" / "based on FreeCAD" attribution comments
@@ -302,7 +302,7 @@ jobs:
           set -e
           # Specific markers that appeared in pre-v0.9.0 agent-context
           # skill docs as derivation attribution. They have no
-          # legitimate use in Signex source / docs and any future
+          # legitimate use in Oxide source / docs and any future
           # appearance would signal a regression of the agent-context
           # discipline documented in docs/LICENSING.md.
           if git grep -niE 'DeepWiki|KiCad mirror source|extracted from KiCad|based on KiCad source' -- ':!docs/audit/' ':!.github/workflows/license-guard.yml' ':!docs/LICENSING.md' ':!CHANGELOG.md'; then
@@ -325,7 +325,7 @@ jobs:
           #
           # PR #304 was a Rust port of a CC-BY-4.0 project carrying a
           # "you may not resell this tool" rider — Apache-incompatible,
-          # and incompatible with Signex Pro being sold from this tree.
+          # and incompatible with Oxide Pro being sold from this tree.
           # It passed every blocking job in this file and `cargo deny`
           # green, because a port is not a Cargo dependency and contains
           # no KiCad-shaped identifier. The contributor declared it clean
@@ -349,7 +349,7 @@ jobs:
           #     question, extend the allowlist in the same PR.
           # Verified at authoring time: 0 hits on trunk, 43 hits on #304.
 
-          ALLOW_HOSTS='(127\.0\.0\.1|localhost|(www\.)?w3\.org|(www\.)?signex\.dev|(www\.)?alplab\.ai|(api|www)\.digikey\.com|(api|www)\.mouser\.com|([a-z0-9-]+\.)*lcsc\.com|(www\.)?jlcpcb\.com|(www\.)?yageo\.com|(www\.)?distributor\.com|([a-z0-9-]+\.)*example(\.[a-z]+)?|([a-z0-9-]+\.)*(test|invalid|localdomain))'
+          ALLOW_HOSTS='(127\.0\.0\.1|localhost|(www\.)?w3\.org|(www\.)?oxide\.dev|(www\.)?alplab\.ai|(api|www)\.digikey\.com|(api|www)\.mouser\.com|([a-z0-9-]+\.)*lcsc\.com|(www\.)?jlcpcb\.com|(www\.)?yageo\.com|(www\.)?distributor\.com|([a-z0-9-]+\.)*example(\.[a-z]+)?|([a-z0-9-]+\.)*(test|invalid|localdomain))'
           COMMENT_LINE='^[^:]+:[0-9]+:[[:space:]]*(//|/\*|\*[^/])'
           HITS=0
 
@@ -378,7 +378,7 @@ jobs:
           #    project's GitHub repo. Links to our own org are fine.
           M=$(git grep -nE '"https?://(www\.)?github\.com/' -- 'crates/**/*.rs' \
                 | grep -vE "$COMMENT_LINE" \
-                | grep -viE '"https?://(www\.)?github\.com/(alplabai|signex)/' || true)
+                | grep -viE '"https?://(www\.)?github\.com/(alplabai|oxide)/' || true)
           report 'GitHub repo of another project in string-literal position (#304 had a reference-link enum with a Github arm pointing at the ported project)' "$M"
 
           # 3. A third-party product URL in literal position — the tell

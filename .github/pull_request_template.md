@@ -15,13 +15,13 @@ Brief description of what this PR does and why.
 
 A port is a derivative work — rewriting a project in Rust does not reset its
 licence. GPL/copyleft, **any** Creative Commons licence (CC BY included), and any
-"non-commercial" / "no resale" term are all incompatible here; Signex Pro is sold
+"non-commercial" / "no resale" term are all incompatible here; Oxide Pro is sold
 from this source. Full list:
 [CONTRIBUTING.md](../CONTRIBUTING.md#license-compliance-for-contributions).
-Unsure about a source? [Ask in an issue](https://github.com/alplabai/signex/issues/new) —
+Unsure about a source? [Ask in an issue](https://github.com/alplabai/oxide/issues/new) —
 that's cheaper than finding out at review. If it *is* license-gated, add a line
 `License-gated sources: yes` and CI routes it to the GPL-3.0 companion repo
-[signex-kicad-import](https://github.com/alplabai/signex-kicad-import).
+[oxide-kicad-import](https://github.com/alplabai/oxide-kicad-import).
 
 ## Labels
 
@@ -35,18 +35,18 @@ See [`.github/labels.yml`](labels.yml) for the full taxonomy.
 
 ## Crates affected
 
-- [ ] signex-types
-- [ ] signex-engine
-- [ ] signex-library / signex-library-server
-- [ ] signex-sketch
-- [ ] signex-bake
-- [ ] signex-erc / signex-erc-dsl
-- [ ] signex-bom
-- [ ] signex-output
-- [ ] signex-renderer / signex-gfx
-- [ ] signex-3d-model-importer
-- [ ] signex-widgets / chrome-catalog
-- [ ] signex-app
+- [ ] oxide-types
+- [ ] oxide-engine
+- [ ] oxide-library / oxide-library-server
+- [ ] oxide-sketch
+- [ ] oxide-bake
+- [ ] oxide-erc / oxide-erc-dsl
+- [ ] oxide-bom
+- [ ] oxide-output
+- [ ] oxide-renderer / oxide-gfx
+- [ ] oxide-3d-model-importer
+- [ ] oxide-widgets / chrome-catalog
+- [ ] oxide-app
 
 ## Checklist
 

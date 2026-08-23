@@ -1,4 +1,4 @@
-# Signex label taxonomy — the single source of truth for repo labels.
+# Oxide label taxonomy — the single source of truth for repo labels.
 #
 # Edited here, applied automatically by .github/workflows/labels.yml
 # (EndBug/label-sync) on push to trunk. Treat labels as code: change
@@ -54,7 +54,7 @@
 # Auto-applied by the path labeler (.github/labeler.yml); keep the two in sync.
 - name: "area: app"
   color: "0e8a16"
-  description: "signex-app shell — menus, dock, panels, chrome, tabs"
+  description: "oxide-app shell — menus, dock, panels, chrome, tabs"
 - name: "area: footprint-editor"
   color: "0e8a16"
   description: "Footprint editor + its properties panel"
@@ -72,10 +72,10 @@
   description: "Component library + library server"
 - name: "area: sketch"
   color: "0e8a16"
-  description: "signex-sketch — geometry, constraints, solver"
+  description: "oxide-sketch — geometry, constraints, solver"
 - name: "area: bake"
   color: "0e8a16"
-  description: "signex-bake — pad baking, arrays, numbering"
+  description: "oxide-bake — pad baking, arrays, numbering"
 - name: "area: erc"
   color: "0e8a16"
   description: "ERC engine + DSL"
@@ -87,7 +87,7 @@
   description: "Exporters — PDF, netlist, non-KiCad formats"
 - name: "area: rendering"
   color: "0e8a16"
-  description: "Renderer + GPU (signex-renderer, signex-gfx)"
+  description: "Renderer + GPU (oxide-renderer, oxide-gfx)"
 - name: "area: 3d"
   color: "0e8a16"
   description: "3D model import"
@@ -218,7 +218,7 @@
 #   rendering     → area: rendering   (in use: #199, #171, #169, #166)
 #   parser        → area: types
 #   kicad-compat  → obsolete since #62 moved KiCad I/O to the
-#                   signex-kicad-import companion repo; delete outright
+#                   oxide-kicad-import companion repo; delete outright
 #
 # Per label, to move issues across and remove the old one:
 #

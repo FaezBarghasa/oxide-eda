@@ -1,5 +1,5 @@
-"""Mirror the <path id="text11"> 'd' attribute from signex-logo-black.svg into
-signex-logo.svg and signex-logo-white.svg, preserving each file's own fill.
+"""Mirror the <path id="text11"> 'd' attribute from oxide-logo-black.svg into
+oxide-logo.svg and oxide-logo-white.svg, preserving each file's own fill.
 
 The black variant is the user's manually-tuned reference (mark-to-wordmark gap).
 Run this after adjusting the black SVG to keep all three logos in sync.
@@ -14,13 +14,13 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-BRAND_DIR = REPO_ROOT / "crates" / "signex-app" / "assets" / "brand"
-WEBSITE_DIR = REPO_ROOT.parent / "signex-website"
-REFERENCE = BRAND_DIR / "signex-logo-black.svg"
+BRAND_DIR = REPO_ROOT / "crates" / "oxide-app" / "assets" / "brand"
+WEBSITE_DIR = REPO_ROOT.parent / "oxide-website"
+REFERENCE = BRAND_DIR / "oxide-logo-black.svg"
 TARGETS = [
-    BRAND_DIR / "signex-logo.svg",
-    BRAND_DIR / "signex-logo-white.svg",
-    WEBSITE_DIR / "signex-logo.svg",
+    BRAND_DIR / "oxide-logo.svg",
+    BRAND_DIR / "oxide-logo-white.svg",
+    WEBSITE_DIR / "oxide-logo.svg",
 ]
 
 TEXT11_BLOCK = re.compile(

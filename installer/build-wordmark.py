@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Rasterize the Signex wordmark SVGs into PNGs at 1x / 2x / 3x DPI tiers.
+Rasterize the Oxide wordmark SVGs into PNGs at 1x / 2x / 3x DPI tiers.
 
 The app menu bar displays the wordmark at 96x31 logical pixels. On a
 100%-scale monitor that's 96x31 device pixels; at 200% scale winit
@@ -34,15 +34,15 @@ except ImportError:
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-BRAND_DIR = REPO_ROOT / "crates" / "signex-app" / "assets" / "brand"
+BRAND_DIR = REPO_ROOT / "crates" / "oxide-app" / "assets" / "brand"
 OUT_DIR = BRAND_DIR / "generated"
 
 # The logical display size in menu_bar.rs. Keep in sync if that ever changes.
 BASE_W, BASE_H = 96, 31
 TIERS = (1, 2, 3)
 VARIANTS = (
-    ("white", "signex-logo-white.svg"),
-    ("black", "signex-logo-black.svg"),
+    ("white", "oxide-logo-white.svg"),
+    ("black", "oxide-logo-black.svg"),
 )
 
 

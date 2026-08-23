@@ -23,14 +23,14 @@ If applicable, add screenshots.
 
 **Environment**
 - OS: [e.g. Windows 11, macOS 15, Ubuntu 24.04]
-- Signex version: [e.g. v0.14.0]
+- Oxide version: [e.g. v0.14.0]
 - GPU: [e.g. NVIDIA RTX 4070]
 
 **Project file**
-If the bug involves a specific design, attach a minimal native Signex
-`.snxsch` / `.snxpcb` that reproduces it. (Signex is KiCad-free — please
+If the bug involves a specific design, attach a minimal native Oxide
+`.snxsch` / `.snxpcb` that reproduces it. (Oxide is KiCad-free — please
 don't attach `.kicad_*` files; KiCad round-trip issues belong in
-[signex-kicad-import](https://github.com/alplabai/signex-kicad-import).)
+[oxide-kicad-import](https://github.com/alplabai/oxide-kicad-import).)
 
 **Severity**
 Does this lose data or crash the app? If so, say so — we'll tag it

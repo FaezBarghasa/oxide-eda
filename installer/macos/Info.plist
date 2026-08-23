@@ -5,15 +5,15 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>en</string>
     <key>CFBundleExecutable</key>
-    <string>signex</string>
+    <string>oxide</string>
     <key>CFBundleIdentifier</key>
-    <string>com.alpcaner.signex</string>
+    <string>com.alpcaner.oxide</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
-    <string>Signex</string>
+    <string>Oxide</string>
     <key>CFBundleDisplayName</key>
-    <string>Signex</string>
+    <string>Oxide</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
@@ -30,12 +30,12 @@
     <string>????</string>
     <key>CFBundleDocumentTypes</key>
     <array>
-        <!-- Signex native file formats. Each entry pairs a UTI with its
+        <!-- Oxide native file formats. Each entry pairs a UTI with its
              bundled .icns (produced by installer/build-file-icons.sh) so
              macOS Finder paints the correct per-type icon. -->
         <dict>
             <key>CFBundleTypeName</key>
-            <string>Signex Project</string>
+            <string>Oxide Project</string>
             <key>CFBundleTypeExtensions</key>
             <array><string>snxprj</string></array>
             <key>CFBundleTypeIconFile</key>
@@ -45,11 +45,11 @@
             <key>LSHandlerRank</key>
             <string>Owner</string>
             <key>LSItemContentTypes</key>
-            <array><string>com.alpcaner.signex.snxprj</string></array>
+            <array><string>com.alpcaner.oxide.snxprj</string></array>
         </dict>
         <dict>
             <key>CFBundleTypeName</key>
-            <string>Signex Schematic</string>
+            <string>Oxide Schematic</string>
             <key>CFBundleTypeExtensions</key>
             <array><string>snxsch</string></array>
             <key>CFBundleTypeIconFile</key>
@@ -59,11 +59,11 @@
             <key>LSHandlerRank</key>
             <string>Owner</string>
             <key>LSItemContentTypes</key>
-            <array><string>com.alpcaner.signex.snxsch</string></array>
+            <array><string>com.alpcaner.oxide.snxsch</string></array>
         </dict>
         <dict>
             <key>CFBundleTypeName</key>
-            <string>Signex PCB</string>
+            <string>Oxide PCB</string>
             <key>CFBundleTypeExtensions</key>
             <array><string>snxpcb</string></array>
             <key>CFBundleTypeIconFile</key>
@@ -73,11 +73,11 @@
             <key>LSHandlerRank</key>
             <string>Owner</string>
             <key>LSItemContentTypes</key>
-            <array><string>com.alpcaner.signex.snxpcb</string></array>
+            <array><string>com.alpcaner.oxide.snxpcb</string></array>
         </dict>
         <dict>
             <key>CFBundleTypeName</key>
-            <string>Signex Footprint</string>
+            <string>Oxide Footprint</string>
             <key>CFBundleTypeExtensions</key>
             <array><string>snxfpt</string></array>
             <key>CFBundleTypeIconFile</key>
@@ -87,11 +87,11 @@
             <key>LSHandlerRank</key>
             <string>Owner</string>
             <key>LSItemContentTypes</key>
-            <array><string>com.alpcaner.signex.snxfpt</string></array>
+            <array><string>com.alpcaner.oxide.snxfpt</string></array>
         </dict>
         <dict>
             <key>CFBundleTypeName</key>
-            <string>Signex Simulation</string>
+            <string>Oxide Simulation</string>
             <key>CFBundleTypeExtensions</key>
             <array><string>snxsim</string></array>
             <key>CFBundleTypeIconFile</key>
@@ -101,11 +101,11 @@
             <key>LSHandlerRank</key>
             <string>Owner</string>
             <key>LSItemContentTypes</key>
-            <array><string>com.alpcaner.signex.snxsim</string></array>
+            <array><string>com.alpcaner.oxide.snxsim</string></array>
         </dict>
         <dict>
             <key>CFBundleTypeName</key>
-            <string>Signex Library</string>
+            <string>Oxide Library</string>
             <key>CFBundleTypeExtensions</key>
             <array><string>snxlib</string></array>
             <key>CFBundleTypeIconFile</key>
@@ -115,11 +115,11 @@
             <key>LSHandlerRank</key>
             <string>Owner</string>
             <key>LSItemContentTypes</key>
-            <array><string>com.alpcaner.signex.snxlib</string></array>
+            <array><string>com.alpcaner.oxide.snxlib</string></array>
         </dict>
         <dict>
             <key>CFBundleTypeName</key>
-            <string>Signex Symbol</string>
+            <string>Oxide Symbol</string>
             <key>CFBundleTypeExtensions</key>
             <array><string>snxsym</string></array>
             <key>CFBundleTypeIconFile</key>
@@ -129,11 +129,11 @@
             <key>LSHandlerRank</key>
             <string>Owner</string>
             <key>LSItemContentTypes</key>
-            <array><string>com.alpcaner.signex.snxsym</string></array>
+            <array><string>com.alpcaner.oxide.snxsym</string></array>
         </dict>
         <dict>
             <key>CFBundleTypeName</key>
-            <string>Signex Package</string>
+            <string>Oxide Package</string>
             <key>CFBundleTypeExtensions</key>
             <array><string>snxpkg</string></array>
             <key>CFBundleTypeIconFile</key>
@@ -143,11 +143,11 @@
             <key>LSHandlerRank</key>
             <string>Owner</string>
             <key>LSItemContentTypes</key>
-            <array><string>com.alpcaner.signex.snxpkg</string></array>
+            <array><string>com.alpcaner.oxide.snxpkg</string></array>
         </dict>
         <dict>
             <key>CFBundleTypeName</key>
-            <string>Signex PCB Material</string>
+            <string>Oxide PCB Material</string>
             <key>CFBundleTypeExtensions</key>
             <array><string>snxmat</string></array>
             <key>CFBundleTypeIconFile</key>
@@ -157,11 +157,11 @@
             <key>LSHandlerRank</key>
             <string>Owner</string>
             <key>LSItemContentTypes</key>
-            <array><string>com.alpcaner.signex.snxmat</string></array>
+            <array><string>com.alpcaner.oxide.snxmat</string></array>
         </dict>
         <dict>
             <key>CFBundleTypeName</key>
-            <string>Signex Config</string>
+            <string>Oxide Config</string>
             <key>CFBundleTypeExtensions</key>
             <array><string>snxcfg</string></array>
             <key>CFBundleTypeIconFile</key>
@@ -171,11 +171,11 @@
             <key>LSHandlerRank</key>
             <string>Owner</string>
             <key>LSItemContentTypes</key>
-            <array><string>com.alpcaner.signex.snxcfg</string></array>
+            <array><string>com.alpcaner.oxide.snxcfg</string></array>
         </dict>
         <dict>
             <key>CFBundleTypeName</key>
-            <string>Signex SPICE Model</string>
+            <string>Oxide SPICE Model</string>
             <key>CFBundleTypeExtensions</key>
             <array><string>snxmod</string></array>
             <key>CFBundleTypeIconFile</key>
@@ -185,19 +185,19 @@
             <key>LSHandlerRank</key>
             <string>Owner</string>
             <key>LSItemContentTypes</key>
-            <array><string>com.alpcaner.signex.snxmod</string></array>
+            <array><string>com.alpcaner.oxide.snxmod</string></array>
         </dict>
     </array>
-    <!-- Tell Launch Services that Signex owns these UTIs. Each
+    <!-- Tell Launch Services that Oxide owns these UTIs. Each
          declaration pairs the identifier with its extension + icon
          file so third-party apps can also reason about them. -->
     <key>UTExportedTypeDeclarations</key>
     <array>
         <dict>
             <key>UTTypeIdentifier</key>
-            <string>com.alpcaner.signex.snxprj</string>
+            <string>com.alpcaner.oxide.snxprj</string>
             <key>UTTypeDescription</key>
-            <string>Signex Project</string>
+            <string>Oxide Project</string>
             <key>UTTypeIconFile</key>
             <string>snxprj.icns</string>
             <key>UTTypeConformsTo</key>
@@ -210,9 +210,9 @@
         </dict>
         <dict>
             <key>UTTypeIdentifier</key>
-            <string>com.alpcaner.signex.snxsch</string>
+            <string>com.alpcaner.oxide.snxsch</string>
             <key>UTTypeDescription</key>
-            <string>Signex Schematic</string>
+            <string>Oxide Schematic</string>
             <key>UTTypeIconFile</key>
             <string>snxsch.icns</string>
             <key>UTTypeConformsTo</key>
@@ -225,9 +225,9 @@
         </dict>
         <dict>
             <key>UTTypeIdentifier</key>
-            <string>com.alpcaner.signex.snxpcb</string>
+            <string>com.alpcaner.oxide.snxpcb</string>
             <key>UTTypeDescription</key>
-            <string>Signex PCB</string>
+            <string>Oxide PCB</string>
             <key>UTTypeIconFile</key>
             <string>snxpcb.icns</string>
             <key>UTTypeConformsTo</key>
@@ -240,9 +240,9 @@
         </dict>
         <dict>
             <key>UTTypeIdentifier</key>
-            <string>com.alpcaner.signex.snxfpt</string>
+            <string>com.alpcaner.oxide.snxfpt</string>
             <key>UTTypeDescription</key>
-            <string>Signex Footprint</string>
+            <string>Oxide Footprint</string>
             <key>UTTypeIconFile</key>
             <string>snxfpt.icns</string>
             <key>UTTypeConformsTo</key>
@@ -255,9 +255,9 @@
         </dict>
         <dict>
             <key>UTTypeIdentifier</key>
-            <string>com.alpcaner.signex.snxsim</string>
+            <string>com.alpcaner.oxide.snxsim</string>
             <key>UTTypeDescription</key>
-            <string>Signex Simulation</string>
+            <string>Oxide Simulation</string>
             <key>UTTypeIconFile</key>
             <string>snxsim.icns</string>
             <key>UTTypeConformsTo</key>
@@ -270,9 +270,9 @@
         </dict>
         <dict>
             <key>UTTypeIdentifier</key>
-            <string>com.alpcaner.signex.snxlib</string>
+            <string>com.alpcaner.oxide.snxlib</string>
             <key>UTTypeDescription</key>
-            <string>Signex Library</string>
+            <string>Oxide Library</string>
             <key>UTTypeIconFile</key>
             <string>snxlib.icns</string>
             <key>UTTypeConformsTo</key>
@@ -285,9 +285,9 @@
         </dict>
         <dict>
             <key>UTTypeIdentifier</key>
-            <string>com.alpcaner.signex.snxsym</string>
+            <string>com.alpcaner.oxide.snxsym</string>
             <key>UTTypeDescription</key>
-            <string>Signex Symbol</string>
+            <string>Oxide Symbol</string>
             <key>UTTypeIconFile</key>
             <string>snxsym.icns</string>
             <key>UTTypeConformsTo</key>
@@ -300,9 +300,9 @@
         </dict>
         <dict>
             <key>UTTypeIdentifier</key>
-            <string>com.alpcaner.signex.snxpkg</string>
+            <string>com.alpcaner.oxide.snxpkg</string>
             <key>UTTypeDescription</key>
-            <string>Signex Package</string>
+            <string>Oxide Package</string>
             <key>UTTypeIconFile</key>
             <string>snxpkg.icns</string>
             <key>UTTypeConformsTo</key>
@@ -315,9 +315,9 @@
         </dict>
         <dict>
             <key>UTTypeIdentifier</key>
-            <string>com.alpcaner.signex.snxmat</string>
+            <string>com.alpcaner.oxide.snxmat</string>
             <key>UTTypeDescription</key>
-            <string>Signex PCB Material</string>
+            <string>Oxide PCB Material</string>
             <key>UTTypeIconFile</key>
             <string>snxmat.icns</string>
             <key>UTTypeConformsTo</key>
@@ -330,9 +330,9 @@
         </dict>
         <dict>
             <key>UTTypeIdentifier</key>
-            <string>com.alpcaner.signex.snxcfg</string>
+            <string>com.alpcaner.oxide.snxcfg</string>
             <key>UTTypeDescription</key>
-            <string>Signex Config</string>
+            <string>Oxide Config</string>
             <key>UTTypeIconFile</key>
             <string>snxcfg.icns</string>
             <key>UTTypeConformsTo</key>
@@ -345,9 +345,9 @@
         </dict>
         <dict>
             <key>UTTypeIdentifier</key>
-            <string>com.alpcaner.signex.snxmod</string>
+            <string>com.alpcaner.oxide.snxmod</string>
             <key>UTTypeDescription</key>
-            <string>Signex SPICE Model</string>
+            <string>Oxide SPICE Model</string>
             <key>UTTypeIconFile</key>
             <string>snxmod.icns</string>
             <key>UTTypeConformsTo</key>

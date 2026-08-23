@@ -1,4 +1,4 @@
-# cargo-deny configuration for signex
+# cargo-deny configuration for oxide
 #
 # Enforces Apache-clean licensing: the main repo's transitive dependency
 # closure may not contain GPL / AGPL / unlicensed crates.
@@ -52,7 +52,7 @@ license-files = [{ path = "LICENSE", hash = 0xbd0eed23 }]
 # Flipping to "deny" needs an enumerated `skip` list for those, generated and
 # verified with cargo-deny locally — tracked as CI hardening.
 multiple-versions = "warn"
-# `glyphon` was removed when signex-gfx moved onto iced's wgpu 27 + the
+# `glyphon` was removed when oxide-gfx moved onto iced's wgpu 27 + the
 # cryoglyph text shaper; re-adding it would relink a second wgpu/naga/
 # cosmic-text stack, so it is banned outright as a regression guard.
 deny = [{ name = "glyphon" }]

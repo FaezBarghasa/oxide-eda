@@ -2,123 +2,123 @@
 # A PR gets every `area:` label whose globs match its changed files.
 # Keep the label names in sync with the `area:` family in labels.yml.
 #
-# Note on tests: every crate except signex-app is matched by a crate-wide
+# Note on tests: every crate except oxide-app is matched by a crate-wide
 # `crates/<crate>/**` glob, which already covers its `tests/` directory.
-# signex-app cannot be matched crate-wide — it hosts most of the `area:`
+# oxide-app cannot be matched crate-wide — it hosts most of the `area:`
 # families — so its rules are `src/`-scoped, and its `tests/` needed
 # explicit globs or a tests-only PR arrived with no `area:` label at all.
 
 "area: footprint-editor":
   - changed-files:
       - any-glob-to-any-file:
-          - "crates/signex-app/src/library/editor/footprint/**"
-          - "crates/signex-app/src/panels/footprint_editor_properties/**"
-          - "crates/signex-app/tests/regression/library_*.rs"
-          - "crates/signex-app/tests/footprint_*.rs"
+          - "crates/oxide-app/src/library/editor/footprint/**"
+          - "crates/oxide-app/src/panels/footprint_editor_properties/**"
+          - "crates/oxide-app/tests/regression/library_*.rs"
+          - "crates/oxide-app/tests/footprint_*.rs"
 
 "area: symbol-editor":
   - changed-files:
       - any-glob-to-any-file:
-          - "crates/signex-app/src/library/editor/symbol/**"
-          - "crates/signex-app/tests/symbol_*.rs"
+          - "crates/oxide-app/src/library/editor/symbol/**"
+          - "crates/oxide-app/tests/symbol_*.rs"
 
 "area: library":
   - changed-files:
       - any-glob-to-any-file:
-          - "crates/signex-library/**"
-          - "crates/signex-library-server/**"
-          - "crates/signex-app/src/library/*.rs"
-          - "crates/signex-app/tests/distributor_*.rs"
+          - "crates/oxide-library/**"
+          - "crates/oxide-library-server/**"
+          - "crates/oxide-app/src/library/*.rs"
+          - "crates/oxide-app/tests/distributor_*.rs"
 
 "area: schematic":
   - changed-files:
       - any-glob-to-any-file:
-          - "crates/signex-app/src/schematic_runtime.rs"
-          - "crates/signex-app/src/find_replace.rs"
-          - "crates/signex-app/src/canvas/**"
+          - "crates/oxide-app/src/schematic_runtime.rs"
+          - "crates/oxide-app/src/find_replace.rs"
+          - "crates/oxide-app/src/canvas/**"
 
 "area: pcb":
   - changed-files:
       - any-glob-to-any-file:
-          - "crates/signex-app/src/pcb_canvas.rs"
+          - "crates/oxide-app/src/pcb_canvas.rs"
 
 "area: sketch":
   - changed-files:
       - any-glob-to-any-file:
-          - "crates/signex-sketch/**"
-          - "crates/signex-app/tests/sketch_*.rs"
-          - "crates/signex-app/tests/regression/sketch_*.rs"
+          - "crates/oxide-sketch/**"
+          - "crates/oxide-app/tests/sketch_*.rs"
+          - "crates/oxide-app/tests/regression/sketch_*.rs"
 
 "area: bake":
   - changed-files:
       - any-glob-to-any-file:
-          - "crates/signex-bake/**"
+          - "crates/oxide-bake/**"
 
 "area: erc":
   - changed-files:
       - any-glob-to-any-file:
-          - "crates/signex-erc/**"
-          - "crates/signex-erc-dsl/**"
+          - "crates/oxide-erc/**"
+          - "crates/oxide-erc-dsl/**"
 
 "area: bom":
   - changed-files:
       - any-glob-to-any-file:
-          - "crates/signex-bom/**"
+          - "crates/oxide-bom/**"
 
 "area: output":
   - changed-files:
       - any-glob-to-any-file:
-          - "crates/signex-output/**"
-          - "crates/signex-app/tests/export_*.rs"
+          - "crates/oxide-output/**"
+          - "crates/oxide-app/tests/export_*.rs"
 
 "area: rendering":
   - changed-files:
       - any-glob-to-any-file:
-          - "crates/signex-renderer/**"
-          - "crates/signex-gfx/**"
-          - "crates/signex-app/src/renderer_scene_canvas.rs"
-          - "crates/signex-app/src/render_config.rs"
+          - "crates/oxide-renderer/**"
+          - "crates/oxide-gfx/**"
+          - "crates/oxide-app/src/renderer_scene_canvas.rs"
+          - "crates/oxide-app/src/render_config.rs"
 
 "area: 3d":
   - changed-files:
       - any-glob-to-any-file:
-          - "crates/signex-3d-model-importer/**"
+          - "crates/oxide-3d-model-importer/**"
 
 "area: types":
   - changed-files:
       - any-glob-to-any-file:
-          - "crates/signex-types/**"
+          - "crates/oxide-types/**"
 
 "area: engine":
   - changed-files:
       - any-glob-to-any-file:
-          - "crates/signex-engine/**"
+          - "crates/oxide-engine/**"
 
 "area: widgets":
   - changed-files:
       - any-glob-to-any-file:
-          - "crates/signex-widgets/**"
+          - "crates/oxide-widgets/**"
           - "crates/chrome-catalog/**"
 
 "area: app":
   - changed-files:
       - any-glob-to-any-file:
-          - "crates/signex-app/src/app/**"
-          - "crates/signex-app/src/app.rs"
-          - "crates/signex-app/src/main.rs"
-          - "crates/signex-app/src/menu_bar.rs"
-          - "crates/signex-app/src/toolbar.rs"
-          - "crates/signex-app/src/active_bar.rs"
-          - "crates/signex-app/src/tab_bar.rs"
-          - "crates/signex-app/src/status_bar.rs"
-          - "crates/signex-app/src/dock/**"
-          - "crates/signex-app/src/chrome.rs"
-          - "crates/signex-app/src/preferences.rs"
-          - "crates/signex-app/src/undo.rs"
-          # Catch-all so no signex-app test change lands untriaged. The
+          - "crates/oxide-app/src/app/**"
+          - "crates/oxide-app/src/app.rs"
+          - "crates/oxide-app/src/main.rs"
+          - "crates/oxide-app/src/menu_bar.rs"
+          - "crates/oxide-app/src/toolbar.rs"
+          - "crates/oxide-app/src/active_bar.rs"
+          - "crates/oxide-app/src/tab_bar.rs"
+          - "crates/oxide-app/src/status_bar.rs"
+          - "crates/oxide-app/src/dock/**"
+          - "crates/oxide-app/src/chrome.rs"
+          - "crates/oxide-app/src/preferences.rs"
+          - "crates/oxide-app/src/undo.rs"
+          # Catch-all so no oxide-app test change lands untriaged. The
           # more specific globs above add their own area on top; a PR can
           # carry several.
-          - "crates/signex-app/tests/**"
+          - "crates/oxide-app/tests/**"
 
 "area: infra":
   - changed-files:

@@ -1,14 +1,14 @@
 #!/bin/bash
-# Build a macOS DMG installer from a compiled signex binary.
+# Build a macOS DMG installer from a compiled oxide binary.
 #
 # Invocation from CI:
 #   installer/macos/build-dmg.sh <binary_path> <version> <arch>
 #
-#   <binary_path> — path to the compiled signex binary
+#   <binary_path> — path to the compiled oxide binary
 #   <version>     — version string without the leading "v"
 #   <arch>        — "aarch64" or "x86_64"
 #
-# Output: signex-macos-<arch>-<version>.dmg in the CWD.
+# Output: oxide-macos-<arch>-<version>.dmg in the CWD.
 
 set -euo pipefail
 
@@ -19,7 +19,7 @@ ARCH="${3:?missing arch}"
 WORK_DIR="$(mktemp -d)"
 trap 'rm -rf "$WORK_DIR"' EXIT
 
-APP_BUNDLE="$WORK_DIR/Signex.app"
+APP_BUNDLE="$WORK_DIR/Oxide.app"
 CONTENTS="$APP_BUNDLE/Contents"
 MACOS="$CONTENTS/MacOS"
 RESOURCES="$CONTENTS/Resources"
@@ -27,24 +27,24 @@ RESOURCES="$CONTENTS/Resources"
 mkdir -p "$MACOS" "$RESOURCES"
 
 # Binary goes into MacOS/, named exactly what Info.plist CFBundleExecutable says.
-cp "$BINARY_PATH" "$MACOS/signex"
-chmod +x "$MACOS/signex"
+cp "$BINARY_PATH" "$MACOS/oxide"
+chmod +x "$MACOS/oxide"
 
 # Info.plist with version substituted.
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 sed "s/__VERSION__/$VERSION/g" "$SCRIPT_DIR/Info.plist" > "$CONTENTS/Info.plist"
 
-# Optional icon — drop a Signex.icns next to build-dmg.sh to include it.
-if [[ -f "$SCRIPT_DIR/Signex.icns" ]]; then
-    cp "$SCRIPT_DIR/Signex.icns" "$RESOURCES/Signex.icns"
+# Optional icon — drop a Oxide.icns next to build-dmg.sh to include it.
+if [[ -f "$SCRIPT_DIR/Oxide.icns" ]]; then
+    cp "$SCRIPT_DIR/Oxide.icns" "$RESOURCES/Oxide.icns"
     # Patch Info.plist to reference it.
-    /usr/libexec/PlistBuddy -c "Add :CFBundleIconFile string Signex" "$CONTENTS/Info.plist" || true
+    /usr/libexec/PlistBuddy -c "Add :CFBundleIconFile string Oxide" "$CONTENTS/Info.plist" || true
 fi
 
 # Ad-hoc codesign the bundle.
 #
 # Apple Silicon (arm64) macOS refuses to launch any executable that
-# isn't at least ad-hoc signed — the user sees "Signex is damaged and
+# isn't at least ad-hoc signed — the user sees "Oxide is damaged and
 # can't be opened" or "cannot be verified" (issue #49 on an M3 Pro).
 # Ad-hoc signing (`--sign -`) doesn't need a Developer ID certificate
 # and doesn't vouch for origin, but it's enough for the kernel to
@@ -62,14 +62,14 @@ codesign --force --deep --sign - "$APP_BUNDLE"
 # the user can drag-and-drop to install.
 DMG_STAGING="$WORK_DIR/dmg-staging"
 mkdir -p "$DMG_STAGING"
-cp -R "$APP_BUNDLE" "$DMG_STAGING/Signex.app"
+cp -R "$APP_BUNDLE" "$DMG_STAGING/Oxide.app"
 ln -s /Applications "$DMG_STAGING/Applications"
 
-OUTPUT="signex-macos-$ARCH-$VERSION.dmg"
+OUTPUT="oxide-macos-$ARCH-$VERSION.dmg"
 rm -f "$OUTPUT"
 
 hdiutil create \
-    -volname "Signex $VERSION" \
+    -volname "Oxide $VERSION" \
     -srcfolder "$DMG_STAGING" \
     -ov \
     -format UDZO \

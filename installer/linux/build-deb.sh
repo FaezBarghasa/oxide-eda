@@ -1,6 +1,6 @@
 #!/bin/bash
-# Build a Debian .deb package from a compiled signex binary.
-# Produces: signex_<version>_<arch>.deb (Debian naming convention).
+# Build a Debian .deb package from a compiled oxide binary.
+# Produces: oxide_<version>_<arch>.deb (Debian naming convention).
 #
 # Invocation:
 #   installer/linux/build-deb.sh <binary_path> <version> <arch>
@@ -17,7 +17,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 WORK_DIR="$(mktemp -d)"
 trap 'rm -rf "$WORK_DIR"' EXIT
 
-PKG_DIR="$WORK_DIR/signex_${VERSION}_${ARCH}"
+PKG_DIR="$WORK_DIR/oxide_${VERSION}_${ARCH}"
 mkdir -p "$PKG_DIR/DEBIAN"
 mkdir -p "$PKG_DIR/usr/bin"
 mkdir -p "$PKG_DIR/usr/share/applications"
@@ -27,91 +27,91 @@ mkdir -p "$PKG_DIR/usr/share/icons/hicolor/512x512/apps"
 mkdir -p "$PKG_DIR/usr/share/icons/hicolor/scalable/apps"
 mkdir -p "$PKG_DIR/usr/share/icons/hicolor/scalable/mimetypes"
 mkdir -p "$PKG_DIR/usr/share/mime/packages"
-mkdir -p "$PKG_DIR/usr/share/doc/signex"
+mkdir -p "$PKG_DIR/usr/share/doc/oxide"
 
-cp "$BINARY_PATH" "$PKG_DIR/usr/bin/signex"
-chmod 755 "$PKG_DIR/usr/bin/signex"
+cp "$BINARY_PATH" "$PKG_DIR/usr/bin/oxide"
+chmod 755 "$PKG_DIR/usr/bin/oxide"
 
-# Signex application icons for desktop launchers. The desktop entry
-# below uses Icon=signex, so hicolor app icons must be installed under
+# Oxide application icons for desktop launchers. The desktop entry
+# below uses Icon=oxide, so hicolor app icons must be installed under
 # the matching basename at each available size.
-cp "$SCRIPT_DIR/signex-128.png" "$PKG_DIR/usr/share/icons/hicolor/128x128/apps/signex.png"
-cp "$SCRIPT_DIR/signex-256.png" "$PKG_DIR/usr/share/icons/hicolor/256x256/apps/signex.png"
-cp "$SCRIPT_DIR/signex-512.png" "$PKG_DIR/usr/share/icons/hicolor/512x512/apps/signex.png"
+cp "$SCRIPT_DIR/oxide-128.png" "$PKG_DIR/usr/share/icons/hicolor/128x128/apps/oxide.png"
+cp "$SCRIPT_DIR/oxide-256.png" "$PKG_DIR/usr/share/icons/hicolor/256x256/apps/oxide.png"
+cp "$SCRIPT_DIR/oxide-512.png" "$PKG_DIR/usr/share/icons/hicolor/512x512/apps/oxide.png"
 
-# Signex file-format icons (SVG) — Linux uses the SVG source
+# Oxide file-format icons (SVG) — Linux uses the SVG source
 # directly, scaled by the desktop environment. Names follow the
 # freedesktop.org MIME-icon convention
-# `application-vnd.alpcaner.signex.<ext>.svg` so the
+# `application-vnd.alpcaner.oxide.<ext>.svg` so the
 # hicolor-scalable theme pairs them with the MIME types declared
 # below.
 REPO_ROOT_FOR_ICONS="$(cd "$SCRIPT_DIR/../.." && pwd)"
-FILE_ICON_DIR="$REPO_ROOT_FOR_ICONS/crates/signex-app/assets/icons/files"
+FILE_ICON_DIR="$REPO_ROOT_FOR_ICONS/crates/oxide-app/assets/icons/files"
 for ext in snxprj snxsch snxpcb snxfpt snxsim snxlib snxsym snxpkg snxmat snxcfg snxmod; do
   src="$FILE_ICON_DIR/$ext.svg"
   if [[ -f "$src" ]]; then
-    cp "$src" "$PKG_DIR/usr/share/icons/hicolor/scalable/mimetypes/application-vnd.alpcaner.signex.$ext.svg"
+    cp "$src" "$PKG_DIR/usr/share/icons/hicolor/scalable/mimetypes/application-vnd.alpcaner.oxide.$ext.svg"
   fi
 done
 
-# freedesktop.org MIME XML — one glob per Signex extension.
-cat > "$PKG_DIR/usr/share/mime/packages/signex.xml" <<MIME_EOF
+# freedesktop.org MIME XML — one glob per Oxide extension.
+cat > "$PKG_DIR/usr/share/mime/packages/oxide.xml" <<MIME_EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
-  <mime-type type="application/vnd.alpcaner.signex.snxprj">
-    <comment>Signex Project</comment>
+  <mime-type type="application/vnd.alpcaner.oxide.snxprj">
+    <comment>Oxide Project</comment>
     <glob pattern="*.snxprj"/>
-    <icon name="application-vnd.alpcaner.signex.snxprj"/>
+    <icon name="application-vnd.alpcaner.oxide.snxprj"/>
   </mime-type>
-  <mime-type type="application/vnd.alpcaner.signex.snxsch">
-    <comment>Signex Schematic</comment>
+  <mime-type type="application/vnd.alpcaner.oxide.snxsch">
+    <comment>Oxide Schematic</comment>
     <glob pattern="*.snxsch"/>
-    <icon name="application-vnd.alpcaner.signex.snxsch"/>
+    <icon name="application-vnd.alpcaner.oxide.snxsch"/>
   </mime-type>
-  <mime-type type="application/vnd.alpcaner.signex.snxpcb">
-    <comment>Signex PCB</comment>
+  <mime-type type="application/vnd.alpcaner.oxide.snxpcb">
+    <comment>Oxide PCB</comment>
     <glob pattern="*.snxpcb"/>
-    <icon name="application-vnd.alpcaner.signex.snxpcb"/>
+    <icon name="application-vnd.alpcaner.oxide.snxpcb"/>
   </mime-type>
-  <mime-type type="application/vnd.alpcaner.signex.snxfpt">
-    <comment>Signex Footprint</comment>
+  <mime-type type="application/vnd.alpcaner.oxide.snxfpt">
+    <comment>Oxide Footprint</comment>
     <glob pattern="*.snxfpt"/>
-    <icon name="application-vnd.alpcaner.signex.snxfpt"/>
+    <icon name="application-vnd.alpcaner.oxide.snxfpt"/>
   </mime-type>
-  <mime-type type="application/vnd.alpcaner.signex.snxsim">
-    <comment>Signex Simulation</comment>
+  <mime-type type="application/vnd.alpcaner.oxide.snxsim">
+    <comment>Oxide Simulation</comment>
     <glob pattern="*.snxsim"/>
-    <icon name="application-vnd.alpcaner.signex.snxsim"/>
+    <icon name="application-vnd.alpcaner.oxide.snxsim"/>
   </mime-type>
-  <mime-type type="application/vnd.alpcaner.signex.snxlib">
-    <comment>Signex Library</comment>
+  <mime-type type="application/vnd.alpcaner.oxide.snxlib">
+    <comment>Oxide Library</comment>
     <glob pattern="*.snxlib"/>
-    <icon name="application-vnd.alpcaner.signex.snxlib"/>
+    <icon name="application-vnd.alpcaner.oxide.snxlib"/>
   </mime-type>
-  <mime-type type="application/vnd.alpcaner.signex.snxsym">
-    <comment>Signex Symbol</comment>
+  <mime-type type="application/vnd.alpcaner.oxide.snxsym">
+    <comment>Oxide Symbol</comment>
     <glob pattern="*.snxsym"/>
-    <icon name="application-vnd.alpcaner.signex.snxsym"/>
+    <icon name="application-vnd.alpcaner.oxide.snxsym"/>
   </mime-type>
-  <mime-type type="application/vnd.alpcaner.signex.snxpkg">
-    <comment>Signex Package</comment>
+  <mime-type type="application/vnd.alpcaner.oxide.snxpkg">
+    <comment>Oxide Package</comment>
     <glob pattern="*.snxpkg"/>
-    <icon name="application-vnd.alpcaner.signex.snxpkg"/>
+    <icon name="application-vnd.alpcaner.oxide.snxpkg"/>
   </mime-type>
-  <mime-type type="application/vnd.alpcaner.signex.snxmat">
-    <comment>Signex PCB Material</comment>
+  <mime-type type="application/vnd.alpcaner.oxide.snxmat">
+    <comment>Oxide PCB Material</comment>
     <glob pattern="*.snxmat"/>
-    <icon name="application-vnd.alpcaner.signex.snxmat"/>
+    <icon name="application-vnd.alpcaner.oxide.snxmat"/>
   </mime-type>
-  <mime-type type="application/vnd.alpcaner.signex.snxcfg">
-    <comment>Signex Config</comment>
+  <mime-type type="application/vnd.alpcaner.oxide.snxcfg">
+    <comment>Oxide Config</comment>
     <glob pattern="*.snxcfg"/>
-    <icon name="application-vnd.alpcaner.signex.snxcfg"/>
+    <icon name="application-vnd.alpcaner.oxide.snxcfg"/>
   </mime-type>
-  <mime-type type="application/vnd.alpcaner.signex.snxmod">
-    <comment>Signex SPICE Model</comment>
+  <mime-type type="application/vnd.alpcaner.oxide.snxmod">
+    <comment>Oxide SPICE Model</comment>
     <glob pattern="*.snxmod"/>
-    <icon name="application-vnd.alpcaner.signex.snxmod"/>
+    <icon name="application-vnd.alpcaner.oxide.snxmod"/>
   </mime-type>
 </mime-info>
 MIME_EOF
@@ -120,7 +120,7 @@ MIME_EOF
 # computes the actual compressed size when it builds.
 INSTALLED_SIZE=$(du -sk "$PKG_DIR/usr" | cut -f1)
 cat > "$PKG_DIR/DEBIAN/control" <<CONTROL_EOF
-Package: signex
+Package: oxide
 Version: $VERSION
 Section: electronics
 Priority: optional
@@ -128,25 +128,25 @@ Architecture: $ARCH
 Depends: libc6, libgcc-s1, libxkbcommon0, libxkbcommon-x11-0, libwayland-client0, libx11-6, libxcursor1, libxrandr2, libxi6, libxinerama1, libvulkan1
 Installed-Size: $INSTALLED_SIZE
 Maintainer: alpCaner <alpcaner92@gmail.com>
-Homepage: https://github.com/alplabai/signex
+Homepage: https://github.com/alplabai/oxide
 Description: AI-first EDA editor
- Signex is an electronics design automation editor with an
+ Oxide is an electronics design automation editor with an
  Altium-inspired interaction layer and native `.snx***` file
  formats.
 CONTROL_EOF
 
-# .desktop entry for menu integration. MimeType covers the Signex
-# native extensions declared in `usr/share/mime/packages/signex.xml`.
-cat > "$PKG_DIR/usr/share/applications/signex.desktop" <<DESKTOP_EOF
+# .desktop entry for menu integration. MimeType covers the Oxide
+# native extensions declared in `usr/share/mime/packages/oxide.xml`.
+cat > "$PKG_DIR/usr/share/applications/oxide.desktop" <<DESKTOP_EOF
 [Desktop Entry]
 Type=Application
-Name=Signex
+Name=Oxide
 Comment=AI-first EDA editor
-Exec=/usr/bin/signex %F
-Icon=signex
+Exec=/usr/bin/oxide %F
+Icon=oxide
 Terminal=false
 Categories=Development;Electronics;Engineering;
-MimeType=application/vnd.alpcaner.signex.snxprj;application/vnd.alpcaner.signex.snxsch;application/vnd.alpcaner.signex.snxpcb;application/vnd.alpcaner.signex.snxfpt;application/vnd.alpcaner.signex.snxsim;application/vnd.alpcaner.signex.snxlib;application/vnd.alpcaner.signex.snxsym;application/vnd.alpcaner.signex.snxpkg;application/vnd.alpcaner.signex.snxmat;application/vnd.alpcaner.signex.snxcfg;application/vnd.alpcaner.signex.snxmod;
+MimeType=application/vnd.alpcaner.oxide.snxprj;application/vnd.alpcaner.oxide.snxsch;application/vnd.alpcaner.oxide.snxpcb;application/vnd.alpcaner.oxide.snxfpt;application/vnd.alpcaner.oxide.snxsim;application/vnd.alpcaner.oxide.snxlib;application/vnd.alpcaner.oxide.snxsym;application/vnd.alpcaner.oxide.snxpkg;application/vnd.alpcaner.oxide.snxmat;application/vnd.alpcaner.oxide.snxcfg;application/vnd.alpcaner.oxide.snxmod;
 StartupNotify=true
 DESKTOP_EOF
 
@@ -188,14 +188,14 @@ chmod 755 "$PKG_DIR/DEBIAN/postrm"
 
 # README copied into the docs dir — Debian policy expects at least a
 # changelog, but a short README keeps the lintian warning small.
-cat > "$PKG_DIR/usr/share/doc/signex/README.Debian" <<DOC_EOF
-Signex $VERSION
+cat > "$PKG_DIR/usr/share/doc/oxide/README.Debian" <<DOC_EOF
+Oxide $VERSION
 ---------------
-Installed by signex_${VERSION}_${ARCH}.deb.
-Report issues at https://github.com/alplabai/signex/issues.
+Installed by oxide_${VERSION}_${ARCH}.deb.
+Report issues at https://github.com/alplabai/oxide/issues.
 DOC_EOF
 
-OUTPUT="signex_${VERSION}_${ARCH}.deb"
+OUTPUT="oxide_${VERSION}_${ARCH}.deb"
 rm -f "$OUTPUT"
 
 # --root-owner-group emits root:root for every file, which lintian requires.

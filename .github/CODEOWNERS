@@ -7,9 +7,9 @@
 *                                               @hkngln @alpCaner
 
 # Footprint editor, sketch geometry, and pad baking — Caner's domain.
-/crates/signex-sketch/                          @alpCaner
-/crates/signex-bake/                            @alpCaner
-/crates/signex-app/src/library/editor/footprint/ @alpCaner
+/crates/oxide-sketch/                          @alpCaner
+/crates/oxide-bake/                            @alpCaner
+/crates/oxide-app/src/library/editor/footprint/ @alpCaner
 
 # CI, licensing, and repo governance — Hakan's domain.
 /.github/                                        @hkngln

@@ -23,8 +23,8 @@ policy (and the same settings in prose, for audit) lives in
 > either file, re-apply it** (see below) and verify:
 >
 > ```sh
-> gh api repos/alplabai/signex/rules/branches/trunk
-> gh api repos/alplabai/signex/rules/branches/main
+> gh api repos/alplabai/oxide/rules/branches/trunk
+> gh api repos/alplabai/oxide/rules/branches/main
 > ```
 
 ## What they enforce
@@ -59,15 +59,15 @@ choose the JSON → set enforcement to **Active** → save.
 Or, to create one:
 
 ```sh
-gh api repos/alplabai/signex/rulesets --method POST \
+gh api repos/alplabai/oxide/rulesets --method POST \
   --input .github/rulesets/trunk-protection.json
 ```
 
 To update a ruleset in place after editing its file (`<id>` from
-`gh api repos/alplabai/signex/rulesets`):
+`gh api repos/alplabai/oxide/rulesets`):
 
 ```sh
-gh api repos/alplabai/signex/rulesets/<id> --method PUT \
+gh api repos/alplabai/oxide/rulesets/<id> --method PUT \
   --input .github/rulesets/main-protection.json
 ```
 
@@ -83,7 +83,7 @@ Check the contexts against a **pull-request** run, not a `trunk` commit —
 absent from push-event check-runs:
 
 ```sh
-gh api repos/alplabai/signex/commits/<pr-head-sha>/check-runs -q '.check_runs[].name'
+gh api repos/alplabai/oxide/commits/<pr-head-sha>/check-runs -q '.check_runs[].name'
 ```
 
 ## Tuning notes

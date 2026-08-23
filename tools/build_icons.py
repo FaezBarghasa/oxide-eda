@@ -1,13 +1,13 @@
 """Pure-Python fallback for installer/build-icons.sh.
 
-Renders signex-mark.svg to platform icon bitmaps using resvg_py (no native
+Renders oxide-mark.svg to platform icon bitmaps using resvg_py (no native
 Cairo/ImageMagick/Inkscape dependency). Produces the same outputs as the
 bash script:
-    installer/windows/signex.ico
-    installer/macos/Signex.icns
-    installer/linux/signex-{128,256,512}.png
-    crates/signex-app/assets/brand/generated/signex-{256,512}.png
-    crates/signex-app/assets/brand/generated/signex.ico
+    installer/windows/oxide.ico
+    installer/macos/Oxide.icns
+    installer/linux/oxide-{128,256,512}.png
+    crates/oxide-app/assets/brand/generated/oxide-{256,512}.png
+    crates/oxide-app/assets/brand/generated/oxide.ico
 
 Usage:
     py tools/build_icons.py
@@ -26,18 +26,18 @@ from PIL import Image
 from resvg_py import svg_to_bytes
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SRC = REPO_ROOT / "crates" / "signex-app" / "assets" / "brand" / "signex-mark.svg"
+SRC = REPO_ROOT / "crates" / "oxide-app" / "assets" / "brand" / "oxide-mark.svg"
 WIN_DIR = REPO_ROOT / "installer" / "windows"
 MAC_DIR = REPO_ROOT / "installer" / "macos"
 LIN_DIR = REPO_ROOT / "installer" / "linux"
-GEN_DIR = REPO_ROOT / "crates" / "signex-app" / "assets" / "brand" / "generated"
+GEN_DIR = REPO_ROOT / "crates" / "oxide-app" / "assets" / "brand" / "generated"
 
 SIZES = [16, 32, 48, 64, 128, 256, 512, 1024]
 ICO_SIZES = [16, 32, 48, 64, 128, 256]
 
 
 def render(size: int) -> bytes:
-    """Rasterize signex-mark.svg to a PNG at size×size. Returns PNG bytes."""
+    """Rasterize oxide-mark.svg to a PNG at size×size. Returns PNG bytes."""
     # resvg_py returns a list of ints (byte values). Convert to bytes.
     data = svg_to_bytes(svg_path=str(SRC), width=size, height=size)
     return bytes(data)
@@ -92,20 +92,20 @@ def main() -> int:
         pngs[sz] = render(sz)
 
     # Canonical PNGs for runtime embedding / Linux desktop files.
-    (GEN_DIR / "signex-256.png").write_bytes(pngs[256])
-    (GEN_DIR / "signex-512.png").write_bytes(pngs[512])
-    (LIN_DIR / "signex-128.png").write_bytes(pngs[128])
-    (LIN_DIR / "signex-256.png").write_bytes(pngs[256])
-    (LIN_DIR / "signex-512.png").write_bytes(pngs[512])
+    (GEN_DIR / "oxide-256.png").write_bytes(pngs[256])
+    (GEN_DIR / "oxide-512.png").write_bytes(pngs[512])
+    (LIN_DIR / "oxide-128.png").write_bytes(pngs[128])
+    (LIN_DIR / "oxide-256.png").write_bytes(pngs[256])
+    (LIN_DIR / "oxide-512.png").write_bytes(pngs[512])
 
     # Windows ICO.
-    ico_path = WIN_DIR / "signex.ico"
+    ico_path = WIN_DIR / "oxide.ico"
     print(f"writing {ico_path.relative_to(REPO_ROOT)}")
     build_ico(pngs, ico_path)
-    shutil.copy2(ico_path, GEN_DIR / "signex.ico")
+    shutil.copy2(ico_path, GEN_DIR / "oxide.ico")
 
     # macOS ICNS.
-    icns_path = MAC_DIR / "Signex.icns"
+    icns_path = MAC_DIR / "Oxide.icns"
     print(f"writing {icns_path.relative_to(REPO_ROOT)}")
     build_icns(pngs, icns_path)
 

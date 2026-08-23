@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 #
-# Regenerate platform icon bitmaps from crates/signex-app/assets/brand/signex.svg.
+# Regenerate platform icon bitmaps from crates/oxide-app/assets/brand/oxide.svg.
 #
 # Outputs:
-#   installer/windows/signex.ico            — multi-size ICO (16..256)
-#   installer/macos/Signex.icns             — macOS icon set
-#   installer/linux/signex-{128,256,512}.png — Linux PNGs for .desktop files
+#   installer/windows/oxide.ico            — multi-size ICO (16..256)
+#   installer/macos/Oxide.icns             — macOS icon set
+#   installer/linux/oxide-{128,256,512}.png — Linux PNGs for .desktop files
 #
 # Requires one of (in order of preference):
 #   - rsvg-convert (librsvg)     — best SVG fidelity
@@ -18,10 +18,10 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-# Rasterize from signex-mark.svg (tight-cropped, guaranteed-square viewBox).
-# signex.svg may have a rectangular viewBox after edits in Inkscape/Illustrator,
+# Rasterize from oxide-mark.svg (tight-cropped, guaranteed-square viewBox).
+# oxide.svg may have a rectangular viewBox after edits in Inkscape/Illustrator,
 # which would stretch square bitmaps.
-SRC="$REPO_ROOT/crates/signex-app/assets/brand/signex-mark.svg"
+SRC="$REPO_ROOT/crates/oxide-app/assets/brand/oxide-mark.svg"
 
 if [[ ! -f "$SRC" ]]; then
   echo "error: source SVG not found at $SRC" >&2
@@ -31,7 +31,7 @@ fi
 WIN_DIR="$REPO_ROOT/installer/windows"
 MAC_DIR="$REPO_ROOT/installer/macos"
 LIN_DIR="$REPO_ROOT/installer/linux"
-GEN_DIR="$REPO_ROOT/crates/signex-app/assets/brand/generated"
+GEN_DIR="$REPO_ROOT/crates/oxide-app/assets/brand/generated"
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
@@ -96,30 +96,30 @@ render_png() {
 SIZES=(16 32 48 64 128 256 512 1024)
 declare -A PNGS
 for s in "${SIZES[@]}"; do
-  out="$TMP_DIR/signex-${s}.png"
+  out="$TMP_DIR/oxide-${s}.png"
   echo "  render ${s}×${s} -> $out"
   render_png "$s" "$out"
   PNGS[$s]="$out"
 done
 
 # Also keep a canonical 256 and 512 next to the app crate for runtime use.
-cp "${PNGS[256]}" "$GEN_DIR/signex-256.png"
-cp "${PNGS[512]}" "$GEN_DIR/signex-512.png"
+cp "${PNGS[256]}" "$GEN_DIR/oxide-256.png"
+cp "${PNGS[512]}" "$GEN_DIR/oxide-512.png"
 
 # Windows .ico — multi-size. Prefer ImageMagick; fall back to Python + Pillow.
-echo "building $WIN_DIR/signex.ico"
+echo "building $WIN_DIR/oxide.ico"
 ICO_DONE=0
 if command -v magick >/dev/null 2>&1; then
   magick "${PNGS[16]}" "${PNGS[32]}" "${PNGS[48]}" "${PNGS[64]}" "${PNGS[128]}" "${PNGS[256]}" \
-         "$WIN_DIR/signex.ico" && ICO_DONE=1
+         "$WIN_DIR/oxide.ico" && ICO_DONE=1
 elif is_real_imagemagick_convert; then
   convert "${PNGS[16]}" "${PNGS[32]}" "${PNGS[48]}" "${PNGS[64]}" "${PNGS[128]}" "${PNGS[256]}" \
-          "$WIN_DIR/signex.ico" && ICO_DONE=1
+          "$WIN_DIR/oxide.ico" && ICO_DONE=1
 fi
 if [[ $ICO_DONE -eq 0 ]] && command -v python >/dev/null 2>&1; then
   # Build the ICO by embedding each size's natively-rendered PNG directly —
   # sharper than asking Pillow to downsample one large PNG to all sizes.
-  python - "$WIN_DIR/signex.ico" \
+  python - "$WIN_DIR/oxide.ico" \
     "${PNGS[16]}" "${PNGS[32]}" "${PNGS[48]}" "${PNGS[64]}" "${PNGS[128]}" "${PNGS[256]}" <<'PY'
 import struct, sys
 from pathlib import Path
@@ -159,11 +159,11 @@ if [[ $ICO_DONE -eq 0 ]]; then
 fi
 
 # Also stash in the generated folder for winres embedding.
-cp -f "$WIN_DIR/signex.ico" "$GEN_DIR/signex.ico" 2>/dev/null || true
+cp -f "$WIN_DIR/oxide.ico" "$GEN_DIR/oxide.ico" 2>/dev/null || true
 
 # macOS .icns.
-echo "building $MAC_DIR/Signex.icns"
-ICONSET="$TMP_DIR/Signex.iconset"
+echo "building $MAC_DIR/Oxide.icns"
+ICONSET="$TMP_DIR/Oxide.iconset"
 mkdir -p "$ICONSET"
 # Apple iconset naming: icon_<size>x<size>[@2x].png
 cp "${PNGS[16]}"   "$ICONSET/icon_16x16.png"
@@ -179,16 +179,16 @@ cp "${PNGS[1024]}" "$ICONSET/icon_512x512@2x.png"
 
 ICNS_DONE=0
 if command -v iconutil >/dev/null 2>&1; then
-  iconutil -c icns "$ICONSET" -o "$MAC_DIR/Signex.icns" && ICNS_DONE=1
+  iconutil -c icns "$ICONSET" -o "$MAC_DIR/Oxide.icns" && ICNS_DONE=1
 elif command -v png2icns >/dev/null 2>&1; then
-  png2icns "$MAC_DIR/Signex.icns" "${PNGS[16]}" "${PNGS[32]}" "${PNGS[48]}" \
+  png2icns "$MAC_DIR/Oxide.icns" "${PNGS[16]}" "${PNGS[32]}" "${PNGS[48]}" \
            "${PNGS[128]}" "${PNGS[256]}" "${PNGS[512]}" && ICNS_DONE=1
 elif command -v magick >/dev/null 2>&1; then
   magick "${PNGS[16]}" "${PNGS[32]}" "${PNGS[128]}" "${PNGS[256]}" "${PNGS[512]}" \
-         "$MAC_DIR/Signex.icns" && ICNS_DONE=1
+         "$MAC_DIR/Oxide.icns" && ICNS_DONE=1
 fi
 if [[ $ICNS_DONE -eq 0 ]] && command -v python >/dev/null 2>&1; then
-  python - "$MAC_DIR/Signex.icns" "${PNGS[16]}" "${PNGS[32]}" "${PNGS[64]}" "${PNGS[128]}" "${PNGS[256]}" "${PNGS[512]}" "${PNGS[1024]}" <<'PY'
+  python - "$MAC_DIR/Oxide.icns" "${PNGS[16]}" "${PNGS[32]}" "${PNGS[64]}" "${PNGS[128]}" "${PNGS[256]}" "${PNGS[512]}" "${PNGS[1024]}" <<'PY'
 import sys
 from PIL import Image
 out, *ins = sys.argv[1:]
@@ -204,8 +204,8 @@ fi
 
 # Linux PNGs for .desktop files.
 echo "copying Linux PNGs to $LIN_DIR"
-cp "${PNGS[128]}" "$LIN_DIR/signex-128.png"
-cp "${PNGS[256]}" "$LIN_DIR/signex-256.png"
-cp "${PNGS[512]}" "$LIN_DIR/signex-512.png"
+cp "${PNGS[128]}" "$LIN_DIR/oxide-128.png"
+cp "${PNGS[256]}" "$LIN_DIR/oxide-256.png"
+cp "${PNGS[512]}" "$LIN_DIR/oxide-512.png"
 
 echo "done."
