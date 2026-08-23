@@ -98,7 +98,7 @@ pub struct InteractionState {
     pub selection_filters: std::collections::HashSet<crate::active_bar::SelectionFilter>,
     /// User-defined custom filter presets (capped at
     /// `crate::active_bar::CUSTOM_FILTER_PRESET_LIMIT`). Loaded from
-    /// `~/.config/signex/prefs.json` on launch and written back when
+    /// `~/.config/oxide/prefs.json` on launch and written back when
     /// edited from the Properties panel.
     pub custom_filter_presets: Vec<crate::active_bar::CustomFilterPreset>,
     /// Index of the active preset tab in the Properties-panel editor.
@@ -107,7 +107,7 @@ pub struct InteractionState {
     pub active_custom_filter_tab: usize,
     /// User-defined footprint-editor filter presets (capped at
     /// `crate::active_bar::CUSTOM_FILTER_PRESET_LIMIT`). Loaded from
-    /// `~/.config/signex/prefs.json` on launch; parallel to
+    /// `~/.config/oxide/prefs.json` on launch; parallel to
     /// `custom_filter_presets` but keyed on `SelectionFilterKind`
     /// (footprint categories) instead of the schematic
     /// `SelectionFilter` (Task 6).

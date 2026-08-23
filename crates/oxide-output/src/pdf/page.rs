@@ -54,7 +54,7 @@ impl PageSize {
         } else if lower.contains("landscape") {
             Orientation::Landscape
         } else {
-            // Signex schematic editor and panel defaults are landscape.
+            // Oxide schematic editor and panel defaults are landscape.
             Orientation::Landscape
         }
     }

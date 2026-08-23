@@ -3,4 +3,4 @@
 -- read-only view for tooling and humans browsing the source tree.
 
 -- For schema definition, refer to:
---   crates/signex-library-server/migrations/0001_initial.sql
+--   crates/oxide-library-server/migrations/0001_initial.sql

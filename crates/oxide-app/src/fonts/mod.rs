@@ -1,13 +1,13 @@
-//! Font management for Signex.
+//! Font management for Oxide.
 //!
 //! Responsibilities:
 //! - Enumerate system font families using fontdb (done once, cached).
 //! - Provide the canonical canvas font constant (Iosevka).
 //! - Read / write the UI font preference from a simple JSON config file.
 //!
-//! Config file: OS-canonical config dir (`%APPDATA%\signex\prefs.json`
-//! on Windows, `~/Library/Application Support/signex/prefs.json` on
-//! macOS, `$XDG_CONFIG_HOME/signex/prefs.json` on Linux).
+//! Config file: OS-canonical config dir (`%APPDATA%\oxide\prefs.json`
+//! on Windows, `~/Library/Application Support/oxide/prefs.json` on
+//! macOS, `$XDG_CONFIG_HOME/oxide/prefs.json` on Linux).
 //! Format: `{"ui_font": "Roboto"}`
 //!
 //! Fallback: if the OS reports no config directory at all
@@ -46,7 +46,7 @@ pub const DEFAULT_UI_FONT: &str = "Roboto";
 fn write_pref_atomic(path: &Path, bytes: &[u8], context: &str) {
     if let Err(e) = oxide_types::atomic_io::atomic_write(path, bytes) {
         tracing::error!(
-            target: "signex::prefs",
+            target: "oxide::prefs",
             path = %path.display(),
             context = context,
             error = %e,
@@ -186,9 +186,9 @@ pub fn system_font_families() -> &'static Vec<String> {
 // ──────────────────────────────────────────────────────────────────────────
 
 /// Canonical OS-native preferences-file location:
-/// - Windows: `%APPDATA%\signex\prefs.json`
-/// - macOS:   `~/Library/Application Support/signex/prefs.json`
-/// - Linux:   `$XDG_CONFIG_HOME/signex/prefs.json` (or `~/.config/...`)
+/// - Windows: `%APPDATA%\oxide\prefs.json`
+/// - macOS:   `~/Library/Application Support/oxide/prefs.json`
+/// - Linux:   `$XDG_CONFIG_HOME/oxide/prefs.json` (or `~/.config/...`)
 ///
 /// Computed once per process (via `OnceLock`) so the legacy-prefs
 /// migration runs at most once.
@@ -233,7 +233,7 @@ fn prefs_path() -> PathBuf {
 /// Fallback used only when `dirs::config_dir()` returns `None` (rare — a
 /// Windows account with no `%APPDATA%`, a daemon/container with neither
 /// `$XDG_CONFIG_HOME` nor `$HOME`). Issue #437's review flagged the naive
-/// version of this fallback (a bare `<tmp>/signex/prefs.json`) as
+/// version of this fallback (a bare `<tmp>/oxide/prefs.json`) as
 /// predictable and shared: two users on one host collide (the second gets
 /// `EACCES` from `atomic_write`, visible only at `tracing::debug!`, or
 /// silently reads the first user's prefs), and an attacker who pre-creates
@@ -273,7 +273,7 @@ fn production_temp_fallback_path() -> PathBuf {
         }
         Err(e) => {
             tracing::error!(
-                target: "signex::prefs",
+                target: "oxide::prefs",
                 error = %e,
                 "no OS config directory (dirs::config_dir() returned None) and \
                  creating a random per-process temp directory also failed; \
@@ -285,7 +285,7 @@ fn production_temp_fallback_path() -> PathBuf {
         }
     };
     tracing::error!(
-        target: "signex::prefs",
+        target: "oxide::prefs",
         path = %dir.display(),
         "no OS config directory found (dirs::config_dir() returned None); \
          falling back to a random-named per-process temp directory — \
@@ -299,10 +299,10 @@ fn production_temp_fallback_path() -> PathBuf {
 /// because [`prefs_path`] caches via `OnceLock`.
 ///
 /// **F1** (Windows prefs path bug): pre-v0.12 the path was hardcoded
-/// to `$XDG_CONFIG_HOME/signex/prefs.json` or
-/// `$HOME/.config/signex/prefs.json`. On Windows that landed in a
+/// to `$XDG_CONFIG_HOME/oxide/prefs.json` or
+/// `$HOME/.config/oxide/prefs.json`. On Windows that landed in a
 /// `.config` subfolder of the user dir rather than the canonical
-/// `%APPDATA%\signex\`. If the legacy path has a file but the
+/// `%APPDATA%\oxide\`. If the legacy path has a file but the
 /// canonical path doesn't, copy it forward.
 ///
 /// **F3** (stale label-style discriminants): pre-v0.10 prefs files
@@ -371,7 +371,7 @@ fn legacy_posix_prefs_path() -> PathBuf {
             let home = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());
             PathBuf::from(home).join(".config")
         });
-    base.join("signex").join("prefs.json")
+    base.join("oxide").join("prefs.json")
 }
 
 /// Read only the `ui_font` key from the preferences file.
@@ -608,7 +608,7 @@ fn read_prefs_json(path: &Path) -> Option<serde_json::Value> {
 // Theme
 // ──────────────────────────────────────────────────────────────────────
 
-/// Read the last-applied theme. Defaults to `ThemeId::Signex`.
+/// Read the last-applied theme. Defaults to `ThemeId::Oxide`.
 pub fn read_theme_pref() -> ThemeId {
     read_theme_pref_at(&prefs_path())
 }
@@ -619,7 +619,7 @@ pub fn read_theme_pref_at(path: &Path) -> ThemeId {
     read_prefs_json(path)
         .and_then(|json| json.get("theme").cloned())
         .and_then(|v| serde_json::from_value(v).ok())
-        .unwrap_or(ThemeId::Signex)
+        .unwrap_or(ThemeId::Oxide)
 }
 
 /// Persist theme without clobbering other preference keys.
@@ -846,7 +846,7 @@ mod presets;
 use prefs_file::update_prefs_json;
 
 /// The prefs file's health probe and its one in-app recovery (#602).
-/// Re-exported because the app shell owns the reporting: `Signex::new`
+/// Re-exported because the app shell owns the reporting: `Oxide::new`
 /// probes at boot, the Preferences handler re-probes on open and runs the
 /// recovery, and the dialog names [`prefs_file_path`] in its banner.
 /// `prefs_path()` itself stays private — callers get the resolved path

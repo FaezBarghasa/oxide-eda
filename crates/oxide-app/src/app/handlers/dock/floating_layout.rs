@@ -2,7 +2,7 @@ use crate::dock::{DockMessage, PanelPosition};
 
 use super::super::super::*;
 
-impl Signex {
+impl Oxide {
     pub(super) fn handle_dock_floating_layout_message(
         &mut self,
         dock_message: &DockMessage,

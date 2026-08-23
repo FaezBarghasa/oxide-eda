@@ -25,7 +25,7 @@ Verify arc pipeline runtime path with offscreen smoke passes after schematic arc
 - Derivation: offscreen render-pass execution with arc instance upload and draw.
 - Rationale: validate runtime behavior beyond compile-only checks.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: `cargo test -p signex-gfx -- --nocapture` passed.
+- Verification: `cargo test -p oxide-gfx -- --nocapture` passed.
 
 ## Artifacts
 

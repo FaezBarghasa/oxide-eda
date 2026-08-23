@@ -2,7 +2,7 @@ use super::super::*;
 use super::footprint_ctx::build_footprint_editor_panel_ctx;
 use super::symbol_ctx::build_symbol_editor_panel_ctx;
 
-impl Signex {
+impl Oxide {
     /// F15 — When the active tab is a Library Browser AND a row is
     /// selected in that tab's browser state, build the
     /// [`crate::panels::LibraryRowDetail`] the Properties panel
@@ -42,7 +42,7 @@ impl Signex {
             Ok(None) => "Symbol unresolved (UUID not in mounted libraries)".to_string(),
             Err(e) => {
                 tracing::error!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     error = %e,
                     library_id = %row.symbol_ref.library_id,
                     symbol_uuid = %row.symbol_ref.uuid,
@@ -59,7 +59,7 @@ impl Signex {
                 Ok(None) => "Footprint unresolved (UUID not in mounted libraries)".to_string(),
                 Err(e) => {
                     tracing::error!(
-                        target: "signex::library",
+                        target: "oxide::library",
                         error = %e,
                         library_id = %fp.library_id,
                         footprint_uuid = %fp.uuid,

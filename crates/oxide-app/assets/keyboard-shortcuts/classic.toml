@@ -1,7 +1,7 @@
-# Built-in "Classic" single-key keyboard shortcut profile defaults for Signex.
+# Built-in "Classic" single-key keyboard shortcut profile defaults for Oxide.
 
-[signex_settings]
-application = "signex"
+[oxide_settings]
+application = "oxide"
 file_kind = "keyboard_shortcuts"
 version = 1
 
@@ -10,7 +10,7 @@ schema_version = 1
 profile_id = "classic"
 profile_name = "Classic"
 profile_kind = "built_in"
-description = "Classic single-key keyboard shortcut defaults for Signex."
+description = "Classic single-key keyboard shortcut defaults for Oxide."
 
 [[keyboard_shortcuts.sections]]
 context = "global"

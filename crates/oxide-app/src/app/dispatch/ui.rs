@@ -2,7 +2,7 @@ use iced::Task;
 
 use super::super::*;
 
-impl Signex {
+impl Oxide {
     pub(super) fn dispatch_ui_message(&mut self, message: UiMsg) -> Task<Message> {
         match message {
             UiMsg::ThemeChanged(id) => {
@@ -80,7 +80,7 @@ impl Signex {
                     Some(crate::app::TabKind::FootprintEditor(_))
                 );
                 tracing::info!(
-                    target: "signex::ui",
+                    target: "oxide::ui",
                     footprint_active = footprint_active,
                     last_mouse_pos = ?self.interaction_state.last_mouse_pos,
                     "GridPickerOpen received",
@@ -232,7 +232,7 @@ impl Signex {
                 // modal would have nothing to drive).
                 let editor_snap = self.active_footprint_editor().map(|e| e.state.snap_options);
                 tracing::info!(
-                    target: "signex::ui",
+                    target: "oxide::ui",
                     has_snap = editor_snap.is_some(),
                     "GridPropertiesOpen received",
                 );

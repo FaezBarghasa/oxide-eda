@@ -51,7 +51,7 @@ pub fn open_library(state: &mut LibraryState, root: PathBuf) -> Result<(), Libra
     let already_open = state.library_at(&root).is_some();
     state.open_library(root.clone())?;
     if already_open && let Err(e) = state.refresh_components(&root) {
-        tracing::warn!(target: "signex::library", path = %root.display(), error = %e, "refresh_components failed; UI starts with empty list");
+        tracing::warn!(target: "oxide::library", path = %root.display(), error = %e, "refresh_components failed; UI starts with empty list");
     }
     Ok(())
 }
@@ -228,7 +228,7 @@ pub fn materialize_pending_library(
     //   empty by construction.
     if let Err(e) = state.open_library(spec.lib_path.clone()) {
         tracing::warn!(
-            target: "signex::library",
+            target: "oxide::library",
             path = %spec.lib_path.display(),
             error = %e,
             "freshly-materialised library failed initial open — entry registered, retry from tree"
@@ -384,7 +384,7 @@ pub fn create_library_at(
     // primed.
     if let Err(e) = state.open_library(lib_path.clone()) {
         tracing::warn!(
-            target: "signex::library",
+            target: "oxide::library",
             path = %lib_path.display(),
             error = %e,
             "freshly-created library failed initial open — entry registered, retry from tree"
@@ -526,7 +526,7 @@ pub fn auto_mount_project_libraries(
             MountRequest::AlreadyMounted => {
                 if let Err(e) = state.refresh_components(&resolved) {
                     tracing::warn!(
-                        target: "signex::library",
+                        target: "oxide::library",
                         path = %resolved.display(),
                         error = %e,
                         "auto-mount: refresh of already-mounted library failed; cache may be stale"
@@ -641,7 +641,7 @@ pub fn create_component_row(
 
     if let Err(e) = state.refresh_components(&library_root) {
         tracing::warn!(
-            target: "signex::library",
+            target: "oxide::library",
             path = %library_root.display(),
             error = %e,
             "post-create refresh failed; panel may be stale until next refresh"
@@ -683,7 +683,7 @@ pub fn jump_to_use_site(site: &oxide_library::UseSite) {
     // audit trail (Database) rather than carried inline. The handler
     // surfaces just the project / sheet / instance triple now.
     tracing::info!(
-        target: "signex::library",
+        target: "oxide::library",
         project = %site.project_path.display(),
         sheet = %site.sheet_path.display(),
         instance = %site.instance_id,

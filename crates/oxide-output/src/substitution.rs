@@ -22,7 +22,7 @@ pub struct SubstitutionContext<'a> {
     pub sheet_name: String,
     pub sheet_number: usize,
     pub sheet_count: usize,
-    pub signex_version: &'static str,
+    pub oxide_version: &'static str,
     /// Active variant (or `None` for "no variant override"). Surfaces
     /// as `${VARIANT}` when `physical_structure` is on; resolves to
     /// empty string otherwise so legacy templates don't pick up
@@ -72,7 +72,7 @@ impl<'a> SubstitutionContext<'a> {
             } else {
                 String::new()
             }),
-            "VERSION" => Some(self.signex_version.to_string()),
+            "VERSION" => Some(self.oxide_version.to_string()),
             other => m.custom_fields.get(other).cloned(),
         }
     }
@@ -165,7 +165,7 @@ mod tests {
             sheet_name: "Analog".into(),
             sheet_number: 2,
             sheet_count: 5,
-            signex_version: "0.8.0",
+            oxide_version: "0.8.0",
             variant: None,
             physical_structure: true,
             physical_sheet_number: true,

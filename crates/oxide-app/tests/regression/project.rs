@@ -3,7 +3,7 @@
 use oxide_app::app::{
     ContextMenuMsg, EditMsg, FileMsg, LoadedProject, Message, ProjectCloseChoice, ProjectMsg,
     ProjectTreeAction, RemoveChoice, RemoveDialogState, RemoveMsg, RenameDialogState, RenameMsg,
-    Signex, WindowMsg,
+    Oxide, WindowMsg,
 };
 use oxide_types::project::{ProjectData, SheetEntry};
 
@@ -16,12 +16,12 @@ use tempfile::TempDir;
 // `tests/regression.rs`.
 
 // ─────────────────────────────────────────────────────────────────
-// Smoke — `Signex::new()` constructs cleanly without iced runtime
+// Smoke — `Oxide::new()` constructs cleanly without iced runtime
 // ─────────────────────────────────────────────────────────────────
 
 #[test]
-fn signex_new_constructs_with_default_state() {
-    let (app, _initial_task) = Signex::new();
+fn oxide_new_constructs_with_default_state() {
+    let (app, _initial_task) = Oxide::new();
     // Empty workspace — nothing loaded.
     assert!(app.document_state.projects.is_empty());
     assert_eq!(app.document_state.active_project, None);
@@ -40,8 +40,8 @@ fn signex_new_constructs_with_default_state() {
 
 /// Project skeleton: writes `<stem>.snxprj` + companion
 /// `<stem>.snxsch` + `<stem>.snxpcb` into a fresh tempdir and
-/// returns a populated `Signex` with the project loaded.
-fn fixture_project_with_companions(stem: &str) -> (Signex, TempDir, PathBuf) {
+/// returns a populated `Oxide` with the project loaded.
+fn fixture_project_with_companions(stem: &str) -> (Oxide, TempDir, PathBuf) {
     let tmp = TempDir::new().expect("tempdir");
     let dir = tmp.path().to_path_buf();
 
@@ -53,7 +53,7 @@ fn fixture_project_with_companions(stem: &str) -> (Signex, TempDir, PathBuf) {
     fs::write(&sch_path, b"schematic-bytes").expect("write .snxsch");
     fs::write(&pcb_path, b"pcb-bytes").expect("write .snxpcb");
 
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
 
     let id = app.document_state.mint_project_id();
     let data = ProjectData {
@@ -79,7 +79,7 @@ fn fixture_project_with_companions(stem: &str) -> (Signex, TempDir, PathBuf) {
 }
 
 /// Open the rename modal targeting a project root.
-fn arm_project_rename(app: &mut Signex, target: &Path, new_stem: &str) {
+fn arm_project_rename(app: &mut Oxide, target: &Path, new_stem: &str) {
     app.ui_state.rename_dialog = Some(RenameDialogState {
         target_path: target.to_path_buf(),
         tree_path: vec![0],
@@ -90,7 +90,7 @@ fn arm_project_rename(app: &mut Signex, target: &Path, new_stem: &str) {
 }
 
 /// Open the remove modal for a tree leaf.
-fn arm_remove_dialog(app: &mut Signex, target: &Path) {
+fn arm_remove_dialog(app: &mut Oxide, target: &Path) {
     app.ui_state.remove_dialog = Some(RemoveDialogState {
         target_path: target.to_path_buf(),
         tree_path: vec![0, 0],
@@ -717,7 +717,7 @@ fn commit_save_to_project_git_enqueues_when_enable_git_on() {
 
 #[test]
 fn app_exit_with_no_dirty_paths_does_not_open_confirm_modal() {
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     assert!(app.document_state.dirty_paths.is_empty());
 
     // Clean workspace: exit request must not raise the guard modal.
@@ -730,7 +730,7 @@ fn app_exit_with_no_dirty_paths_does_not_open_confirm_modal() {
 
 #[test]
 fn app_exit_with_dirty_paths_opens_confirm_modal_instead_of_exiting() {
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let dirty = PathBuf::from("/tmp/does-not-matter/board.snxsch");
     app.document_state.dirty_paths.insert(dirty.clone());
 
@@ -752,7 +752,7 @@ fn app_exit_with_dirty_paths_opens_confirm_modal_instead_of_exiting() {
 
 #[test]
 fn app_exit_confirm_cancel_dismisses_modal_and_keeps_dirty_state() {
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let dirty = PathBuf::from("/tmp/does-not-matter/board.snxsch");
     app.document_state.dirty_paths.insert(dirty.clone());
     let _ = app.update(Message::Window(WindowMsg::CloseMainWindow));
@@ -773,7 +773,7 @@ fn app_exit_confirm_cancel_dismisses_modal_and_keeps_dirty_state() {
 
 #[test]
 fn app_exit_confirm_discard_all_clears_modal() {
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     app.document_state
         .dirty_paths
         .insert(PathBuf::from("/tmp/does-not-matter/board.snxsch"));
@@ -795,7 +795,7 @@ fn app_exit_save_all_never_loses_an_unsaveable_file() {
     // A dirty path with no live engine (e.g. a .snxprj or primitive
     // draft) cannot be saved through the engine path. Save All must
     // NOT exit and lose it — it keeps the app open and surfaces it.
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let dirty = PathBuf::from("/tmp/does-not-matter/proj.snxprj");
     app.document_state.dirty_paths.insert(dirty.clone());
     let _ = app.update(Message::Window(WindowMsg::CloseMainWindow));
@@ -884,7 +884,7 @@ fn opening_snxfpt_does_not_create_editable_tab_when_gated() {
     let tmp = TempDir::new().expect("tempdir");
     let fpt = tmp.path().join("gated.snxfpt");
     write_valid_snxfpt(&fpt, "GATED");
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let _ = app.update(Message::File(FileMsg::Opened(Some(fpt.clone()))));
     let opened_footprint_tab = app
         .document_state
@@ -914,7 +914,7 @@ fn opening_snxsym_still_creates_editable_tab() {
     let tmp = TempDir::new().expect("tempdir");
     let sym = tmp.path().join("control.snxsym");
     write_valid_snxsym(&sym, "CONTROL");
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let _ = app.update(Message::File(FileMsg::Opened(Some(sym.clone()))));
     // Positive control: the symbol editor is the headline feature of
     // v0.13.0 and must open regardless of the footprint gate.
@@ -946,7 +946,7 @@ fn a_corrupt_snxsym_raises_the_error_card_naming_the_file() {
     let tmp = TempDir::new().expect("tempdir");
     let sym = tmp.path().join("corrupt.snxsym");
     fs::write(&sym, b"this is not a symbol envelope\x00\xff").expect("write corrupt .snxsym");
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
 
     let _ = app.update(Message::File(FileMsg::Opened(Some(sym.clone()))));
 
@@ -978,7 +978,7 @@ fn a_valid_snxsym_leaves_the_error_card_clear() {
     let tmp = TempDir::new().expect("tempdir");
     let sym = tmp.path().join("fine.snxsym");
     write_valid_snxsym(&sym, "FINE");
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
 
     let _ = app.update(Message::File(FileMsg::Opened(Some(sym))));
 
@@ -994,7 +994,7 @@ fn dismissing_the_card_clears_it() {
     let tmp = TempDir::new().expect("tempdir");
     let sym = tmp.path().join("corrupt.snxsym");
     fs::write(&sym, b"not a symbol envelope").expect("write corrupt .snxsym");
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let _ = app.update(Message::File(FileMsg::Opened(Some(sym))));
     assert!(
         app.document_state.error_notice.is_some(),
@@ -1018,7 +1018,7 @@ fn dismissing_the_card_clears_it() {
 /// `handle_selection_cut_requested` against real engine state.
 /// Returns the app plus both element UUIDs.
 fn fixture_schematic_with_symbol_and_child_sheet()
--> (oxide_app::app::Signex, uuid::Uuid, uuid::Uuid) {
+-> (oxide_app::app::Oxide, uuid::Uuid, uuid::Uuid) {
     use oxide_types::schematic::{ChildSheet, FillType, Point, SchematicSheet, Symbol};
     use std::collections::HashMap;
 
@@ -1091,7 +1091,7 @@ fn fixture_schematic_with_symbol_and_child_sheet()
 
     let path = PathBuf::from("cut-gating.snxsch");
     let engine = oxide_engine::Engine::new(sheet).expect("engine");
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state.engines.insert(path.clone(), engine);
     app.document_state.active_path = Some(path.clone());
     // `finish_schematic_mutation` (the tail of every engine-command

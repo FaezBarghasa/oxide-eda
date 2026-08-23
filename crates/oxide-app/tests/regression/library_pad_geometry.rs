@@ -1,6 +1,6 @@
 //! Parametric pad-shape mirror into sketch entities (round, round-rect, oval, chamfered pads).
 
-use oxide_app::app::{Message, Signex};
+use oxide_app::app::{Message, Oxide};
 
 use std::path::PathBuf;
 
@@ -253,7 +253,7 @@ fn properties_panel_shows_corner_radius_for_round_rect_pad() {
     editor.state.pads = vec![pad];
     editor.state.selected_pad = Some(0);
 
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
@@ -334,7 +334,7 @@ fn editing_corner_radius_updates_all_4_arcs() {
     editor.state.pads = vec![pad];
     editor.state.selected_pad = Some(0);
 
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
@@ -430,7 +430,7 @@ fn unlink_corner_radius_mints_per_corner_param() {
     editor.state.pads = vec![pad];
     editor.state.selected_pad = Some(0);
 
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
@@ -510,7 +510,7 @@ fn reverse_mirror_updates_pad_stack_corner_radius_pct() {
     let mut editor = FootprintEditorState::new(path.clone(), file);
     editor.state.pads = vec![pad];
 
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
@@ -753,7 +753,7 @@ fn editing_oval_width_param_propagates_through_solve() {
     editor.state.pads = vec![pad];
     editor.state.selected_pad = Some(0);
 
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
@@ -1038,7 +1038,7 @@ fn editing_chamfer_len_propagates_through_solve() {
     editor.state.pads = vec![pad];
     editor.state.selected_pad = Some(0);
 
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
@@ -1166,7 +1166,7 @@ fn v025_oval_width_edit_mirrors_back_to_pad_size_mm() {
     let mut editor = FootprintEditorState::new(path.clone(), file);
     editor.state.pads = vec![pad];
     editor.state.selected_pad = Some(0);
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);

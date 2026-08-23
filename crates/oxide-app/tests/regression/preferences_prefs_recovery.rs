@@ -34,7 +34,7 @@
 
 use std::sync::Mutex;
 
-use oxide_app::app::{Message, PreferencesMsg, Signex};
+use oxide_app::app::{Message, PreferencesMsg, Oxide};
 use oxide_app::preferences::PrefMsg;
 
 fn inner(msg: PrefMsg) -> Message {
@@ -66,7 +66,7 @@ fn serial() -> std::sync::MutexGuard<'static, ()> {
 /// The keymap file is in here because `PrefMsg::Save` persists the keymap
 /// working copy as well as the prefs, so the one test that drives a real
 /// Save would otherwise leave `keyboard_shortcuts.toml` behind for every
-/// later `Signex::new()` in this binary to load.
+/// later `Oxide::new()` in this binary to load.
 struct PrefsPathGuard {
     path: std::path::PathBuf,
     before: Option<Vec<u8>>,
@@ -89,13 +89,13 @@ impl PrefsPathGuard {
     }
 
     /// Put malformed JSON at the shared prefs path. `create_dir_all`
-    /// first: on a fresh test config root the `signex` directory only
+    /// first: on a fresh test config root the `oxide` directory only
     /// comes into being when a writer creates it.
     fn seed_broken(&self) {
         if let Some(parent) = self.path.parent() {
             std::fs::create_dir_all(parent).expect("create the shared config directory");
         }
-        std::fs::write(&self.path, br#"{"theme": "signex""#)
+        std::fs::write(&self.path, br#"{"theme": "oxide""#)
             .expect("seed a malformed shared prefs file");
     }
 }
@@ -155,7 +155,7 @@ fn resetting_a_healthy_prefs_file_moves_nothing_and_says_so() {
     // Arrange
     let _serial = serial();
     let guard = PrefsPathGuard::capture();
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let _ = app.update(Message::Preferences(PreferencesMsg::Open));
     let before = std::fs::read(&guard.path).ok();
     assert!(
@@ -193,7 +193,7 @@ fn resetting_clears_a_stale_load_error_flag() {
     // Arrange
     let _serial = serial();
     let _guard = PrefsPathGuard::capture();
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let _ = app.update(Message::Preferences(PreferencesMsg::Open));
     app.ui_state.prefs_load_error = Some("is not valid JSON: expected `,` or `}`".to_string());
 
@@ -226,7 +226,7 @@ fn opening_preferences_reprobes_the_prefs_file() {
     let _serial = serial();
     let guard = PrefsPathGuard::capture();
     guard.seed_broken();
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
 
     // Act
     let _ = app.update(Message::Preferences(PreferencesMsg::Open));
@@ -266,7 +266,7 @@ fn saving_reprobes_a_file_that_broke_while_the_dialog_was_open() {
     // Arrange
     let _serial = serial();
     let guard = PrefsPathGuard::capture();
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let _ = app.update(Message::Preferences(PreferencesMsg::Open));
     assert!(
         app.ui_state.prefs_load_error.is_none(),
@@ -300,7 +300,7 @@ fn reporting_the_reset_outcome_does_not_mark_the_dialog_dirty() {
     // Arrange
     let _serial = serial();
     let _guard = PrefsPathGuard::capture();
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let _ = app.update(Message::Preferences(PreferencesMsg::Open));
     assert!(
         !app.ui_state.preferences_dirty,
@@ -333,7 +333,7 @@ fn reopening_preferences_clears_the_reset_status() {
     // Arrange
     let _serial = serial();
     let _guard = PrefsPathGuard::capture();
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let _ = app.update(Message::Preferences(PreferencesMsg::Open));
     let _ = app.update(inner(PrefMsg::ResetPrefsFile));
     assert!(

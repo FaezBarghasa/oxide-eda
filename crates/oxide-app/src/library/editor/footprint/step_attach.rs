@@ -151,7 +151,7 @@ pub fn stash_step(lib_root: &Path, bytes: &[u8], filename: &str) -> Option<StepA
     let step_dir = lib_root.join("step");
     if let Err(e) = std::fs::create_dir_all(&step_dir) {
         tracing::warn!(
-            target: "signex::library",
+            target: "oxide::library",
             error = %e,
             path = %step_dir.display(),
             "failed to create step dir; STEP attach will be in-memory only"
@@ -163,7 +163,7 @@ pub fn stash_step(lib_root: &Path, bytes: &[u8], filename: &str) -> Option<StepA
         && let Err(e) = oxide_types::atomic_io::atomic_write(&target, bytes)
     {
         tracing::warn!(
-            target: "signex::library",
+            target: "oxide::library",
             error = %e,
             path = %target.display(),
             "failed to write STEP file"

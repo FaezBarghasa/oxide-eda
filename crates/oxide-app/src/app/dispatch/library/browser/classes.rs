@@ -7,7 +7,7 @@
 
 use super::*;
 
-impl Signex {
+impl Oxide {
     /// Open the inline create-class form.
     pub(in crate::app::dispatch::library) fn handle_browser_begin_add_class(
         &mut self,

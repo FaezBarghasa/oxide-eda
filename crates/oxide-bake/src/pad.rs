@@ -8,7 +8,7 @@
 //! Layer-name strings are produced by
 //! [`oxide_types::layer::OxideLayer::altium_label`] so the baked
 //! footprint matches the Altium-style label set ("Top Layer", "Top
-//! Solder", "Top Paste", …) used by the rest of the Signex PCB
+//! Solder", "Top Paste", …) used by the rest of the Oxide PCB
 //! taxonomy.
 //!
 //! Cleanroom: no third-party constraint-solver, footprint-generator,
@@ -335,7 +335,7 @@ fn lib_kind(k: PadKind, _warnings: &mut Vec<String>, _pad_number: &str) -> LibPa
 
 /// Build a `LayerId` from a `OxideLayer`, using its Altium-style
 /// display label as the string-typed wrapper's content.
-fn signex_layer_id(l: OxideLayer) -> LayerId {
+fn oxide_layer_id(l: OxideLayer) -> LayerId {
     LayerId::new(l.altium_label())
 }
 
@@ -353,18 +353,18 @@ fn map_corners(c: &SkChamferedCorners) -> LibChamferedCorners {
 fn fiducial_layers(side: PadSide) -> Vec<LayerId> {
     match side {
         PadSide::Top => vec![
-            signex_layer_id(OxideLayer::TopCopper),
-            signex_layer_id(OxideLayer::TopSolderMask),
+            oxide_layer_id(OxideLayer::TopCopper),
+            oxide_layer_id(OxideLayer::TopSolderMask),
         ],
         PadSide::Bottom => vec![
-            signex_layer_id(OxideLayer::BottomCopper),
-            signex_layer_id(OxideLayer::BottomSolderMask),
+            oxide_layer_id(OxideLayer::BottomCopper),
+            oxide_layer_id(OxideLayer::BottomSolderMask),
         ],
         PadSide::All => vec![
-            signex_layer_id(OxideLayer::TopCopper),
-            signex_layer_id(OxideLayer::BottomCopper),
-            signex_layer_id(OxideLayer::TopSolderMask),
-            signex_layer_id(OxideLayer::BottomSolderMask),
+            oxide_layer_id(OxideLayer::TopCopper),
+            oxide_layer_id(OxideLayer::BottomCopper),
+            oxide_layer_id(OxideLayer::TopSolderMask),
+            oxide_layer_id(OxideLayer::BottomSolderMask),
         ],
     }
 }
@@ -375,32 +375,32 @@ fn fiducial_layers(side: PadSide) -> Vec<LayerId> {
 fn derive_layers(kind: PadKind, side: PadSide) -> Vec<LayerId> {
     match (kind, side) {
         (PadKind::Smd | PadKind::ConnectorPad, PadSide::Top) => vec![
-            signex_layer_id(OxideLayer::TopCopper),
-            signex_layer_id(OxideLayer::TopSolderMask),
-            signex_layer_id(OxideLayer::TopPaste),
+            oxide_layer_id(OxideLayer::TopCopper),
+            oxide_layer_id(OxideLayer::TopSolderMask),
+            oxide_layer_id(OxideLayer::TopPaste),
         ],
         (PadKind::Smd | PadKind::ConnectorPad, PadSide::Bottom) => vec![
-            signex_layer_id(OxideLayer::BottomCopper),
-            signex_layer_id(OxideLayer::BottomSolderMask),
-            signex_layer_id(OxideLayer::BottomPaste),
+            oxide_layer_id(OxideLayer::BottomCopper),
+            oxide_layer_id(OxideLayer::BottomSolderMask),
+            oxide_layer_id(OxideLayer::BottomPaste),
         ],
         (PadKind::Smd | PadKind::ConnectorPad, PadSide::All) => vec![
-            signex_layer_id(OxideLayer::TopCopper),
-            signex_layer_id(OxideLayer::BottomCopper),
-            signex_layer_id(OxideLayer::TopSolderMask),
-            signex_layer_id(OxideLayer::BottomSolderMask),
-            signex_layer_id(OxideLayer::TopPaste),
-            signex_layer_id(OxideLayer::BottomPaste),
+            oxide_layer_id(OxideLayer::TopCopper),
+            oxide_layer_id(OxideLayer::BottomCopper),
+            oxide_layer_id(OxideLayer::TopSolderMask),
+            oxide_layer_id(OxideLayer::BottomSolderMask),
+            oxide_layer_id(OxideLayer::TopPaste),
+            oxide_layer_id(OxideLayer::BottomPaste),
         ],
         (PadKind::Tht | PadKind::Castellated, _) => vec![
-            signex_layer_id(OxideLayer::TopCopper),
-            signex_layer_id(OxideLayer::BottomCopper),
-            signex_layer_id(OxideLayer::TopSolderMask),
-            signex_layer_id(OxideLayer::BottomSolderMask),
+            oxide_layer_id(OxideLayer::TopCopper),
+            oxide_layer_id(OxideLayer::BottomCopper),
+            oxide_layer_id(OxideLayer::TopSolderMask),
+            oxide_layer_id(OxideLayer::BottomSolderMask),
         ],
         (PadKind::NptHole, _) => vec![
-            signex_layer_id(OxideLayer::TopSolderMask),
-            signex_layer_id(OxideLayer::BottomSolderMask),
+            oxide_layer_id(OxideLayer::TopSolderMask),
+            oxide_layer_id(OxideLayer::BottomSolderMask),
         ],
         // Fiducial is handled by `fiducial_layers` before this fn is
         // called; defending against future callers that might forget

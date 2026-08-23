@@ -11,7 +11,7 @@
 /// context-aware content while the active tab is a Symbol editor.
 /// Returns `None` for any other tab kind.
 pub(super) fn build_symbol_editor_panel_ctx(
-    app: &super::super::Signex,
+    app: &super::super::Oxide,
 ) -> Option<crate::panels::SymbolEditorPanelContext> {
     use crate::library::editor::symbol::state as sym_state;
     use crate::panels::{

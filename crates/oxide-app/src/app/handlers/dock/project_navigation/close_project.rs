@@ -6,7 +6,7 @@
 
 use super::*;
 
-impl Signex {
+impl Oxide {
     /// Close every tab backed by the project whose root is at
     /// `tree_path[0]`, then drop the project from the workspace and
     /// promote a sibling (or `None`) to active. Mirrors Altium's
@@ -332,7 +332,7 @@ impl Signex {
                 // `SymbolLibrary5.snxsym`) or a dirty `.snxprj` used to
                 // have no route here and always tripped a bogus "Export
                 // Failed" (#104); they are now saved like any other.
-                // Anything still un-saveable keeps Signex open with a
+                // Anything still un-saveable keeps Oxide open with a
                 // reason so nothing is lost.
                 let mut failed: Vec<(std::path::PathBuf, String)> = Vec::new();
                 for path in &state.dirty_paths {
@@ -353,7 +353,7 @@ impl Signex {
                 } else {
                     self.document_state.error_notice =
                         Some(crate::app::state::ErrorNotice::save(format!(
-                            "Could not save {} file(s) — Signex stayed open so nothing is lost. \
+                            "Could not save {} file(s) — Oxide stayed open so nothing is lost. \
                          Save them manually, or choose Discard All to exit anyway:\n  {}",
                             failed.len(),
                             Self::save_all_failure_listing(&failed)
@@ -369,14 +369,14 @@ impl Signex {
 mod tests {
     use std::path::PathBuf;
 
-    use crate::app::{Signex, SymbolEditorState};
+    use crate::app::{Oxide, SymbolEditorState};
 
     /// Build a minimal app carrying one dirty, open symbol-library
     /// editor keyed at `path` — mirrors the state right after
     /// `Add New ▸ Symbol Library` followed by an edit (the exact repro
     /// for the "Export Failed — SymbolLibrary5.snxsym" close bug).
-    fn app_with_dirty_symbol(path: &std::path::Path) -> Signex {
-        let (mut app, _task) = Signex::new();
+    fn app_with_dirty_symbol(path: &std::path::Path) -> Oxide {
+        let (mut app, _task) = Oxide::new();
         let symbol = oxide_library::Symbol::empty("Sym1");
         let file = oxide_library::SymbolFile::from_symbol(symbol);
         app.document_state.symbol_editors.insert(
@@ -413,7 +413,7 @@ mod tests {
         // A dirty path backing no engine / editor / project must
         // surface a descriptive error (not a silent failure) so the
         // Save-All dialog can tell the user WHY it couldn't save.
-        let (mut app, _task) = Signex::new();
+        let (mut app, _task) = Oxide::new();
         let path = PathBuf::from("/nonexistent/Ghost.snxsym");
 
         let err = app.try_save_dirty_path(&path).unwrap_err();

@@ -143,7 +143,7 @@ fn report_refusal(path: &Path, context: &str, error: &PrefsLoadError) {
         return;
     }
     tracing::error!(
-        target: "signex::prefs",
+        target: "oxide::prefs",
         path = %path.display(),
         context = context,
         error = %error,
@@ -183,7 +183,7 @@ pub(super) fn update_prefs_json(
     match serde_json::to_string_pretty(&serde_json::Value::Object(prefs)) {
         Ok(serialized) => write_pref_atomic(path, serialized.as_bytes(), context),
         Err(error) => tracing::error!(
-            target: "signex::prefs",
+            target: "oxide::prefs",
             path = %path.display(),
             context = context,
             error = %error,
@@ -366,7 +366,7 @@ pub fn move_prefs_file_aside_at(path: &Path) -> Result<Option<PathBuf>, std::io:
         // reports at `debug!`, which the default `LevelFilter::Info`
         // swallows before it can reach the Messages panel.
         tracing::error!(
-            target: "signex::prefs",
+            target: "oxide::prefs",
             path = %path.display(),
             error = %error,
             "the unreadable preferences file was moved aside, but a fresh empty one could \
@@ -422,7 +422,7 @@ mod tests {
         let (_dir, path) = temp_prefs();
         std::fs::write(
             &path,
-            br#"{"theme": "signex", "erc_severity": {"unused_pin": "off"}"#,
+            br#"{"theme": "oxide", "erc_severity": {"unused_pin": "off"}"#,
         )
         .expect("seed the malformed prefs file");
         let before = std::fs::read(&path).expect("read the seeded bytes back");
@@ -453,7 +453,7 @@ mod tests {
 
         // Act
         update_prefs_json(&path, "theme", |prefs| {
-            prefs.insert("theme".to_string(), serde_json::json!("signex"));
+            prefs.insert("theme".to_string(), serde_json::json!("oxide"));
         });
 
         // Assert
@@ -495,12 +495,12 @@ mod tests {
 
         // Act
         update_prefs_json(&path, "theme", |prefs| {
-            prefs.insert("theme".to_string(), serde_json::json!("signex"));
+            prefs.insert("theme".to_string(), serde_json::json!("oxide"));
         });
 
         // Assert
         let prefs = read_prefs_object(&path);
-        assert_eq!(prefs.get("theme"), Some(&serde_json::json!("signex")));
+        assert_eq!(prefs.get("theme"), Some(&serde_json::json!("oxide")));
     }
 
     /// A non-object root used to reach the `library_browser_searches`
@@ -539,7 +539,7 @@ mod tests {
         // Arrange
         let (_dir, path) = temp_prefs();
         let seeded = serde_json::json!({
-            "theme": "signex",
+            "theme": "oxide",
             "component_classes": [{ "key": "resistor", "label": "Resistor" }],
         });
         std::fs::write(
@@ -608,7 +608,7 @@ mod tests {
     fn checking_a_valid_object_reports_it_as_healthy() {
         // Arrange
         let (_dir, path) = temp_prefs();
-        std::fs::write(&path, br#"{"theme": "signex"}"#).expect("seed a valid prefs file");
+        std::fs::write(&path, br#"{"theme": "oxide"}"#).expect("seed a valid prefs file");
 
         // Act
         let result = check_prefs_file_at(&path);
@@ -625,7 +625,7 @@ mod tests {
     fn checking_a_malformed_file_reports_a_parse_error() {
         // Arrange
         let (_dir, path) = temp_prefs();
-        std::fs::write(&path, br#"{"theme": "signex""#).expect("seed a truncated prefs file");
+        std::fs::write(&path, br#"{"theme": "oxide""#).expect("seed a truncated prefs file");
 
         // Act
         let result = check_prefs_file_at(&path);
@@ -667,7 +667,7 @@ mod tests {
         // Arrange
         let (_dir, absent) = temp_prefs();
         let (_seeded_dir, seeded) = temp_prefs();
-        std::fs::write(&seeded, br#"{"theme": "signex""#).expect("seed a malformed prefs file");
+        std::fs::write(&seeded, br#"{"theme": "oxide""#).expect("seed a malformed prefs file");
         let before = std::fs::read(&seeded).expect("read the seeded bytes back");
 
         // Act
@@ -698,7 +698,7 @@ mod tests {
     fn moving_aside_leaves_the_prefs_path_loadable_again() {
         // Arrange
         let (_dir, path) = temp_prefs();
-        std::fs::write(&path, br#"{"theme": "signex""#).expect("seed a malformed prefs file");
+        std::fs::write(&path, br#"{"theme": "oxide""#).expect("seed a malformed prefs file");
 
         // Act
         let aside = move_prefs_file_aside_at(&path).expect("the rename succeeds");
@@ -707,7 +707,7 @@ mod tests {
         let aside = aside.expect("an existing file reports where it went");
         assert_ne!(
             std::fs::read(&path).ok().as_deref(),
-            Some(br#"{"theme": "signex""#.as_slice()),
+            Some(br#"{"theme": "oxide""#.as_slice()),
             "the broken bytes must stop being at the prefs path, or writes stay refused"
         );
         assert!(
@@ -717,7 +717,7 @@ mod tests {
         );
         assert_eq!(
             std::fs::read(&aside).expect("the moved-aside file exists"),
-            br#"{"theme": "signex""#,
+            br#"{"theme": "oxide""#,
             "the original bytes must survive the move for a hand repair"
         );
     }
@@ -768,7 +768,7 @@ mod tests {
     fn moving_aside_reports_a_failure_it_cannot_tell_apart_from_absence() {
         // Arrange
         let (dir, _unused) = temp_prefs();
-        let blocking_file = dir.path().join("signex");
+        let blocking_file = dir.path().join("oxide");
         std::fs::write(&blocking_file, b"not a directory").expect("seed a blocking regular file");
         let path = blocking_file.join("prefs.json");
 
@@ -894,7 +894,7 @@ mod tests {
     fn writes_resume_after_the_broken_file_is_moved_aside() {
         // Arrange
         let (_dir, path) = temp_prefs();
-        std::fs::write(&path, br#"{"theme": "signex", "dock": {"left": []}"#)
+        std::fs::write(&path, br#"{"theme": "oxide", "dock": {"left": []}"#)
             .expect("seed a malformed prefs file");
         let before = std::fs::read(&path).expect("read the seeded bytes back");
         update_prefs_json(&path, "theme", |prefs| {

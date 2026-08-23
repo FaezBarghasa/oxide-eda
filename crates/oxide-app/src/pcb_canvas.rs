@@ -74,7 +74,7 @@ impl Default for PcbCanvas {
 
 impl PcbCanvas {
     pub fn new() -> Self {
-        let colors = oxide_types::theme::canvas_colors(oxide_types::theme::ThemeId::Signex);
+        let colors = oxide_types::theme::canvas_colors(oxide_types::theme::ThemeId::Oxide);
         Self {
             bg_cache: canvas::Cache::default(),
             content_cache: canvas::Cache::default(),

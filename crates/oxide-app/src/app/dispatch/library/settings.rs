@@ -6,7 +6,7 @@
 
 use super::*;
 
-impl Signex {
+impl Oxide {
     pub(super) fn handle_library_settings_message(&mut self, msg: SettingsMsg) -> Task<Message> {
         use crate::library::settings::digikey_oauth;
         use oxide_library::distributor::DistributorAdapter;

@@ -26,7 +26,7 @@ delivers end-to-end pipeline coverage with the lowest engineering risk.
 
 | Seq | Task |
 |-----|------|
-| E1-01 | Scaffold `crates/signex-model-import/` with Cargo.toml, `lib.rs`, `error.rs` |
+| E1-01 | Scaffold `crates/oxide-model-import/` with Cargo.toml, `lib.rs`, `error.rs` |
 | E1-02 | Implement VRML lexer + parser (Tier 0 synthetic fixture passing) |
 | E1-03 | Implement `IndexedFaceSet` → triangle mesh extraction |
 | E1-04 | Implement GLB serializer (`glb/writer.rs`) |
@@ -34,7 +34,7 @@ delivers end-to-end pipeline coverage with the lowest engineering risk.
 | E1-06 | Wire `import_model()` for VRML: lexer → parser → normalize → GLB writer |
 | E1-07 | Add cache layer (cache.rs, cache hit/miss tests) |
 | E1-08 | Integration test: Tier 1 VRML fixture round-trips cleanly |
-| E1-09 | Connect `signex-renderer` ingest to `import_model()` output (optional — may land in separate PR) |
+| E1-09 | Connect `oxide-renderer` ingest to `import_model()` output (optional — may land in separate PR) |
 
 ### Sprint E2 — GLTF → GLB wrapping
 
@@ -65,17 +65,17 @@ Before any E1 task begins, all of the following must be true:
 - [x] GLTF wrapping contract (Task 04): GLB container packing algorithm documented.
 - [x] GLB normalization contract (Task 05): coordinate, unit, and mesh normalization rules locked.
 - [x] Crate scaffold design (Task 06): module layout, public API, and test harness plan documented.
-- [x] `signex-renderer` integration contract (Milestone C): `GlbSource` API stable, `ingest_runtime_glb` accepts bytes and path.
-- [ ] `crates/signex-model-import/` directory created and registered in workspace `Cargo.toml`.
+- [x] `oxide-renderer` integration contract (Milestone C): `GlbSource` API stable, `ingest_runtime_glb` accepts bytes and path.
+- [ ] `crates/oxide-model-import/` directory created and registered in workspace `Cargo.toml`.
 - [ ] Milestone D execution issue created in project tracker (GitHub issue or equivalent).
 
 ## Definition of Done (DoD) for Milestone D execution sprint
 
 Sprint is complete when:
 
-- [ ] `cargo test -p signex-model-import` passes (unit + integration tests, all fixture tiers defined in Task 06).
-- [ ] `cargo test -p signex-renderer` still passes (no regression).
-- [ ] `cargo clippy -p signex-model-import -- -D warnings` clean.
+- [ ] `cargo test -p oxide-model-import` passes (unit + integration tests, all fixture tiers defined in Task 06).
+- [ ] `cargo test -p oxide-renderer` still passes (no regression).
+- [ ] `cargo clippy -p oxide-model-import -- -D warnings` clean.
 - [ ] VRML Tier 0 and Tier 1 fixtures produce valid GLB accepted by `ingest_runtime_glb`.
 - [ ] Cache hit test: second call with same source returns cached GLB without re-converting.
 - [ ] `ImportMetadata` fields are stable (round-trip: write metadata → read from GLB asset.extras → compare).
@@ -111,7 +111,7 @@ duration exceeds a generous 5× multiplier over the documented expectation.
 - Derivation: execution ordering follows risk-minimization principle (VRML first,
   STEP Phase A limited scope, GLTF pure packaging).
 - Rationale: delivering a working VRML → GLB pipeline in Sprint E1 unblocks
-  `signex-renderer` 3D viewer integration without waiting for STEP tessellation.
+  `oxide-renderer` 3D viewer integration without waiting for STEP tessellation.
 - Clean-room check: No GPL-licensed source consulted.
 - Verification: Milestone D issue Task 07 marked done; checklist updated.
 

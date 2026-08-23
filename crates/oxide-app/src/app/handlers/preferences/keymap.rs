@@ -14,7 +14,7 @@ use iced::Task;
 use super::super::super::*;
 use crate::preferences::PrefMsg;
 
-impl Signex {
+impl Oxide {
     /// Handle a Keyboard Shortcuts pane message.
     ///
     /// Only reachable for the variants the caller lists, so the
@@ -123,7 +123,7 @@ impl Signex {
                     Ok(restored) => restored,
                     Err(error) => {
                         tracing::error!(
-                            target: "signex::keymap",
+                            target: "oxide::keymap",
                             path = %bak.display(),
                             error = %error,
                             "the keyboard-shortcuts backup could not be read; both files were \
@@ -173,7 +173,7 @@ impl Signex {
                             })
                             .unwrap_or_default();
                         tracing::info!(
-                            target: "signex::keymap",
+                            target: "oxide::keymap",
                             path = %bak.display(),
                             "keyboard-shortcut profiles were restored from the backup on the \
                              user's request"
@@ -183,7 +183,7 @@ impl Signex {
                     }
                     Err(error) => {
                         tracing::error!(
-                            target: "signex::keymap",
+                            target: "oxide::keymap",
                             path = %live.display(),
                             error = %error,
                             "the restored profiles could not be written; nothing was changed"
@@ -206,7 +206,7 @@ impl Signex {
                     Ok(_) => {
                         self.refresh_keymap_backup();
                         tracing::info!(
-                            target: "signex::keymap",
+                            target: "oxide::keymap",
                             path = %bak.display(),
                             "the keyboard-shortcuts backup was deleted on the user's request"
                         );
@@ -217,7 +217,7 @@ impl Signex {
                     }
                     Err(error) => {
                         tracing::error!(
-                            target: "signex::keymap",
+                            target: "oxide::keymap",
                             path = %bak.display(),
                             error = %error,
                             "the keyboard-shortcuts backup could not be deleted"
@@ -230,8 +230,8 @@ impl Signex {
             PrefMsg::KeymapImportProfile => {
                 return Task::future(async {
                     let picked = rfd::AsyncFileDialog::new()
-                        .set_title("Import Signex Keyboard Shortcuts")
-                        .add_filter("Signex Keyboard Shortcuts", &["toml"])
+                        .set_title("Import Oxide Keyboard Shortcuts")
+                        .add_filter("Oxide Keyboard Shortcuts", &["toml"])
                         .pick_file()
                         .await;
                     if let Some(f) = picked {
@@ -276,8 +276,8 @@ impl Signex {
                         self.ui_state.preferences_keymap_status.clear();
                         return Task::future(async move {
                             let picked = rfd::AsyncFileDialog::new()
-                                .set_title("Export Signex Keyboard Shortcuts")
-                                .add_filter("Signex Keyboard Shortcuts", &["toml"])
+                                .set_title("Export Oxide Keyboard Shortcuts")
+                                .add_filter("Oxide Keyboard Shortcuts", &["toml"])
                                 .set_file_name(&filename)
                                 .save_file()
                                 .await;
@@ -422,7 +422,7 @@ impl Signex {
                     "handle_keymap_pref_message received a non-keymap variant: {other:?}"
                 );
                 tracing::error!(
-                    target: "signex::preferences",
+                    target: "oxide::preferences",
                     message = ?other,
                     "a Preferences message reached the keyboard-shortcuts handler that does \
                      not own it; it was dropped"

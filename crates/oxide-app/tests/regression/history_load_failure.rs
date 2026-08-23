@@ -10,7 +10,7 @@
 
 use std::path::PathBuf;
 
-use oxide_app::app::{Message, Signex};
+use oxide_app::app::{Message, Oxide};
 use oxide_app::panels::history::HistoryRenderMode;
 
 const WALK_ERROR: &str = "backend: git revwalk: corrupt object 4f21ac";
@@ -19,7 +19,7 @@ const WALK_ERROR: &str = "backend: git revwalk: corrupt object 4f21ac";
 /// the generation the app is currently waiting on (a mismatched
 /// generation is dropped as stale before any of this runs).
 fn history_loaded(
-    app: &Signex,
+    app: &Oxide,
     result: Result<Vec<oxide_widgets::HistoryEntry>, String>,
 ) -> Message {
     Message::HistoryLoaded {
@@ -32,7 +32,7 @@ fn history_loaded(
 #[test]
 fn a_failed_history_walk_renders_as_an_error_not_an_empty_list() {
     // Arrange
-    let (mut app, _boot) = Signex::new();
+    let (mut app, _boot) = Oxide::new();
     let message = history_loaded(&app, Err(WALK_ERROR.to_string()));
 
     // Act
@@ -54,7 +54,7 @@ fn a_failed_history_walk_renders_as_an_error_not_an_empty_list() {
 #[test]
 fn a_successful_history_walk_is_still_ready() {
     // Arrange
-    let (mut app, _boot) = Signex::new();
+    let (mut app, _boot) = Oxide::new();
     let message = history_loaded(&app, Ok(Vec::new()));
 
     // Act
@@ -71,7 +71,7 @@ fn a_successful_history_walk_is_still_ready() {
 fn a_failed_history_walk_reaches_the_messages_panel() {
     // Arrange
     let _ = oxide_app::diagnostics::init_logging();
-    let (mut app, _boot) = Signex::new();
+    let (mut app, _boot) = Oxide::new();
     let message = history_loaded(&app, Err(WALK_ERROR.to_string()));
 
     // Act

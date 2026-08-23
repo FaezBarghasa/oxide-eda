@@ -11,12 +11,12 @@
 
 ## Scope
 
-Remove direct `signex_render::pcb` usage from `signex-app` and keep PCB runtime on the new renderer scene path.
+Remove direct `oxide_render::pcb` usage from `oxide-app` and keep PCB runtime on the new renderer scene path.
 
 ## Implementation notes
 
 - Removed legacy PCB snapshot field and methods from `PcbCanvas`.
-- Removed legacy draw fallback (`signex_render::pcb::render_pcb`) from PCB canvas draw flow.
+- Removed legacy draw fallback (`oxide_render::pcb::render_pcb`) from PCB canvas draw flow.
 - Implemented renderer-snapshot-based board-fit bounds calculation.
 - Updated load gateway PCB accessors and sync paths to use board + `PcbSnapshot` only.
 - Kept schematic-side legacy renderer usage intact (non-goal for this task).
@@ -27,15 +27,15 @@ Remove direct `signex_render::pcb` usage from `signex-app` and keep PCB runtime 
 - Derivation: removal driven by direct symbol search and compile-safe refactor.
 - Rationale: isolate PCB runtime from legacy API before broader cleanup gate.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: `rg` confirms zero `signex_render::pcb` usage in app source; app + renderer tests pass.
+- Verification: `rg` confirms zero `oxide_render::pcb` usage in app source; app + renderer tests pass.
 
 ## Artifacts
 
 - PR/commit: pending
 - Test output:
-  - `cargo test -p signex-app pcb_dirty_adapter --lib -- --nocapture`
-  - `cargo test -p signex-renderer -- --nocapture`
-  - `rg -n "signex_render::pcb" crates/signex-app/src | wc -l` -> `0`
+  - `cargo test -p oxide-app pcb_dirty_adapter --lib -- --nocapture`
+  - `cargo test -p oxide-renderer -- --nocapture`
+  - `rg -n "oxide_render::pcb" crates/oxide-app/src | wc -l` -> `0`
 - Screenshot/benchmark: n/a
 
 ## Exit checklist

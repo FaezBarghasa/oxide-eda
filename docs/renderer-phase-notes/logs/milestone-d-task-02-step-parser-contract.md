@@ -12,7 +12,7 @@
 ## Scope
 
 Analyze the STEP/P21 physical file format as used by KiCad STEP exports and
-define the clean-room parser contract for `signex-model-import`.
+define the clean-room parser contract for `oxide-model-import`.
 
 ## Format overview
 

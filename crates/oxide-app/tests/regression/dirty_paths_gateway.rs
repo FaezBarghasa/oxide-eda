@@ -18,7 +18,7 @@
 //! and `handle_reset_duplicate_designators` on the active engine.
 
 use oxide_app::app::{
-    AnnotateMsg, Message, MoveSelectionMsg, ParameterManagerMsg, Signex, WindowMsg,
+    AnnotateMsg, Message, MoveSelectionMsg, ParameterManagerMsg, Oxide, WindowMsg,
 };
 use oxide_app::menu_bar::MenuMessage;
 use oxide_types::schematic::{Point, SchematicSheet, SelectedItem, SelectedKind, Symbol};
@@ -86,11 +86,11 @@ fn sheet_with(symbols: Vec<Symbol>) -> SchematicSheet {
 /// `finish_schematic_mutation` reaches `dirty_paths` through
 /// `with_active_schematic_session_mut`, which needs a tab at
 /// `active_tab` or it silently no-ops.
-fn app_with(symbols: Vec<Symbol>) -> (Signex, PathBuf) {
+fn app_with(symbols: Vec<Symbol>) -> (Oxide, PathBuf) {
     let path = PathBuf::from("dirty-gateway.snxsch");
     let engine = oxide_engine::Engine::new(sheet_with(symbols)).expect("engine");
 
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state.engines.insert(path.clone(), engine);
     app.document_state.tabs.push(oxide_app::app::TabInfo {
         title: "dirty-gateway".to_string(),
@@ -106,7 +106,7 @@ fn app_with(symbols: Vec<Symbol>) -> (Signex, PathBuf) {
     (app, path)
 }
 
-fn assert_dirty(app: &Signex, path: &Path, what: &str) {
+fn assert_dirty(app: &Oxide, path: &Path, what: &str) {
     assert!(
         app.document_state.dirty_paths.contains(path),
         "{what} must put the sheet in `dirty_paths`; it is the only thing the quit \
@@ -121,7 +121,7 @@ fn assert_dirty(app: &Signex, path: &Path, what: &str) {
 }
 
 /// Apply a non-zero Move Selection to `uuid` through the dialog.
-fn move_selection(app: &mut Signex, uuid: uuid::Uuid) {
+fn move_selection(app: &mut Oxide, uuid: uuid::Uuid) {
     app.interaction_state.active_canvas_mut().selected =
         vec![SelectedItem::new(uuid, SelectedKind::Symbol)];
     app.ui_state.move_selection.dx = "10".to_string();

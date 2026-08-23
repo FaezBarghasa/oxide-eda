@@ -1,7 +1,7 @@
 //! Keyboard shortcut profile model and runtime lookup.
 //!
 //! The shape follows the useful parts of Zed's keymap architecture while
-//! staying native to Signex: TOML profiles, EDA-oriented built-ins, stable
+//! staying native to Oxide: TOML profiles, EDA-oriented built-ins, stable
 //! command ids, context-aware lookup, and editor-friendly conflict reporting.
 
 mod binding;

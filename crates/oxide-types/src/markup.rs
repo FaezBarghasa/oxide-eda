@@ -1,14 +1,14 @@
-//! Signex schematic-text markup.
+//! Oxide schematic-text markup.
 //!
 //! Markdown-extension style — a small subset of standard Markdown plus
-//! Signex-specific extensions for technical typography:
+//! Oxide-specific extensions for technical typography:
 //!
 //!   `**bold**`           — bold span
 //!   `*italic*`           — italic span
 //!   `~~strike~~`         — strikethrough
-//!   `^superscript^`      — superscript (Signex extension; not GFM)
-//!   `~subscript~`        — subscript (Signex extension; not GFM)
-//!   `_~overbar~_`        — overbar (Signex extension; for active-low signal naming)
+//!   `^superscript^`      — superscript (Oxide extension; not GFM)
+//!   `~subscript~`        — subscript (Oxide extension; not GFM)
+//!   `_~overbar~_`        — overbar (Oxide extension; for active-low signal naming)
 //!   `[label](url)`       — link
 //!   `\X`                 — literal X (escape any sigil)
 //!
@@ -20,7 +20,7 @@
 //! enum's variant set.
 //!
 //! Auto net names use the format `unnamed-<sheet>:<ref>:<pin>`. This
-//! is the canonical Signex spelling — it does not match any other
+//! is the canonical Oxide spelling — it does not match any other
 //! EDA tool's auto-net format.
 //!
 //! Expression substitution (`${refdes:...}`, `@{...}`, `CELL()`,
@@ -63,7 +63,7 @@ pub struct ExpressionEvalContext<'a> {
 }
 
 // ---------------------------------------------------------------------------
-// Auto net name — Signex format, not derived from any other EDA tool
+// Auto net name — Oxide format, not derived from any other EDA tool
 // ---------------------------------------------------------------------------
 
 /// Default name for an unnamed net.
@@ -189,13 +189,13 @@ pub fn evaluate_expressions(input: &str, ctx: &ExpressionEvalContext<'_>) -> Str
 // Markup parser
 // ---------------------------------------------------------------------------
 
-/// Parse Signex markup into a flat list of rich segments.
+/// Parse Oxide markup into a flat list of rich segments.
 ///
 /// Sigils are consumed in order; the parser is single-pass and does not
 /// handle nested formatting (e.g. `**_~OE~_**` produces a Bold segment
 /// containing the literal text `_~OE~_`). Use whichever decoration
 /// matters most semantically.
-pub fn parse_signex_markup(input: &str) -> Vec<RichSegment> {
+pub fn parse_oxide_markup(input: &str) -> Vec<RichSegment> {
     if input.is_empty() {
         return vec![];
     }
@@ -223,7 +223,7 @@ pub fn parse_signex_markup(input: &str) -> Vec<RichSegment> {
             continue;
         }
 
-        // Overbar: _~text~_ (Signex extension). Check before subscript ~text~
+        // Overbar: _~text~_ (Oxide extension). Check before subscript ~text~
         // because the underscore disambiguates the longer form.
         if bytes[i] == b'_'
             && i + 1 < len
@@ -572,20 +572,20 @@ mod tests {
     #[test]
     fn plain_text() {
         assert_eq!(
-            parse_signex_markup("Hello"),
+            parse_oxide_markup("Hello"),
             vec![RichSegment::Normal("Hello".into())]
         );
     }
 
     #[test]
     fn empty_input() {
-        assert_eq!(parse_signex_markup(""), Vec::<RichSegment>::new());
+        assert_eq!(parse_oxide_markup(""), Vec::<RichSegment>::new());
     }
 
     #[test]
     fn bold() {
         assert_eq!(
-            parse_signex_markup("**bold**"),
+            parse_oxide_markup("**bold**"),
             vec![RichSegment::Bold("bold".into())]
         );
     }
@@ -593,7 +593,7 @@ mod tests {
     #[test]
     fn italic() {
         assert_eq!(
-            parse_signex_markup("*italic*"),
+            parse_oxide_markup("*italic*"),
             vec![RichSegment::Italic("italic".into())]
         );
     }
@@ -601,7 +601,7 @@ mod tests {
     #[test]
     fn strike() {
         assert_eq!(
-            parse_signex_markup("~~gone~~"),
+            parse_oxide_markup("~~gone~~"),
             vec![RichSegment::Strike("gone".into())]
         );
     }
@@ -609,7 +609,7 @@ mod tests {
     #[test]
     fn superscript() {
         assert_eq!(
-            parse_signex_markup("V^+^"),
+            parse_oxide_markup("V^+^"),
             vec![
                 RichSegment::Normal("V".into()),
                 RichSegment::Superscript("+".into()),
@@ -620,7 +620,7 @@ mod tests {
     #[test]
     fn subscript() {
         assert_eq!(
-            parse_signex_markup("V~CC~"),
+            parse_oxide_markup("V~CC~"),
             vec![
                 RichSegment::Normal("V".into()),
                 RichSegment::Subscript("CC".into()),
@@ -631,7 +631,7 @@ mod tests {
     #[test]
     fn overbar() {
         assert_eq!(
-            parse_signex_markup("_~RESET~_"),
+            parse_oxide_markup("_~RESET~_"),
             vec![RichSegment::Overbar("RESET".into())]
         );
     }
@@ -639,7 +639,7 @@ mod tests {
     #[test]
     fn link() {
         assert_eq!(
-            parse_signex_markup("[click](https://example.com)"),
+            parse_oxide_markup("[click](https://example.com)"),
             vec![RichSegment::Link {
                 label: "click".into(),
                 url: "https://example.com".into(),
@@ -653,15 +653,15 @@ mod tests {
         // sigil character. To escape a multi-char sigil like `~~`, escape
         // each tilde individually.
         assert_eq!(
-            parse_signex_markup(r"\*literal\*"),
+            parse_oxide_markup(r"\*literal\*"),
             vec![RichSegment::Normal("*literal*".into())]
         );
         assert_eq!(
-            parse_signex_markup(r"\~\~not strike\~\~"),
+            parse_oxide_markup(r"\~\~not strike\~\~"),
             vec![RichSegment::Normal("~~not strike~~".into())]
         );
         assert_eq!(
-            parse_signex_markup(r"\_\~not overbar\~\_"),
+            parse_oxide_markup(r"\_\~not overbar\~\_"),
             vec![RichSegment::Normal("_~not overbar~_".into())]
         );
     }
@@ -670,7 +670,7 @@ mod tests {
     fn mixed_overbar_and_subscript() {
         // _~OE~_~0~ → overbar OE + subscript 0
         assert_eq!(
-            parse_signex_markup("_~OE~_~0~"),
+            parse_oxide_markup("_~OE~_~0~"),
             vec![
                 RichSegment::Overbar("OE".into()),
                 RichSegment::Subscript("0".into()),
@@ -682,13 +682,13 @@ mod tests {
     fn unmatched_sigil_is_literal() {
         // No closing sigil → consume as literal.
         assert_eq!(
-            parse_signex_markup("a*b"),
+            parse_oxide_markup("a*b"),
             vec![RichSegment::Normal("a*b".into())]
         );
     }
 
     #[test]
-    fn auto_net_name_format_is_signex() {
+    fn auto_net_name_format_is_oxide() {
         let pins = vec![
             ("U2".to_string(), "5".to_string()),
             ("R1".to_string(), "2".to_string()),

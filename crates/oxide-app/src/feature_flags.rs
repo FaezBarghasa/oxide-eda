@@ -32,9 +32,9 @@
 ///
 /// When ON, this enables:
 /// - opening a `.snxfpt` as an editable `TabKind::FootprintEditor` tab
-///   ([`crate::app::Signex::handle_open_primitive`]);
+///   ([`crate::app::Oxide::handle_open_primitive`]);
 /// - the "New Footprint / PCB Library" create flow
-///   ([`crate::app::Signex::add_project_footprint_library`]);
+///   ([`crate::app::Oxide::add_project_footprint_library`]);
 /// - the matching command-palette entry and project-tree menu items.
 ///
 /// Set back to `false` to ship the editor dark again; the

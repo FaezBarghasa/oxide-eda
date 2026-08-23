@@ -4,7 +4,7 @@ use iced::Task;
 
 use super::super::super::*;
 
-impl Signex {
+impl Oxide {
     pub(crate) fn handle_open_erc_dialog(&mut self) -> Task<Message> {
         self.ui_state.erc_dialog_open = true;
         self.interaction_state.context_menu = None;

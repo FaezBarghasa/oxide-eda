@@ -1,6 +1,6 @@
-# Contributing to Signex
+# Contributing to Oxide
 
-Thanks for your interest in contributing to Signex! Whether you're fixing a bug,
+Thanks for your interest in contributing to Oxide! Whether you're fixing a bug,
 adding a feature, improving docs, or just opening an issue — every contribution
 helps build a better EDA tool for the community.
 
@@ -8,7 +8,7 @@ helps build a better EDA tool for the community.
 
 ### Report Bugs
 
-Found something broken? [Open an issue](https://github.com/alplabai/signex/issues/new)
+Found something broken? [Open an issue](https://github.com/alplabai/oxide/issues/new)
 with:
 
 - Steps to reproduce
@@ -18,37 +18,37 @@ with:
 
 ### Suggest Features
 
-Have an idea? [Open a discussion](https://github.com/alplabai/signex/discussions)
+Have an idea? [Open a discussion](https://github.com/alplabai/oxide/discussions)
 or issue. We're building toward Altium Designer feature parity, so if Altium
-does something that Signex doesn't yet, that's a valid feature request.
+does something that Oxide doesn't yet, that's a valid feature request.
 
 ### Fix Bugs or Add Features
 
-1. Check the [open issues](https://github.com/alplabai/signex/issues) or
-   [milestones](https://github.com/alplabai/signex/milestones) for things to
+1. Check the [open issues](https://github.com/alplabai/oxide/issues) or
+   [milestones](https://github.com/alplabai/oxide/milestones) for things to
    work on
 2. Comment on the issue to let us know you're working on it
 3. Fork, branch, code, PR (details below)
 
 ### Improve the KiCad Migration Path
 
-KiCad import / export lives in the optional [signex-kicad-import](https://github.com/alplabai/signex-kicad-import)
+KiCad import / export lives in the optional [oxide-kicad-import](https://github.com/alplabai/oxide-kicad-import)
 companion repo (GPL-3.0-or-later). PRs that improve KiCad parsing
 fidelity, fix migration round-trip issues, or expand the converter's
-coverage belong **there**, not in the main signex repo. The main repo
+coverage belong **there**, not in the main oxide repo. The main repo
 is Apache-2.0 clean and contains no KiCad-derived code by design — see
 [docs/LICENSING.md](docs/LICENSING.md).
 
 ### Add Test Fixtures
 
-We maintain a corpus of native Signex `.snxsch` / `.snxpcb` files in
+We maintain a corpus of native Oxide `.snxsch` / `.snxpcb` files in
 `tests/fixtures/`. Adding more fixtures from diverse designs improves
 coverage. If you have a project you're willing to share (or can create
 a minimal reproducer), PRs that add fixtures are very welcome.
 
 ### Improve Rendering Fidelity
 
-Side-by-side screenshots comparing Signex's output to a reference
+Side-by-side screenshots comparing Oxide's output to a reference
 (Altium Designer is the canonical reference for visual fidelity per
 the project's design rules) help identify rendering discrepancies.
 
@@ -77,10 +77,10 @@ the new rustfmt reformats anything.
 ### Build and Run
 
 ```bash
-git clone https://github.com/alplabai/signex.git
-cd signex
+git clone https://github.com/alplabai/oxide.git
+cd oxide
 cargo build --workspace
-cargo run -p signex-app
+cargo run -p oxide-app
 ```
 
 ### Verify Your Changes
@@ -148,22 +148,22 @@ Each crate maps to an `area:` label (auto-applied to PRs by path — see
 
 | Crate | What goes here | `area:` label |
 |---|---|---|
-| `signex-types` | Domain types (schematic, PCB, net, layer, theme) + native `.snxsch`/`.snxpcb` format codec. **No rendering deps.** | `types` |
-| `signex-engine` | Edit engine + multi-window history. | `engine` |
-| `signex-sketch` | 2D geometry, constraints, and the sketch solver. | `sketch` |
-| `signex-bake` | Pad baking, arrays, pad/via numbering. | `bake` |
-| `signex-library` / `signex-library-server` | Component library model + the library server. | `library` |
-| `signex-erc` / `signex-erc-dsl` | ERC rule engine + DSL compiler. | `erc` |
-| `signex-bom` | Bill-of-materials generation. | `bom` |
-| `signex-output` | PDF / netlist exporters (non-KiCad formats). | `output` |
-| `signex-renderer` / `signex-gfx` | Canvas draw routines + GPU rendering. | `rendering` |
-| `signex-3d-model-importer` | 3D model (glTF/STEP) import. | `3d` |
-| `signex-widgets` / `chrome-catalog` | Custom Iced widgets + chrome catalog. | `widgets` |
-| `signex-app` | Main binary — Iced app, panels, dock, menus, canvas, Active Bar, and the footprint/symbol/library editors. | `app`, `footprint-editor`, `symbol-editor`, `schematic`, `pcb` |
+| `oxide-types` | Domain types (schematic, PCB, net, layer, theme) + native `.snxsch`/`.snxpcb` format codec. **No rendering deps.** | `types` |
+| `oxide-engine` | Edit engine + multi-window history. | `engine` |
+| `oxide-sketch` | 2D geometry, constraints, and the sketch solver. | `sketch` |
+| `oxide-bake` | Pad baking, arrays, pad/via numbering. | `bake` |
+| `oxide-library` / `oxide-library-server` | Component library model + the library server. | `library` |
+| `oxide-erc` / `oxide-erc-dsl` | ERC rule engine + DSL compiler. | `erc` |
+| `oxide-bom` | Bill-of-materials generation. | `bom` |
+| `oxide-output` | PDF / netlist exporters (non-KiCad formats). | `output` |
+| `oxide-renderer` / `oxide-gfx` | Canvas draw routines + GPU rendering. | `rendering` |
+| `oxide-3d-model-importer` | 3D model (glTF/STEP) import. | `3d` |
+| `oxide-widgets` / `chrome-catalog` | Custom Iced widgets + chrome catalog. | `widgets` |
+| `oxide-app` | Main binary — Iced app, panels, dock, menus, canvas, Active Bar, and the footprint/symbol/library editors. | `app`, `footprint-editor`, `symbol-editor`, `schematic`, `pcb` |
 
-**Rule:** `signex-types` has zero rendering dependencies. If you need to draw
-something, that code goes in `signex-renderer` / `signex-gfx`. If you need a UI
-widget, that goes in `signex-widgets` or `signex-app`.
+**Rule:** `oxide-types` has zero rendering dependencies. If you need to draw
+something, that code goes in `oxide-renderer` / `oxide-gfx`. If you need a UI
+widget, that goes in `oxide-widgets` or `oxide-app`.
 
 ## Labels
 
@@ -208,7 +208,7 @@ the importable ruleset is in [`.github/rulesets/`](.github/rulesets/). In short:
 
 ## Good First Issues
 
-Look for issues labeled [`good first issue`](https://github.com/alplabai/signex/labels/good%20first%20issue).
+Look for issues labeled [`good first issue`](https://github.com/alplabai/oxide/labels/good%20first%20issue).
 These are scoped, well-defined tasks that don't require deep knowledge of the
 codebase.
 
@@ -234,16 +234,16 @@ By submitting a pull request, you agree that your contribution is licensed under
 the same [Apache-2.0 license](LICENSE) as the rest of the project.
 
 We require this so that the project can maintain a consistent license and offer
-Signex Pro under a separate commercial license without needing to re-negotiate
+Oxide Pro under a separate commercial license without needing to re-negotiate
 with every contributor.
 
 ## License compliance for contributions
 
-The main signex repo is **Apache-2.0 clean**. Patches must not introduce
+The main oxide repo is **Apache-2.0 clean**. Patches must not introduce
 code, data, or dependencies under any licence incompatible with
 Apache-2.0 — which is a wider net than GPL, and the next section defines
 it. KiCad import / export lives in the
-[signex-kicad-import](https://github.com/alplabai/signex-kicad-import)
+[oxide-kicad-import](https://github.com/alplabai/oxide-kicad-import)
 GPL-3.0-or-later companion repo — that's where KiCad-related work
 belongs. See [docs/LICENSING.md](docs/LICENSING.md) for the full statement
 and the rationale behind the two-repo split.
@@ -255,7 +255,7 @@ nothing under GPL/copyleft **or otherwise Apache-incompatible**. We asked
 that for a long time without ever saying what the second half meant, which
 was our omission, not a contributor's problem to guess at.
 
-It cost someone. [PR #304](https://github.com/alplabai/signex/pull/304)
+It cost someone. [PR #304](https://github.com/alplabai/oxide/pull/304)
 arrived as a skilled, careful Rust rewrite of a project licensed
 "CC BY 4.0 … You may not resell this tool". That is Apache-incompatible on
 two counts, and it passed all twelve of our licence CI jobs plus
@@ -279,7 +279,7 @@ you wrote it, not how much the output diverges.
 **Licence classes that are incompatible with this repo:**
 
 - **GPL / copyleft** — GPL-2.0/3.0, AGPL, and **LGPL**. Reciprocal terms
-  relicense Signex; a binding is a link. Copyleft solvers are reached
+  relicense Oxide; a binding is a link. Copyleft solvers are reached
   across a process boundary only — see
   [docs/EXTERNAL_TOOLS.md §4](docs/EXTERNAL_TOOLS.md#4-the-gpl--lgpl-bridge-boundary),
   which is the dependency-side counterpart to this section.
@@ -304,8 +304,8 @@ you wrote it, not how much the output diverges.
 MIT, BSD, ISC, Zlib, Unlicense, CC0, and Apache-2.0 are fine. Anything on
 neither list: ask.
 
-**Why "no resale" is fatal here in particular.** Signex Community is
-Apache-2.0 and free; **Signex Pro is a paid commercial edition built from
+**Why "no resale" is fatal here in particular.** Oxide Community is
+Apache-2.0 and free; **Oxide Pro is a paid commercial edition built from
 this same tree**. A field-of-use restriction on any code in `crates/` would
 be violated the day Pro ships, and would break the Apache-2.0 surface we
 promise every downstream redistributor and embedder. Plenty of projects
@@ -314,7 +314,7 @@ our business model, not a judgement about the licence.
 
 ### If you're not sure, ask — don't PR
 
-[Open an issue](https://github.com/alplabai/signex/issues/new), name the
+[Open an issue](https://github.com/alplabai/oxide/issues/new), name the
 source and its licence, and we'll answer. It costs you one comment. A wrong
 guess discovered at review costs you the weekend you spent on the code, and
 we would rather spend our time saying "yes, go" than "sorry". This is the
@@ -357,9 +357,9 @@ it is the thing that works.
 
 ## Questions?
 
-- [Open a discussion](https://github.com/alplabai/signex/discussions) for
+- [Open a discussion](https://github.com/alplabai/oxide/discussions) for
   general questions
-- [Open an issue](https://github.com/alplabai/signex/issues) for bugs or
+- [Open an issue](https://github.com/alplabai/oxide/issues) for bugs or
   feature requests
 - Check the [Roadmap](docs/ROADMAP.md) to see what's planned and where your
   contribution might fit

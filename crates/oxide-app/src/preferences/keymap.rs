@@ -43,7 +43,7 @@ pub(super) fn content_keyboard_shortcuts<'a>(
     let header = column![
         section_title("Keyboard Shortcuts"),
         Space::new().height(4),
-        text("Configure keyboard shortcut profiles. Command names and categories come from Signex command metadata.")
+        text("Configure keyboard shortcut profiles. Command names and categories come from Oxide command metadata.")
             .size(11)
             .style(text_muted),
     ]

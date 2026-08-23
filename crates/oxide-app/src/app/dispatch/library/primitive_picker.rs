@@ -8,7 +8,7 @@
 use super::*;
 use crate::library::resolve::{ResolvedKind, report_read_failure};
 
-impl Signex {
+impl Oxide {
     /// Open the Symbol/Footprint primitive picker modal. `target`
     /// determines what happens when the user picks something.
     pub(super) fn handle_open_primitive_picker(
@@ -155,7 +155,7 @@ impl Signex {
             Some(r) => r,
             None => {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     library = %address.library_path.display(),
                     table = %address.table,
                     row_id = %address.row_id,
@@ -176,7 +176,7 @@ impl Signex {
             Ok(h) => row.content_hash = h,
             Err(e) => {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     error = %e,
                     "browser-row primitive pick: hash failed"
                 );
@@ -202,7 +202,7 @@ impl Signex {
         };
         if let Err(e) = result {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 error = %e,
                 "browser-row primitive pick: update_row failed"
             );
@@ -211,7 +211,7 @@ impl Signex {
         // 5. Refresh cache.
         if let Err(e) = self.library.refresh_components(&address.library_path) {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 error = %e,
                 "browser-row primitive pick: refresh_components failed"
             );
@@ -268,7 +268,7 @@ impl Signex {
             }
             Err(e) => {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     error = %e,
                     "primitive pick: hash failed"
                 );
@@ -293,7 +293,7 @@ impl Signex {
         };
         if let Err(e) = result {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 error = %e,
                 "primitive pick: update_row failed"
             );
@@ -301,7 +301,7 @@ impl Signex {
         }
         if let Err(e) = self.library.refresh_components(&address.library_path) {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 error = %e,
                 "primitive pick: refresh_components failed"
             );
@@ -334,7 +334,7 @@ impl Signex {
         // Mount the library if not already.
         if let Err(e) = commands::open_library(&mut self.library, snxlib_dir.clone()) {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 path = %snxlib_dir.display(),
                 error = %e,
                 "browse-pick: open_library failed"

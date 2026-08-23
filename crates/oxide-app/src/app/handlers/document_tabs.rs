@@ -2,7 +2,7 @@ use iced::Task;
 
 use super::super::*;
 
-impl Signex {
+impl Oxide {
     pub(crate) fn handle_document_tab_message(
         &mut self,
         window_id: iced::window::Id,

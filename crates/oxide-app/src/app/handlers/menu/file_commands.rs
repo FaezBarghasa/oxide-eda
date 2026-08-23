@@ -2,15 +2,15 @@ use iced::Task;
 
 use super::super::super::*;
 
-impl Signex {
+impl Oxide {
     pub(super) fn handle_menu_file_command(&mut self, msg: &MenuMessage) -> Option<Task<Message>> {
         match msg {
             MenuMessage::OpenProject => Some(Task::perform(
                 async {
                     rfd::AsyncFileDialog::new()
                         .set_title("Open Project or Schematic")
-                        .add_filter("Signex Project", &["snxprj"])
-                        .add_filter("Signex Schematic", &["snxsch"])
+                        .add_filter("Oxide Project", &["snxprj"])
+                        .add_filter("Oxide Schematic", &["snxsch"])
                         .add_filter("All Supported", &["snxprj", "snxsch"])
                         .add_filter("All files", &["*"])
                         .pick_file()
@@ -24,7 +24,7 @@ impl Signex {
                 async {
                     rfd::AsyncFileDialog::new()
                         .set_title("Save Schematic As")
-                        .add_filter("Signex Schematic", &["snxsch"])
+                        .add_filter("Oxide Schematic", &["snxsch"])
                         .save_file()
                         .await
                         .map(|file| file.path().to_path_buf())
@@ -37,9 +37,9 @@ impl Signex {
             MenuMessage::NewProject => Some(Task::perform(
                 async {
                     rfd::AsyncFileDialog::new()
-                        .set_title("New Signex Project")
+                        .set_title("New Oxide Project")
                         .set_file_name("Untitled.snxprj")
-                        .add_filter("Signex Project", &["snxprj"])
+                        .add_filter("Oxide Project", &["snxprj"])
                         .save_file()
                         .await
                         .map(|file| file.path().to_path_buf())
@@ -76,7 +76,7 @@ impl Signex {
                     ))),
                     None => {
                         tracing::warn!(
-                            target: "signex::library",
+                            target: "oxide::library",
                             "Add Component Library: no active project to attach to"
                         );
                         Some(iced::Task::none())
@@ -185,7 +185,7 @@ impl Signex {
             Some(p) if !p.is_empty() => p,
             _ => {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     ?kind,
                     "Add Library primitive: no project node in context menu state"
                 );
@@ -202,14 +202,14 @@ impl Signex {
             PrimitiveKind::Footprint => self.add_project_footprint_library(project_path),
             PrimitiveKind::Sim => {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     "Add Library primitive: Sim creation not wired from this menu"
                 );
                 Task::none()
             }
             _ => {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     ?kind,
                     "Add Library primitive: unsupported PrimitiveKind variant"
                 );

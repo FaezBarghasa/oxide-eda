@@ -51,7 +51,7 @@ pub(super) fn find_standard_symbols_dir() -> Option<PathBuf> {
 
 /// List .standard_sym filenames in a directory.
 ///
-/// Read once, from `Signex::new()`, into the Components panel's library
+/// Read once, from `Oxide::new()`, into the Components panel's library
 /// pick_list — so a directory that cannot be read leaves that list empty
 /// for the whole session. `list_dir_or_report` surfaces that instead of
 /// letting it read as "no standard libraries installed".

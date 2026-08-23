@@ -178,7 +178,7 @@ pub(crate) const PAINT_ORDER: [OverlayId; 50] = [
 /// or Esc dismisses a card the user cannot see — see the module docs.
 ///
 /// Callers pass their own `has_blocking_modal` on purpose — the painter's
-/// (`Signex::has_blocking_modal`, `bars.rs`) reads live state, the Esc
+/// (`Oxide::has_blocking_modal`, `bars.rs`) reads live state, the Esc
 /// ladder's (`OpenOverlays::has_blocking_modal`) reads a snapshot — but
 /// the two must agree term for term. They did not until #547: the ladder
 /// filtered a print preview detached into its own OS window and the
@@ -277,7 +277,7 @@ pub(crate) fn visible(has_blocking_modal: bool) -> &'static [OverlayId] {
     }
 }
 
-impl Signex {
+impl Oxide {
     /// Append `id`'s layers to the stack under construction.
     ///
     /// Each builder keeps its own open/closed guard and returns nothing

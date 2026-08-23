@@ -62,7 +62,7 @@ impl MouserAdapter {
             cache,
             throttle: Mutex::new(None),
             http: reqwest::blocking::Client::builder()
-                .user_agent("oxide-library/0.9 (+https://signex.dev)")
+                .user_agent("oxide-library/0.9 (+https://oxide.dev)")
                 .build()
                 .expect("reqwest::blocking::Client::build is infallible with default opts"),
             auth: AuthSource::Keyring(KeyringStore::for_provider("mouser", "default")?),
@@ -80,7 +80,7 @@ impl MouserAdapter {
             cache,
             throttle: Mutex::new(None),
             http: reqwest::blocking::Client::builder()
-                .user_agent("oxide-library/0.9 (+https://signex.dev)")
+                .user_agent("oxide-library/0.9 (+https://oxide.dev)")
                 .build()
                 .expect("reqwest::blocking::Client::build is infallible with default opts"),
             auth: AuthSource::Inline(api_key.into()),

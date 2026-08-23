@@ -7,7 +7,7 @@ use oxide_output::{BomColumn, BomExporter, BomFormat, BomGrouping, BomOptions, E
 
 use super::super::super::super::*;
 
-impl Signex {
+impl Oxide {
     /// Open the BOM preview modal — Altium parity with Print Preview.
     /// Builds the rolled-up table from the active project's
     /// schematic snapshot and seeds the modal with the default

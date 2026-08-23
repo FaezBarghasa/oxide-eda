@@ -70,7 +70,7 @@ pub(crate) fn chrome_search_bar_geometry(window_w: f32) -> (f32, f32) {
     (x, width)
 }
 
-impl Signex {
+impl Oxide {
     pub fn view(&self, window_id: iced::window::Id) -> Element<'_, Message> {
         // Secondary windows (detached modals, future undocked tabs) render
         // just their own content — no menu / dock / canvas. The main
@@ -80,7 +80,7 @@ impl Signex {
             return match kind {
                 super::state::WindowKind::DetachedModal(modal) => self.view_detached_modal(*modal),
                 // Undocked tab = full duplicate of the main app view.
-                // Shared Signex state means edits sync automatically; the
+                // Shared Oxide state means edits sync automatically; the
                 // only difference between main and undocked is the OS
                 // window id they render into.
                 super::state::WindowKind::UndockedTab { .. } => self.view_main_for(window_id),

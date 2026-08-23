@@ -13,7 +13,7 @@ mod ui;
 pub use interaction::InteractionState;
 pub use ui::UiState;
 
-pub struct Signex {
+pub struct Oxide {
     pub ui_state: UiState,
     pub document_state: DocumentState,
     pub interaction_state: InteractionState,
@@ -76,14 +76,14 @@ impl KeymapRecorderState {
     }
 }
 
-/// Role of a non-main window opened by Signex. Phase 2 adds detached
+/// Role of a non-main window opened by Oxide. Phase 2 adds detached
 /// modals; Phase 3 adds `UndockedTab(tab_index)` so a schematic sheet
 /// can live in its own OS window.
 #[derive(Debug, Clone)]
 pub enum WindowKind {
     DetachedModal(ModalId),
     /// Undocked document tab. Stores the tab's file path (unique per
-    /// open tab in Signex) so the mapping survives tab reordering or
+    /// open tab in Oxide) so the mapping survives tab reordering or
     /// unrelated tabs closing. The `title` copy is used as the OS
     /// window title without re-reading tabs.
     UndockedTab {
@@ -95,7 +95,7 @@ pub enum WindowKind {
     /// reattaches the panel to its last dock region.
     DetachedPanel(crate::panels::PanelKind),
     /// v0.9-refactor-2 Component Preview — one window per open row.
-    /// The preview's full state lives in `Signex::library.editors`
+    /// The preview's full state lives in `Oxide::library.editors`
     /// keyed by `EditorAddress(library_path, table, row_id)`.
     ComponentEditor {
         library_path: std::path::PathBuf,
@@ -429,7 +429,7 @@ pub struct DocumentState {
     /// are currently queued or in flight. Drives the status bar's
     /// "Saving…" pill — when non-empty the user sees an indicator.
     /// An entry lands here as soon as
-    /// [`Signex::commit_save_to_project_git`] enqueues the work and
+    /// [`Oxide::commit_save_to_project_git`] enqueues the work and
     /// clears on `Message::Project(ProjectMsg::GitCommitDone)`.
     pub inflight_git_commits: std::collections::HashSet<(PathBuf, PathBuf)>,
     /// #478 review — paths whose async schematic/PCB read+parse

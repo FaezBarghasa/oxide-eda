@@ -398,7 +398,7 @@ mod tests {
         }
     }
 
-    /// Golden-snapshot test (signex#276): locks the STABLE command-id
+    /// Golden-snapshot test (oxide#276): locks the STABLE command-id
     /// surface — `id` + `group` + `category` — because external CLI/plugin
     /// tooling depends on ids staying put. The churny descriptor fields
     /// (`icon`/`keybind`/`enable`/`flags`, added by #275/#479) are

@@ -34,7 +34,7 @@ pub(in crate::app) fn list_dir_or_report(dir: &Path, context: &str) -> Vec<PathB
         Err(error) => {
             if claim_first_report(dir) {
                 tracing::error!(
-                    target: "signex::fs",
+                    target: "oxide::fs",
                     error = %error,
                     dir = %dir.display(),
                     context = context,
@@ -49,7 +49,7 @@ pub(in crate::app) fn list_dir_or_report(dir: &Path, context: &str) -> Vec<PathB
         match entry {
             Ok(entry) => paths.push(entry.path()),
             Err(error) => tracing::warn!(
-                target: "signex::fs",
+                target: "oxide::fs",
                 error = %error,
                 dir = %dir.display(),
                 context = context,

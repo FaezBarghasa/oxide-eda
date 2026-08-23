@@ -11,7 +11,7 @@
 
 ## Scope
 
-Inventory all direct `signex_render::schematic` runtime callsites in `signex-app`
+Inventory all direct `oxide_render::schematic` runtime callsites in `oxide-app`
 and freeze the first migration boundary for incremental cutover.
 
 ## Inventory baseline
@@ -19,14 +19,14 @@ and freeze the first migration boundary for incremental cutover.
 Command used:
 
 ```text
-rg -n "signex_render::schematic::" crates/signex-app/src
+rg -n "oxide_render::schematic::" crates/oxide-app/src
 ```
 
 Result summary:
 
 - Direct runtime callsites: 75
 - Source files touched by the callsite map: 13
-- Highest density file: `crates/signex-app/src/canvas/mod.rs`
+- Highest density file: `crates/oxide-app/src/canvas/mod.rs`
 
 Mapped callsite families:
 
@@ -46,16 +46,16 @@ Mapped callsite families:
 ## Cutover contract freeze (Task 01 output)
 
 - Migration starts with path centralization, not immediate API rewrite.
-- `signex-app` modules stop referencing `signex_render::schematic` directly.
+- `oxide-app` modules stop referencing `oxide_render::schematic` directly.
 - A single bridge module in app owns legacy runtime imports during transition.
 - Behavior parity checks for canvas + selection remain mandatory before Task 03.
 
 ## Clean-room evidence
 
 - Source: Milestone F issue scope and Task 01 definition.
-- Derivation: callsite graph derived by repository grep over `signex-app/src`.
+- Derivation: callsite graph derived by repository grep over `oxide-app/src`.
 - Rationale: centralizing callsites first reduces risk and enables staged swap to
-  `signex-renderer` without broad multi-file breakage.
+  `oxide-renderer` without broad multi-file breakage.
 - Clean-room check: No GPL-licensed source consulted.
 - Verification: callsite count and file map captured in this note.
 

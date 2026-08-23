@@ -27,7 +27,7 @@
 use super::input::InputTarget;
 use super::*;
 
-impl Signex {
+impl Oxide {
     /// Resolve one Esc against the window it was typed in.
     pub(crate) fn handle_escape_pressed(
         &mut self,
@@ -198,12 +198,12 @@ mod tests {
 
     /// A freshly built app with nothing claiming Esc.
     ///
-    /// `Signex::new()` opens the first-run tour, which is a legitimate
+    /// `Oxide::new()` opens the first-run tour, which is a legitimate
     /// rung and would answer every Esc these tests send. Closing it is
     /// the whole fixture; the assertion keeps that honest if another
     /// overlay ever starts life open.
-    fn quiet_app() -> Signex {
-        let (mut app, _boot) = Signex::new();
+    fn quiet_app() -> Oxide {
+        let (mut app, _boot) = Oxide::new();
         app.ui_state.first_run_tour_open = false;
         assert!(
             app.escape_overlay_message().is_none(),
@@ -214,13 +214,13 @@ mod tests {
     }
 
     /// Give `kind` its own OS window and hand back that window's id.
-    fn open_window(app: &mut Signex, kind: WindowKind) -> iced::window::Id {
+    fn open_window(app: &mut Oxide, kind: WindowKind) -> iced::window::Id {
         let id = iced::window::Id::unique();
         app.ui_state.windows.insert(id, kind);
         id
     }
 
-    fn detach(app: &mut Signex, modal: ModalId) -> iced::window::Id {
+    fn detach(app: &mut Oxide, modal: ModalId) -> iced::window::Id {
         open_window(app, WindowKind::DetachedModal(modal))
     }
 

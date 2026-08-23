@@ -362,7 +362,7 @@ mod tests {
         // Drive the same code path the dispatcher uses for inline edits.
         // `apply_inline_edit` is `pub(crate)` so the unit tests in this
         // module can exercise the SimSet*/SimBodyAction handlers
-        // without standing up the full Signex update tree.
+        // without standing up the full Oxide update tree.
         crate::library::component_preview::apply_inline_edit(editor, msg);
     }
 

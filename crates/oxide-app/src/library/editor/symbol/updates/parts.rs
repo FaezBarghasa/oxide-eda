@@ -60,7 +60,7 @@ pub(super) fn apply_symbol_parts(editor: &mut SymEditor, msg: SymbolEditorMsg) {
                 // `LevelFilter::Info`, so in a shipped build the refusal
                 // and its reason reached no one.
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     active = editor.active_part,
                     max,
                     "Remove Part was refused: a symbol must keep at least one part"

@@ -6,7 +6,7 @@ mod history;
 mod panel_ctx;
 mod symbol_ctx;
 
-impl Signex {
+impl Oxide {
     /// Resolved `.snxlib` paths referenced by every loaded project's
     /// `Project.libraries` list — reserved for callers outside the
     /// Components Panel that still need a flat slice (the panel itself
@@ -196,14 +196,14 @@ impl Signex {
     /// `Program` each frame). Two copies of this `if` was how the two
     /// could disagree.
     /// Canvas colours for a given theme id. `Custom` reads the loaded
-    /// custom theme and falls back to Signex when none is loaded.
+    /// custom theme and falls back to Oxide when none is loaded.
     pub(crate) fn canvas_colors_for(&self, id: ThemeId) -> oxide_types::theme::CanvasColors {
         if id == ThemeId::Custom {
             self.ui_state
                 .custom_theme
                 .as_ref()
                 .map(|custom_theme| custom_theme.canvas)
-                .unwrap_or_else(|| oxide_types::theme::canvas_colors(ThemeId::Signex))
+                .unwrap_or_else(|| oxide_types::theme::canvas_colors(ThemeId::Oxide))
         } else {
             oxide_types::theme::canvas_colors(id)
         }
@@ -248,7 +248,7 @@ impl Signex {
                 .custom_theme
                 .as_ref()
                 .map(|custom_theme| custom_theme.canvas)
-                .unwrap_or_else(|| oxide_types::theme::canvas_colors(ThemeId::Signex))
+                .unwrap_or_else(|| oxide_types::theme::canvas_colors(ThemeId::Oxide))
         } else {
             oxide_types::theme::canvas_colors(self.ui_state.theme_id)
         };
@@ -277,7 +277,7 @@ mod tests {
     #[test]
     fn grid_settings_reach_the_renderer_with_no_sync_step() {
         // Arrange
-        let (mut app, _t) = Signex::new();
+        let (mut app, _t) = Oxide::new();
         // Copy the scalars out so the prefs borrow of `app` ends here —
         // it borrows `wire_color_overrides`, so holding it would block the
         // mutations below.
@@ -312,7 +312,7 @@ mod tests {
     #[test]
     fn the_canvas_previews_the_draft_theme_not_the_committed_one() {
         // Arrange
-        let (mut app, _t) = Signex::new();
+        let (mut app, _t) = Oxide::new();
         let committed = app.ui_state.theme_id;
         let other = if committed == ThemeId::Nord {
             ThemeId::SolarizedLight
@@ -335,16 +335,16 @@ mod tests {
         );
     }
 
-    /// #631 — `preferences_draft_theme` was hardcoded to `Signex` at boot
+    /// #631 — `preferences_draft_theme` was hardcoded to `Oxide` at boot
     /// rather than seeded from the saved preference. That was invisible
     /// while nothing read it before the Preferences dialog first opened
     /// (`seed_preferences_drafts_from_live` repaired it there). The canvas
-    /// reads it now, so a user whose saved theme is not Signex would have
+    /// reads it now, so a user whose saved theme is not Oxide would have
     /// opened to the wrong canvas colours.
     #[test]
     fn boot_seeds_the_draft_theme_from_the_saved_theme() {
         // Arrange / Act
-        let (app, _t) = Signex::new();
+        let (app, _t) = Oxide::new();
 
         // Assert
         assert_eq!(
@@ -365,7 +365,7 @@ mod tests {
     #[test]
     fn wire_colour_overrides_are_read_from_ui_state() {
         // Arrange
-        let (mut app, _t) = Signex::new();
+        let (mut app, _t) = Oxide::new();
         let uuid = uuid::Uuid::new_v4();
         let color = oxide_types::theme::Color {
             r: 1,

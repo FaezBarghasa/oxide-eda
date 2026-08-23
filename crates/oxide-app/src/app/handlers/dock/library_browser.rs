@@ -2,7 +2,7 @@ use anyhow::Result;
 
 use super::super::super::*;
 
-impl Signex {
+impl Oxide {
     pub(super) fn handle_dock_library_browser_message(
         &mut self,
         panel_msg: &crate::panels::PanelMsg,
@@ -115,9 +115,9 @@ impl Signex {
         // TODO(issue#62): port the legacy `.standard_sym` library browser to
         // the native `.snxlib`/`.snxsym` flow. Until then, the browser is
         // a no-op for foreign libraries — Standard-format libraries are no
-        // longer parsed in Signex Community.
+        // longer parsed in Oxide Community.
         crate::diagnostics::log_warning(format!(
-            "Skipping foreign symbol library {} ({}); convert with the oxide-standard-import companion to use it in Signex.",
+            "Skipping foreign symbol library {} ({}); convert with the oxide-standard-import companion to use it in Oxide.",
             library_name,
             library_path.display(),
         ));

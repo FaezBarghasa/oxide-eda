@@ -9,7 +9,7 @@ mod panel_commands;
 mod placement;
 mod view_commands;
 
-impl Signex {
+impl Oxide {
     pub(crate) fn handle_menu_message(&mut self, msg: MenuMessage) -> Task<Message> {
         if let Some(task) = self.handle_menu_file_command(&msg) {
             return task;

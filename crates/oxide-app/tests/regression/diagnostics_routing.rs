@@ -12,10 +12,10 @@
 //! unrelated later message happened to republish it — so the log window
 //! showed the failure attached to the wrong action, or not at all.
 //!
-//! These drive the real dispatcher through `Signex::update`, so they fail
+//! These drive the real dispatcher through `Oxide::update`, so they fail
 //! if the republish call is removed.
 
-use oxide_app::app::Signex;
+use oxide_app::app::Oxide;
 use oxide_app::app::contracts::{Message, PreferencesMsg};
 use oxide_app::diagnostics;
 
@@ -33,7 +33,7 @@ fn ensure_logger() {
 fn a_record_emitted_during_a_preferences_message_reaches_the_panel_snapshot() {
     // Arrange
     ensure_logger();
-    let (mut app, _boot) = Signex::new();
+    let (mut app, _boot) = Oxide::new();
     let marker = "diagnostics_routing marker 4f21ac";
     assert!(
         !app.document_state
@@ -68,7 +68,7 @@ fn a_record_emitted_during_a_preferences_message_reaches_the_panel_snapshot() {
 fn the_panel_snapshot_is_refreshed_on_every_preferences_message() {
     // Arrange
     ensure_logger();
-    let (mut app, _boot) = Signex::new();
+    let (mut app, _boot) = Oxide::new();
     let _ = app.update(Message::Preferences(PreferencesMsg::Open));
     let marker = "diagnostics_routing second marker 9b03de";
     assert!(

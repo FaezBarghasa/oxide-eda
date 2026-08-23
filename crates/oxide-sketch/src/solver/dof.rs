@@ -203,7 +203,7 @@ pub fn over_constraint_ids(
     }
     if !unevaluable.is_empty() {
         tracing::warn!(
-            target: "signex::sketch",
+            target: "oxide::sketch",
             skipped = unevaluable.len(),
             constraints = ?unevaluable,
             error = first_error.as_deref().unwrap_or("unknown"),

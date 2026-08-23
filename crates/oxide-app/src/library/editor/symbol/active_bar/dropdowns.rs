@@ -445,7 +445,7 @@ mod tests {
     /// decision recorded on `place_entries`'s doc comment.
     #[test]
     fn place_move_row_arms_select_tool() {
-        let entries = place_entries(PathBuf::from("t.snxsym"), ThemeId::Signex);
+        let entries = place_entries(PathBuf::from("t.snxsym"), ThemeId::Oxide);
         assert!(matches!(
             item_msg(&entries, "Move"),
             SymbolEditorMsg::SetTool(SymbolToolMsg::Select)
@@ -457,7 +457,7 @@ mod tests {
     /// `AlignSelectedToGrid` snap.
     #[test]
     fn align_to_grid_row_snaps_selection() {
-        let entries = align_entries(PathBuf::from("t.snxsym"), ThemeId::Signex);
+        let entries = align_entries(PathBuf::from("t.snxsym"), ThemeId::Oxide);
         assert!(matches!(
             item_msg(&entries, "Align To Grid"),
             SymbolEditorMsg::AlignSelectedToGrid

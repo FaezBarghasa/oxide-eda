@@ -189,7 +189,7 @@ pub fn view<'a>(
     }
     order_col = order_col.push(
         text(
-            "Saved to <config_dir>/signex/distributors.toml. The first matching adapter is \
+            "Saved to <config_dir>/oxide/distributors.toml. The first matching adapter is \
              tried first when you paste a distributor URL into the Supply tab.",
         )
         .size(10)

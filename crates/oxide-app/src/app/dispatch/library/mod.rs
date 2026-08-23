@@ -52,7 +52,7 @@ use recovery::{
     route_open_error,
 };
 
-impl Signex {
+impl Oxide {
     pub(crate) fn dispatch_library_message(&mut self, msg: LibraryMessage) -> Task<Message> {
         match msg {
             LibraryMessage::OpenLibraryDialog => self.handle_open_library_dialog(),

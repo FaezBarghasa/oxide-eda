@@ -1,4 +1,4 @@
-//! Signex-native PCB layer abstraction.
+//! Oxide-native PCB layer abstraction.
 //!
 //! Variants are **semantic** — they describe a layer's purpose
 //! (top copper, bottom silkscreen, courtyard, etc.), not its bit
@@ -82,7 +82,7 @@ impl OxideLayer {
         }
     }
 
-    /// Display label for the Signex UI per `docs/UX_REFERENCE_ALTIUM.md`
+    /// Display label for the Oxide UI per `docs/UX_REFERENCE_ALTIUM.md`
     /// and `reference_altium_layer_naming` memory note.
     pub fn altium_label(self) -> String {
         match self {

@@ -69,7 +69,7 @@ fn sorted_row_order(
     row_order
 }
 
-impl Signex {
+impl Oxide {
     /// Build the scrollable BOM data grid (header strip + data rows) for the
     /// active preview. Returns the `scrollable` body the modal drops into its
     /// main row.

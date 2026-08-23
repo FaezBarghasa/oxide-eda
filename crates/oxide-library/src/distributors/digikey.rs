@@ -251,7 +251,7 @@ impl DigiKeyAuth {
 
 fn build_http_client() -> reqwest::blocking::Client {
     reqwest::blocking::Client::builder()
-        .user_agent("oxide-library/0.9 (+https://signex.dev)")
+        .user_agent("oxide-library/0.9 (+https://oxide.dev)")
         .redirect(reqwest::redirect::Policy::none())
         .build()
         .expect("reqwest::blocking::Client::build is infallible with default opts")

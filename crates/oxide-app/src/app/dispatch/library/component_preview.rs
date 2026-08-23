@@ -8,7 +8,7 @@
 use super::*;
 use crate::library::resolve::{ResolvedKind, report_read_failure};
 
-impl Signex {
+impl Oxide {
     /// Trace-only signal: a Component Preview tab was opened for the
     /// given address. Fired alongside `OpenComponentRow`.
     pub(super) fn handle_component_preview_opened(
@@ -18,7 +18,7 @@ impl Signex {
         row_id: RowId,
     ) -> Task<Message> {
         tracing::debug!(
-            target: "signex::library",
+            target: "oxide::library",
             path = %path.display(),
             table = %table,
             row_id = %row_id,
@@ -75,7 +75,7 @@ impl Signex {
                 // `LevelFilter::Info`, so in a shipped build that refusal
                 // reached no one — the click looked like a hang.
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     "submit for review did nothing: it is not wired up in the Component \
                      Preview surface"
                 );
@@ -192,20 +192,20 @@ impl Signex {
         let mut row = state.row.clone();
         row.updated = chrono::Utc::now();
         if let Err(e) = row.refresh_content_hash() {
-            tracing::warn!(target: "signex::library", error = %e, "save row: refresh_content_hash failed");
+            tracing::warn!(target: "oxide::library", error = %e, "save row: refresh_content_hash failed");
         }
 
         let library_id = match self.library.library_at(&library_path) {
             Some(lib) => lib.library_id,
             None => {
-                tracing::warn!(target: "signex::library", "save row: library not open");
+                tracing::warn!(target: "oxide::library", "save row: library not open");
                 return;
             }
         };
         let adapter = match self.library.set.get(library_id) {
             Some(a) => a,
             None => {
-                tracing::warn!(target: "signex::library", "save row: library not mounted");
+                tracing::warn!(target: "oxide::library", "save row: library not mounted");
                 return;
             }
         };
@@ -216,11 +216,11 @@ impl Signex {
                     state.dirty = false;
                 }
                 if let Err(e) = self.library.refresh_components(&library_path) {
-                    tracing::warn!(target: "signex::library", error = %e, "post-save refresh failed");
+                    tracing::warn!(target: "oxide::library", error = %e, "post-save refresh failed");
                 }
             }
             Err(e) => {
-                tracing::warn!(target: "signex::library", error = %e, "update_row failed");
+                tracing::warn!(target: "oxide::library", error = %e, "update_row failed");
             }
         }
     }

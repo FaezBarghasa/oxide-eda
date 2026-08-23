@@ -2,7 +2,7 @@ use iced::Task;
 
 use super::super::super::*;
 
-impl Signex {
+impl Oxide {
     pub(super) fn handle_active_bar_placement_preset(
         &mut self,
         action: crate::active_bar::ActiveBarAction,

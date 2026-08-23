@@ -9,7 +9,7 @@
 
 use super::*;
 
-impl Signex {
+impl Oxide {
     /// Resolve the active `.snxsym` tab → its containing `.snxlib`,
     /// run `mutator` on the library's display settings, then clear
     /// the active editor's canvas cache so the change paints
@@ -465,7 +465,7 @@ impl Signex {
     pub(super) fn sch_library_select_symbol(&mut self, idx: usize) -> bool {
         let Some(editor) = self.active_symbol_editor_mut() else {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 idx,
                 "SCH Library: select fired without an active Symbol editor"
             );
@@ -473,7 +473,7 @@ impl Signex {
         };
         if idx >= editor.file.symbols.len() {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 idx,
                 len = editor.file.symbols.len(),
                 "SCH Library: select index out of range"
@@ -497,7 +497,7 @@ impl Signex {
     pub(super) fn sch_library_add_symbol(&mut self) -> bool {
         let Some(editor) = self.active_symbol_editor_mut() else {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 "SCH Library: add fired without an active Symbol editor"
             );
             return true;
@@ -540,7 +540,7 @@ impl Signex {
     pub(super) fn sch_library_delete_symbol(&mut self, idx: usize) -> bool {
         let Some(editor) = self.active_symbol_editor_mut() else {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 idx,
                 "SCH Library: delete fired without an active Symbol editor"
             );
@@ -548,14 +548,14 @@ impl Signex {
         };
         if editor.file.symbols.len() <= 1 {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 "SCH Library: refusing to delete the last symbol in the file"
             );
             return true;
         }
         if idx >= editor.file.symbols.len() {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 idx,
                 len = editor.file.symbols.len(),
                 "SCH Library: delete index out of range"

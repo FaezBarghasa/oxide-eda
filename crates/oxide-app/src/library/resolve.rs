@@ -53,7 +53,7 @@ pub(crate) fn report_read_failure<T>(
             // that identify the failure go first and the wider context
             // trails.
             tracing::error!(
-                target: "signex::library",
+                target: "oxide::library",
                 error = %e,
                 uuid = %reference.uuid,
                 kind = kind.label(),
@@ -79,7 +79,7 @@ mod tests {
     /// Make sure the real in-app logger is installed, so
     /// `recent_entries()` shows what the Messages panel would show.
     /// Other tests in this binary install it too; whoever gets there
-    /// first installs the same `SignexLogger` feeding the same sink,
+    /// first installs the same `OxideLogger` feeding the same sink,
     /// so a rejected second call changes nothing.
     fn messages_panel_capture() {
         use crate::ignore::IgnoreResult;
@@ -144,7 +144,7 @@ mod tests {
             "a swallowed read failure never reaches the user: {reported:?}"
         );
         assert_eq!(reported[0].level, DiagnosticLevel::Error);
-        assert_eq!(reported[0].code, "SIGNEX-LIBRARY");
+        assert_eq!(reported[0].code, "OXIDE-LIBRARY");
         assert!(
             reported[0].message.contains("library server returned 500"),
             "the record dropped the underlying error: {}",

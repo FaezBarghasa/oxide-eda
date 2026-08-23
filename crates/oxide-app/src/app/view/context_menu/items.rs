@@ -174,7 +174,7 @@ pub(super) fn submenu_launcher(
     DropdownEntry::Custom(element)
 }
 
-impl Signex {
+impl Oxide {
     /// Resolve the on-disk `.snxlib` path for a project-tree library
     /// node click. The tree path under the `Libraries` group is
     /// `[project_idx, libraries_branch_idx, library_idx]` — the

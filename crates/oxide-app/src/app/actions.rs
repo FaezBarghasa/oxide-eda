@@ -1,6 +1,6 @@
 use super::*;
 
-impl Signex {
+impl Oxide {
     /// Clear every cursor-following ghost preview. Call before arming a new
     /// ghost or switching to a tool that doesn't have one, so a previously
     /// armed ghost from another tool doesn't linger on the canvas.

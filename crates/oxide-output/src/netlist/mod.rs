@@ -8,7 +8,7 @@
 //! What stays here is the *input side* (ADR-0002 D7): the exporter reads the
 //! authoritative [`Netlist`](oxide_types::net::Netlist) off [`ExportContext`]
 //! — derived once by the app through `oxide_net::build_project_netlist` — so
-//! future Signex-native emitters (XML, Spice, …) land against the contract
+//! future Oxide-native emitters (XML, Spice, …) land against the contract
 //! instead of re-deriving connectivity. The interim emitter writes a plain,
 //! deterministic net listing; the Standard `.net` format is issue #62.
 
@@ -65,7 +65,7 @@ impl Exporter for NetlistExporter {
 
 /// Comment-line marker for the `.net` listing. Every line beginning with this
 /// prefix is an annotation, not connectivity — the same convention the
-/// `# Signex netlist` banner already uses. A downstream importer skips lines
+/// `# Oxide netlist` banner already uses. A downstream importer skips lines
 /// that start with it. Kept as a constant so the marker is defined in exactly
 /// one place across the banner and the #431 INCOMPLETE header.
 const COMMENT_PREFIX: &str = "# ";
@@ -119,7 +119,7 @@ fn render_listing(
     if let Some(note) = incomplete_note {
         out.push_str(&incomplete_header(note));
     }
-    let _ = writeln!(out, "# Signex netlist");
+    let _ = writeln!(out, "# Oxide netlist");
     let _ = writeln!(out, "# {} nets", netlist.nets.len());
     for net in &netlist.nets {
         let _ = writeln!(out, "net {} \"{}\"", net.id.0, net.name);
@@ -179,7 +179,7 @@ mod tests {
         let text = String::from_utf8(out.bytes).unwrap();
         assert_eq!(
             text,
-            "# Signex netlist\n# 1 nets\nnet 1 \"GND\"\n  R1.1\n  U2.3\n"
+            "# Oxide netlist\n# 1 nets\nnet 1 \"GND\"\n  R1.1\n  U2.3\n"
         );
     }
 
@@ -231,11 +231,11 @@ mod tests {
         );
         // The normal listing follows the header, unchanged.
         assert!(
-            text.contains("# Signex netlist\n# 1 nets\nnet 1 \"GND\"\n  R1.1\n"),
+            text.contains("# Oxide netlist\n# 1 nets\nnet 1 \"GND\"\n  R1.1\n"),
             "the deterministic listing must follow the header verbatim: {text}"
         );
         let header_at = text.find("INCOMPLETE NETLIST").unwrap();
-        let banner_at = text.find("# Signex netlist").unwrap();
+        let banner_at = text.find("# Oxide netlist").unwrap();
         assert!(
             header_at < banner_at,
             "the INCOMPLETE header must precede the listing banner"
@@ -250,7 +250,7 @@ mod tests {
             .expect("netlist present");
         assert_eq!(
             String::from_utf8(with_none.bytes).unwrap(),
-            "# Signex netlist\n# 1 nets\nnet 1 \"GND\"\n  R1.1\n"
+            "# Oxide netlist\n# 1 nets\nnet 1 \"GND\"\n  R1.1\n"
         );
     }
 }

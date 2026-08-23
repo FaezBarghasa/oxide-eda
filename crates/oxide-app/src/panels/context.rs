@@ -24,7 +24,7 @@ pub struct PanelContext {
     /// Active theme id. Feeds the icon registry so dock/panel SVGs tint
     /// to the theme's accent (see `crate::icons`).
     pub theme_id: oxide_types::theme::ThemeId,
-    // Live settings (synced from Signex on every update)
+    // Live settings (synced from Oxide on every update)
     pub unit: Unit,
     pub grid_visible: bool,
     pub snap_enabled: bool,

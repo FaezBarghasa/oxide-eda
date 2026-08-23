@@ -7,7 +7,7 @@
 
 use super::*;
 
-impl Signex {
+impl Oxide {
     /// Active table change inside a Library Browser tab.
     pub(in crate::app::dispatch::library) fn handle_browser_select_table(
         &mut self,
@@ -154,7 +154,7 @@ impl Signex {
         // gets a row-binding loop. For now we log so the wiring
         // path is observable when the user clicks the menu item.
         tracing::info!(
-            target: "signex::library",
+            target: "oxide::library",
             path = %library_path.display(),
             table = %table,
             row = %row_id,
@@ -174,7 +174,7 @@ impl Signex {
             .map(|lib| lib.total_rows())
             .unwrap_or(0);
         tracing::info!(
-            target: "signex::library",
+            target: "oxide::library",
             path = %library_path.display(),
             rows = count,
             "TODO: distributor refresh wiring (LibraryRefreshAllPricing)"

@@ -4,8 +4,8 @@ Status: in_progress
 
 ## Goal
 
-Cut over schematic runtime rendering in `signex-app` from `signex-render` to
-`signex-renderer` with behavior parity for drawing, selection overlays,
+Cut over schematic runtime rendering in `oxide-app` from `oxide-render` to
+`oxide-renderer` with behavior parity for drawing, selection overlays,
 hit-testing, and invalidation-driven updates.
 
 ## Scope
@@ -13,17 +13,17 @@ hit-testing, and invalidation-driven updates.
 - Freeze cutover boundary and migration order for schematic runtime paths.
 - Build a compatibility bridge for shared app-side contracts (snapshot,
   invalidation, style/config hooks, hit-test callsites).
-- Replace canvas runtime draw path with `signex-renderer` scene build flow.
+- Replace canvas runtime draw path with `oxide-renderer` scene build flow.
 - Migrate selection and overlay interaction paths that currently call
-  `signex_render::schematic::hit_test` and related helpers.
-- Remove direct `signex_render::schematic` runtime usage from `signex-app`.
+  `oxide_render::schematic::hit_test` and related helpers.
+- Remove direct `oxide_render::schematic` runtime usage from `oxide-app`.
 - Validate parity with regression tests and golden/smoke checks.
 
 ## Task breakdown (ordered)
 
 - [x] Task 01: Schematic runtime callsite inventory and cutover contract freeze.
 - [x] Task 02: App compatibility bridge for snapshot/invalidation/style contracts.
-- [x] Task 03: Canvas render path cutover to `signex-renderer` scene pipeline.
+- [x] Task 03: Canvas render path cutover to `oxide-renderer` scene pipeline.
 - [x] Task 04: Hit-test and selection workflow migration.
 - [x] Task 05: Overlay/preview/text helper migration (`escape`, expansion, ghost paths).
 - [x] Task 06: Remove remaining direct legacy runtime imports and remove old source crate.
@@ -35,8 +35,8 @@ hit-testing, and invalidation-driven updates.
 - [x] Selection, lasso, and polygon hit-tests match prior behavior on baseline fixtures.
 - [x] Overlay families (preview/ghost/lasso/snap/ERC markers) are emitted with parity in expected layers.
 - [ ] App dispatch and invalidation flow maps correctly to renderer dirty-family updates.
-- [x] `signex-app` has no direct legacy schematic runtime dependency at cutover exit gate.
-- [ ] Cutover regression command set passes locally (`signex-app` + `signex-renderer` test suites).
+- [x] `oxide-app` has no direct legacy schematic runtime dependency at cutover exit gate.
+- [ ] Cutover regression command set passes locally (`oxide-app` + `oxide-renderer` test suites).
 
 ## Required evidence notes
 

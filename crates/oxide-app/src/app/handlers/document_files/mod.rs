@@ -1,4 +1,4 @@
-//! Document-file open / save / git / history handler impls for `Signex`.
+//! Document-file open / save / git / history handler impls for `Oxide`.
 
 use std::path::PathBuf;
 
@@ -21,8 +21,8 @@ pub(crate) fn spawn_save_as_for_new_primitive(suggested: PathBuf) -> iced::Task<
         .unwrap_or("snxsym")
         .to_string();
     let (filter_label, filter_ext) = match ext.as_str() {
-        "snxfpt" => ("Signex Footprint", "snxfpt"),
-        _ => ("Signex Symbol", "snxsym"),
+        "snxfpt" => ("Oxide Footprint", "snxfpt"),
+        _ => ("Oxide Symbol", "snxsym"),
     };
     let title = match ext.as_str() {
         "snxfpt" => "Save Footprint As",
@@ -71,7 +71,7 @@ fn blank_schematic_sheet() -> oxide_types::schematic::SchematicSheet {
     oxide_types::schematic::SchematicSheet {
         uuid: uuid::Uuid::new_v4(),
         version: 1,
-        generator: "signex".into(),
+        generator: "oxide".into(),
         generator_version: env!("CARGO_PKG_VERSION").into(),
         paper_size: "A4".into(),
         root_sheet_page: "1".into(),

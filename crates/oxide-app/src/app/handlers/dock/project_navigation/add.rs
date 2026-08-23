@@ -6,7 +6,7 @@
 
 use super::*;
 
-impl Signex {
+impl Oxide {
     /// `Add Existing to Project…` — open a multi-select file picker
     /// scoped to schematic / PCB / library extensions. Picked paths
     /// land in [`ProjectMsg::AddExistingFilePicked`]; the handler copies
@@ -26,11 +26,11 @@ impl Signex {
                         "All Supported",
                         &["snxsch", "snxpcb", "snxlib", "snxsym", "snxfpt"],
                     )
-                    .add_filter("Signex Schematic", &["snxsch"])
-                    .add_filter("Signex PCB", &["snxpcb"])
-                    .add_filter("Signex Library", &["snxlib"])
-                    .add_filter("Signex Symbol", &["snxsym"])
-                    .add_filter("Signex Footprint", &["snxfpt"])
+                    .add_filter("Oxide Schematic", &["snxsch"])
+                    .add_filter("Oxide PCB", &["snxpcb"])
+                    .add_filter("Oxide Library", &["snxlib"])
+                    .add_filter("Oxide Symbol", &["snxsym"])
+                    .add_filter("Oxide Footprint", &["snxfpt"])
                     .pick_files()
                     .await
                     .map(|files| {
@@ -68,7 +68,7 @@ impl Signex {
                     .set_title("Add New Schematic to Project")
                     .set_directory(&project_dir)
                     .set_file_name(&default_name)
-                    .add_filter("Signex Schematic", &["snxsch"])
+                    .add_filter("Oxide Schematic", &["snxsch"])
                     .save_file()
                     .await
                     .map(|file| file.path().to_path_buf())
@@ -104,7 +104,7 @@ impl Signex {
                     .set_title("New Symbol Library")
                     .set_directory(&project_dir)
                     .set_file_name(&default_name)
-                    .add_filter("Signex Symbol Library", &["snxsym"])
+                    .add_filter("Oxide Symbol Library", &["snxsym"])
                     .save_file()
                     .await
                     .map(|file| file.path().to_path_buf())
@@ -143,7 +143,7 @@ impl Signex {
                     .set_title("New PCB Library")
                     .set_directory(&project_dir)
                     .set_file_name(&default_name)
-                    .add_filter("Signex Footprint Library", &["snxfpt"])
+                    .add_filter("Oxide Footprint Library", &["snxfpt"])
                     .save_file()
                     .await
                     .map(|file| file.path().to_path_buf())

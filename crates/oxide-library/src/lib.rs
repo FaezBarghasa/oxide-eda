@@ -1,4 +1,4 @@
-//! Signex component library subsystem (v0.9-refactor-2 — DBLib model).
+//! Oxide component library subsystem (v0.9-refactor-2 — DBLib model).
 //!
 //! Per `v0.9-refactor-2-plan.md`, components are **rows in TSV/JSONB
 //! tables**, not files. Each row references reusable primitives (`Symbol`,
@@ -160,16 +160,16 @@ pub fn enable_project_version_control(
     })?;
 
     // Identity for the commit — same fallback the LocalGitAdapter
-    // uses (env GIT_AUTHOR_NAME / EMAIL → repo config → "signex").
+    // uses (env GIT_AUTHOR_NAME / EMAIL → repo config → "oxide").
     let cfg = repo.config().ok();
     let sig_name = std::env::var("GIT_AUTHOR_NAME")
         .ok()
         .or_else(|| cfg.as_ref().and_then(|c| c.get_string("user.name").ok()))
-        .unwrap_or_else(|| "signex".to_string());
+        .unwrap_or_else(|| "oxide".to_string());
     let sig_email = std::env::var("GIT_AUTHOR_EMAIL")
         .ok()
         .or_else(|| cfg.as_ref().and_then(|c| c.get_string("user.email").ok()))
-        .unwrap_or_else(|| "signex@localhost".to_string());
+        .unwrap_or_else(|| "oxide@localhost".to_string());
     let sig = git2::Signature::now(&sig_name, &sig_email)
         .map_err(|e| LibraryError::Backend(format!("git signature: {e}")))?;
 
@@ -221,7 +221,7 @@ pub fn enable_project_version_control(
 /// but works on **any** git repository — not just library-rooted
 /// ones. Used by `oxide-app`'s right-dock History panel to show
 /// the active tab's file history regardless of whether the file
-/// lives inside a `.snxlib` or in a plain Signex project.
+/// lives inside a `.snxlib` or in a plain Oxide project.
 ///
 /// Returns `Ok(vec![])` when the path has no commits yet (fresh
 /// repo, untracked file, unborn HEAD). Returns

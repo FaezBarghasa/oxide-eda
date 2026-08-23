@@ -16,15 +16,15 @@ Close Sprint C cleanup gate for the PCB path by validating regression command se
 ## Implementation notes
 
 - Executed regression command set:
-  - `cargo test -p signex-renderer -- --nocapture`
-  - `cargo test -p signex-app pcb_dirty_adapter --lib -- --nocapture`
-  - `cargo test -p signex-renderer --test pcb_vertical_slice_golden pcb_vertical_slice_overlay_paths_emit_ratsnest_and_drc -- --nocapture`
-  - `cargo test -p signex-renderer --test pcb_zone_stack_benchmark benchmark_fixture_zone_order_is_layer_then_priority_then_net -- --nocapture`
-  - `cargo test -p signex-renderer --test pcb_dirty_event_integration camera_only_event_does_not_request_geometry_uploads -- --nocapture`
+  - `cargo test -p oxide-renderer -- --nocapture`
+  - `cargo test -p oxide-app pcb_dirty_adapter --lib -- --nocapture`
+  - `cargo test -p oxide-renderer --test pcb_vertical_slice_golden pcb_vertical_slice_overlay_paths_emit_ratsnest_and_drc -- --nocapture`
+  - `cargo test -p oxide-renderer --test pcb_zone_stack_benchmark benchmark_fixture_zone_order_is_layer_then_priority_then_net -- --nocapture`
+  - `cargo test -p oxide-renderer --test pcb_dirty_event_integration camera_only_event_does_not_request_geometry_uploads -- --nocapture`
 - Verified PCB path legacy decoupling in app source:
-  - `rg -n "signex_render::pcb" crates/signex-app/src | wc -l` => `0`
+  - `rg -n "oxide_render::pcb" crates/oxide-app/src | wc -l` => `0`
 - Dependency cleanup decision:
-  - `signex-render` stays in `crates/signex-app/Cargo.toml` for now because schematic path still references `signex_render::` symbols (`120` references in app source).
+  - `oxide-render` stays in `crates/oxide-app/Cargo.toml` for now because schematic path still references `oxide_render::` symbols (`120` references in app source).
   - This is aligned with Sprint C non-goal: no full schematic renderer cutover in this sprint.
 
 ## Parity and gap notes

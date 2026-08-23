@@ -18,7 +18,7 @@
     reason = "integration tests discard Results with `let _ = ...` routinely; this is test scaffolding, not a production `iced::Task` being dropped, and `[lints]` in Cargo.toml is package-scoped so each integration-test crate root needs its own"
 )]
 
-use oxide_app::app::{EditMsg, Message, Signex};
+use oxide_app::app::{EditMsg, Message, Oxide};
 use oxide_app::library::editor::footprint::state::EditorPad;
 use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
 use std::path::{Path, PathBuf};
@@ -27,7 +27,7 @@ use tempfile::TempDir;
 /// Fresh app + a footprint editor holding `count` default pads, with
 /// the active tab pointed at it so `Message::Edit(EditMsg::Undo)`
 /// resolves through `active_footprint_editor_path()`.
-fn fixture(stem: &str, count: usize) -> (Signex, PathBuf, TempDir) {
+fn fixture(stem: &str, count: usize) -> (Oxide, PathBuf, TempDir) {
     use oxide_app::app::{FootprintEditorState, TabInfo, TabKind};
     use oxide_library::{Footprint, FootprintFile};
 
@@ -44,7 +44,7 @@ fn fixture(stem: &str, count: usize) -> (Signex, PathBuf, TempDir) {
         ));
     }
 
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
@@ -60,7 +60,7 @@ fn fixture(stem: &str, count: usize) -> (Signex, PathBuf, TempDir) {
     (app, path, tmp)
 }
 
-fn dispatch(app: &mut Signex, path: &Path, msg: FootprintEditorMsg) {
+fn dispatch(app: &mut Oxide, path: &Path, msg: FootprintEditorMsg) {
     let _ = app.update(Message::Library(LibraryMessage::PrimitiveEditorEvent {
         path: path.to_path_buf(),
         msg: PrimitiveEdit::Footprint(msg),
@@ -411,7 +411,7 @@ fn properties_panel_rotation_moves_the_sketch_outline_corners() {
 
 /// A footprint editor holding one selected `Rect` pad at the origin
 /// with its sketch outline already minted.
-fn sketched_pad_fixture(stem: &str, size_mm: (f64, f64)) -> (Signex, PathBuf) {
+fn sketched_pad_fixture(stem: &str, size_mm: (f64, f64)) -> (Oxide, PathBuf) {
     use oxide_app::app::{FootprintEditorState, TabInfo, TabKind};
     use oxide_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
     use oxide_library::{Footprint, FootprintFile, PadShape};
@@ -432,7 +432,7 @@ fn sketched_pad_fixture(stem: &str, size_mm: (f64, f64)) -> (Signex, PathBuf) {
     editor.state.pads = vec![pad];
     editor.state.selected_pad = Some(0);
 
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
@@ -547,7 +547,7 @@ fn sketch_edge_drag_resizes_a_rotated_pad() {
     let mut editor = FootprintEditorState::new(path.clone(), file);
     editor.state.pads = vec![pad];
     editor.state.selected_pad = Some(0);
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);

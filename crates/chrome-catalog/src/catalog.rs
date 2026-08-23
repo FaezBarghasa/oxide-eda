@@ -9,7 +9,7 @@ use crate::{bom_modal, modal_card, project_tree, section, tabs, theme, theme_pic
 
 pub(crate) fn run() -> iced::Result {
     iced::application(Catalog::new, Catalog::update, Catalog::view)
-        .title("Signex Chrome Catalog")
+        .title("Oxide Chrome Catalog")
         .theme(|state: &Catalog| state.iced_theme())
         .window_size((1200.0, 900.0))
         .run()
@@ -30,8 +30,8 @@ pub(crate) enum Message {
 impl Catalog {
     fn new() -> Self {
         Self {
-            theme: ThemeId::Signex,
-            tokens: theme_tokens(ThemeId::Signex),
+            theme: ThemeId::Oxide,
+            tokens: theme_tokens(ThemeId::Oxide),
             passive_calculator: CalculatorControl::default(),
         }
     }

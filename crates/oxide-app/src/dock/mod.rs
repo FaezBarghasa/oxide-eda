@@ -1,6 +1,6 @@
 //! Panel docking system — wraps PaneGrid regions with tabbed panels.
 //!
-//! Signex has 3 dock regions (left, right, bottom) plus a center canvas.
+//! Oxide has 3 dock regions (left, right, bottom) plus a center canvas.
 //! Each region can hold multiple panels as tabs.
 
 mod placement;

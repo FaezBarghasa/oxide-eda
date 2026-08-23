@@ -10,7 +10,7 @@ mod remove;
 mod rename;
 mod version_control;
 
-impl Signex {
+impl Oxide {
     /// Returns `None` when the message isn't a project-navigation message
     /// (so the caller falls through to the next dock handler), or
     /// `Some(task)` when handled — the task carries the follow-up work
@@ -306,7 +306,7 @@ mod tests {
     /// back to `bool`.
     #[test]
     fn handled_tree_message_returns_some_task() {
-        let (mut app, _bootstrap_task) = Signex::new();
+        let (mut app, _bootstrap_task) = Oxide::new();
         let msg = crate::panels::PanelMsg::Tree(TreeMsg::Toggle(vec![]));
 
         let result: Option<Task<Message>> = app.handle_dock_project_navigation_panel_message(&msg);
@@ -322,7 +322,7 @@ mod tests {
     /// (`handlers/dock/mod.rs`), rather than swallowing it.
     #[test]
     fn unrelated_panel_message_falls_through_as_none() {
-        let (mut app, _bootstrap_task) = Signex::new();
+        let (mut app, _bootstrap_task) = Oxide::new();
         let msg = crate::panels::PanelMsg::SetUnit(oxide_types::coord::Unit::Mm);
 
         let result = app.handle_dock_project_navigation_panel_message(&msg);

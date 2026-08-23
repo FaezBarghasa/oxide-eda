@@ -22,16 +22,16 @@ Implement density-aware schematic grid rendering with zoom-dependent behavior.
 
 ## Clean-room evidence
 
-- Source: Signex design decisions and wgpu/WGSL public docs.
+- Source: Oxide design decisions and wgpu/WGSL public docs.
 - Derivation: deterministic LOD thresholds based on viewport scale.
 - Rationale: keep grid readable without visual clutter.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: `cargo test -p signex-gfx -- --nocapture`, `cargo test -p signex-renderer -- --nocapture`, `cargo check -p signex-gfx -p signex-renderer`, and `cargo build -p signex-gfx -p signex-renderer` passed.
+- Verification: `cargo test -p oxide-gfx -- --nocapture`, `cargo test -p oxide-renderer -- --nocapture`, `cargo check -p oxide-gfx -p oxide-renderer`, and `cargo build -p oxide-gfx -p oxide-renderer` passed.
 
 ## Artifacts
 
 - PR/commit: pending
-- Test output: signex-gfx tests passed (27 passed, 0 failed), signex-renderer tests passed (6 passed, 0 failed)
+- Test output: oxide-gfx tests passed (27 passed, 0 failed), oxide-renderer tests passed (6 passed, 0 failed)
 - Screenshot/benchmark: pending
 
 ## Exit checklist

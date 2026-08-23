@@ -23,7 +23,7 @@ scene 1 → nodes [2, 3] (mesh 2: 2 prim, node 3: no mesh). Total staged: 7.
 
 ## Test file added
 
-`crates/signex-renderer/tests/pcb3d_benchmark_smoke.rs`
+`crates/oxide-renderer/tests/pcb3d_benchmark_smoke.rs`
 
 ## Tests (8 total)
 
@@ -46,7 +46,7 @@ scene 1 → nodes [2, 3] (mesh 2: 2 prim, node 3: no mesh). Total staged: 7.
 
 ## Full suite result
 
-`cargo test -p signex-renderer`: 49 tests, 0 failed.
+`cargo test -p oxide-renderer`: 49 tests, 0 failed.
 
 Test file breakdown:
 

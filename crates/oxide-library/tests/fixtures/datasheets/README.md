@@ -2,7 +2,7 @@
 
 These PDFs are **synthetic test fixtures**, not real datasheets. They are
 generated programmatically by `tests/ai_stub.rs` using `pdf-writer` so we can
-exercise the heuristic pinout extractor (`signex_library::ai_stub`) without
+exercise the heuristic pinout extractor (`oxide_library::ai_stub`) without
 shipping any proprietary content.
 
 | File | Provenance | Purpose |
@@ -12,7 +12,7 @@ shipping any proprietary content.
 
 The fixtures are regenerated automatically the first time the test runs
 against a missing file (via `ensure_fixtures()`), so they can be removed and
-recreated by simply re-running `cargo test -p signex-library --features ai-stub`.
+recreated by simply re-running `cargo test -p oxide-library --features ai-stub`.
 
 **Do not place real datasheets here** — they are usually copyrighted and we
 explicitly avoid shipping any proprietary content with the repository.

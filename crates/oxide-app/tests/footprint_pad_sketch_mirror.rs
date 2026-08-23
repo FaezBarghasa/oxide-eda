@@ -255,7 +255,7 @@ fn issue142_move_repairs_drifted_bbox_corners() {
 
 /// Two pads sharing a number must not share a sketch centre.
 ///
-/// Pad numbers are not unique anywhere in signex — the designator field
+/// Pad numbers are not unique anywhere in oxide — the designator field
 /// takes any string, and `next_pad_defaults.designator_override` stamps
 /// one number onto every pad placed after it, which is how a
 /// shared-designator row / thermal / shield pad set is authored. Each
@@ -391,7 +391,7 @@ fn issue142_owned_ledger_survives_a_real_serde_round_trip() {
 /// One app with `count` default pads on a footprint editor — the
 /// local twin of `regression.rs`'s `fixture_footprint_with_pads`,
 /// carried along with the test that needs it.
-fn app_with_footprint_pads(stem: &str, count: usize) -> (oxide_app::app::Signex, PathBuf) {
+fn app_with_footprint_pads(stem: &str, count: usize) -> (oxide_app::app::Oxide, PathBuf) {
     use oxide_app::app::FootprintEditorState as EditorTab;
     use oxide_app::library::editor::footprint::state::EditorPad;
     use oxide_library::FootprintFile;
@@ -405,7 +405,7 @@ fn app_with_footprint_pads(stem: &str, count: usize) -> (oxide_app::app::Signex,
             (i as f64 * 2.0, 0.0),
         ));
     }
-    let (mut app, _initial_task) = oxide_app::app::Signex::new();
+    let (mut app, _initial_task) = oxide_app::app::Oxide::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);

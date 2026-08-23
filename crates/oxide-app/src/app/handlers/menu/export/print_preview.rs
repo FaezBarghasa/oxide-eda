@@ -7,7 +7,7 @@ use oxide_output::{PageRange, PageSize, PdfOptions, PreviewOptions, PreviewRaste
 
 use super::super::super::super::*;
 
-impl Signex {
+impl Oxide {
     pub(crate) fn handle_print_preview_requested(&mut self) -> iced::Task<Message> {
         if !self.document_state.has_active_engine() {
             log::warn!("Print preview: no active schematic");

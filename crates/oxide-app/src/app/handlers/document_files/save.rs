@@ -6,7 +6,7 @@ use anyhow::{Context, Result};
 
 use super::super::super::*;
 
-impl Signex {
+impl Oxide {
     pub(crate) fn save_active_document(&mut self) -> Result<iced::Task<Message>> {
         // Standalone `.snxsym` / `.snxfpt` document tabs route Ctrl+S
         // through `save_primitive_tab_at` so JSON persistence happens
@@ -200,7 +200,7 @@ impl Signex {
             match result {
                 Ok(()) => {
                     tracing::info!(
-                        target: "signex::library",
+                        target: "oxide::library",
                         project = %project_path_log.display(),
                         library = %spec.lib_path.display(),
                         library_id = %library_id,
@@ -209,7 +209,7 @@ impl Signex {
                 }
                 Err(error) => {
                     tracing::warn!(
-                        target: "signex::library",
+                        target: "oxide::library",
                         project = %project_path_log.display(),
                         library = %spec.lib_path.display(),
                         library_id = %library_id,
@@ -288,7 +288,7 @@ impl Signex {
                 || self.document_state.footprint_editors.contains_key(to_path))
         {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 from = %from_path.display(),
                 to = %to_path.display(),
                 "save-as: target path already hosts another open editor — refusing"
@@ -312,7 +312,7 @@ impl Signex {
                 .insert(to_path.to_path_buf(), editor);
         } else {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 from = %from_path.display(),
                 "save-as: no editor at source path — was the tab closed?"
             );
@@ -385,7 +385,7 @@ impl Signex {
         });
         let Some(lib_dir) = lib_dir else {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 path = %path.display(),
                 "save-as: file is outside any `.snxlib/` — not attached to a library"
             );
@@ -400,7 +400,7 @@ impl Signex {
                 crate::library::commands::open_library(&mut self.library, lib_dir.to_path_buf())
         {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 path = %lib_dir.display(),
                 error = %e,
                 "save-as: open_library failed — leaving project untouched"
@@ -425,7 +425,7 @@ impl Signex {
         };
         let Some(project_idx) = project_idx else {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 path = %lib_dir.display(),
                 "save-as: no active project to attach the library to"
             );
@@ -482,7 +482,7 @@ impl Signex {
         self.document_state.dirty_paths.insert(project_path);
 
         tracing::info!(
-            target: "signex::library",
+            target: "oxide::library",
             project = %loaded.path.display(),
             library = %lib_dir.display(),
             "save-as: attached library to active project"

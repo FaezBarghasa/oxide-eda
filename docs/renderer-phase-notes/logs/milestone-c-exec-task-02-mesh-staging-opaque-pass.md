@@ -15,7 +15,7 @@ Implement mesh staging from validated GLB scene graph data and wire staged opaqu
 
 ## Implementation notes
 
-- Extended runtime GLB ingest output in `crates/signex-renderer/src/pcb3d.rs`:
+- Extended runtime GLB ingest output in `crates/oxide-renderer/src/pcb3d.rs`:
   - `RuntimeMeshStaging` with staged `RuntimeOpaquePrimitive` entries.
   - `RuntimeGlbMetadata` now tracks `mesh_primitive_count` and `opaque_instance_count`.
 - Added deterministic scene-graph staging logic:
@@ -34,8 +34,8 @@ Implement mesh staging from validated GLB scene graph data and wire staged opaqu
 - Rationale: establish typed mesh ownership and deterministic pass input before projection-pass integration.
 - Clean-room check: No GPL-licensed source consulted
 - Verification:
-  - `cargo test -p signex-renderer --test pcb3d_runtime_glb_ingest -- --nocapture`
-  - `cargo test -p signex-renderer -- --nocapture`
+  - `cargo test -p oxide-renderer --test pcb3d_runtime_glb_ingest -- --nocapture`
+  - `cargo test -p oxide-renderer -- --nocapture`
 
 ## Artifacts
 

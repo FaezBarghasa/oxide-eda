@@ -297,7 +297,7 @@ mod tests {
         use crate::library::editor::footprint::state::EditorMode;
         use oxide_types::theme::{ThemeId, theme_tokens};
 
-        let tid = ThemeId::Signex;
+        let tid = ThemeId::Oxide;
         let tokens = theme_tokens(tid);
 
         let sketch = editor_in(EditorMode::Sketch);
@@ -345,7 +345,7 @@ mod tests {
         use crate::library::editor::footprint::state::EditorMode;
         use oxide_types::theme::{ThemeId, theme_tokens};
 
-        let tid = ThemeId::Signex;
+        let tid = ThemeId::Oxide;
         let tokens = theme_tokens(tid);
         let editor = editor_in(EditorMode::Sketch);
         let items = bar_items(&editor, tid, &tokens);

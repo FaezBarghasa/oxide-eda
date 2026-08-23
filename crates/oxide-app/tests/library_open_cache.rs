@@ -44,7 +44,7 @@ const FOOTPRINTS: usize = 10;
 
 #[test]
 fn open_library_primes_every_cache() {
-    // Arrange — a real `.snxlib` written by the real Signex writers.
+    // Arrange — a real `.snxlib` written by the real Oxide writers.
     let scale = Scale::new("cache", SYMBOLS, FOOTPRINTS);
     assert!(
         scale.sims > 0,

@@ -1,4 +1,4 @@
--- Signex library DB-flavour initial schema.
+-- Oxide library DB-flavour initial schema.
 --
 -- Tables (per v0.9-library-plan.md §7 + WS-B contract):
 --   components        — one row per logical component (uuid, internal_pn, head version)

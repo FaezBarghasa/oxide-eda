@@ -136,7 +136,7 @@ mod tests {
 
     #[test]
     fn theme_id_conversion_maps_canvas_colors() {
-        let from_theme_id = ResolvedTheme::from_theme_id(ThemeId::Signex);
+        let from_theme_id = ResolvedTheme::from_theme_id(ThemeId::Oxide);
 
         let wire = from_theme_id.color(ColorSlot::Wire);
         assert_eq!(wire[0], 0.0);

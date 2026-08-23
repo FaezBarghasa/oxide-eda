@@ -2,7 +2,7 @@ use iced::Task;
 
 use super::super::*;
 
-impl Signex {
+impl Oxide {
     pub(super) fn dispatch_overlay_message(&mut self, message: OverlayMsg) -> Task<Message> {
         match message {
             OverlayMsg::TogglePanelList => {
@@ -24,7 +24,7 @@ impl Signex {
                 Task::none()
             }
             // Tools > Passive Network Calculator. Deliberately an in-app
-            // modal and not an OS window: Signex runs borderless
+            // modal and not an OS window: Oxide runs borderless
             // (`bootstrap/new.rs` - `decorations: false`), so a default
             // `iced::window::open` would arrive with a native title bar
             // that appears nowhere else in the app. Setting the flag while

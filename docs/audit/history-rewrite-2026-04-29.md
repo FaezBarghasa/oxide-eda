@@ -1,7 +1,7 @@
 # Git history rewrite — 2026-04-29
 
 This document records the rationale, scope, and audit trail for the
-git history rewrite performed on the Signex repository on
+git history rewrite performed on the Oxide repository on
 **2026-04-29**, the same day v0.10.0 shipped. It is published as part
 of the audit corpus alongside `kicad-derivation.md` and
 `third-party-kicad-parsers.md` so the substantive licensing position
@@ -28,7 +28,7 @@ remains independently verifiable.
   rests on the v0.9.0 dependency removal and on the pre-v0.7 derivation
   audit (`kicad-derivation.md`), not on the post-v0.9 commit chain.
 - **The pre-rewrite chain is preserved.** A complete bare-repo backup
-  lives at `~/Desktop/signex-backup-post-history-rewrite-2026-04-29.git`
+  lives at `~/Desktop/oxide-backup-post-history-rewrite-2026-04-29.git`
   on the maintainer's workstation. It contains the original 425
   commits with their original SHAs and is recoverable on request.
 
@@ -64,7 +64,7 @@ Cargo dependencies from the workspace:
 - `crates/kicad-parser/` — GPL-3.0, S-expression parser for `.kicad_sch`
   / `.kicad_pcb` / `.kicad_sym`.
 - `crates/kicad-writer/` — GPL-3.0, mirror of the parser for output.
-- `crates/signex-output/src/netlist/kicad_sexpr.rs` — KiCad-format
+- `crates/oxide-output/src/netlist/kicad_sexpr.rs` — KiCad-format
   netlist exporter that used the parser's sexpr builder.
 
 These were the only GPL-licensed surfaces ever to touch the workspace,
@@ -73,9 +73,9 @@ declaring GPL-3.0. They were never re-exported under Apache 2.0; users
 who built against them got a clear GPL declaration in `Cargo.lock` and
 in `cargo deny check licenses` output.
 
-The v0.9.0 cutover relocated those crates to the `signex-kicad-import`
+The v0.9.0 cutover relocated those crates to the `oxide-kicad-import`
 companion repository (kept under GPL-3.0 to honour upstream KiCad's
-licence) and deleted them from the main tree. After v0.9.0, Signex
+licence) and deleted them from the main tree. After v0.9.0, Oxide
 ships zero GPL-licensed source code under its Apache 2.0 envelope.
 
 The history rewrite on 2026-04-29 happened *after* v0.9.0 — i.e. on a
@@ -112,7 +112,7 @@ prior GPL contamination — they wouldn't rewrite history if there were
 nothing to hide." The substantive defence:
 
 - **Distribution argument.** Apache 2.0 obligations attach to the
-  *artifacts you distribute*. Signex's release tarballs, installers,
+  *artifacts you distribute*. Oxide's release tarballs, installers,
   and crates.io / cargo-registry uploads are the distribution surface.
   None of those artifacts has ever contained KiCad source (pre- or
   post-rewrite). The rewrite changed nothing about what users
@@ -138,7 +138,7 @@ ment on top of an already-clean position, not the position itself.
 
 ## Backup location and recovery
 
-- **Location:** `C:\Users\caner\Desktop\signex-backup-post-history-rewrite-2026-04-29.git`
+- **Location:** `C:\Users\caner\Desktop\oxide-backup-post-history-rewrite-2026-04-29.git`
   on the maintainer's workstation. Bare repository, 425 commits.
 - **Inspect:**
   ```sh
@@ -148,7 +148,7 @@ ment on top of an already-clean position, not the position itself.
 - **Recover an old SHA:** `git fetch /path/to/backup.git <sha>` from a
   working clone, then `git checkout <sha>`.
 - **Restore the entire pre-rewrite chain (not recommended):** would
-  invalidate the v0.10.0 tag already pushed to `alplabai/signex`, force
+  invalidate the v0.10.0 tag already pushed to `alplabai/oxide`, force
   every cloned working copy to reset, and reintroduce the residual
   KiCad identifiers that the rewrite cleaned up. Only do this under
   written legal advice.
@@ -163,7 +163,7 @@ ment on top of an already-clean position, not the position itself.
   release tree. Editing or removing these docs is a code-review-
   visible change, not a history-rewrite-able operation.
 - **Pre-Pro / Pre-365 legal review.** Before the first commercial
-  release (Signex Pro or Signex 365 PLM), this document, the audit
+  release (Oxide Pro or Oxide 365 PLM), this document, the audit
   trail, and the licence position should be reviewed by OSS counsel
   for written sign-off. The community release at v0.10.0 ships with
   the substantive defence above; the commercial release should ship

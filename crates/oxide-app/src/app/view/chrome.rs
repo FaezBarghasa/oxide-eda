@@ -4,11 +4,11 @@
 //!
 //! Extracted verbatim from `view/mod.rs` (ADR-0001, issue #164) as pure
 //! code motion — no behaviour change. These are methods of the same
-//! `Signex` view impl, split across sibling files.
+//! `Oxide` view impl, split across sibling files.
 
 use super::*;
 
-impl Signex {
+impl Oxide {
     /// Custom chrome for the borderless main window. Replaces the OS
     /// title bar with a 36 px strip:
     ///

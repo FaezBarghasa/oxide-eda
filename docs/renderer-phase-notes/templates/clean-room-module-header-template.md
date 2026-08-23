@@ -15,4 +15,4 @@ Use this header at the top of every new renderer source file.
 Guideline:
 
 - Add per-constant derivation comments next to each numeric decision.
-- Mark non-standard values as Signex design decisions with rationale.
+- Mark non-standard values as Oxide design decisions with rationale.

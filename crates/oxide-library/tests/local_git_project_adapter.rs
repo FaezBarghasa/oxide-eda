@@ -269,7 +269,7 @@ fn commit_external_change_creates_a_user_edit_commit() {
         .unwrap();
 
     // Simulate the user editing the file in a text editor outside
-    // of Signex.
+    // of Oxide.
     write_file(&root, "sheet.snxsch", "out-of-app edit");
     let abs = root.join("sheet.snxsch");
     let _oid = adapter.commit_external_change(&abs, "").unwrap();

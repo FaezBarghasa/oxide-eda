@@ -9,7 +9,7 @@
 //! 2. **Installed** — session-scoped, opened via the "+ Add Library…"
 //!    button on the Installed section header. Wiped on app close.
 //! 3. **Global** — persisted across launches via
-//!    `<config_dir>/signex/global_libraries.toml`. Loaded + mounted at
+//!    `<config_dir>/oxide/global_libraries.toml`. Loaded + mounted at
 //!    startup by [`global_prefs::load_and_mount_all`].
 //!
 //! All three sources read from the same `LibraryState::open_libraries`

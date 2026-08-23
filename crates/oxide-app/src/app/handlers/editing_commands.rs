@@ -1,6 +1,6 @@
 use super::super::*;
 
-impl Signex {
+impl Oxide {
     pub(crate) fn handle_selection_delete_requested(&mut self) {
         if let Some(engine) = self.document_state.active_engine()
             && engine.has_selected_items(&self.interaction_state.active_canvas().selected)

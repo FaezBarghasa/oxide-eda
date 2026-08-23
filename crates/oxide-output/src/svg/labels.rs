@@ -10,7 +10,7 @@
 use super::*;
 use crate::pdf::PdfScale;
 use crate::pdf::palette::SchematicPalette;
-use oxide_types::markup::{RichSegment, parse_signex_markup};
+use oxide_types::markup::{RichSegment, parse_oxide_markup};
 use oxide_types::schematic::{HAlign, LabelType, VAlign};
 
 pub(super) fn label_size_pt(font_size_mm: f64, mm_to_unit: f64, scale: &PdfScale) -> f32 {
@@ -71,7 +71,7 @@ pub(super) fn schematic_text_offset_hier(
     spin: SpinStyle,
 ) -> (f64, f64) {
     let dist = font_size_mm * 0.4
-        + (parse_signex_markup(&normalize_standard_text(text))
+        + (parse_oxide_markup(&normalize_standard_text(text))
             .iter()
             .map(|seg| match seg {
                 RichSegment::Normal(t)

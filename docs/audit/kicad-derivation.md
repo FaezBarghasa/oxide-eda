@@ -9,13 +9,13 @@ the public KiCad source mirror. Each item scored:
 
 - **Strong** — verbatim or near-verbatim match against KiCad source; clear-cut derivation.
 - **Partial** — same syntactic shape but different surface; arguable.
-- **Independent** — Signex-original or generic enough that derivation can't be inferred.
+- **Independent** — Oxide-original or generic enough that derivation can't be inferred.
 
 **Remediation legend:**
 
-- **Move-to-companion** — relocate to `signex-kicad-import` GPL-3.0 companion repo.
-- **Rewrite-clean-room** — design Signex-curated replacement, retire KiCad-flavoured original.
-- **Delete** — drop entirely, replaced by Signex-original behaviour.
+- **Move-to-companion** — relocate to `oxide-kicad-import` GPL-3.0 companion repo.
+- **Rewrite-clean-room** — design Oxide-curated replacement, retire KiCad-flavoured original.
+- **Delete** — drop entirely, replaced by Oxide-original behaviour.
 - **Keep** — generic enough to remain in the Apache main repo.
 
 ---
@@ -24,10 +24,10 @@ the public KiCad source mirror. Each item scored:
 
 | Remediation | Items | Phase |
 |---|---|---|
-| Move-to-companion | `crates/kicad-parser/` (whole crate, 3,938 LOC); `crates/kicad-writer/` (whole crate, 2,274 LOC); `crates/signex-output/src/netlist/kicad_sexpr.rs` (336 LOC) | Phase 4 (clone) + Phase 5 (delete from main) |
-| Rewrite-clean-room | `signex-types::layer::{F_CU,…}` constants → `SignexLayer` enum; `signex-types::schematic::PinElectricalType` → `PinDirection`; `signex-types::schematic::PinShape` → `PinShapeStyle`; `signex-types::markup::parse_markup` → `parse_signex_markup` (Markdown-extension); `signex-types::markup::kicad_auto_net_name_from_pins` → `auto_net_name` (`unnamed-<sheet>:<ref>:<pin>` format) | Phase 2.1, 2.2, 2.3 |
+| Move-to-companion | `crates/kicad-parser/` (whole crate, 3,938 LOC); `crates/kicad-writer/` (whole crate, 2,274 LOC); `crates/oxide-output/src/netlist/kicad_sexpr.rs` (336 LOC) | Phase 4 (clone) + Phase 5 (delete from main) |
+| Rewrite-clean-room | `oxide-types::layer::{F_CU,…}` constants → `OxideLayer` enum; `oxide-types::schematic::PinElectricalType` → `PinDirection`; `oxide-types::schematic::PinShape` → `PinShapeStyle`; `oxide-types::markup::parse_markup` → `parse_oxide_markup` (Markdown-extension); `oxide-types::markup::kicad_auto_net_name_from_pins` → `auto_net_name` (`unnamed-<sheet>:<ref>:<pin>` format) | Phase 2.1, 2.2, 2.3 |
 | Delete | KiCad-format auto-net-name format string `Net-(<r>-Pad<p>)` (cannot be retained even renamed — direct format-string match) | Phase 2.3 |
-| Keep | `signex-types::layer::LayerId(u8)` newtype itself (just a u8 wrapper, generic); `signex-types::layer::LayerKind` enum (Signex-original variant set); `kicad-parser::sexpr` (generic Lisp parser, but moves with the crate to companion); ERC rule kinds (Altium-flavoured); coordinate system; net types; theme types; almost all of `signex-render`, `signex-engine`, `signex-app`, `signex-erc`, `signex-output` (excluding netlist exporter), `signex-widgets`, `signex-library` | (no action) |
+| Keep | `oxide-types::layer::LayerId(u8)` newtype itself (just a u8 wrapper, generic); `oxide-types::layer::LayerKind` enum (Oxide-original variant set); `kicad-parser::sexpr` (generic Lisp parser, but moves with the crate to companion); ERC rule kinds (Altium-flavoured); coordinate system; net types; theme types; almost all of `oxide-render`, `oxide-engine`, `oxide-app`, `oxide-erc`, `oxide-output` (excluding netlist exporter), `oxide-widgets`, `oxide-library` | (no action) |
 
 ---
 
@@ -47,50 +47,50 @@ the public KiCad source mirror. Each item scored:
 - **Match:** **Strong** (same reasoning).
 - **Remediation:** **Move-to-companion** + **Delete from main** (same phases as #1).
 
-### 3. `crates/signex-output/src/netlist/kicad_sexpr.rs`
+### 3. `crates/oxide-output/src/netlist/kicad_sexpr.rs`
 
 - **Lines:** 336.
 - **KiCad reference:** `eeschema/netlist_exporters/`; emits KiCad netlist S-expression format.
 - **Match:** **Strong** (direct format target, uses `kicad-parser`'s sexpr_builder).
-- **Remediation:** **Move-to-companion** in Phase 4 (in the same companion or a future `signex-kicad-export` sibling); **Delete from main** in Phase 5. Other netlist formats (`signex-output::netlist::xml`, `…::orcad`, etc.) stay — they're independent of KiCad.
+- **Remediation:** **Move-to-companion** in Phase 4 (in the same companion or a future `oxide-kicad-export` sibling); **Delete from main** in Phase 5. Other netlist formats (`oxide-output::netlist::xml`, `…::orcad`, etc.) stay — they're independent of KiCad.
 
-### 4. `signex-types::schematic::PinElectricalType` (12 variants)
+### 4. `oxide-types::schematic::PinElectricalType` (12 variants)
 
-- **Lines:** `crates/signex-types/src/schematic.rs:91-106` (definition); 72 `PinElectricalType::*` variant uses across 7 files (`signex-types`, `signex-output`, `signex-erc`, `signex-erc-dsl` — kicad-parser/writer use sites disappear with the crates in Phase 5).
+- **Lines:** `crates/oxide-types/src/schematic.rs:91-106` (definition); 72 `PinElectricalType::*` variant uses across 7 files (`oxide-types`, `oxide-output`, `oxide-erc`, `oxide-erc-dsl` — kicad-parser/writer use sites disappear with the crates in Phase 5).
 - **KiCad reference:** `common/pin_type.h::ELECTRICAL_PINTYPE` enum.
 - **Match:** **Strong.** Same 12-variant set, identical canonical lower-snake-case strings (`tri_state`, `power_in`, `open_collector`).
-- **Evidence:** `GetCanonicalElectricalTypeName()` returns identical strings to Signex's `#[serde(rename_all = "snake_case")]` output.
-- **Remediation:** **Rewrite-clean-room** (Phase 2.2). Replace with `PinDirection` — curated 13-variant set with `OpenDrain { polarity }`, `Differential`, `Clock`, `GroundReference` as Signex-original additions and `OpenCollector`/`OpenEmitter` collapsed.
+- **Evidence:** `GetCanonicalElectricalTypeName()` returns identical strings to Oxide's `#[serde(rename_all = "snake_case")]` output.
+- **Remediation:** **Rewrite-clean-room** (Phase 2.2). Replace with `PinDirection` — curated 13-variant set with `OpenDrain { polarity }`, `Differential`, `Clock`, `GroundReference` as Oxide-original additions and `OpenCollector`/`OpenEmitter` collapsed.
 
-### 5. `signex-types::schematic::PinShape` (9 variants)
+### 5. `oxide-types::schematic::PinShape` (9 variants)
 
-- **Lines:** `crates/signex-types/src/schematic.rs:110-120` (definition); 36 `PinShape::*` variant uses across 5 files (4 of which are kicad-parser/writer + render/output).
+- **Lines:** `crates/oxide-types/src/schematic.rs:110-120` (definition); 36 `PinShape::*` variant uses across 5 files (4 of which are kicad-parser/writer + render/output).
 - **KiCad reference:** `pin_type.h::GRAPHIC_PINSHAPE`.
 - **Match:** **Strong.** 9 variants, same naming convention (`Line`, `Inverted`, `Clock`, `InvertedClock`, `InputLow`, `ClockLow`, `OutputLow`, `EdgeClockHigh`, `NonLogic`).
-- **Remediation:** **Rewrite-clean-room** (Phase 2.2). Replace with `PinShapeStyle` — 7 variants, includes `Schmitt`/`Hysteresis*` as Signex-original, drops `EdgeClockHigh`.
+- **Remediation:** **Rewrite-clean-room** (Phase 2.2). Replace with `PinShapeStyle` — 7 variants, includes `Schmitt`/`Hysteresis*` as Oxide-original, drops `EdgeClockHigh`.
 
-### 6. `signex-types::layer::{F_CU, B_CU, F_SILKS, …}` constants
+### 6. `oxide-types::layer::{F_CU, B_CU, F_SILKS, …}` constants
 
-- **Lines:** `crates/signex-types/src/layer.rs:28-43` (16 KiCad-numbered `pub const`); the file's only KiCad-derived content. The `LayerId(pub u8)` newtype + `LayerKind` enum are independent.
-- **KiCad reference:** Pre-KiCad-7 `PCB_LAYER_ID` numbering (current KiCad master uses different numbers; Signex's bit-exact match is to KiCad 5/6).
+- **Lines:** `crates/oxide-types/src/layer.rs:28-43` (16 KiCad-numbered `pub const`); the file's only KiCad-derived content. The `LayerId(pub u8)` newtype + `LayerKind` enum are independent.
+- **KiCad reference:** Pre-KiCad-7 `PCB_LAYER_ID` numbering (current KiCad master uses different numbers; Oxide's bit-exact match is to KiCad 5/6).
 - **Match:** **Strong** (older KiCad release, but still derivative).
-- **Important scope correction:** The constants **are not propagated** through the rest of the workspace — `git grep F_CU|B_CU|… -- crates/` returns hits only inside `crates/signex-types/src/layer.rs` itself. `crates/signex-types/src/pcb.rs` stores layer references as `Vec<String>` / `String`, not `Vec<LayerId>`. The strategy doc's "80–120 sites" estimate was wrong; actual scope is "rewrite this one file."
-- **Remediation:** **Rewrite-clean-room** (Phase 2.1). Replace constants + `DEFAULT_LAYER_COLORS` table with `SignexLayer` enum + semantic colour map.
+- **Important scope correction:** The constants **are not propagated** through the rest of the workspace — `git grep F_CU|B_CU|… -- crates/` returns hits only inside `crates/oxide-types/src/layer.rs` itself. `crates/oxide-types/src/pcb.rs` stores layer references as `Vec<String>` / `String`, not `Vec<LayerId>`. The strategy doc's "80–120 sites" estimate was wrong; actual scope is "rewrite this one file."
+- **Remediation:** **Rewrite-clean-room** (Phase 2.1). Replace constants + `DEFAULT_LAYER_COLORS` table with `OxideLayer` enum + semantic colour map.
 
-### 7. `signex-types::markup::parse_markup` + `kicad_auto_net_name_from_pins`
+### 7. `oxide-types::markup::parse_markup` + `kicad_auto_net_name_from_pins`
 
-- **Lines:** `crates/signex-types/src/markup.rs` (whole module). 16 `Net-(` / `kicad_auto_net_name` references across 4 files (signex-types, signex-render text, signex-output expression + netlist).
+- **Lines:** `crates/oxide-types/src/markup.rs` (whole module). 16 `Net-(` / `kicad_auto_net_name` references across 4 files (oxide-types, oxide-render text, oxide-output expression + netlist).
 - **KiCad reference:**
   - `parse_markup` uses KiCad's `~{}` / `^{}` / `_{}` curly-brace syntax (`include/markup_parser.h`).
   - `kicad_auto_net_name_from_pins` produces `Net-(<r>-Pad<p>)` matching KiCad's `connection_graph.cpp::driverName` → `GetDefaultNetName()`. Function name even contains "kicad_".
 - **Match:** **Strong.** Most clear-cut derivation evidence in the codebase.
 - **Remediation:** **Rewrite-clean-room** + **Delete** (Phase 2.3).
-  - `parse_markup` → `parse_signex_markup` (Markdown subset: `**bold**`, `*italic*`, `~~strike~~`, `^sup^`, `~sub~`, `[label](url)`, `\X` escape; per Q1 decision **adds `_~text~_` for overbar** to preserve digital-logic naming).
+  - `parse_markup` → `parse_oxide_markup` (Markdown subset: `**bold**`, `*italic*`, `~~strike~~`, `^sup^`, `~sub~`, `[label](url)`, `\X` escape; per Q1 decision **adds `_~text~_` for overbar** to preserve digital-logic naming).
   - `kicad_auto_net_name_from_pins` deleted; replaced with `auto_net_name` returning `unnamed-<sheet>:<ref>:<pin>` (KiCad format string cannot be kept — direct match).
 
-### 8. `signex-erc::RuleKind` (11 ERC rule kinds)
+### 8. `oxide-erc::RuleKind` (11 ERC rule kinds)
 
-- **Lines:** various across `crates/signex-erc/`.
+- **Lines:** various across `crates/oxide-erc/`.
 - **KiCad reference:** KiCad's `ERCE_*` set.
 - **Match:** **Partial.** Doc comment says "Altium ERC matrix conventions"; rule names + impls are independent. Some semantic overlap with KiCad's set, but that's expected for any ERC system.
 - **Remediation:** **Keep.** Independent enough.
@@ -106,19 +106,19 @@ the public KiCad source mirror. Each item scored:
 
 | Component | Reasoning |
 |---|---|
-| `signex-types::coord` (i64-nm coordinate system, transforms) | Generic; not KiCad-specific. |
-| `signex-types::net` (Net types) | Generic graph theory; Signex-curated for AI-readiness. |
-| `signex-types::theme` (theme types) | 6 built-in themes, Signex-curated palette including Altium Dark default. |
-| `signex-types::project` (project types) | Signex-native `.snxprj` schema. |
-| `signex-types::property` (component property types) | Independent design. |
-| `signex-types::violation` (ERC/DRC violation types) | Altium-flavoured. |
-| `signex-render` (~all of it) | Iced/wgpu rendering; bridges Signex types to draw calls. |
-| `signex-engine` | Command/event/undo bus, multi-window engine map. |
-| `signex-app` | Iced application, panels, dock system, menus, Active Bar, canvas. |
-| `signex-erc` | Validation rules with Altium-flavoured naming. |
-| `signex-output` (excluding netlist/kicad_sexpr.rs) | PDF, BOM, other netlist formats — independent code. |
-| `signex-widgets` | Custom Iced widgets (TreeView, symbol preview, theme extensions). |
-| `signex-library` | Signex-native library subsystem (`.snxlib`/`.snxsym`/`.snxfpt`). |
+| `oxide-types::coord` (i64-nm coordinate system, transforms) | Generic; not KiCad-specific. |
+| `oxide-types::net` (Net types) | Generic graph theory; Oxide-curated for AI-readiness. |
+| `oxide-types::theme` (theme types) | 6 built-in themes, Oxide-curated palette including Altium Dark default. |
+| `oxide-types::project` (project types) | Oxide-native `.snxprj` schema. |
+| `oxide-types::property` (component property types) | Independent design. |
+| `oxide-types::violation` (ERC/DRC violation types) | Altium-flavoured. |
+| `oxide-render` (~all of it) | Iced/wgpu rendering; bridges Oxide types to draw calls. |
+| `oxide-engine` | Command/event/undo bus, multi-window engine map. |
+| `oxide-app` | Iced application, panels, dock system, menus, Active Bar, canvas. |
+| `oxide-erc` | Validation rules with Altium-flavoured naming. |
+| `oxide-output` (excluding netlist/kicad_sexpr.rs) | PDF, BOM, other netlist formats — independent code. |
+| `oxide-widgets` | Custom Iced widgets (TreeView, symbol preview, theme extensions). |
+| `oxide-library` | Oxide-native library subsystem (`.snxlib`/`.snxsym`/`.snxfpt`). |
 
 ---
 
@@ -135,30 +135,30 @@ surface re-introduction, not every substring containing "kicad").
 
 ### A — Doc comments / historical reference
 
-Examples: `crates/signex-engine/src/transform.rs` (geometry conventions),
-`crates/signex-render/src/schematic/text.rs` (escape-convention rationale).
+Examples: `crates/oxide-engine/src/transform.rs` (geometry conventions),
+`crates/oxide-render/src/schematic/text.rs` (escape-convention rationale).
 Allowed because they document why code behaves a certain way; they
 don't compile to binary.
 
 ### B — User-facing migration messages
 
-Examples: `crates/signex-app/src/app/handlers/document_files.rs:42`
-("Signex Community no longer opens KiCad files directly. Convert
-with the signex-kicad-import companion tool first."). Intentional —
+Examples: `crates/oxide-app/src/app/handlers/document_files.rs:42`
+("Oxide Community no longer opens KiCad files directly. Convert
+with the oxide-kicad-import companion tool first."). Intentional —
 users migrating from KiCad need explicit guidance.
 
 ### C — Public render-style enum variants
 
 `MultisheetStyle::KiCad`, `LabelStyle::KiCad`, `PowerPortStyle::KiCad`
-in `signex-types`. Variants serialise to disk; renaming is a
+in `oxide-types`. Variants serialise to disk; renaming is a
 backwards-incompatible change. Tracked for v1.x with a serde-alias
 migration: `MultisheetStyle::Foreign` (or similar) reading the old
 `"kicad"` string for compatibility.
 
 ### D — `tri_state` string compares in label rendering
 
-5 sites in `signex-engine/src/sheet.rs`,
-`signex-output/src/svg/mod.rs`, `signex-render/src/schematic/label.rs`.
+5 sites in `oxide-engine/src/sheet.rs`,
+`oxide-output/src/svg/mod.rs`, `oxide-render/src/schematic/label.rs`.
 On-disk label-shape encoding token. Renaming follows the same v1.x
 serde-alias migration path as Category C.
 
@@ -166,7 +166,7 @@ serde-alias migration path as Category C.
 
 Examples: `kicad_lib_dir`, `find_kicad_symbols_dir`,
 `list_kicad_libraries`, `escape_for_kicad`. Internal naming on
-post-cutover no-op or Signex-native code paths. Cleanup is mechanical
+post-cutover no-op or Oxide-native code paths. Cleanup is mechanical
 (rename + cascade through callers); tracked for v0.9.x or v0.10
 polish.
 
@@ -179,7 +179,7 @@ tree shows KiCad files as "convertible" with a distinct icon). Allowed.
 
 ### G — File-dialog filter strings
 
-`crates/signex-app/src/app/handlers/menu/file_commands.rs` keeps
+`crates/oxide-app/src/app/handlers/menu/file_commands.rs` keeps
 `add_filter("KiCad Schematic", &["kicad_sch"])` so users can see
 their existing `.kicad_sch` files in the Open dialog; opening one
 returns the companion-tool migration message. Tracked as a v0.9.x

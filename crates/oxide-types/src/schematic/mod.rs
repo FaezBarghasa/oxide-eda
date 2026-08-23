@@ -126,7 +126,7 @@ impl Default for Point {
     }
 }
 
-/// Circle through three non-collinear points — converts the Signex
+/// Circle through three non-collinear points — converts the Oxide
 /// (start, mid, end) arc storage into (center, radius) for rendering,
 /// hit-testing, and the properties-panel arc editor. Returns `None` when
 /// `a`, `b`, `c` are (numerically) collinear, i.e. no finite circumcircle
@@ -331,7 +331,7 @@ pub enum FillType {
 }
 
 // ---------------------------------------------------------------------------
-// Pin types — Signex-curated, not derived from any specific EDA enum.
+// Pin types — Oxide-curated, not derived from any specific EDA enum.
 // See crates/oxide-types/docs/pin-design.md for the rationale behind
 // every variant choice (size, boundaries, names).
 // ---------------------------------------------------------------------------
@@ -339,7 +339,7 @@ pub enum FillType {
 /// Pin electrical role.
 ///
 /// Curated 14-variant set spanning generic digital pins, power pins,
-/// open-drain polarity-tagged outputs, plus Signex-original additions
+/// open-drain polarity-tagged outputs, plus Oxide-original additions
 /// (`GroundReference`, `Differential`, `Clock`) that don't appear in
 /// other EDA tools' enums.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -359,15 +359,15 @@ pub enum PinDirection {
     PowerInput,
     /// Power supply output pin (regulator output, battery positive, etc.).
     PowerOutput,
-    /// Ground reference — Signex-original, distinguishes ground from generic power.
+    /// Ground reference — Oxide-original, distinguishes ground from generic power.
     GroundReference,
     /// Open-drain / open-collector, active-low output.
     OpenDrainLow,
     /// Open-drain / open-emitter, active-high output.
     OpenDrainHigh,
-    /// Differential pair member — Signex-original (HSD-friendly).
+    /// Differential pair member — Oxide-original (HSD-friendly).
     Differential,
-    /// Clock pin — Signex-original (modeled as a direction, not a shape).
+    /// Clock pin — Oxide-original (modeled as a direction, not a shape).
     Clock,
     /// Pin must remain unconnected (manufacturer-marked NC).
     DoNotConnect,
@@ -382,7 +382,7 @@ pub enum PinDirection {
 /// 7 variants — drops the per-direction "low" shape modifiers that
 /// other EDA tools include (since `PinDirection`'s `OpenDrainLow` /
 /// `OpenDrainHigh` carry that information already). Adds Schmitt /
-/// Hysteresis as Signex-original variants.
+/// Hysteresis as Oxide-original variants.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum PinShapeStyle {
@@ -692,7 +692,7 @@ pub struct Symbol {
     // so re-opening the schematic can detect drift against the library's
     // current row version.  All three fields are `#[serde(default)]` so
     // legacy `.snxsch` files (and any sheet imported from a foreign
-    // format that has no notion of a Signex library) load cleanly with
+    // format that has no notion of a Oxide library) load cleanly with
     // `library_id = None`, `row_id = None`, `version = ""`.
     // ─────────────────────────────────────────────────────────────────────
     /// Source library for this placed Symbol.  `None` for sheets imported

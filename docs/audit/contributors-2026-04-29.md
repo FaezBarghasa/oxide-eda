@@ -1,7 +1,7 @@
 # Contributor record — 2026-04-29
 
 Snapshot taken at the start of the issue-62 Apache-only remediation.
-Lists every author whose work appears in the main `signex` repo's git
+Lists every author whose work appears in the main `oxide` repo's git
 history since 2024-01-01, captured for the public audit trail.
 
 Snapshot ref: `audit-baseline-2026-04-29` (tag) → `dev` tip `0e74ebc`.
@@ -19,8 +19,8 @@ All commits since `2024-01-01` were authored by one of the three identities abov
 ## Notes
 
 - The Apache-2.0 grants on existing patches stay in force — this is a record of consent for the **Apache-only direction** going forward, not a relicense.
-- LLM-assisted commits remain attributable to the human author who reviewed and merged them. Per `.claude/CLAUDE.md`, Signex never adds AI as a commit author or co-author; LLMs are tools used by the human author.
-- Going forward (Phase 8), every PR declares whether it consulted KiCad source. PRs that consult KiCad source belong in the `signex-kicad-import` GPL-3.0 companion repo, not the main repo.
+- LLM-assisted commits remain attributable to the human author who reviewed and merged them. Per `.claude/CLAUDE.md`, Oxide never adds AI as a commit author or co-author; LLMs are tools used by the human author.
+- Going forward (Phase 8), every PR declares whether it consulted KiCad source. PRs that consult KiCad source belong in the `oxide-kicad-import` GPL-3.0 companion repo, not the main repo.
 
 ## Reproducing this snapshot
 

@@ -26,12 +26,12 @@ Validate overlay compositing order and runtime toggle behavior.
 - Derivation: compositing order assertions and replay-based smoke checks.
 - Rationale: prevent interaction regressions from pass-order drift.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: `cargo test -p signex-gfx -- --nocapture`, `cargo test -p signex-renderer -- --nocapture`, `cargo check -p signex-gfx -p signex-renderer`, and `cargo build -p signex-gfx -p signex-renderer` passed.
+- Verification: `cargo test -p oxide-gfx -- --nocapture`, `cargo test -p oxide-renderer -- --nocapture`, `cargo check -p oxide-gfx -p oxide-renderer`, and `cargo build -p oxide-gfx -p oxide-renderer` passed.
 
 ## Artifacts
 
 - PR/commit: pending
-- Test output: signex-gfx tests passed (29 passed, 0 failed), signex-renderer tests passed (9 passed, 0 failed)
+- Test output: oxide-gfx tests passed (29 passed, 0 failed), oxide-renderer tests passed (9 passed, 0 failed)
 - Screenshot/benchmark: pending
 
 ## Exit checklist

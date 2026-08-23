@@ -15,19 +15,19 @@
 
 ## Cutover tasks
 
-- [x] Replace `signex_render::pcb::PcbRenderSnapshot` usage in app PCB canvas state.
-- [x] Replace legacy PCB draw call path with `signex-renderer` scene build path.
+- [x] Replace `oxide_render::pcb::PcbRenderSnapshot` usage in app PCB canvas state.
+- [x] Replace legacy PCB draw call path with `oxide-renderer` scene build path.
 - [x] Route runtime invalidation updates through new PCB dirty family mapping.
 - [x] Remove remaining direct legacy PCB API calls in app PCB modules.
 
 ## Validation
 
-- [x] `cargo test -p signex-renderer -- --nocapture` passes.
+- [x] `cargo test -p oxide-renderer -- --nocapture` passes.
 - [x] Targeted app tests for PCB dirty adapter and PCB canvas interactions pass.
 - [x] Snapshot/fixture parity checks confirm no regression in overlay/zone ordering.
 
 ## Exit gate
 
 - [x] Task 05-07 completed from Sprint C issue.
-- [x] No `signex_render::pcb` symbol usage remains in `signex-app`.
+- [x] No `oxide_render::pcb` symbol usage remains in `oxide-app`.
 - [x] Sprint C issue marked done with evidence logs.

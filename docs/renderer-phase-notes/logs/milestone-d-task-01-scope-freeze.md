@@ -11,24 +11,24 @@
 
 ## Scope
 
-Freeze the exact Milestone D preparation scope so the `signex-model-import`
+Freeze the exact Milestone D preparation scope so the `oxide-model-import`
 implementation sprint starts without ambiguity.
 
 ## Implementation notes
 
 - Locked Milestone D scope to: STEP/STP, VRML/WRL, GLTF source format analysis
-  and import pipeline design for `signex-model-import` crate.
-- Locked runtime boundary: `signex-renderer` continues to accept GLB only. No
+  and import pipeline design for `oxide-model-import` crate.
+- Locked runtime boundary: `oxide-renderer` continues to accept GLB only. No
   format-specific parsing is introduced in the runtime crate. This boundary was
   established in Milestone C and is not reopened here.
 - Locked crate ownership:
-  - `signex-model-import`: source parsing, tessellation (where needed), GLB
+  - `oxide-model-import`: source parsing, tessellation (where needed), GLB
     normalization, cache key management, import diagnostics.
-  - `signex-renderer` / `signex-gfx`: GLB consumption and draw-pass integration only.
+  - `oxide-renderer` / `oxide-gfx`: GLB consumption and draw-pass integration only.
 - Locked conversion trigger model: import is triggered programmatically (not via
-  GUI wizard). The UI layer calls a stable async API exposed by `signex-model-import`.
+  GUI wizard). The UI layer calls a stable async API exposed by `oxide-model-import`.
 - Locked dependency constraints:
-  - No OCCT (Open CASCADE Technology) dependency in `signex-model-import` or any
+  - No OCCT (Open CASCADE Technology) dependency in `oxide-model-import` or any
     runtime crate. Tessellation must use clean-room Rust implementations or
     subprocess delegation to an external tool (with documented interface contract).
   - No GPL-licensed geometry kernel in the crate graph.
@@ -37,7 +37,7 @@ implementation sprint starts without ambiguity.
   - No mesh simplification or LOD in this milestone.
   - No GUI file picker or import wizard.
   - No cloud or network-based conversion.
-  - No STEP/VRML parsing in `signex-renderer`.
+  - No STEP/VRML parsing in `oxide-renderer`.
 
 ## Dependency graph
 
@@ -45,14 +45,14 @@ implementation sprint starts without ambiguity.
 KiCad project (source models)
        │
        ▼
-signex-model-import
+oxide-model-import
   ├── STEP/STP parser → tessellate → GLB
   ├── VRML/WRL parser → pack geometry → GLB
   ├── GLTF → GLB wrapper
   └── cache manager (source path + mtime + converter version)
        │
        ▼  (GLB path or bytes)
-signex-renderer (runtime, GLB-only)
+oxide-renderer (runtime, GLB-only)
 ```
 
 ## Clean-room evidence

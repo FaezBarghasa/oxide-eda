@@ -26,12 +26,12 @@ Implement upload gating so only dirty primitive groups are uploaded.
 - Derivation: conditional upload paths keyed by dirty masks.
 - Rationale: improve incremental performance and reduce GPU traffic.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: `cargo test -p signex-gfx scene::upload -- --nocapture`, `cargo test -p signex-gfx -- --nocapture`, `cargo test -p signex-renderer -- --nocapture`, `cargo check -p signex-gfx -p signex-renderer`, and `cargo build -p signex-gfx -p signex-renderer` passed.
+- Verification: `cargo test -p oxide-gfx scene::upload -- --nocapture`, `cargo test -p oxide-gfx -- --nocapture`, `cargo test -p oxide-renderer -- --nocapture`, `cargo check -p oxide-gfx -p oxide-renderer`, and `cargo build -p oxide-gfx -p oxide-renderer` passed.
 
 ## Artifacts
 
 - PR/commit: pending
-- Test output: signex-gfx tests passed (34 passed, 0 failed), signex-renderer tests passed (9 passed, 0 failed)
+- Test output: oxide-gfx tests passed (34 passed, 0 failed), oxide-renderer tests passed (9 passed, 0 failed)
 - Screenshot/benchmark: pending
 
 ## Exit checklist

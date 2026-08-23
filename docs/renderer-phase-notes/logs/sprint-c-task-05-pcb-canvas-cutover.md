@@ -11,7 +11,7 @@
 
 ## Scope
 
-Switch `signex-app` PCB canvas draw flow to use `signex-renderer` scene emission path while preserving runtime stability.
+Switch `oxide-app` PCB canvas draw flow to use `oxide-renderer` scene emission path while preserving runtime stability.
 
 ## Implementation notes
 
@@ -19,24 +19,24 @@ Switch `signex-app` PCB canvas draw flow to use `signex-renderer` scene emission
 - Reworked PCB canvas draw path:
   - Build scene with `PcbRenderer::build_scene`.
   - Emit lines/circles/polygons/overlays through iced canvas primitives.
-  - Keep legacy `signex_render::pcb::render_pcb` as fallback path for this slice.
+  - Keep legacy `oxide_render::pcb::render_pcb` as fallback path for this slice.
 - Updated load gateway PCB sync path to hydrate both legacy and renderer snapshots.
-- Added `signex-gfx` dependency in `signex-app` for scene primitive types.
+- Added `oxide-gfx` dependency in `oxide-app` for scene primitive types.
 
 ## Clean-room evidence
 
 - Source: Sprint C cutover plan, existing clean-room renderer modules.
-- Derivation: app integration uses exported `signex-renderer` + `signex-gfx` APIs only.
+- Derivation: app integration uses exported `oxide-renderer` + `oxide-gfx` APIs only.
 - Rationale: enable progressive cutover without breaking PCB runtime interactions.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: targeted app tests and full `signex-renderer` tests passed.
+- Verification: targeted app tests and full `oxide-renderer` tests passed.
 
 ## Artifacts
 
 - PR/commit: pending
 - Test output:
-  - `cargo test -p signex-app pcb_dirty_adapter --lib -- --nocapture`
-  - `cargo test -p signex-renderer -- --nocapture`
+  - `cargo test -p oxide-app pcb_dirty_adapter --lib -- --nocapture`
+  - `cargo test -p oxide-renderer -- --nocapture`
 - Screenshot/benchmark: n/a
 
 ## Exit checklist

@@ -1,6 +1,6 @@
 //! Local + git storage adapter — `.snxlib` file backed by libgit2.
 //!
-//! Per `v0.9-snxlib-as-file-plan.md`, a Signex library on disk is a
+//! Per `v0.9-snxlib-as-file-plan.md`, a Oxide library on disk is a
 //! *directory* containing a `.snxlib` file (the user-facing entry
 //! point) and sibling `symbols/` / `footprints/` / `sims/` /
 //! `models/` directories. The `.git/` repo lives at the parent

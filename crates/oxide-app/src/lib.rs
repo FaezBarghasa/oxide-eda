@@ -1,4 +1,4 @@
-//! Signex EDA — library face of the application binary.
+//! Oxide EDA — library face of the application binary.
 //!
 //! `main.rs` is a thin wrapper that calls into this crate; the real
 //! contents live here so that integration tests in `tests/` can

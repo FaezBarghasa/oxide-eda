@@ -1,7 +1,7 @@
 //! User-config persistence for the Distributor APIs panel.
 //!
 //! Stores the `[distributor_apis] preferred_order = [...]` list at
-//! `<config_dir>/signex/distributors.toml`.
+//! `<config_dir>/oxide/distributors.toml`.
 //!
 //! Why a dedicated file vs. piggy-backing on `prefs.json`:
 //! - `prefs.json` is JSON; the rest of the v0.9 library config is TOML
@@ -95,7 +95,7 @@ fn str_to_source(s: &str) -> Option<DistributorSource> {
     }
 }
 
-/// Resolve `<config_dir>/signex/distributors.toml`. Returns `None`
+/// Resolve `<config_dir>/oxide/distributors.toml`. Returns `None`
 /// when the platform refuses to hand us a config dir (rare; e.g. some
 /// sandboxed CI runners). Tests override via [`config_path_for_dir`].
 pub fn config_path() -> Option<PathBuf> {
@@ -126,7 +126,7 @@ pub fn load_preferred_order_at(path: &std::path::Path) -> Vec<DistributorSource>
     };
     let Ok(parsed) = toml::from_str::<DistributorsConfig>(&text) else {
         tracing::warn!(
-            target: "signex::library",
+            target: "oxide::library",
             path = %path.display(),
             "distributors.toml: parse failed; falling back to defaults"
         );
@@ -158,7 +158,7 @@ pub fn load_preferred_order_at(path: &std::path::Path) -> Vec<DistributorSource>
 pub fn save_preferred_order(order: &[DistributorSource]) -> Result<(), String> {
     let Some(path) = config_path() else {
         tracing::warn!(
-            target: "signex::library",
+            target: "oxide::library",
             "distributors.toml: no config dir on this platform; skipping save"
         );
         return Err("no user config dir available".to_string());
@@ -188,7 +188,7 @@ pub fn save_preferred_order_at(
     };
     let text = toml::to_string_pretty(&cfg).map_err(|e| {
         tracing::warn!(
-            target: "signex::library",
+            target: "oxide::library",
             error = %e,
             "distributors.toml: serialize failed"
         );
@@ -196,7 +196,7 @@ pub fn save_preferred_order_at(
     })?;
     oxide_types::atomic_io::atomic_write(path, text.as_bytes()).map_err(|e| {
         tracing::warn!(
-            target: "signex::library",
+            target: "oxide::library",
             path = %path.display(),
             error = %e,
             "distributors.toml: write failed"

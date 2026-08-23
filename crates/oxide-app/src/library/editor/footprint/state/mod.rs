@@ -647,7 +647,7 @@ impl FootprintEditorState {
     /// next bake.
     ///
     /// The number match is only applied where the number identifies ONE
-    /// pad on each side. Pad numbers are not unique in signex (a
+    /// pad on each side. Pad numbers are not unique in oxide (a
     /// shared-designator row / thermal / shield set is normal), and a
     /// last-wins number map hands several pads the same
     /// `sketch_entity_id` — after which a Pads-mode delete of one runs

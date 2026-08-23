@@ -759,7 +759,7 @@ mod tests {
     fn test_prefs(
         overrides: &std::collections::HashMap<uuid::Uuid, oxide_types::theme::Color>,
     ) -> CanvasViewPrefs<'_> {
-        let colors = oxide_types::theme::canvas_colors(oxide_types::theme::ThemeId::Signex);
+        let colors = oxide_types::theme::canvas_colors(oxide_types::theme::ThemeId::Oxide);
         CanvasViewPrefs {
             grid_visible: true,
             theme_bg: crate::render_config::to_iced(&colors.background),

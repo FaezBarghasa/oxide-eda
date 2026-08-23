@@ -3,7 +3,7 @@
 //! (cache-priming regression). Each target `mod support;`s its own copy —
 //! hence the blanket `allow(dead_code)`, since neither uses all of it.
 //!
-//! Everything on disk is produced by the *real* Signex writers —
+//! Everything on disk is produced by the *real* Oxide writers —
 //! `LocalGitAdapter::init` for the manifest, `SymbolFile::to_toml_string`
 //! / `FootprintFile::to_toml_string` / `SimFile::to_toml_string` for the
 //! primitive envelopes, `LocalGitAdapter::insert_row` for the component
@@ -432,7 +432,7 @@ pub fn generate_library(root: &Path, name: &str, scale: &Scale) -> Result<PathBu
 /// together — to an already-generated library, writing straight to disk
 /// through a fresh adapter.
 ///
-/// This is the out-of-band edit: another Signex window, a `git pull`, a
+/// This is the out-of-band edit: another Oxide window, a `git pull`, a
 /// colleague's commit. Nothing in the caller's `LibraryState` knows it
 /// happened, which is exactly the point — it is what the warm
 /// (already-mounted) auto-mount path has to notice.

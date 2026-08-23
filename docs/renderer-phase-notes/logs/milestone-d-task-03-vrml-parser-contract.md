@@ -12,7 +12,7 @@
 ## Scope
 
 Analyze the VRML 2.0 / VRML97 format as used by KiCad WRL model exports and
-define the clean-room parser contract for `signex-model-import`.
+define the clean-room parser contract for `oxide-model-import`.
 
 ## Format overview
 

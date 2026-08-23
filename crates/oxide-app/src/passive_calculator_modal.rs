@@ -1,8 +1,8 @@
 //! Tools ▸ Passive Network Calculator modal — the resistor / capacitor /
 //! inductor network calculator plus the RKM encoder, rendered as an
-//! in-app modal like every other Signex dialog.
+//! in-app modal like every other Oxide dialog.
 //!
-//! It deliberately does NOT open its own OS window. Signex runs
+//! It deliberately does NOT open its own OS window. Oxide runs
 //! borderless everywhere (`bootstrap/new.rs` — `decorations: false`),
 //! so a default `iced::window::open` would arrive wearing a native
 //! title bar that exists nowhere else in the app. Same chrome as

@@ -54,7 +54,7 @@ impl LcscAdapter {
             cache,
             throttle: Mutex::new(None),
             http: reqwest::blocking::Client::builder()
-                .user_agent("oxide-library/0.9 (+https://signex.dev)")
+                .user_agent("oxide-library/0.9 (+https://oxide.dev)")
                 .build()
                 .expect("reqwest::blocking::Client::build is infallible with default opts"),
         }
@@ -67,7 +67,7 @@ impl LcscAdapter {
             cache,
             throttle: Mutex::new(None),
             http: reqwest::blocking::Client::builder()
-                .user_agent("oxide-library/0.9 (+https://signex.dev)")
+                .user_agent("oxide-library/0.9 (+https://oxide.dev)")
                 .build()
                 .expect("reqwest::blocking::Client::build is infallible with default opts"),
         }

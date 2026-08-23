@@ -1,9 +1,9 @@
 # Licensing
 
-Signex is **Apache-2.0**. The main repository contains no GPL-derived
+Oxide is **Apache-2.0**. The main repository contains no GPL-derived
 code. KiCad migration support — when a user has existing KiCad files —
 ships as a separate **GPL-3.0-or-later** companion tool,
-[signex-kicad-import](https://github.com/alplabai/signex-kicad-import),
+[oxide-kicad-import](https://github.com/alplabai/oxide-kicad-import),
 distributed independently.
 
 This document explains the two-repo split, the audit trail behind it,
@@ -13,30 +13,30 @@ and what it means for users and contributors.
 
 | Repository | License | Contains |
 |---|---|---|
-| `alplabai/signex` (this repo) | **Apache-2.0** | Native Signex EDA tooling. Schematic + PCB editor, 3D viewer, simulation, plugin system. Reads/writes `.snxsch`/`.snxpcb`/`.snxsym`/`.snxfpt`/`.snxlib`/`.snxprj` natively. |
-| `alplabai/signex-kicad-import` (separate) | **GPL-3.0-or-later** | One-way converter from KiCad files (`.kicad_sch`/`.kicad_pcb`/`.kicad_sym`/`.kicad_pro`) to Signex's native formats. Optional install. |
+| `alplabai/oxide` (this repo) | **Apache-2.0** | Native Oxide EDA tooling. Schematic + PCB editor, 3D viewer, simulation, plugin system. Reads/writes `.snxsch`/`.snxpcb`/`.snxsym`/`.snxfpt`/`.snxlib`/`.snxprj` natively. |
+| `alplabai/oxide-kicad-import` (separate) | **GPL-3.0-or-later** | One-way converter from KiCad files (`.kicad_sch`/`.kicad_pcb`/`.kicad_sym`/`.kicad_pro`) to Oxide's native formats. Optional install. |
 
 For users:
-- **No KiCad files?** Download Signex Community. Done.
-- **Have existing KiCad projects?** Download Signex Community + the
+- **No KiCad files?** Download Oxide Community. Done.
+- **Have existing KiCad projects?** Download Oxide Community + the
   companion converter. Run the converter once against your `.kicad_pro`
   to produce native `.snxsch`/`.snxpcb`/`.snxprj` siblings; open the
-  `.snxprj` in Signex from then on.
+  `.snxprj` in Oxide from then on.
 
 For redistributors and embedders:
-- Signex Community itself has zero GPL transitive dependencies. You can
+- Oxide Community itself has zero GPL transitive dependencies. You can
   embed, link against, or redistribute it under Apache-2.0 without
   inheriting any reciprocal-license obligations.
 - The companion converter is GPL-3.0-or-later and is **not** linked into
-  Signex Community. Users install it separately if they need KiCad
-  migration. Apache consumers of Signex see no GPL aggregation in their
+  Oxide Community. Users install it separately if they need KiCad
+  migration. Apache consumers of Oxide see no GPL aggregation in their
   build closure.
 
 ## Why the split?
 
 KiCad is a great EDA project and the file formats it has popularised
 (`.kicad_sch`, `.kicad_pcb`) are well-documented enough that earlier
-versions of Signex implemented them as a primary read/write format. The
+versions of Oxide implemented them as a primary read/write format. The
 implementation in question (`crates/kicad-parser` and
 `crates/kicad-writer`, plus a KiCad netlist exporter) was AI-assisted
 and structurally derives from KiCad's GPL-3.0 source — even though no
@@ -46,7 +46,7 @@ control flow inherits enough from KiCad's headers (`pin_type.h`,
 derivative work under the spirit of KiCad's reciprocal-licensing terms.
 
 KiCad's lead Seth Hillbrand raised the issue cleanly in
-[issue #62](https://github.com/alplabai/signex/issues/62). The choices
+[issue #62](https://github.com/alplabai/oxide/issues/62). The choices
 were:
 
 1. **Dual-license the main repo** — pick GPL-3.0 alongside Apache-2.0
@@ -59,7 +59,7 @@ were:
    migrating from KiCad (run the converter once instead of opening
    `.kicad_sch` directly).
 
-We picked **option 2** because Signex's longer-term ambition (Signex
+We picked **option 2** because Oxide's longer-term ambition (Oxide
 Pro, embedded-in-CI use cases, downstream redistribution) benefits more
 from a clean Apache surface than from a "compatible-with-KiCad-but-
 also-GPL-in-some-crates" hybrid. The cost is a one-step migration for
@@ -83,19 +83,19 @@ The audit + remediation lived in:
 In code:
 
 - `crates/kicad-parser/` and `crates/kicad-writer/` removed from the
-  main workspace; relocated to `signex-kicad-import` under GPL-3.0.
-- `crates/signex-output/src/netlist/kicad_sexpr.rs` — KiCad netlist
+  main workspace; relocated to `oxide-kicad-import` under GPL-3.0.
+- `crates/oxide-output/src/netlist/kicad_sexpr.rs` — KiCad netlist
   exporter — relocated to the companion repo.
-- `signex_types::schematic::PinElectricalType` (KiCad-shaped 12-variant
-  enum) → replaced by `signex_types::schematic::PinDirection` (14
-  variants, Signex-curated; rationale in
-  `crates/signex-types/docs/pin-design.md`).
-- `signex_types::schematic::PinShape` → replaced by `PinShapeStyle`.
-- `signex_types::layer::{F_CU, B_CU, F_SILKS, ...}` constants (mirroring
+- `oxide_types::schematic::PinElectricalType` (KiCad-shaped 12-variant
+  enum) → replaced by `oxide_types::schematic::PinDirection` (14
+  variants, Oxide-curated; rationale in
+  `crates/oxide-types/docs/pin-design.md`).
+- `oxide_types::schematic::PinShape` → replaced by `PinShapeStyle`.
+- `oxide_types::layer::{F_CU, B_CU, F_SILKS, ...}` constants (mirroring
   pre-KiCad-7 `PCB_LAYER_ID` numbering) → replaced by semantic
-  `SignexLayer` enum.
-- `signex_types::markup::parse_markup` (KiCad's curly-brace markup
-  syntax) → replaced by `parse_signex_markup` using Markdown-extension
+  `OxideLayer` enum.
+- `oxide_types::markup::parse_markup` (KiCad's curly-brace markup
+  syntax) → replaced by `parse_oxide_markup` using Markdown-extension
   syntax with `_~text~_` overbar for active-low signal naming.
 - `kicad_auto_net_name_from_pins` (returning `Net-(<r>-Pad<p>)`) →
   replaced by `auto_net_name(sheet, pins)` returning
@@ -118,7 +118,7 @@ Post-cutover development on this repository uses LLM-assisted workflows.
 That comes with a specific operational rule: **KiCad source code is
 never placed in an agent's context window, prompt, retrieval index,
 or reference material when work is being produced for this repo**. The
-LLM is given only the existing `signex` codebase plus internal
+LLM is given only the existing `oxide` codebase plus internal
 specifications (audit docs, format design notes, type schemas) when
 asked to refactor, write new code, or design new types.
 
@@ -149,14 +149,14 @@ modern code-LLMs at all.
 
 ## Contributing
 
-Patches to the main `signex` repo must not contain KiCad-derived code.
+Patches to the main `oxide` repo must not contain KiCad-derived code.
 The repository is Apache-2.0 clean; KiCad I/O lives in the GPL-3.0
 companion repo.
 
 Opening a PR affirms **no license-gated source files** were used —
 nothing under GPL/copyleft or otherwise Apache-incompatible. A
 contribution that did use one adds a line `License-gated sources: yes`
-and belongs in signex-kicad-import instead.
+and belongs in oxide-kicad-import instead.
 
 ### What "otherwise Apache-incompatible" means
 
@@ -164,7 +164,7 @@ This document is the canonical statement of that phrase. It was
 undefined until issue #305, and the omission was expensive for someone
 other than us.
 
-[PR #304](https://github.com/alplabai/signex/pull/304) was a substantial,
+[PR #304](https://github.com/alplabai/oxide/pull/304) was a substantial,
 competent Rust rewrite of a project licensed "CC BY 4.0 … You may not
 resell this tool". Both halves of that are disqualifying here. It passed
 all twelve licence-guard jobs and `cargo deny` clean — a port is not a
@@ -189,9 +189,9 @@ the source you worked from, not the distance between the outputs.
 
 | Class | Examples | Why it fails here |
 |---|---|---|
-| GPL / copyleft | GPL-2.0/3.0, AGPL, LGPL | Reciprocal terms relicense Signex. LGPL included — a binding is a link. Copyleft solvers are reached across a process boundary only; see [EXTERNAL_TOOLS.md §4](EXTERNAL_TOOLS.md#4-the-gpl--lgpl-bridge-boundary), the dependency-side counterpart to this section. |
+| GPL / copyleft | GPL-2.0/3.0, AGPL, LGPL | Reciprocal terms relicense Oxide. LGPL included — a binding is a link. Copyleft solvers are reached across a process boundary only; see [EXTERNAL_TOOLS.md §4](EXTERNAL_TOOLS.md#4-the-gpl--lgpl-bridge-boundary), the dependency-side counterpart to this section. |
 | **Any Creative Commons licence** | CC BY, CC BY-SA, CC BY-NC | CC is not a software licence — Creative Commons states this itself and recommends against using CC for code. CC BY's attribution terms do not compose with Apache-2.0's `NOTICE` model; BY-SA is copyleft; BY-NC adds a field-of-use bar. CC0 is a public-domain dedication rather than a licence in this sense and is fine. |
-| Non-commercial / no-resale / any field-of-use restriction | CC BY-NC, "you may not resell this tool", "personal use only" | **Signex Pro is sold from this tree.** See below. |
+| Non-commercial / no-resale / any field-of-use restriction | CC BY-NC, "you may not resell this tool", "personal use only" | **Oxide Pro is sold from this tree.** See below. |
 | Source-available / open-core / "fair source" | BUSL, SSPL, Elastic, Commons Clause, PolyForm | Use restrictions and/or reciprocal terms; not open source. |
 | Text, tables, and figures of paywalled standards | IPC, IEC, JEDEC, ISO | The **document** is copyrighted. The **formulas and physical facts** in it are facts and are not — implementing the maths from your own understanding is fine and welcome. Copying prose, tables, figure geometry, or worked examples is not, including via an LLM. |
 
@@ -200,7 +200,7 @@ Anything on neither list is a question worth asking before it is a PR
 worth writing.
 
 **Why a field-of-use restriction is fatal to this repo specifically.**
-Signex Community is Apache-2.0 and free. **Signex Pro is a paid
+Oxide Community is Apache-2.0 and free. **Oxide Pro is a paid
 commercial edition built from the same source tree.** A "non-commercial"
 or "no resale" term on any code under `crates/` would be breached the day
 Pro ships, and would void the unencumbered Apache-2.0 surface promised to
@@ -219,7 +219,7 @@ to finished work.
 LLMs that have been trained on KiCad source CAN contribute to the GPL
 companion repo. They should NOT contribute to the Apache main repo. If
 your LLM has consulted KiCad source, route the work to
-signex-kicad-import. The same rule generalises: if you or your assistant
+oxide-kicad-import. The same rule generalises: if you or your assistant
 worked from the source of *any* project in an incompatible class above,
 the result carries that project's licence and does not belong here.
 
@@ -247,9 +247,9 @@ structure is a healthier outcome for both projects than the original
 - **v0.8.0** (2026-04-26) — released with KiCad-derived code under
   Apache-2.0 in error. Marked superseded.
 - **v0.9.0** (2026-04-29) — first Apache-clean release. Apache-clean
-  cutover only: native `.snxsch` / `.snxpcb` formats + signex-types
+  cutover only: native `.snxsch` / `.snxpcb` formats + oxide-types
   Apache-clean enums + KiCad I/O moved to the optional
-  `signex-kicad-import` GPL-3.0 companion. Library subsystem work
+  `oxide-kicad-import` GPL-3.0 companion. Library subsystem work
   ships separately starting at v0.10.0.
 - **v0.9.1** (2026-04-29) — async save + borrow-based serialise patch.
   No licensing surface change; same Apache-clean invariants as v0.9.0.

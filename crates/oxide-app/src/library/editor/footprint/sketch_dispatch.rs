@@ -577,7 +577,7 @@ fn solve_and_bake(
             // Full/Under, from a solve that no longer describes it.
             state.last_solve = None;
             tracing::warn!(
-                target: "signex::sketch",
+                target: "oxide::sketch",
                 error = %e,
                 "the sketch solve failed; the previous solve's constraint colours and \
                  dimensions were cleared rather than left on screen"

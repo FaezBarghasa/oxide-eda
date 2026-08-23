@@ -12,7 +12,7 @@ use iced::Task;
 
 use super::super::*;
 
-impl Signex {
+impl Oxide {
     pub(in crate::app::handlers::dock::sch_library) fn handle_fp_editor_toggle_auto_fit_courtyard(
         &mut self,
     ) -> Task<Message> {

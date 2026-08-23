@@ -294,7 +294,7 @@ pub enum ProjectMsg {
     /// project that still has entries in `dirty_paths`.
     CloseConfirm(ProjectCloseChoice),
     /// User choice (Save All / Discard All / Cancel) on the app-quit
-    /// confirmation modal, shown when the user tries to exit Signex
+    /// confirmation modal, shown when the user tries to exit Oxide
     /// while `dirty_paths` is non-empty. Reuses `ProjectCloseChoice`.
     AppQuitConfirm(ProjectCloseChoice),
     /// Dismiss the Project Options metadata modal.

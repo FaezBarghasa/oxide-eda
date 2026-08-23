@@ -4,7 +4,7 @@ use iced::Task;
 
 use super::super::super::*;
 
-impl Signex {
+impl Oxide {
     pub(crate) fn handle_run_erc(&mut self) -> Task<Message> {
         let dsl_eval_fns = self.load_project_dsl_eval_fns();
         let overrides = self.ui_state.erc_severity_override.clone();
@@ -168,7 +168,7 @@ impl Signex {
 
         let dsl_path_candidates = [
             project_root.join("erc.dsl"),
-            project_root.join("signex.erc.dsl"),
+            project_root.join("oxide.erc.dsl"),
         ];
         let dsl_path = dsl_path_candidates.iter().find(|p| p.exists())?;
 

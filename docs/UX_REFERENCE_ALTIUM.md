@@ -1,13 +1,13 @@
-# Signex — UX Reference (Altium Baseline)
+# Oxide — UX Reference (Altium Baseline)
 
 > **Status:** Canonical UX specification. Authoritative for all UI implementation.
-> **Audience:** Anyone building user-facing surfaces in Signex.
+> **Audience:** Anyone building user-facing surfaces in Oxide.
 > **Rule:** If the code does something different from this document and there is
 > no approved exception, the code is wrong.
 
-This document describes how Signex *feels* to use. It is derived from Altium
+This document describes how Oxide *feels* to use. It is derived from Altium
 Designer's interaction model because that is the target for professional EDA
-UX parity. Signex-specific additions are clearly marked; everything else maps
+UX parity. Oxide-specific additions are clearly marked; everything else maps
 to Altium behavior that professional users already have in muscle memory.
 
 ---
@@ -15,7 +15,7 @@ to Altium behavior that professional users already have in muscle memory.
 ## 1. Guiding Principles
 
 1. **Altium muscle memory is sacred.** An engineer who has used Altium for
-   years should sit down in Signex and begin working without reading a manual.
+   years should sit down in Oxide and begin working without reading a manual.
    If we deviate from Altium behavior, we document why and we make it
    discoverable.
 
@@ -261,7 +261,7 @@ Single layer mode cycles through four display states:
 Each press of `Shift+S` advances to the next mode in the cycle.
 
 **Layer pair toggling:** The `+` or `=` key toggles the active layer between
-`SignexLayer::TopCopper` and `SignexLayer::BottomCopper`. Flipping a component
+`OxideLayer::TopCopper` and `OxideLayer::BottomCopper`. Flipping a component
 with `F` moves it between paired layers. Paired technical layers (Top Overlay
 ↔ Bottom Overlay, Top Solder ↔ Bottom Solder) follow automatically.
 
@@ -308,16 +308,16 @@ displayed coordinates are the snapped position, not the raw cursor position.
 
 ### 7.1. PCB Layer Colors (Altium Defaults)
 
-These are the default layer colors used by Signex's PCB editor. They match
+These are the default layer colors used by Oxide's PCB editor. They match
 Altium Designer's defaults for familiarity. Users may customize per-project
 (post-v2.0).
 
-Layer identifiers reference the canonical `signex_types::layer::SignexLayer`
+Layer identifiers reference the canonical `oxide_types::layer::OxideLayer`
 enum (see `PCB_LAYERS_PLAN.md`).
 
 #### Copper Layers (32 maximum)
 
-| Layer                | `SignexLayer` Variant | Default Color | Hex       |
+| Layer                | `OxideLayer` Variant | Default Color | Hex       |
 |----------------------|-----------------------|---------------|-----------|
 | Top Layer            | `TopCopper`           | Red           | `#FF0000` |
 | Mid Layer 1          | `MidCopper(1)`        | Yellow        | `#FFFF00` |
@@ -341,7 +341,7 @@ enum (see `PCB_LAYERS_PLAN.md`).
 
 #### Technical Layers
 
-| Layer                | `SignexLayer` Variant | Default Color     | Hex       | Alpha |
+| Layer                | `OxideLayer` Variant | Default Color     | Hex       | Alpha |
 |----------------------|-----------------------|-------------------|-----------|:-----:|
 | Top Overlay          | `TopSilk`             | Yellow            | `#FFFF00` | 100%  |
 | Bottom Overlay       | `BottomSilk`          | Dark Blue-Gray    | `#404080` | 100%  |
@@ -358,7 +358,7 @@ enum (see `PCB_LAYERS_PLAN.md`).
 
 #### Mechanical Layers
 
-| Layer                | `SignexLayer` Variant | Default Color     | Hex       |
+| Layer                | `OxideLayer` Variant | Default Color     | Hex       |
 |----------------------|-----------------------|-------------------|-----------|
 | Mechanical 1         | `User(1)`             | Orange            | `#FF8000` |
 | Mechanical 2         | `User(2)`             | Steel Blue        | `#5994DC` |
@@ -386,7 +386,7 @@ enum (see `PCB_LAYERS_PLAN.md`).
 
 ## 8. Schematic Canvas Themes
 
-Signex ships with six built-in color themes for the schematic canvas. All
+Oxide ships with six built-in color themes for the schematic canvas. All
 themes are available in both Community and Pro editions.
 
 ### 8.1. Theme Color Table
@@ -641,10 +641,10 @@ applied at the tool level.
 
 ---
 
-## 14. Signex-Specific UX Additions
+## 14. Oxide-Specific UX Additions
 
 These features are not in Altium. They are clearly marked in the UI so users
-know they are Signex-specific.
+know they are Oxide-specific.
 
 ### 14.1. AutoFocus
 
@@ -688,7 +688,7 @@ This document changes as the UX evolves, but changes follow rules:
 - **Altium-baseline behaviors** (Section 3, 4, 5, 6) change only if Altium
   itself changes or if user research demonstrates the Altium behavior is
   actively harmful. "We think X would be better" is not sufficient.
-- **Signex-specific additions** (Section 14) can be added freely as long as
+- **Oxide-specific additions** (Section 14) can be added freely as long as
   they do not conflict with baseline behaviors.
 - **Keyboard shortcuts** change only through the future customization system.
   Default bindings are locked to Altium's defaults.

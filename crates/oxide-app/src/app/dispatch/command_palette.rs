@@ -8,7 +8,7 @@ use crate::app::command_palette::{
     COMMAND_PALETTE_INPUT_ID, CommandAction, MAX_RESULTS, build_catalog, rank_results,
 };
 
-impl Signex {
+impl Oxide {
     pub(super) fn dispatch_command_palette_message(
         &mut self,
         message: CommandPaletteMsg,

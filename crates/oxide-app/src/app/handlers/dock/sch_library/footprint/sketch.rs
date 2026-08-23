@@ -13,7 +13,7 @@ use iced::Task;
 
 use super::super::*;
 
-impl Signex {
+impl Oxide {
     pub(in crate::app::handlers::dock::sch_library) fn handle_fp_editor_edit_pad_in_sketch(
         &mut self,
         pad_idx: &usize,
@@ -76,7 +76,7 @@ impl Signex {
             }
         } else {
             tracing::warn!(
-                target: "signex::v024",
+                target: "oxide::v024",
                 "FpEditorEditPadShapeParam: pad {pad_idx} has no shape_params[{key}] \
                  binding; ignoring edit"
             );

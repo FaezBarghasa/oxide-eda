@@ -11,7 +11,7 @@ use iced::Task;
 
 use super::super::*;
 
-impl Signex {
+impl Oxide {
     pub(in crate::app::handlers::dock::sch_library) fn handle_fp_library_open_sibling(
         &mut self,
         sibling_path: &std::path::Path,
@@ -100,7 +100,7 @@ impl Signex {
                     self.document_state.dirty_paths.insert(path.clone());
                 } else if last == 1 {
                     tracing::warn!(
-                        target: "signex::library",
+                        target: "oxide::library",
                         path = %path.display(),
                         "Footprint Library: refused to delete the last footprint in the envelope",
                     );
@@ -141,12 +141,12 @@ mod tests {
     /// Regression (#99 part 1): this method used to return `bool` and
     /// discard `handle_open_primitive`'s `Task` via `let _ = ...`. This
     /// is a pure compile-time tripwire — the assignment only type-checks
-    /// if the signature stays `fn(&mut Signex, &Path) -> Task<Message>`;
+    /// if the signature stays `fn(&mut Oxide, &Path) -> Task<Message>`;
     /// it stops compiling (not merely failing) if that regresses back to
-    /// `bool`. No runtime setup needed, so no `Signex::new()` / tempdir.
+    /// `bool`. No runtime setup needed, so no `Oxide::new()` / tempdir.
     #[test]
     fn open_sibling_returns_the_primitive_open_task() {
-        const _: fn(&mut Signex, &std::path::Path) -> Task<Message> =
-            Signex::handle_fp_library_open_sibling;
+        const _: fn(&mut Oxide, &std::path::Path) -> Task<Message> =
+            Oxide::handle_fp_library_open_sibling;
     }
 }

@@ -12,7 +12,7 @@
 use super::*;
 use iced::widget::container;
 
-impl Signex {
+impl Oxide {
     /// Preferences renders inline only if it hasn't been detached into
     /// its own OS window. Open-flow auto-detaches via
     /// `handle_preferences_open_requested`, so this in-window path is

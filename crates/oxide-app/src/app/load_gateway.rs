@@ -5,7 +5,7 @@ use oxide_types::schematic::SchematicSheet;
 
 use super::*;
 
-impl Signex {
+impl Oxide {
     fn active_tab_cached_document(&self) -> Option<&TabDocument> {
         self.document_state
             .tabs

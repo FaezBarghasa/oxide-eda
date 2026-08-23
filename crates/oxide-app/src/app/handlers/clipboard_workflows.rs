@@ -12,7 +12,7 @@ fn union_bounds(
     })
 }
 
-fn clipboard_bounds(app: &Signex) -> Option<oxide_types::schematic::Aabb> {
+fn clipboard_bounds(app: &Oxide) -> Option<oxide_types::schematic::Aabb> {
     use oxide_types::schematic::Aabb;
 
     let mut bounds = None;
@@ -116,7 +116,7 @@ fn clipboard_bounds(app: &Signex) -> Option<oxide_types::schematic::Aabb> {
     bounds
 }
 
-fn smart_paste_offset(app: &Signex) -> (f64, f64) {
+fn smart_paste_offset(app: &Oxide) -> (f64, f64) {
     let default_offset = 5.08;
     let Some(snapshot) = app.active_render_snapshot() else {
         return (default_offset, default_offset);
@@ -133,7 +133,7 @@ fn smart_paste_offset(app: &Signex) -> (f64, f64) {
     (offset_x, margin)
 }
 
-impl Signex {
+impl Oxide {
     /// Cut is copy + delete, but Copy (`collect_selection_clipboard`)
     /// silently drops kinds it can't carry — `ChildSheet`/`SheetPin`
     /// today. Deleting those anyway would destroy them with nothing in

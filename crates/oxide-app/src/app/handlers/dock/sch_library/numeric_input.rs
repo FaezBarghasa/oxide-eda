@@ -91,7 +91,7 @@ pub(super) fn fp_resolve_optional_number(
         OptionalNumberEdit::Accepted(number) => Some(Some(number)),
         OptionalNumberEdit::Clamped { stored, typed } => {
             tracing::warn!(
-                target: "signex::footprint_pad",
+                target: "oxide::footprint_pad",
                 field = field,
                 typed = typed,
                 stored = stored,
@@ -101,7 +101,7 @@ pub(super) fn fp_resolve_optional_number(
         }
         OptionalNumberEdit::Unreadable => {
             tracing::error!(
-                target: "signex::footprint_pad",
+                target: "oxide::footprint_pad",
                 field = field,
                 buffer = value.trim(),
                 "pad field edit is not a number; the edit was refused and the stored value kept"

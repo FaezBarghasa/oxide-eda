@@ -39,7 +39,7 @@ use numeric_input::{
     fp_parse_optional_number_in, fp_resolve_optional_number,
 };
 
-impl Signex {
+impl Oxide {
     /// v0.18.8 — convenience: resolve the active tab's `.snxfpt`
     /// path, if any. The Footprint Library panel handlers below all
     /// need this; centralising it keeps the dispatch arms tight.
@@ -80,7 +80,7 @@ impl Signex {
             // without a visible no-op.
             PanelMsg::FpLibraryPlaceInternal(idx) => {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     idx = idx,
                     "Footprint Library: Place is not yet wired (PCB integration pending)",
                 );

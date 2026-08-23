@@ -1,6 +1,6 @@
 use super::*;
 
-impl Signex {
+impl Oxide {
     fn render_invalidation_for_patch(
         patch: oxide_engine::DocumentPatch,
     ) -> crate::schematic_runtime::RenderInvalidation {
@@ -115,7 +115,7 @@ impl Signex {
     /// For the one edit path that mutates the engine through a method that
     /// is not a `Command` — `Engine::annotate_with_seed_and_locks`, which
     /// records its own history entry — so it cannot go through
-    /// [`Signex::apply_engine_command`] but still has to reach
+    /// [`Oxide::apply_engine_command`] but still has to reach
     /// `dirty_paths` (#585). Everything else should use the gateway, which
     /// calls this as part of `finish_schematic_mutation`.
     ///
@@ -158,7 +158,7 @@ impl Signex {
     }
 
     /// Redo one step of the **active** engine's own history. Mirror of
-    /// [`Signex::apply_engine_undo`].
+    /// [`Oxide::apply_engine_undo`].
     pub(crate) fn apply_engine_redo(&mut self, update_selection_info: bool) -> bool {
         let invalidation = if let Some(engine) = self.document_state.active_engine_mut() {
             match engine.redo() {
@@ -329,7 +329,7 @@ mod tests {
     use oxide_engine::DocumentPatch;
 
     fn touches_netlist(patch: DocumentPatch) -> bool {
-        Signex::render_invalidation_for_patch(patch).intersects(Signex::netlist_render_mask())
+        Oxide::render_invalidation_for_patch(patch).intersects(Oxide::netlist_render_mask())
     }
 
     #[test]
@@ -368,7 +368,7 @@ mod tests {
 
     /// The export fixture, on purpose: the whole point is that both paths
     /// answer "what sheets does this project consist of" the same way.
-    fn app_with_a_child_only_on_disk() -> (Signex, std::path::PathBuf) {
+    fn app_with_a_child_only_on_disk() -> (Oxide, std::path::PathBuf) {
         use crate::app::handlers::menu::export::tests as fx;
         let dir =
             std::env::temp_dir().join(format!("oxide-gateway-disk-{}", uuid::Uuid::new_v4()));

@@ -18,7 +18,7 @@ Add a minimal semantic style reference model and schematic palette uniform skele
 - Added semantic slot enum for schematic color roles.
 - Added compact StyleRef struct for primitive style binding.
 - Added SchematicColorUniform skeleton with fixed slot array.
-- Exported modules through signex-gfx root.
+- Exported modules through oxide-gfx root.
 
 ## Clean-room evidence
 
@@ -26,7 +26,7 @@ Add a minimal semantic style reference model and schematic palette uniform skele
 - Derivation: direct mapping from slot-based color policy to renderer-side structs.
 - Rationale: enforce theme-driven rendering early and reduce refactor cost in later phases.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: `cargo check -p signex-gfx -p signex-renderer` and `cargo build -p signex-gfx -p signex-renderer` succeeded.
+- Verification: `cargo check -p oxide-gfx -p oxide-renderer` and `cargo build -p oxide-gfx -p oxide-renderer` succeeded.
 
 ## Artifacts
 

@@ -1,4 +1,4 @@
-//! Signex library DB-flavour server.
+//! Oxide library DB-flavour server.
 //!
 //! Exposes a JSON HTTP API over a shared `AppState` (DB pool + lock manager).
 //! Liveness checks (`/health`, `/version`) stay anonymous so process
@@ -149,15 +149,15 @@ pub fn router_with_state(state: AppState) -> Router {
         }
     }
 
-    // MD-16: explicit CORS — we own the front-end so allow only signex.dev
+    // MD-16: explicit CORS — we own the front-end so allow only oxide.dev
     // origins in production. The loopback dev origin is allowed so the
     // local UI can hit the local server during development.
     let cors = CorsLayer::new()
         .allow_origin([
             HeaderValue::from_static("http://127.0.0.1:3535"),
             HeaderValue::from_static("http://localhost:3535"),
-            HeaderValue::from_static("https://signex.dev"),
-            HeaderValue::from_static("https://www.signex.dev"),
+            HeaderValue::from_static("https://oxide.dev"),
+            HeaderValue::from_static("https://www.oxide.dev"),
         ])
         .allow_methods(tower_http::cors::Any)
         .allow_headers(tower_http::cors::Any);

@@ -23,7 +23,7 @@ use std::path::PathBuf;
 use oxide_types::format::SnxSchematic;
 use uuid::Uuid;
 
-use crate::app::Signex;
+use crate::app::Oxide;
 use crate::app::documents::{TabInfo, TabKind};
 use crate::app::handlers::menu::export::tests::{app_workspace, open_with, sheet_with_net};
 
@@ -40,7 +40,7 @@ use crate::app::handlers::menu::export::tests::{app_workspace, open_with, sheet_
 /// one can.
 ///
 /// Returns the app and the temp dir (caller cleans up).
-fn fixture() -> (Signex, PathBuf) {
+fn fixture() -> (Oxide, PathBuf) {
     let dir = std::env::temp_dir().join(format!("oxide-annotate-preview-{}", Uuid::new_v4()));
     std::fs::create_dir_all(&dir).expect("tempdir");
 
@@ -85,7 +85,7 @@ fn tab(title: &str, path: PathBuf) -> TabInfo {
 }
 
 /// The proposed designator the preview promises for the sheet titled `sheet`.
-fn proposed_for(app: &Signex, sheet: &str) -> Option<String> {
+fn proposed_for(app: &Oxide, sheet: &str) -> Option<String> {
     app.preview_project_annotations()
         .into_iter()
         .find(|e| e.sheet == sheet)
@@ -122,7 +122,7 @@ fn the_preview_promises_what_the_action_assigns() {
     std::fs::remove_dir_all(&dir).ok();
 
     // The action renumbers the unlisted child and saves the file. The preview
-    // must have shown that row — otherwise Signex writes a schematic the user
+    // must have shown that row — otherwise Oxide writes a schematic the user
     // was never shown (#406) — AND it must be the SAME number the action
     // assigns, not just a row with the right sheet name (#435): `a_root`
     // sorts before `z_child`, so a preview/action pair that disagree on walk

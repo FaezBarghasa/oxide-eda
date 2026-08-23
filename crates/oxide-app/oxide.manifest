@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
   <!--
-    Declares Signex as per-monitor v2 DPI-aware so Windows renders the
+    Declares Oxide as per-monitor v2 DPI-aware so Windows renders the
     wgpu surface at native device pixels instead of bitmap-stretching it.
     Without this, the app looks soft on 125 %/150 % scaling and on
     ultrawides running at high effective DPI.

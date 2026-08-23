@@ -1,6 +1,6 @@
 //! Footprint-editor dock message handlers, grouped by concern.
 //!
-//! Each submodule holds the `impl Signex` handlers for one slice of the
+//! Each submodule holds the `impl Oxide` handlers for one slice of the
 //! footprint-editor Properties/dock surface; the parent `sch_library`
 //! router (`handle_dock_sch_library_message`) delegates each `PanelMsg`
 //! arm to one of these. Split out of the former flat `footprint_*`

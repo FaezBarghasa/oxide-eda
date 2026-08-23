@@ -1,5 +1,5 @@
 //! Generic Active Bar — a floating row of icon buttons used by every
-//! Signex editor surface (schematic, schematic library, PCB, PCB
+//! Oxide editor surface (schematic, schematic library, PCB, PCB
 //! library) to surface the primary place / select tools.
 //!
 //! Altium-parity affordance: the bar floats over the canvas at the

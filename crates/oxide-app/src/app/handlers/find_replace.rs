@@ -2,7 +2,7 @@ use iced::Task;
 
 use super::super::*;
 
-impl Signex {
+impl Oxide {
     pub(crate) fn handle_find_replace_open_requested(
         &mut self,
         replace_mode: bool,

@@ -4,9 +4,9 @@
 //! my test go").
 //!
 //! These exercise dispatchers without spinning up the iced runtime —
-//! `Signex::new()` constructs the app, the test populates state
+//! `Oxide::new()` constructs the app, the test populates state
 //! directly via the `pub` fields on `DocumentState` / `UiState`, then
-//! `Signex::update(Message::*)` routes through the same handler the
+//! `Oxide::update(Message::*)` routes through the same handler the
 //! UI would. State changes (file system effects, `dirty_paths`,
 //! tree state, etc.) are observed afterwards.
 //!

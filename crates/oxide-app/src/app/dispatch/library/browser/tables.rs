@@ -7,7 +7,7 @@
 
 use super::*;
 
-impl Signex {
+impl Oxide {
     /// Flip the browser into add-table mode.
     pub(in crate::app::dispatch::library) fn handle_browser_begin_add_table(
         &mut self,
@@ -69,7 +69,7 @@ impl Signex {
         }
         if let Err(e) = self.library.refresh_components(&library_path) {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 path = %library_path.display(),
                 error = %e,
                 "refresh after delete table failed"
@@ -174,7 +174,7 @@ impl Signex {
         }
         if let Err(e) = self.library.refresh_components(&library_path) {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 path = %library_path.display(),
                 error = %e,
                 "refresh after rename table failed"
@@ -232,7 +232,7 @@ impl Signex {
         }
         if let Err(e) = self.library.refresh_components(&library_path) {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 path = %library_path.display(),
                 error = %e,
                 "refresh after add table failed"

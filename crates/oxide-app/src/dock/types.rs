@@ -64,7 +64,7 @@ pub enum DockMessage {
 ///
 /// A kind is expected to occupy at most one of these — see
 /// `DockArea::locate`. Detached OS windows are a fourth home the dock
-/// cannot see; `Signex::show_panel` checks `ui_state.windows` for those.
+/// cannot see; `Oxide::show_panel` checks `ui_state.windows` for those.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PanelSite {
     /// Docked as a tab: which region, and its index within it.

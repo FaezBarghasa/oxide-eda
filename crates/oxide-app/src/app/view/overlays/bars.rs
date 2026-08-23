@@ -7,12 +7,12 @@
 //! in `view/mod.rs` (behaviour-preserving decomposition). Each builder
 //! owns one overlay's guard + widget tree; `collect_overlays` is now a
 //! thin assembler that calls them in push order. These are methods of
-//! the same `Signex` view impl, split across sibling files.
+//! the same `Oxide` view impl, split across sibling files.
 
 use super::*;
 use iced::widget::{column, container, row};
 
-impl Signex {
+impl Oxide {
     /// True when a modal that must own the entire overlay stack is up —
     /// the error notice, the netlist-incomplete prompt, print preview, or
     /// the custom net-colour picker. Mirrors the inline guard that
@@ -770,7 +770,7 @@ mod tests {
     /// the library modals all opened their state with nothing on screen.
     #[test]
     fn a_detached_print_preview_stops_blocking_the_main_windows_overlay_stack() {
-        let (mut app, _boot) = Signex::new();
+        let (mut app, _boot) = Oxide::new();
         app.document_state.preview = Some(blank_preview());
         assert!(
             app.has_blocking_modal(),
@@ -793,7 +793,7 @@ mod tests {
     /// unblock the picker.
     #[test]
     fn detaching_the_net_colour_palette_does_not_unblock_the_custom_picker() {
-        let (mut app, _boot) = Signex::new();
+        let (mut app, _boot) = Oxide::new();
         app.ui_state.net_color_custom.show = true;
         app.ui_state.windows.insert(
             iced::window::Id::unique(),
@@ -812,8 +812,8 @@ mod tests {
     /// what #547 was. Pin the agreement on the term that diverged.
     #[test]
     fn the_painter_and_the_esc_ladder_agree_about_a_detached_preview() {
-        let (mut app, _boot) = Signex::new();
-        // `Signex::new()` opens the first-run tour, which is a rung of its
+        let (mut app, _boot) = Oxide::new();
+        // `Oxide::new()` opens the first-run tour, which is a rung of its
         // own and would answer the Esc before the question below is even
         // asked.
         app.ui_state.first_run_tour_open = false;

@@ -4,7 +4,7 @@ mod keymap;
 
 use super::super::*;
 
-impl Signex {
+impl Oxide {
     pub(crate) fn handle_preferences_open_requested(&mut self) -> Task<Message> {
         // Re-invoking Preferences while it's already open must NOT reseed:
         // `handle_detach_modal` no-ops on an already-detached modal, so a
@@ -156,7 +156,7 @@ impl Signex {
                 .custom_theme
                 .as_ref()
                 .map(|c| c.tokens)
-                .unwrap_or_else(|| oxide_types::theme::theme_tokens(ThemeId::Signex))
+                .unwrap_or_else(|| oxide_types::theme::theme_tokens(ThemeId::Oxide))
         } else {
             oxide_types::theme::theme_tokens(self.ui_state.theme_id)
         };
@@ -238,7 +238,7 @@ impl Signex {
                         .custom_theme
                         .as_ref()
                         .map(|c| c.tokens)
-                        .unwrap_or_else(|| oxide_types::theme::theme_tokens(ThemeId::Signex))
+                        .unwrap_or_else(|| oxide_types::theme::theme_tokens(ThemeId::Oxide))
                 } else {
                     oxide_types::theme::theme_tokens(self.ui_state.theme_id)
                 };
@@ -379,7 +379,7 @@ impl Signex {
                         .custom_theme
                         .as_ref()
                         .map(|c| c.tokens)
-                        .unwrap_or_else(|| oxide_types::theme::theme_tokens(ThemeId::Signex))
+                        .unwrap_or_else(|| oxide_types::theme::theme_tokens(ThemeId::Oxide))
                 } else {
                     oxide_types::theme::theme_tokens(id)
                 };
@@ -462,8 +462,8 @@ impl Signex {
             PrefMsg::ImportTheme => {
                 return Task::future(async {
                     let picked = rfd::AsyncFileDialog::new()
-                        .set_title("Import Signex Theme")
-                        .add_filter("Signex Theme", &["json"])
+                        .set_title("Import Oxide Theme")
+                        .add_filter("Oxide Theme", &["json"])
                         .pick_file()
                         .await;
                     if let Some(f) = picked {
@@ -491,7 +491,7 @@ impl Signex {
                         .custom_theme
                         .as_ref()
                         .map(|c| c.tokens)
-                        .unwrap_or_else(|| oxide_types::theme::theme_tokens(ThemeId::Signex))
+                        .unwrap_or_else(|| oxide_types::theme::theme_tokens(ThemeId::Oxide))
                 } else {
                     oxide_types::theme::theme_tokens(id)
                 };
@@ -500,7 +500,7 @@ impl Signex {
                         .custom_theme
                         .as_ref()
                         .map(|c| c.canvas)
-                        .unwrap_or_else(|| oxide_types::theme::canvas_colors(ThemeId::Signex))
+                        .unwrap_or_else(|| oxide_types::theme::canvas_colors(ThemeId::Oxide))
                 } else {
                     oxide_types::theme::canvas_colors(id)
                 };
@@ -515,8 +515,8 @@ impl Signex {
                 self.ui_state.preferences_theme_status.clear();
                 return Task::future(async move {
                     let picked = rfd::AsyncFileDialog::new()
-                        .set_title("Export Signex Theme")
-                        .add_filter("Signex Theme", &["json"])
+                        .set_title("Export Oxide Theme")
+                        .add_filter("Oxide Theme", &["json"])
                         .set_file_name("custom-theme.json")
                         .save_file()
                         .await;
@@ -596,7 +596,7 @@ impl Signex {
                     Ok(()) => {
                         self.ui_state.prefs_load_error = None;
                         tracing::info!(
-                            target: "signex::prefs",
+                            target: "oxide::prefs",
                             path = %crate::fonts::prefs_file_path().display(),
                             "preferences reset was requested but the file now loads cleanly, \
                              so nothing was moved"
@@ -609,7 +609,7 @@ impl Signex {
                         Ok(Some(aside)) => {
                             self.ui_state.prefs_load_error = None;
                             tracing::info!(
-                                target: "signex::prefs",
+                                target: "oxide::prefs",
                                 path = %crate::fonts::prefs_file_path().display(),
                                 kept_as = %aside.display(),
                                 "the unreadable preferences file was moved aside on the user's \
@@ -637,7 +637,7 @@ impl Signex {
                             // then found nothing there, so something
                             // outside this process removed it mid-action.
                             tracing::warn!(
-                                target: "signex::prefs",
+                                target: "oxide::prefs",
                                 path = %crate::fonts::prefs_file_path().display(),
                                 "the unreadable preferences file was gone before it could be \
                                  moved aside; something outside this process removed it"
@@ -650,7 +650,7 @@ impl Signex {
                             // changed on disk, so the banner must stay up
                             // and keep offering the action.
                             tracing::error!(
-                                target: "signex::prefs",
+                                target: "oxide::prefs",
                                 path = %crate::fonts::prefs_file_path().display(),
                                 error = %error,
                                 "the unreadable preferences file could not be moved aside, so \

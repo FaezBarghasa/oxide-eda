@@ -2,7 +2,7 @@ use iced::Task;
 
 use super::super::*;
 
-impl Signex {
+impl Oxide {
     /// Edit-command message handler (namespaced family, ADR-0001 D3).
     /// Delete / undo / redo / rotate / mirror / clipboard (copy, cut,
     /// paste, smart-paste) / duplicate. Routed from `dispatch_update`

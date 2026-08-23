@@ -6,7 +6,7 @@
 
 use super::*;
 
-impl Signex {
+impl Oxide {
     /// Tools menu fired Document Options for the library at
     /// `library_path` — opens the modal pre-filled with its display
     /// settings.

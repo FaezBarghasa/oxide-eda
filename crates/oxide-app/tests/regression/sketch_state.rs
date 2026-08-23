@@ -1,4 +1,4 @@
-//! Misfiled: these two exercise `oxide-sketch` state directly with no `Signex`/`app.update` involved. True home is `crates/oxide-sketch/tests/`; kept here as-is per the split (see issue #432).
+//! Misfiled: these two exercise `oxide-sketch` state directly with no `Oxide`/`app.update` involved. True home is `crates/oxide-sketch/tests/`; kept here as-is per the split (see issue #432).
 
 // ─────────────────────────────────────────────────────────────────
 // v0.23 — sketch-mode pattern dispatchers (oxide-sketch state side)

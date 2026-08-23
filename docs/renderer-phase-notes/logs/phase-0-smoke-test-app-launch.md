@@ -15,7 +15,7 @@ Run a runtime smoke test to confirm the main app binary launches after Phase 0 f
 
 ## Implementation notes
 
-- Ran `cargo run -p signex-app --bin signex`.
+- Ran `cargo run -p oxide-app --bin oxide`.
 - Build completed and binary entered runtime state.
 - Confirmed runtime adapter and surface format logs.
 - Stopped process after launch validation.
@@ -26,7 +26,7 @@ Run a runtime smoke test to confirm the main app binary launches after Phase 0 f
 - Derivation: direct runtime validation of application startup path.
 - Rationale: close Phase 0 with an executable smoke test, not only compile checks.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: terminal output included `Running target/debug/signex` and runtime adapter selection logs.
+- Verification: terminal output included `Running target/debug/oxide` and runtime adapter selection logs.
 
 ## Artifacts
 

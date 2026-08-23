@@ -25,10 +25,10 @@ use std::path::PathBuf;
 use oxide_library::RowId;
 
 use super::super::contracts::Message;
-use super::super::state::Signex;
+use super::super::state::Oxide;
 use crate::library::messages::LibraryMessage;
 
-impl Signex {
+impl Oxide {
     /// Resolve a `(library, table, row_id)` selection through the
     /// mounted adapter + `LibrarySet`, then close the picker. Always
     /// returns [`Task::none()`] — Phase 3 will swap the structured
@@ -42,7 +42,7 @@ impl Signex {
     ) -> Task<Message> {
         let Some(lib) = self.library.library_at(&library_path) else {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 path = %library_path.display(),
                 "place flow: library not open — picker likely outpaced close_library"
             );
@@ -53,7 +53,7 @@ impl Signex {
 
         let Some(adapter) = self.library.set.get(library_id) else {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 library_id = %library_id,
                 path = %library_path.display(),
                 "place flow: adapter not mounted on LibrarySet"
@@ -66,7 +66,7 @@ impl Signex {
             Ok(r) => r,
             Err(e) => {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     error = %e,
                     library = %library_path.display(),
                     table = %table,
@@ -85,7 +85,7 @@ impl Signex {
             Ok(sym) => sym,
             Err(e) => {
                 tracing::error!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     error = %e,
                     library_id = %library_id,
                     symbol_uuid = %row.symbol_ref.uuid,
@@ -98,7 +98,7 @@ impl Signex {
         let pin_count = symbol.as_ref().map(|s| s.pins.len()).unwrap_or(0);
 
         tracing::warn!(
-            target: "signex::library",
+            target: "oxide::library",
             library_id = %library_id,
             table = %table,
             row_id = %row.row_id,

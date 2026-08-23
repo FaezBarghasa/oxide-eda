@@ -9,7 +9,7 @@
 //!   message must apply exactly like the old inline path did (success
 //!   opens the tab, failure logs and opens nothing).
 
-use oxide_app::app::{FileMsg, Message, Signex};
+use oxide_app::app::{FileMsg, Message, Oxide};
 
 use std::fs;
 use std::path::PathBuf;
@@ -55,7 +55,7 @@ fn opening_a_schematic_does_not_synchronously_create_a_tab() {
         .expect("serialise schematic");
     fs::write(&sch_path, serialised).expect("write .snxsch");
 
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let _ = app.update(Message::File(FileMsg::Opened(Some(sch_path))));
 
     assert!(
@@ -86,7 +86,7 @@ fn opening_the_same_schematic_twice_before_it_completes_spawns_only_one_task() {
         .expect("serialise schematic");
     fs::write(&sch_path, serialised).expect("write .snxsch");
 
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let first = app.update(Message::File(FileMsg::Opened(Some(sch_path.clone()))));
     let second = app.update(Message::File(FileMsg::Opened(Some(sch_path.clone()))));
 
@@ -137,7 +137,7 @@ fn schematic_open_finished_ok_opens_the_tab_like_the_old_sync_path_did() {
     let sheet = empty_schematic_sheet();
     let sheet_uuid = sheet.uuid;
 
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let _ = app.update(Message::File(FileMsg::SchematicOpenFinished {
         path: path.clone(),
         title: "board".to_string(),
@@ -166,7 +166,7 @@ fn schematic_open_finished_ok_opens_the_tab_like_the_old_sync_path_did() {
 fn schematic_open_finished_err_opens_no_tab_and_does_not_panic() {
     let path = PathBuf::from("/tmp/does-not-matter/broken.snxsch");
 
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let _ = app.update(Message::File(FileMsg::SchematicOpenFinished {
         path: path.clone(),
         title: "broken".to_string(),
@@ -188,7 +188,7 @@ fn reopening_an_already_open_schematic_tab_activates_it_instead_of_duplicating()
     let first_path = PathBuf::from("/tmp/does-not-matter/first.snxsch");
     let second_path = PathBuf::from("/tmp/does-not-matter/second.snxsch");
 
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let _ = app.update(Message::File(FileMsg::SchematicOpenFinished {
         path: first_path.clone(),
         title: "first".to_string(),
@@ -243,7 +243,7 @@ fn opening_the_same_pcb_twice_before_it_completes_spawns_only_one_task() {
     // for `open_pcb_file`.
     let pcb_path = PathBuf::from("/tmp/does-not-matter/Dup.snxpcb");
 
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let first = app.update(Message::File(FileMsg::Opened(Some(pcb_path.clone()))));
     let second = app.update(Message::File(FileMsg::Opened(Some(pcb_path.clone()))));
 
@@ -290,7 +290,7 @@ fn pcb_open_finished_ok_opens_the_tab_like_the_old_sync_path_did() {
     let board = empty_pcb_board();
     let board_uuid = board.uuid;
 
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let _ = app.update(Message::File(FileMsg::PcbOpenFinished {
         path: path.clone(),
         title: "board".to_string(),
@@ -318,7 +318,7 @@ fn pcb_open_finished_ok_opens_the_tab_like_the_old_sync_path_did() {
 fn pcb_open_finished_err_opens_no_tab_and_does_not_panic() {
     let path = PathBuf::from("/tmp/does-not-matter/broken.snxpcb");
 
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let _ = app.update(Message::File(FileMsg::PcbOpenFinished {
         path: path.clone(),
         title: "broken".to_string(),

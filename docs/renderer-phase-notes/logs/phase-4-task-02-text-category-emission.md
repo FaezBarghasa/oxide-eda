@@ -25,12 +25,12 @@ Emit all mandatory schematic text categories via the unified text pipeline.
 - Derivation: deterministic mapping from schematic text sources into text items.
 - Rationale: guarantee complete text class coverage before visual hardening.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: `cargo test -p signex-renderer -- --nocapture`, `cargo check -p signex-gfx -p signex-renderer`, and `cargo build -p signex-gfx -p signex-renderer` passed.
+- Verification: `cargo test -p oxide-renderer -- --nocapture`, `cargo check -p oxide-gfx -p oxide-renderer`, and `cargo build -p oxide-gfx -p oxide-renderer` passed.
 
 ## Artifacts
 
 - PR/commit: pending
-- Test output: signex-renderer tests passed (5 passed, 0 failed)
+- Test output: oxide-renderer tests passed (5 passed, 0 failed)
 - Screenshot/benchmark: pending
 
 ## Exit checklist

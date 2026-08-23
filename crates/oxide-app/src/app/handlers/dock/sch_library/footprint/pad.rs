@@ -9,7 +9,7 @@
 
 use super::super::*;
 
-impl Signex {
+impl Oxide {
     /// v0.16.3 — sibling of [`Self::active_symbol_editor_mut`] for
     /// `.snxfpt` editor tabs. Drives the Properties-panel pad-defaults
     /// form so it can mutate `next_pad_defaults` without round-

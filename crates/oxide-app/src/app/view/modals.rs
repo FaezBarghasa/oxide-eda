@@ -4,11 +4,11 @@
 //!
 //! Extracted verbatim from `view/mod.rs` (ADR-0001, issue #164) as pure
 //! code motion — no behaviour change. These are methods of the same
-//! `Signex` view impl, split across sibling files.
+//! `Oxide` view impl, split across sibling files.
 
 use super::*;
 
-impl Signex {
+impl Oxide {
     /// Altium-style Move Selection dialog. Two numeric inputs plus
     /// OK / Cancel. No header drag region on the body itself — the
     /// modal opens borderless so the OS-window-drag handler owns that.

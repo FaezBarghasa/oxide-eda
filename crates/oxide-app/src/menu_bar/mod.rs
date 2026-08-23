@@ -2,7 +2,7 @@
 //!
 //! Altium-style menu structure: File, Edit, View, Place, Design, Tools, Window, Help.
 //! iced_aw handles all overlay positioning, hover-to-switch, and keyboard navigation.
-//! Anchored on the left by the Signex wordmark — PNGs rasterised from
+//! Anchored on the left by the Oxide wordmark — PNGs rasterised from
 //! `brand/oxide-logo-{white,black}.svg` into `brand/generated/` at 1×/2×/3×
 //! the on-screen 96×31 logical size. Regenerate via
 //! `python installer/build-wordmark.py`.
@@ -277,7 +277,7 @@ const MENU_ROOT_LABELS: &[&str] = &[
 ];
 
 /// Approximate visible width of the menu bar in pixels. Includes the
-/// Signex wordmark on the left, plus the sum of root button widths
+/// Oxide wordmark on the left, plus the sum of root button widths
 /// (label glyphs at `MENU_LABEL_SIZE` + horizontal padding from
 /// `root_btn`) plus the chrome's left padding. Used by the chrome
 /// to clamp the centered search bar so it can't slide under the

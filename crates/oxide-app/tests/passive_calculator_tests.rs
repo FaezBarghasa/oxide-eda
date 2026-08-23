@@ -7,13 +7,13 @@
     reason = "integration tests discard Results with `let _ = ...` routinely; this is test scaffolding, not a production `iced::Task` being dropped, and `[lints]` in Cargo.toml is package-scoped so each integration-test crate root needs its own"
 )]
 
-use oxide_app::app::{Message, OverlayMsg, Signex};
+use oxide_app::app::{Message, OverlayMsg, Oxide};
 use oxide_app::menu_bar::MenuMessage;
 use oxide_widgets::passive_calculator::{CalculatorMessage, ComponentKind};
 
 #[test]
 fn calculator_messages_update_the_dedicated_control_state() {
-    let (mut app, _startup) = Signex::new();
+    let (mut app, _startup) = Oxide::new();
     let _task = app.update(Message::PassiveCalculator(CalculatorMessage::KindChanged(
         ComponentKind::Capacitor,
     )));
@@ -25,7 +25,7 @@ fn calculator_messages_update_the_dedicated_control_state() {
 
 #[test]
 fn tools_menu_message_opens_the_modal_without_a_window_task() {
-    let (mut app, _startup) = Signex::new();
+    let (mut app, _startup) = Oxide::new();
     assert!(!app.ui_state.passive_calculator_open);
 
     let task = app.update(Message::Menu(MenuMessage::OpenPassiveCalculator));
@@ -43,7 +43,7 @@ fn tools_menu_message_opens_the_modal_without_a_window_task() {
 
 #[test]
 fn reopening_while_open_is_a_no_op() {
-    let (mut app, _startup) = Signex::new();
+    let (mut app, _startup) = Oxide::new();
     let _ = app.update(Message::Menu(MenuMessage::OpenPassiveCalculator));
     let _ = app.update(Message::Menu(MenuMessage::OpenPassiveCalculator));
     assert!(app.ui_state.passive_calculator_open);
@@ -54,7 +54,7 @@ fn reopening_while_open_is_a_no_op() {
 /// command registry would take.
 #[test]
 fn overlay_open_and_close_round_trip_without_the_menu() {
-    let (mut app, _startup) = Signex::new();
+    let (mut app, _startup) = Oxide::new();
 
     let task = app.update(Message::Overlay(OverlayMsg::OpenPassiveCalculator));
     assert!(app.ui_state.passive_calculator_open);
@@ -70,7 +70,7 @@ fn overlay_open_and_close_round_trip_without_the_menu() {
 
 #[test]
 fn close_message_dismisses_the_modal() {
-    let (mut app, _startup) = Signex::new();
+    let (mut app, _startup) = Oxide::new();
     let _ = app.update(Message::Menu(MenuMessage::OpenPassiveCalculator));
 
     let _task = app.update(Message::Overlay(OverlayMsg::ClosePassiveCalculator));
@@ -80,7 +80,7 @@ fn close_message_dismisses_the_modal() {
 
 #[test]
 fn closing_the_modal_keeps_the_entered_state() {
-    let (mut app, _startup) = Signex::new();
+    let (mut app, _startup) = Oxide::new();
     let _ = app.update(Message::Menu(MenuMessage::OpenPassiveCalculator));
     let _ = app.update(Message::PassiveCalculator(CalculatorMessage::KindChanged(
         ComponentKind::Inductor,

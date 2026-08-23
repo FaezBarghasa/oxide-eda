@@ -26,12 +26,12 @@ Validate polygon and text render paths with edge-case checks and runtime smoke t
 - Derivation: deterministic tests and runtime smoke execution outputs.
 - Rationale: ensure renderer path works reliably before Phase 3 closure.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: `cargo test -p signex-gfx -- --nocapture`, `cargo test -p signex-renderer -- --nocapture`, `cargo check -p signex-gfx -p signex-renderer`, and `cargo build -p signex-gfx -p signex-renderer` passed.
+- Verification: `cargo test -p oxide-gfx -- --nocapture`, `cargo test -p oxide-renderer -- --nocapture`, `cargo check -p oxide-gfx -p oxide-renderer`, and `cargo build -p oxide-gfx -p oxide-renderer` passed.
 
 ## Artifacts
 
 - PR/commit: local workspace changes, commit pending
-- Test output: signex-gfx tests passed (16 passed, 0 failed), signex-renderer tests passed (4 passed, 0 failed)
+- Test output: oxide-gfx tests passed (16 passed, 0 failed), oxide-renderer tests passed (4 passed, 0 failed)
 - Screenshot/benchmark: pending
 
 ## Exit checklist

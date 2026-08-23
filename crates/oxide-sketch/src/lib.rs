@@ -1,4 +1,4 @@
-//! Signex 2D parametric sketcher.
+//! Oxide 2D parametric sketcher.
 //!
 //! Cleanroom implementation against
 //! [`SKETCH_MODE_PLAN.md`] (`docs/internal/`). No third-party

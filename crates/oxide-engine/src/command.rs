@@ -196,7 +196,7 @@ pub enum Command {
         y: f64,
     },
     /// File-order reorder — moves the given selection to the start or end
-    /// of each type vector. The Signex schematic has no explicit z-order
+    /// of each type vector. The Oxide schematic has no explicit z-order
     /// field; render order is the file's vector order, so this command
     /// reshapes that order.
     ReorderObjects {

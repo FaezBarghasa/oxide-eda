@@ -12,7 +12,7 @@ mod project_navigation;
 mod property_editor;
 mod sch_library;
 
-impl Signex {
+impl Oxide {
     pub(crate) fn handle_dock_message(&mut self, msg: DockMessage) -> Task<Message> {
         // v0.9 Library — bubbled from the Library dock panel via
         // DockMessage::Library(LibraryMessage). Re-dispatch through

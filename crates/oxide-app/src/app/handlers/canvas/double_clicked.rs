@@ -3,7 +3,7 @@ use iced::Task;
 use super::super::super::*;
 use super::pre_placement_shape;
 
-impl Signex {
+impl Oxide {
     pub(super) fn handle_canvas_double_clicked(
         &mut self,
         world_x: f64,

@@ -6,7 +6,7 @@
 //! [`UiState::keymap_pending_sequence`] instead of a process-global
 //! static (sound across multiple windows, MVU-clean).
 //!
-//! A resolved command id is run through [`Signex::dispatch_command`] —
+//! A resolved command id is run through [`Oxide::dispatch_command`] —
 //! the Command Registry's dispatch entry point (#278) — so the
 //! keyboard is a plain consumer of the registry rather than owning
 //! bridge logic itself.
@@ -17,12 +17,12 @@ use super::super::*;
 use crate::app::dispatch::input::InputTarget;
 use crate::keymap::{KeyStroke, ShortcutContext};
 
-impl Signex {
+impl Oxide {
     /// Resolve one forwarded keystroke against the active keymap,
     /// accumulating multi-stroke chords in `keymap_pending_sequence`.
     ///
     /// A resolved command is dispatched through the normal
-    /// [`Signex::dispatch_update`] path, so it behaves exactly as if the
+    /// [`Oxide::dispatch_update`] path, so it behaves exactly as if the
     /// mapped message had been sent directly. A partial chord keeps the
     /// buffer and waits; a definite miss clears it (with a single-stroke
     /// restart retry so a stale prefix can't wedge later keys).
@@ -162,10 +162,10 @@ impl Signex {
 mod tests {
     use super::*;
     use crate::app::state::{ModalId, WindowKind};
-    use crate::app::{Signex, TabInfo, TabKind};
+    use crate::app::{Oxide, TabInfo, TabKind};
 
-    fn app_with_footprint_tab() -> Signex {
-        let (mut app, _boot) = Signex::new();
+    fn app_with_footprint_tab() -> Oxide {
+        let (mut app, _boot) = Oxide::new();
         let path = std::path::PathBuf::from("/tmp/part.snxfpt");
         app.document_state.tabs.push(TabInfo {
             title: "part".to_string(),
@@ -179,13 +179,13 @@ mod tests {
         app
     }
 
-    fn open_window(app: &mut Signex, kind: WindowKind) -> iced::window::Id {
+    fn open_window(app: &mut Oxide, kind: WindowKind) -> iced::window::Id {
         let id = iced::window::Id::unique();
         app.ui_state.windows.insert(id, kind);
         id
     }
 
-    fn undocked(app: &mut Signex) -> iced::window::Id {
+    fn undocked(app: &mut Oxide) -> iced::window::Id {
         open_window(
             app,
             WindowKind::UndockedTab {

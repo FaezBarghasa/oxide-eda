@@ -1,4 +1,4 @@
-//! GPU foundation crate for Signex renderer.
+//! GPU foundation crate for Oxide renderer.
 //!
 //! CLEAN ROOM DECLARATION
 //! This module was written without reference to GPL-licensed software.

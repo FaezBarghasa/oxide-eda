@@ -27,7 +27,7 @@ Start line pipeline implementation for schematic wires and buses.
 - Derivation: segment SDF pipeline contract mapped into renderer crate structure.
 - Rationale: establish anti-aliased line baseline before circle and overlay expansion.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: `cargo check -p signex-gfx -p signex-renderer` and `cargo build -p signex-gfx -p signex-renderer` succeeded.
+- Verification: `cargo check -p oxide-gfx -p oxide-renderer` and `cargo build -p oxide-gfx -p oxide-renderer` succeeded.
 
 ## Artifacts
 

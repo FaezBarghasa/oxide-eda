@@ -38,7 +38,7 @@ pub fn mirror_solve_to_pad_stack(
         };
         let Some(corner_r_mm) = resolved.get(parameter_name).copied() else {
             tracing::warn!(
-                target: "signex::v024",
+                target: "oxide::v024",
                 "mirror_solve_to_pad_stack: parameter {parameter_name} missing from resolved \
                  map; skipping pad {}",
                 pad.number
@@ -48,7 +48,7 @@ pub fn mirror_solve_to_pad_stack(
         let min_dim = pad.size_mm.0.min(pad.size_mm.1);
         if min_dim <= f64::EPSILON {
             tracing::warn!(
-                target: "signex::v024",
+                target: "oxide::v024",
                 "mirror_solve_to_pad_stack: pad {} has zero/negative min dimension; skipping",
                 pad.number
             );
@@ -78,7 +78,7 @@ pub fn mirror_solve_to_oval_size(
         };
         let Some(w) = resolved.get(width_param).copied() else {
             tracing::warn!(
-                target: "signex::v025",
+                target: "oxide::v025",
                 "mirror_solve_to_oval_size: width parameter {width_param} missing \
                  from resolved map; skipping pad {}",
                 pad.number
@@ -87,7 +87,7 @@ pub fn mirror_solve_to_oval_size(
         };
         let Some(h) = resolved.get(height_param).copied() else {
             tracing::warn!(
-                target: "signex::v025",
+                target: "oxide::v025",
                 "mirror_solve_to_oval_size: height parameter {height_param} missing \
                  from resolved map; skipping pad {}",
                 pad.number
@@ -96,7 +96,7 @@ pub fn mirror_solve_to_oval_size(
         };
         if w <= f64::EPSILON || h <= f64::EPSILON {
             tracing::warn!(
-                target: "signex::v025",
+                target: "oxide::v025",
                 "mirror_solve_to_oval_size: pad {} resolved to non-positive size \
                  ({w}, {h}); skipping",
                 pad.number
@@ -120,7 +120,7 @@ pub fn mirror_solve_to_chamfer_anchors(
         };
         let Some(chamfer_len_mm) = resolved.get(parameter_name).copied() else {
             tracing::warn!(
-                target: "signex::v024",
+                target: "oxide::v024",
                 "mirror_solve_to_chamfer_anchors_with_sketch: parameter {parameter_name} \
                  missing from resolved map; skipping pad {}",
                 pad.number
@@ -184,7 +184,7 @@ pub fn mirror_solve_to_round_rect_geometry(
         };
         let Some(shared_r) = resolved.get(shared_param).copied() else {
             tracing::warn!(
-                target: "signex::v024",
+                target: "oxide::v024",
                 "mirror_solve_to_round_rect_geometry: shared parameter \
                  {shared_param} missing from resolved map; skipping pad {}",
                 pad.number

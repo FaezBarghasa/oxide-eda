@@ -24,7 +24,7 @@ fn apply_primitive_listing(
     match listing {
         Ok(entries) => *cache = entries,
         Err(error) => tracing::warn!(
-            target: "signex::library",
+            target: "oxide::library",
             library = %library,
             listing = kind,
             error = %error,
@@ -37,7 +37,7 @@ impl Default for LibraryState {
     fn default() -> Self {
         let mut settings = DistributorSettings::default();
         // Rehydrate the preferred-order list from
-        // `<config_dir>/signex/distributors.toml`.
+        // `<config_dir>/oxide/distributors.toml`.
         settings.preferred_order = super::super::settings::persistence::load_preferred_order();
         Self {
             set: LibrarySet::new(),
@@ -151,7 +151,7 @@ impl LibraryState {
             && let Err(e) = entry.reload_tables(adapter)
         {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 library_id = %library_id,
                 error = %e,
                 "open_library: reload_tables failed; library opens with empty cache"
@@ -225,7 +225,7 @@ impl LibraryState {
                 }
                 Err(e) => {
                     tracing::warn!(
-                        target: "signex::library",
+                        target: "oxide::library",
                         table = %name,
                         error = %e,
                         "refresh_components: read_table failed; entry left empty"
@@ -479,7 +479,7 @@ impl OpenLibrary {
                 }
                 Err(e) => {
                     tracing::warn!(
-                        target: "signex::library",
+                        target: "oxide::library",
                         table = %name,
                         error = %e,
                         "read_table failed; entry left empty"

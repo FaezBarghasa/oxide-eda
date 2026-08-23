@@ -2,7 +2,7 @@
 
 use super::super::super::*;
 
-impl Signex {
+impl Oxide {
     /// v0.22 Phase 8.5 — Resolve the active tab's path and project,
     /// then call `LocalGitProjectAdapter::restore_at` with the user-
     /// picked SHA. Marks the file dirty so the next Ctrl+S captures

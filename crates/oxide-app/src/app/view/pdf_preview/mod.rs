@@ -3,14 +3,14 @@
 //!
 //! Extracted verbatim from `view/print_preview.rs` (ADR-0001, issue
 //! #164) as pure code motion — no behaviour change. These are methods
-//! of the same `Signex` view impl, split across sibling files.
+//! of the same `Oxide` view impl, split across sibling files.
 
 use super::*;
 
 mod preview;
 mod settings;
 
-impl Signex {
+impl Oxide {
     /// Two-tab strip — Preview | Settings — sitting just under the
     /// modal header. Uses the same `TabPill` widget the document tab
     /// bar paints with: 3-sided border (top + L/R), accent stripe on

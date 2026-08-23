@@ -12,7 +12,7 @@ use iced::Task;
 
 use super::super::*;
 
-impl Signex {
+impl Oxide {
     pub(in crate::app::handlers::dock::sch_library) fn handle_fp_editor_set_snap_subtab(
         &mut self,
         tab: &crate::library::editor::footprint::state::SnapSubTab,

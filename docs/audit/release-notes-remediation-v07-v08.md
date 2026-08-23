@@ -1,16 +1,16 @@
 # Release-note remediation drafts — v0.7.0 / v0.7.1 / v0.8.0
 
-Phase 6 of the issue-62 Apache-clean remediation. The signex
+Phase 6 of the issue-62 Apache-clean remediation. The oxide
 v0.7.0 and v0.8.0 binaries shipped to GitHub Releases under
 Apache-2.0 contained KiCad-derived code (`crates/kicad-parser`,
-`crates/kicad-writer`, `crates/signex-output/src/netlist/kicad_sexpr.rs`)
+`crates/kicad-writer`, `crates/oxide-output/src/netlist/kicad_sexpr.rs`)
 that should have been released under KiCad's reciprocal terms. Per
-issue [#62](https://github.com/alplabai/signex/issues/62), the fix
+issue [#62](https://github.com/alplabai/oxide/issues/62), the fix
 is to flag those releases retroactively with the licensing notice
 below.
 
 **Apply manually** by editing each release's body in the GitHub UI
-(or via `gh release edit`). The signex repo can't push from the
+(or via `gh release edit`). The oxide repo can't push from the
 autonomous remediation run.
 
 ---
@@ -24,26 +24,26 @@ Insert at the **top** of the existing release body:
 >
 > This release contained KiCad-derived code (the `kicad-parser` and
 > `kicad-writer` crates, plus the KiCad netlist exporter in
-> `signex-output`) shipped under Apache-2.0 in error. Those parts of
+> `oxide-output`) shipped under Apache-2.0 in error. Those parts of
 > the codebase derive from KiCad's GPL-3.0 source and should have
 > been released under KiCad's reciprocal terms.
 >
 > From v0.9.0 onwards, KiCad I/O is moved to a separate
-> GPL-3.0-licensed companion tool: [signex-kicad-import](https://github.com/alplabai/signex-kicad-import).
-> The main signex repository is Apache-2.0 clean and contains no
+> GPL-3.0-licensed companion tool: [oxide-kicad-import](https://github.com/alplabai/oxide-kicad-import).
+> The main oxide repository is Apache-2.0 clean and contains no
 > KiCad-derived code.
 >
-> See issue [#62](https://github.com/alplabai/signex/issues/62) for
+> See issue [#62](https://github.com/alplabai/oxide/issues/62) for
 > the audit, the remediation plan, and the cutover commits.
 >
 > **What this means for you:**
 > - This release **remains available** for historical use, but
 >   please prefer v0.9.0 (or later) for new installations.
 > - If you have existing KiCad project files, install the
->   companion tool [signex-kicad-import](https://github.com/alplabai/signex-kicad-import/releases)
->   alongside Signex Community to convert them to the native
+>   companion tool [oxide-kicad-import](https://github.com/alplabai/oxide-kicad-import/releases)
+>   alongside Oxide Community to convert them to the native
 >   `.snxsch` / `.snxpcb` formats.
-> - Apache consumers of Signex Community Edition (anyone embedding
+> - Apache consumers of Oxide Community Edition (anyone embedding
 >   or linking against it) get a clean Apache codebase from v0.9.0
 >   forward — no GPL aggregation in their build closure.
 ```
@@ -63,10 +63,10 @@ Insert at the **top** of the existing release body (same wording, version-stampe
 > should have been released under KiCad's reciprocal terms.
 >
 > From v0.9.0 onwards, KiCad I/O lives in a separate GPL-3.0
-> companion tool: [signex-kicad-import](https://github.com/alplabai/signex-kicad-import).
-> The main signex repository is Apache-2.0 clean.
+> companion tool: [oxide-kicad-import](https://github.com/alplabai/oxide-kicad-import).
+> The main oxide repository is Apache-2.0 clean.
 >
-> See issue [#62](https://github.com/alplabai/signex/issues/62) for
+> See issue [#62](https://github.com/alplabai/oxide/issues/62) for
 > context. This release stays available for historical use; prefer
 > v0.9.0 (or later) for new installations. Existing KiCad project
 > files convert via the companion tool.
@@ -82,59 +82,59 @@ The v0.9.0 release notes will document the cutover. Suggested top-of-body block:
 ## Apache-2.0 clean cutover (issue #62)
 
 This release is the first one with no KiCad-derived code in the main
-binary. KiCad I/O moves to the optional [signex-kicad-import](https://github.com/alplabai/signex-kicad-import)
+binary. KiCad I/O moves to the optional [oxide-kicad-import](https://github.com/alplabai/oxide-kicad-import)
 companion tool (GPL-3.0-or-later), shipped independently.
 
 ### What changed
 
-- **New native formats:** Signex now reads and writes its own native
+- **New native formats:** Oxide now reads and writes its own native
   `.snxsch` (schematic) and `.snxpcb` (PCB) formats, both built on
   the TOML envelope + TSV bulk-block pattern shared with `.snxlib` /
   `.snxsym` / `.snxfpt`. Files are line-diffable in git, ~5× smaller
   than the equivalent JSON, and editable by hand if needed.
 - **No more direct .kicad_sch / .kicad_pcb opening** in the main
   binary. To migrate existing KiCad projects, install the optional
-  companion tool [signex-kicad-import](https://github.com/alplabai/signex-kicad-import)
+  companion tool [oxide-kicad-import](https://github.com/alplabai/oxide-kicad-import)
   and run it against your `.kicad_pro` once — it produces sibling
-  `.snxsch` / `.snxpcb` / `.snxprj` files that Signex Community
+  `.snxsch` / `.snxpcb` / `.snxprj` files that Oxide Community
   reads natively.
 - **Pin types redesigned.** The `PinElectricalType` enum (12
   variants, KiCad-shaped) is replaced by `PinDirection` (14
-  variants) with Signex-original additions for `GroundReference`,
-  `Differential`, and `Clock`. See `crates/signex-types/docs/pin-design.md`
+  variants) with Oxide-original additions for `GroundReference`,
+  `Differential`, and `Clock`. See `crates/oxide-types/docs/pin-design.md`
   for the rationale.
 - **Layer model redesigned.** The numeric `LayerId(u8)` constants
   (`F_CU=0`, `B_CU=31`, ...) are replaced by the semantic
-  `SignexLayer` enum.
+  `OxideLayer` enum.
 - **Markup language replaced.** The KiCad curly-brace markup
   (`~{X}`, `^{X}`, `_{X}`) is replaced by a Markdown-extension
   format: `**bold**`, `*italic*`, `~~strike~~`, `^superscript^`,
-  `~subscript~`, `_~overbar~_` (Signex extension for active-low
+  `~subscript~`, `_~overbar~_` (Oxide extension for active-low
   signal naming), `[label](url)` for links.
 
 ### Migration
 
 If you have existing KiCad projects:
 
-1. Download the [signex-kicad-import](https://github.com/alplabai/signex-kicad-import/releases)
+1. Download the [oxide-kicad-import](https://github.com/alplabai/oxide-kicad-import/releases)
    companion tool for your platform.
 2. Run it against your `.kicad_pro`:
    ```
-   signex-kicad-import path/to/project.kicad_pro
+   oxide-kicad-import path/to/project.kicad_pro
    ```
-3. Open the produced `.snxprj` in Signex.
+3. Open the produced `.snxprj` in Oxide.
 
 The companion tool keeps your original `.kicad_sch` / `.kicad_pcb`
-files in place; conversion is one-way (KiCad → Signex) and does not
+files in place; conversion is one-way (KiCad → Oxide) and does not
 modify the originals.
 
 ### Why two repos?
 
-Signex Community is Apache-2.0. KiCad's source is GPL-3.0, and
+Oxide Community is Apache-2.0. KiCad's source is GPL-3.0, and
 file-format implementations derived from it are subject to KiCad's
-reciprocal terms. To preserve a clean Apache codebase for Signex,
+reciprocal terms. To preserve a clean Apache codebase for Oxide,
 KiCad I/O ships as an optional GPL-3.0 companion. Apache consumers
-of Signex Community see no GPL aggregation in their build closure.
+of Oxide Community see no GPL aggregation in their build closure.
 
 Thanks to [@sethhillbrand](https://github.com/sethhillbrand) for
 raising the licensing issue cleanly and giving us a chance to fix
@@ -174,9 +174,9 @@ resumes on Apache-clean foundations.)
   before the existing changelog, not at the bottom.
 - GitHub Releases supports markdown — copy/paste should render the
   blockquote and admonition emoji as expected.
-- After the v0.9.0 release ships, issue [#62](https://github.com/alplabai/signex/issues/62)
+- After the v0.9.0 release ships, issue [#62](https://github.com/alplabai/oxide/issues/62)
   can be closed with a final comment linking the v0.9.0 tag and
   the cutover commits.
-- The signex.dev website + Discord sticky also need the matching
+- The oxide.dev website + Discord sticky also need the matching
   framing update — see Phase 7 communication drafts in
   `docs/audit/communication-drafts.md`.

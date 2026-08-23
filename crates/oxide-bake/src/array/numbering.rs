@@ -104,7 +104,7 @@ fn record_numbering_warning(warnings: &mut Vec<String>, message: String) {
         return;
     }
     tracing::warn!(
-        target: "signex::bake",
+        target: "oxide::bake",
         warning = %message,
         "array numbering expression failed; members were renumbered",
     );

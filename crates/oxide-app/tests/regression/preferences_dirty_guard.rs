@@ -5,15 +5,15 @@
 //! `preferences_has_unsaved_changes` and
 //! `handle_preferences_close_requested` / `WindowMsg::WindowCloseRequested`.
 
-use oxide_app::app::{Message, PreferencesMsg, Signex, WindowMsg};
+use oxide_app::app::{Message, PreferencesMsg, Oxide, WindowMsg};
 use oxide_app::preferences::PrefMsg;
 use oxide_types::theme::{CustomThemeFile, ThemeId, canvas_colors, theme_tokens};
 
 fn custom_theme_json(name: &str) -> String {
     let custom = CustomThemeFile {
         name: name.to_string(),
-        tokens: theme_tokens(ThemeId::Signex),
-        canvas: canvas_colors(ThemeId::Signex),
+        tokens: theme_tokens(ThemeId::Oxide),
+        canvas: canvas_colors(ThemeId::Oxide),
     };
     serde_json::to_string(&custom).expect("serialise a fixture CustomThemeFile")
 }
@@ -29,7 +29,7 @@ fn custom_theme_json(name: &str) -> String {
 /// toggle an unrelated appearance draft.
 #[test]
 fn theme_import_dirty_flag_survives_an_unrelated_appearance_toggle() {
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
 
     // Precondition: theme is ALREADY Custom (live + draft agree) BEFORE the
     // dialog opens, so the real open flow (`seed_preferences_drafts_from_live`)
@@ -39,8 +39,8 @@ fn theme_import_dirty_flag_survives_an_unrelated_appearance_toggle() {
     // same-tag content swap.
     let original = CustomThemeFile {
         name: "Original".to_string(),
-        tokens: theme_tokens(ThemeId::Signex),
-        canvas: canvas_colors(ThemeId::Signex),
+        tokens: theme_tokens(ThemeId::Oxide),
+        canvas: canvas_colors(ThemeId::Oxide),
     };
     app.ui_state.theme_id = ThemeId::Custom;
     app.ui_state.custom_theme = Some(original);
@@ -95,7 +95,7 @@ fn theme_import_dirty_flag_survives_an_unrelated_appearance_toggle() {
 /// dirty across an appearance toggle.
 #[test]
 fn keymap_rebind_dirty_flag_survives_an_unrelated_appearance_toggle() {
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     app.ui_state.preferences_open = true;
 
     // Fork the active profile into an editable custom one — a real,
@@ -129,7 +129,7 @@ fn keymap_rebind_dirty_flag_survives_an_unrelated_appearance_toggle() {
 /// without needing the iced runtime.
 #[test]
 fn os_close_request_is_refused_while_preferences_is_dirty() {
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
 
     // Real detach flow — synchronously registers the window entry
     // `handle_detach_modal` needs (see its own doc comment: "Stash the
@@ -163,7 +163,7 @@ fn os_close_request_is_refused_while_preferences_is_dirty() {
 /// guard is a dirty-only gate, not a Preferences-window-never-closes bug.
 #[test]
 fn os_close_request_proceeds_when_preferences_is_clean() {
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
 
     let _ = app.update(Message::Preferences(PreferencesMsg::Open));
     let window_id = *app

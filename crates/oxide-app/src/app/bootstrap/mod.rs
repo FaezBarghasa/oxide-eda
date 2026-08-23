@@ -24,7 +24,7 @@ fn bundled_window_icon() -> Option<iced::window::Icon> {
 mod new;
 mod subscription;
 
-impl Signex {
+impl Oxide {
     pub(super) const CONTEXT_MENU_WIDTH: f32 = 248.0;
     /// Default size of the unified Export PDF / Print Preview modal.
     /// Both `view_print_preview` (in-window) and the detached-window
@@ -37,9 +37,9 @@ impl Signex {
         let version = env!("CARGO_PKG_VERSION");
         let dirty_count = self.document_state.dirty_paths.len();
         if dirty_count == 0 {
-            format!("Signex {version}")
+            format!("Oxide {version}")
         } else {
-            format!("• Signex {version} — {dirty_count} unsaved")
+            format!("• Oxide {version} — {dirty_count} unsaved")
         }
     }
 
@@ -93,7 +93,7 @@ impl Signex {
                     warning: iced::Color::from_rgb(1.000, 0.549, 0.000),
                 },
             ),
-            ThemeId::Signex => Theme::custom(
+            ThemeId::Oxide => Theme::custom(
                 "Altium Dark".to_string(),
                 iced::theme::Palette {
                     background: iced::Color::from_rgb(0.18, 0.18, 0.19),

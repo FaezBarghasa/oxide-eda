@@ -2,13 +2,13 @@
 
 This document records the source-comment scrub performed on
 2026-05-01 in response to the follow-up exchange on
-[issue #62](https://github.com/alplabai/signex/issues/62).
+[issue #62](https://github.com/alplabai/oxide/issues/62).
 
 ## Background
 
 The v0.9.0 cutover (2026-04-29) removed `kicad-parser` and
 `kicad-writer` as crates and renamed every KiCad-shaped type in
-`signex-types`. The v0.10.0 polish pass (2026-04-29) renamed
+`oxide-types`. The v0.10.0 polish pass (2026-04-29) renamed
 the public string `KiCad` → `Standard` across enum variants and
 internal documentation.
 
@@ -32,14 +32,14 @@ neutral; it did not change the substantive references.
 
 | File | Pre-scrub | Post-scrub |
 |---|---|---|
-| `crates/signex-render/src/schematic/label.rs:4` | `//! Reference: signex Tauri app schematicDrawHelpers.ts::drawLabels() and Standard sch_painter.cpp SCH_LABEL render.` | `//! Behaviour spec: docs/RENDERING_RULES.md::sch-labels — the Signex internal rendering rule set, derived from observed .kicad_sch rendering behaviour and Altium parity goals.` |
-| `crates/signex-render/src/schematic/mod.rs:430-441` (block) | `Mirrors two pieces of Standard behaviour: 1. SCH_FIELD::GetDrawRotation() … 2. SCH_FIELD::GetEffectiveJustify() …` | Reworded to describe the rules in plain language, citing `docs/RENDERING_RULES.md::field-rotation-and-justify` for the spec. |
-| `crates/signex-render/src/schematic/text.rs:689-693` | `which causes Standard to flip the horizontal justification of the field text (SCH_FIELD::GetEffectiveJustify). Pass sym.mirror_x. Rotation: Standard field angles are CCW-positive…` | Reworded to describe the H-justify-flip rule and the iced rotation-sign convention without referencing third-party class names. |
-| `crates/signex-render/src/schematic/pin.rs:445-449` | `Pin shape decorators (mirroring Standard SCH_PAINTER pin shape logic). Draw two connected segments A→B and B→C (Standard triLine).` | `Pin shape decorators — IEEE-Std-91 graphical conventions for pin modifiers (inverter bubble, clock arrow, low-active markers, etc.). Spec: docs/RENDERING_RULES.md::pin-shape-decorators.` |
-| `crates/signex-engine/src/transform.rs:416` | `// pivot, just like Standard's SCH_SYMBOL::GetBodyBoundingBox().` | `// is the natural pivot for autoplaced field positions.` |
-| `crates/signex-output/src/pdf/bookmarks.rs:308` | `// expanded — matches what Standard eeschema and Altium ship.` | `// fully expanded by default, matching common EDA exporters.` |
-| `crates/signex-output/src/pdf/mod.rs:139` | `/// the classic eeschema palette so existing direct-export` | `/// the legacy SchematicPalette::classic() (cream paper / dark-blue wires) so existing direct-export` |
-| `crates/signex-output/src/pdf/palette.rs:11-15, 53-56` | `the historical eeschema-style palette (SchematicPalette::classic()). … Historical eeschema-style palette — cream paper, dark-blue wires, mustard symbol bodies.` | Reworded to refer to the palette by its function name (`SchematicPalette::classic()`) and describe the colour scheme without the `eeschema-style` modifier. |
+| `crates/oxide-render/src/schematic/label.rs:4` | `//! Reference: oxide Tauri app schematicDrawHelpers.ts::drawLabels() and Standard sch_painter.cpp SCH_LABEL render.` | `//! Behaviour spec: docs/RENDERING_RULES.md::sch-labels — the Oxide internal rendering rule set, derived from observed .kicad_sch rendering behaviour and Altium parity goals.` |
+| `crates/oxide-render/src/schematic/mod.rs:430-441` (block) | `Mirrors two pieces of Standard behaviour: 1. SCH_FIELD::GetDrawRotation() … 2. SCH_FIELD::GetEffectiveJustify() …` | Reworded to describe the rules in plain language, citing `docs/RENDERING_RULES.md::field-rotation-and-justify` for the spec. |
+| `crates/oxide-render/src/schematic/text.rs:689-693` | `which causes Standard to flip the horizontal justification of the field text (SCH_FIELD::GetEffectiveJustify). Pass sym.mirror_x. Rotation: Standard field angles are CCW-positive…` | Reworded to describe the H-justify-flip rule and the iced rotation-sign convention without referencing third-party class names. |
+| `crates/oxide-render/src/schematic/pin.rs:445-449` | `Pin shape decorators (mirroring Standard SCH_PAINTER pin shape logic). Draw two connected segments A→B and B→C (Standard triLine).` | `Pin shape decorators — IEEE-Std-91 graphical conventions for pin modifiers (inverter bubble, clock arrow, low-active markers, etc.). Spec: docs/RENDERING_RULES.md::pin-shape-decorators.` |
+| `crates/oxide-engine/src/transform.rs:416` | `// pivot, just like Standard's SCH_SYMBOL::GetBodyBoundingBox().` | `// is the natural pivot for autoplaced field positions.` |
+| `crates/oxide-output/src/pdf/bookmarks.rs:308` | `// expanded — matches what Standard eeschema and Altium ship.` | `// fully expanded by default, matching common EDA exporters.` |
+| `crates/oxide-output/src/pdf/mod.rs:139` | `/// the classic eeschema palette so existing direct-export` | `/// the legacy SchematicPalette::classic() (cream paper / dark-blue wires) so existing direct-export` |
+| `crates/oxide-output/src/pdf/palette.rs:11-15, 53-56` | `the historical eeschema-style palette (SchematicPalette::classic()). … Historical eeschema-style palette — cream paper, dark-blue wires, mustard symbol bodies.` | Reworded to refer to the palette by its function name (`SchematicPalette::classic()`) and describe the colour scheme without the `eeschema-style` modifier. |
 
 ### What was *not* changed
 
@@ -53,7 +53,7 @@ neutral; it did not change the substantive references.
   plural; `LIB_SYMBOL::` (singular + scope, the C++ form) is
   what the new CI guard forbids.
 - **Type and identifier names.** None of the renamed types
-  (`PinDirection`, `PinShapeStyle`, `SignexLayer`, etc.) regressed.
+  (`PinDirection`, `PinShapeStyle`, `OxideLayer`, etc.) regressed.
 
 ## New CI guards
 
@@ -94,7 +94,7 @@ skill. It does:
 
 - **New public spec:** `docs/RENDERING_RULES.md` documents the
   rendering rules that source comments now reference. Original
-  Signex prose, Apache-2.0 like the rest of the repo.
+  Oxide prose, Apache-2.0 like the rest of the repo.
 - **Memory note:** `feedback_no_disk_writes_without_user_save.md`
   (already shipped) — unrelated, but landed in the same series.
 

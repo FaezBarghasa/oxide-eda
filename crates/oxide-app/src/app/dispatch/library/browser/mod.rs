@@ -16,7 +16,7 @@ mod tables;
 
 use super::*;
 
-impl Signex {
+impl Oxide {
     /// Open `.snxlib` at `path` as a Library Browser tab.
     ///
     /// Step 1 — the mount — now happens **off the UI thread** (#99 part
@@ -37,7 +37,7 @@ impl Signex {
         use crate::library::mount::{MountIntent, MountRequest};
 
         tracing::info!(
-            target: "signex::library",
+            target: "oxide::library",
             path = %path.display(),
             exists = path.exists(),
             already_mounted = self.library.library_at(&path).is_some(),
@@ -54,7 +54,7 @@ impl Signex {
                 // its completion opens the tab. Spawning a second
                 // preparation here would race two adapters onto one path.
                 tracing::debug!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     path = %path.display(),
                     "open_library_browser: mount already in flight; intent upgraded"
                 );
@@ -180,7 +180,7 @@ impl Signex {
             Some(idx) => idx,
             None => {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     library = %library_path.display(),
                     "browser: Add Component — library not mounted"
                 );
@@ -203,7 +203,7 @@ impl Signex {
                 Some(t) => t,
                 None => {
                     tracing::warn!(
-                        target: "signex::library",
+                        target: "oxide::library",
                         library = %library_path.display(),
                         "browser: Add Component — no active table and no class default"
                     );
@@ -253,7 +253,7 @@ impl Signex {
                     state.selected_row = Some(row_id);
                 }
                 tracing::info!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     library = %library_path.display(),
                     table = %resolved_table,
                     row_id = %row_id,
@@ -262,7 +262,7 @@ impl Signex {
             }
             Err(e) => {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     library = %library_path.display(),
                     table = %resolved_table,
                     error = %e,
@@ -311,7 +311,7 @@ impl Signex {
             Some(lib) => lib.library_id,
             None => {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     path = %library_path.display(),
                     "browser delete: library not mounted"
                 );
@@ -322,7 +322,7 @@ impl Signex {
             Some(a) => a,
             None => {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     path = %library_path.display(),
                     "browser delete: adapter not present in set"
                 );
@@ -332,7 +332,7 @@ impl Signex {
         match adapter.delete_row(&table, row_id, "delete row") {
             Ok(_) => {
                 tracing::info!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     path = %library_path.display(),
                     table = %table,
                     row = %row_id,
@@ -340,7 +340,7 @@ impl Signex {
                 );
                 if let Err(e) = self.library.refresh_components(&library_path) {
                     tracing::warn!(
-                        target: "signex::library",
+                        target: "oxide::library",
                         path = %library_path.display(),
                         error = %e,
                         "browser delete: refresh_components failed"
@@ -357,7 +357,7 @@ impl Signex {
             }
             Err(e) => {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     path = %library_path.display(),
                     table = %table,
                     error = %e,
@@ -387,7 +387,7 @@ impl Signex {
             .cloned();
         let Some(row) = row else {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 path = %library_path.display(),
                 table = %table,
                 row = %row_id,
@@ -577,7 +577,7 @@ impl Signex {
                 Ok(_) => {
                     if let Err(e) = self.library.refresh_components(&address.library_path) {
                         tracing::warn!(
-                            target: "signex::library",
+                            target: "oxide::library",
                             path = %address.library_path.display(),
                             error = %e,
                             "browser edit: refresh_components failed"
@@ -630,7 +630,7 @@ impl Signex {
             Some(r) => r,
             None => {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     path = %library_path.display(),
                     table = %table,
                     row = %row_id,
@@ -667,7 +667,7 @@ impl Signex {
                         // fields (table, row, path) go last where a
                         // truncation costs least.
                         tracing::warn!(
-                            target: "signex::library",
+                            target: "oxide::library",
                             parameter = %key,
                             typed = %buf,
                             kept = %refusal.kept,
@@ -691,7 +691,7 @@ impl Signex {
             }
             _ => {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     column = %column,
                     "browser cell commit: unknown column"
                 );
@@ -702,7 +702,7 @@ impl Signex {
             Ok(h) => row.content_hash = h,
             Err(e) => {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     error = %e,
                     "browser cell commit: hash failed; reverting buffer"
                 );
@@ -724,7 +724,7 @@ impl Signex {
         };
         if let Err(e) = result {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 error = %e,
                 "browser cell commit: update_row failed"
             );
@@ -735,7 +735,7 @@ impl Signex {
         }
         if let Err(e) = self.library.refresh_components(&library_path) {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 error = %e,
                 "browser cell commit: refresh_components failed"
             );
@@ -775,7 +775,7 @@ impl Signex {
             Some(lib) => lib.library_id,
             None => {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     path = %library_path.display(),
                     "open component row: library not open"
                 );
@@ -793,7 +793,7 @@ impl Signex {
         let row = match row_result {
             Ok(r) => r,
             Err(e) => {
-                tracing::warn!(target: "signex::library", error = %e, "open component row: read_row failed");
+                tracing::warn!(target: "oxide::library", error = %e, "open component row: read_row failed");
                 return Task::none();
             }
         };

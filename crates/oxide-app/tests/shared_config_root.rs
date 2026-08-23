@@ -17,7 +17,7 @@
 //! Discriminates: reverting `keymap/profile.rs`'s `config_path()` to
 //! `dirs::config_dir().map(|b| config_path_for_dir(&b))` makes
 //! `keymap_config_path_lives_under_shared_root` fail (it resolves
-//! outside the temp-dir root, or panics `Signex settings header`-free
+//! outside the temp-dir root, or panics `Oxide settings header`-free
 //! against the developer's real config dir) — see the commit message
 //! for the red/green run.
 

@@ -10,7 +10,7 @@
 //! Three dialogs:
 //!
 //! 1. **Library missing** (`.snxlib` is gone) — *Locate…* re-opens the
-//!    file picker so the user can point Signex at a moved library.
+//!    file picker so the user can point Oxide at a moved library.
 //!    *Remove from project* drops the entry from the project's
 //!    `[libraries]` list.
 //!
@@ -148,7 +148,7 @@ fn library_missing_view<'a>(
 
     let body = column![
         text(
-            "Signex couldn't find the library's .snxlib file. \
+            "Oxide couldn't find the library's .snxlib file. \
              It may have been moved, renamed, or deleted."
         )
         .size(11)

@@ -40,19 +40,19 @@ Commits on `feature/v0.13-sketch-mode`:
 | SHA | Subject | Tasks |
 |---|---|---|
 | `cff60f60` | chore(sketch): open cleanroom audit doc for v0.13 solver work | Pre-flight |
-| `2bb3fb0c` | feat(sketch): scaffold signex-sketch crate + ID newtypes | 1.1 + 1.2 |
+| `2bb3fb0c` | feat(sketch): scaffold oxide-sketch crate + ID newtypes | 1.1 + 1.2 |
 | `e5f20ace` | feat(sketch): Plane / PlaneKind types | 1.3 |
 | `14b71eaf` | feat(sketch): Entity / EntityKind types | 1.4 |
 | `10f4aec8` | feat(sketch): bake-attribute schema (Pad/Silk/Courtyard/Pour/Keepout/Cutout/V-score) | 1.5 |
 | `636bcf3c` | feat(sketch): SketchData container + Array (Linear/Grid/Polar) + BGA numbering | 1.6 + 1.7 + cap |
 | `addee00f` | docs(sketch): log Phase 1 completion in audit trail | — |
-| `f338294a` | fix(sketch): use signex_types::SignexLayer instead of KiCad-style BoardLayer | post-review fix |
+| `f338294a` | fix(sketch): use oxide_types::OxideLayer instead of KiCad-style BoardLayer | post-review fix |
 | `fe587fc2` | docs: scrub KiCad-style framing across roadmap, codebase guide, and UX docs | post-review fix |
 
 Result:
-- `cargo build -p signex-sketch` clean
-- `cargo test -p signex-sketch` — 39 / 39 passing
-- `cargo build --workspace` clean (existing signex-app warnings unchanged)
+- `cargo build -p oxide-sketch` clean
+- `cargo test -p oxide-sketch` — 39 / 39 passing
+- `cargo build --workspace` clean (existing oxide-app warnings unchanged)
 - No third-party constraint-solver code or wikis consulted in this phase.
   All schema decisions follow the plan verbatim; no algorithmic input
   was needed yet (Phase 2 opens the math).
@@ -60,15 +60,15 @@ Result:
 ### Post-Phase-1 review fixes (2026-05-03)
 
 The first pass of Phase 1 introduced a private `BoardLayer` enum in
-`crates/signex-sketch/src/attr.rs` with KiCad-style short names
+`crates/oxide-sketch/src/attr.rs` with KiCad-style short names
 (`FCu`/`BCu`/`FMask`/...). The user flagged this as a violation of the
 canonical layer policy in `docs/internal/docs/PCB_LAYERS_PLAN.md` and
 the issue #62 cleanroom invariants. Two fix-up commits address it:
 
 1. `f338294a` — Code fix:
    - Drop `BoardLayer` from `attr.rs`.
-   - Depend on `signex-types` from `signex-sketch`.
-   - Use `signex_types::layer::SignexLayer` directly everywhere
+   - Depend on `oxide-types` from `oxide-sketch`.
+   - Use `oxide_types::layer::OxideLayer` directly everywhere
      (`TopCopper` / `BottomCopper` / `TopSolderMask` / etc.).
    - Update tests to use the canonical variants.
    - 39 / 39 round-trip tests still pass.
@@ -76,12 +76,12 @@ the issue #62 cleanroom invariants. Two fix-up commits address it:
 2. `fe587fc2` (main repo) + `199c7b8` (`docs/internal` submodule) —
    Doc scrub:
    - Both v0.13 sketch-mode plans (`SKETCH_MODE_PLAN.md`,
-     `SKETCH_MODE_v0.13_PLAN.md`) updated to use `SignexLayer` in all
+     `SKETCH_MODE_v0.13_PLAN.md`) updated to use `OxideLayer` in all
      code snippets, prose, and inline test examples.
    - `docs/internal/docs/PCB_LAYERS_PLAN.md` reframed: §2 no longer
      credits the foreign EDA tool's layer model as the design source;
      §6 KiCad-import section reframed as handled by the GPL-3.0
-     companion repo `signex-kicad-import`.
+     companion repo `oxide-kicad-import`.
    - 11 other internal plan docs (PCB_ROUTER, PCB_3D_RENDER, OUTPUT,
      SIMULATION_VIEW, DESIGN_NOTEBOOK, MIGRATION_PLAN, COLLABORATION_
      PLAN, PLM_INTEGRATION, PRODUCT_AND_EDITIONS, altium-gap-analysis,
@@ -98,7 +98,7 @@ the issue #62 cleanroom invariants. Two fix-up commits address it:
 References consulted in Phase 1: only
 `docs/internal/SKETCH_MODE_v0.13_PLAN.md`,
 `docs/internal/docs/PCB_LAYERS_PLAN.md` (canonical layer enum),
-`crates/signex-types/src/layer.rs` (existing `SignexLayer`
+`crates/oxide-types/src/layer.rs` (existing `OxideLayer`
 definition). No third-party constraint-solver code, no foreign EDA
 source code, no foreign-format wiki/blog/file-format docs.
 
@@ -120,8 +120,8 @@ All four reported back without conflicts; the orchestrator wrote the
 Task 2.8 aggregator and the Task 2.8 tests.
 
 Result:
-- `cargo test -p signex-sketch` — 107 / 107 passing
-- `cargo build --workspace` clean (existing 65 signex-app warnings
+- `cargo test -p oxide-sketch` — 107 / 107 passing
+- `cargo build --workspace` clean (existing 65 oxide-app warnings
   unchanged)
 - All 18 constraint kinds have residual implementations
 - Each constraint kind has at least one residual test (most have
@@ -161,7 +161,7 @@ Architecture decisions:
 - **Stayed dependency-free.** Initial plan was to use `nalgebra`
   (Apache-2.0/MIT pure-Rust LA library) for the LM step, but the
   user reversed that choice mid-Phase-3 in favour of an in-house
-  math library so signex-sketch has zero external numeric crates.
+  math library so oxide-sketch has zero external numeric crates.
   The roll-our-own LU benchmark (`examples/bench_linalg.rs`) shows
   ~80 µs at n=100 unknowns on a 2024-class laptop — comfortably
   inside the 50 ms LM budget. nalgebra-style API ergonomics
@@ -210,7 +210,7 @@ etc.) was consulted by any agent or the orchestrator during
 Phase 3.
 
 Result:
-- `cargo test -p signex-sketch` — 167 / 167 passing
+- `cargo test -p oxide-sketch` — 167 / 167 passing
 - `cargo build --workspace` clean
 - `examples/bench_linalg.rs` documents performance baseline:
   ~80 µs full LU solve at n=100, ~540 µs at n=200 (roll-our-own,
@@ -253,18 +253,18 @@ session this branch was authored in. Tracked for v0.13.1.
 
 ### Phase 7 — Pad-only bake pipeline — DONE 2026-05-03
 
-Commit `ebe3c481`. New `signex-bake` crate (depends on both
-signex-sketch and signex-library, breaking the unavoidable
+Commit `ebe3c481`. New `oxide-bake` crate (depends on both
+oxide-sketch and oxide-library, breaking the unavoidable
 dependency cycle from Phase 5.1). Tasks 7.1+7.2 (bake_pads +
 LinearArray bake) ran as a parallel agent; Task 7.3 (wire bake into
 solve-on-edit dispatcher) shipped with Phase 5.4 in commit
 `57811487`. Layer-name strings come from
-`signex_types::layer::SignexLayer::altium_label()` — no foreign-
+`oxide_types::layer::OxideLayer::altium_label()` — no foreign-
 tooling short names. 11 bake tests + 4 dispatcher tests.
 
 ### Phase 8 — End-to-end smoke + verification — DONE 2026-05-03
 
-Task 8.1 — `crates/signex-app/tests/sketch_qfn16_smoke.rs` drives
+Task 8.1 — `crates/oxide-app/tests/sketch_qfn16_smoke.rs` drives
 the entire stack programmatically: parameter resolution + expression
 evaluation + LM solver + DOF analysis + pad bake + sketch ↔ library
 integration. 3 tests all pass: `qfn16_row_bakes_at_05mm_pitch` (4
@@ -273,19 +273,19 @@ SMD pads at correct positions to within 1 µm),
 bake on pitch parameter edit), `qfn16_solve_warnings_empty_on_clean_sketch`.
 
 Task 8.2 — Schema migration corpus already covered by
-`crates/signex-library/tests/migration_v1_to_v2.rs` (5 tests, all
+`crates/oxide-library/tests/migration_v1_to_v2.rs` (5 tests, all
 green). No additional edge cases discovered.
 
 Task 8.3 — `.github/workflows/license-guard.yml` extended with two
 new jobs:
 - `no-third-party-constraint-solver-substrings` — forbids
   `solvespace|freecad|planegcs|opencascade|sketcher` substrings
-  under `crates/signex-sketch/` and `crates/signex-bake/`.
+  under `crates/oxide-sketch/` and `crates/oxide-bake/`.
 - `no-third-party-constraint-solver-attribution` — forbids "from
   SolveSpace" / "based on FreeCAD" / similar attribution comments
   anywhere in the repo (excluding audit trail and the workflow file
   itself).
-`crates/signex-sketch/deny.toml` ships with the standard Apache-
+`crates/oxide-sketch/deny.toml` ships with the standard Apache-
 clean license allow-list so cargo-deny can be run on the sketch
 crate in isolation.
 
@@ -303,26 +303,26 @@ push time, not committed). Template:
 
 ### Final test count
 
-cargo test workspace-wide: 290+ tests across signex-sketch,
-signex-bake, signex-library, signex-app, signex-types.
-- signex-sketch: 257 tests (12 lib + 39 round_trip + 7 solver_basics
+cargo test workspace-wide: 290+ tests across oxide-sketch,
+oxide-bake, oxide-library, oxide-app, oxide-types.
+- oxide-sketch: 257 tests (12 lib + 39 round_trip + 7 solver_basics
   + 18 linalg + 4 dof + 3 lm_basic + 22 canonical + 6 solver_api
   + family-residual files + expression suite)
-- signex-bake: 11 tests
-- signex-library: 5 migration + pre-existing tests
-- signex-app: 4 dispatcher + 3 QFN-16 smoke + pre-existing tests
-- signex-types: pre-existing tests
+- oxide-bake: 11 tests
+- oxide-library: 5 migration + pre-existing tests
+- oxide-app: 4 dispatcher + 3 QFN-16 smoke + pre-existing tests
+- oxide-types: pre-existing tests
 
-cargo build --workspace: clean (only pre-existing 65 signex-app
+cargo build --workspace: clean (only pre-existing 65 oxide-app
 warnings unchanged from before Phase 5).
 
 ### v0.13 ships with
 
-- Apache-clean signex-sketch crate (sketcher schema + Phase-2
+- Apache-clean oxide-sketch crate (sketcher schema + Phase-2
   residuals + Phase-3 LM solver + DOF + Phase-4 expressions)
-- Apache-clean signex-bake crate (sketch → library Pad pipeline)
-- Footprint::sketch field (signex-library), v1→v2 migration
-- Solve-on-edit dispatcher (signex-app)
+- Apache-clean oxide-bake crate (sketch → library Pad pipeline)
+- Footprint::sketch field (oxide-library), v1→v2 migration
+- Solve-on-edit dispatcher (oxide-app)
 - 290+ tests; cleanroom audit trail; License Guard CI extension
 - Phase 6 UI deferred to v0.13.1
 
@@ -375,7 +375,7 @@ Branch `feature/v0.14-sketch-bake-extras` off
 | `c4b9c1e8` | feat(bake): closed-profile walker for v0.14 silk/courtyard/mask/pour bakes | Stage 2: walker (Lines only, Arc tessellation deferred to v0.14.1) |
 | `20befcb5` | feat(bake): silk + courtyard + mask + pour bakes; native lib variants | Stage 3: 4 new modules + dispatcher wiring + drop v0.13 lib-variant fallback warnings |
 
-Test count: signex-bake grew from 13 lib tests to 32; signex-library
+Test count: oxide-bake grew from 13 lib tests to 32; oxide-library
 gained 10 v3 schema tests. 67 / 67 workspace test runs green.
 
 Cleanroom: walker is textbook DFS (Cormen *Introduction to
@@ -422,7 +422,7 @@ deferred item except the stock library:
 | `985bd81f` | feat(bake): 3D extrude profile from BodyTop plane | F |
 | `340a6f1a` | feat(bake): native LibPadShape::Custom(SketchProfile) bake | G (final) |
 
-Walker upgrade — `crates/signex-bake/src/profile.rs`:
+Walker upgrade — `crates/oxide-bake/src/profile.rs`:
 - Drop `TraceError::ArcInProfile` (no longer produced).
 - Adjacency now includes both Lines and Arcs; Arcs traverse with
   `ARC_SAMPLES = 16` interior vertices via polar sampling around the
@@ -432,7 +432,7 @@ Walker upgrade — `crates/signex-bake/src/profile.rs`:
 - 3 new walker tests (D-shape CCW, D-shape CW, arc-seed walks back
   through line).
 
-Keepout / cutout / v-score — three new modules in `signex-bake`:
+Keepout / cutout / v-score — three new modules in `oxide-bake`:
 - `keepout.rs` — KeepoutAttr profiles → FpKeepout. KeepoutKinds
   6-bit field maps to KeepoutForbid 5-variant enum (multiple bits →
   All; single bit → matching variant).
@@ -463,7 +463,7 @@ Dispatcher (`sketch_dispatch.rs`) now invokes 9 bake modules in
 sequence: pads + arrays + silk + courtyard + 3 mask + pour + keepout
 + cutout + v_scores + body3d.
 
-Test count: signex-bake lib tests grew from 21 to 36 (15 new); plus
+Test count: oxide-bake lib tests grew from 21 to 36 (15 new); plus
 1 new integration test (14 total). Workspace: 67/67 test runs green.
 
 References consulted in v0.14.1 (cited in module-level doc comments):
@@ -643,14 +643,14 @@ Three deliverables on top of v0.15:
    `mirror_add_pad_to_sketch` mint them; `mirror_move_pad_in_sketch`
    reposition them on Pads-mode pad drags;
    `mirror_delete_pad_from_sketch` drops the corners + their connecting
-   Lines together with the centre. Bake unaffected — `signex-bake`
+   Lines together with the centre. Bake unaffected — `oxide-bake`
    already skips construction entities. Pad outlines now appear as
    first-class primitives the user can pick / hover in Sketch mode;
    resizing-by-dragging-a-corner is queued for v0.16.1.
 
 Test updates: `pad_to_sketch::tests` entity-count assertions adjusted
 (per-pad: 1 centre + 4 corners + 4 lines = 9; pre-v0.16 tests assumed
-1). All 9 module tests pass; full `cargo test -p signex-app` green
+1). All 9 module tests pass; full `cargo test -p oxide-app` green
 (110 lib + 3 integration, all green).
 
 ### v0.15 deferred to v0.15.1+ / v0.16+
@@ -756,7 +756,7 @@ inspector dropdown:
   - `set_role_courtyard_attaches_courtyard_attr`
   - `set_role_pad_increments_designator_across_entities`
 
-Test counts: signex-app lib 116 → 123; full workspace test sweep
+Test counts: oxide-app lib 116 → 123; full workspace test sweep
 green (all 38 test-binary `test result: ok` lines, zero failures).
 No clippy regressions.
 

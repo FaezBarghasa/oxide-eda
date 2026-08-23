@@ -8,9 +8,9 @@ Execute Sprint C as incremental vertical slices to complete PCB 2D runtime integ
 
 ## Scope
 
-- Finalize PCB 2D scene translation path in `signex-renderer` with deterministic outputs.
+- Finalize PCB 2D scene translation path in `oxide-renderer` with deterministic outputs.
 - Integrate app-side dirty-event routing with renderer slice families.
-- Cut over `signex-app` PCB canvas runtime path from legacy `signex-render::pcb` to `signex-renderer` scene path.
+- Cut over `oxide-app` PCB canvas runtime path from legacy `oxide-render::pcb` to `oxide-renderer` scene path.
 - Prepare and validate dependency-removal gate for legacy PCB render APIs.
 
 ## Task breakdown (ordered)
@@ -19,15 +19,15 @@ Execute Sprint C as incremental vertical slices to complete PCB 2D runtime integ
 - [x] Task 02: Zones, rule areas, ratsnest, and DRC overlay slices.
 - [x] Task 03: Deterministic zone compositing order hardening and benchmark fixture guards.
 - [x] Task 04: App dirty-event adapter bridge (`Message`/`CanvasEvent` -> `PcbAppEvent`).
-- [x] Task 05: PCB canvas runtime cutover to `signex-renderer` scene build/render flow.
-- [x] Task 06: Remove direct `signex_render::pcb` usage from `signex-app` and validate behavior parity.
+- [x] Task 05: PCB canvas runtime cutover to `oxide-renderer` scene build/render flow.
+- [x] Task 06: Remove direct `oxide_render::pcb` usage from `oxide-app` and validate behavior parity.
 - [x] Task 07: Legacy cleanup gate for PCB path (`Cargo.toml` dependency, dead helpers, regression checks).
 
 ## Acceptance criteria
 
 - [x] Deterministic fixture + golden tests exist and are green for implemented PCB slices.
 - [x] Dirty trigger matrix is mapped and test-verified for PCB event families.
-- [x] `signex-app` PCB runtime no longer depends on `signex_render::pcb` symbols.
+- [x] `oxide-app` PCB runtime no longer depends on `oxide_render::pcb` symbols.
 - [x] PCB interaction parity (selection/camera/overlay visibility) remains stable after cutover.
 - [x] Regression commands are documented and pass in CI-equivalent local run.
 
@@ -47,4 +47,4 @@ Suggested filenames:
 
 - No PCB 3D import/runtime work in Sprint C.
 - No full schematic renderer cutover in this sprint.
-- No wholesale deletion of legacy `signex-render` crate before PCB cutover exit gate passes.
+- No wholesale deletion of legacy `oxide-render` crate before PCB cutover exit gate passes.

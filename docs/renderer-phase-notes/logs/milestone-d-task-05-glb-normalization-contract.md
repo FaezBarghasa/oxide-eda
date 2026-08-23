@@ -12,8 +12,8 @@
 ## Scope
 
 Define the normalization rules applied to all GLB artifacts produced by
-`signex-model-import`, regardless of source format. These rules ensure that
-the runtime (`signex-renderer`) receives a consistent, predictable GLB
+`oxide-model-import`, regardless of source format. These rules ensure that
+the runtime (`oxide-renderer`) receives a consistent, predictable GLB
 payload.
 
 ## Coordinate system
@@ -41,7 +41,7 @@ behavior:
 | VRML (KiCad) | mm | mm | 1.0 (no change) |
 | GLTF (pass-through) | as authored | as authored | preserved |
 
-All `signex-model-import` GLB outputs use millimetres as the working unit.
+All `oxide-model-import` GLB outputs use millimetres as the working unit.
 The runtime renders in mm-space (consistent with PCB canvas coordinate space).
 
 If a GLTF source uses metres (indicated by `asset.extras.unit` or convention),
@@ -96,7 +96,7 @@ The normalized GLB `asset` field must contain:
 {
   "asset": {
     "version": "2.0",
-    "generator": "signex-model-import",
+    "generator": "oxide-model-import",
     "extras": {
       "source_format": "step" | "vrml" | "gltf",
       "source_path": "<absolute path>",
@@ -123,7 +123,7 @@ Milestone C prep Task 03.
   and from Milestone C runtime contract requirements.
 - Rationale: deterministic normalization ensures the runtime receives
   consistent inputs regardless of source format path, eliminating
-  format-specific branches in `signex-renderer`.
+  format-specific branches in `oxide-renderer`.
 - Clean-room check: No GPL-licensed source consulted.
 - Verification: Milestone D issue Task 05 marked done; checklist updated.
 

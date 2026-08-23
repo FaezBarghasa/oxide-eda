@@ -1,9 +1,9 @@
-# Milestone D `signex-model-import` Pipeline Checklist
+# Milestone D `oxide-model-import` Pipeline Checklist
 
 ## Prerequisites
 
 - [x] Milestone C (exec) confirmed done and all evidence logs present.
-- [x] Renderer plan ROADMAP.md Section WS-3D updated to reference `signex-model-import`.
+- [x] Renderer plan ROADMAP.md Section WS-3D updated to reference `oxide-model-import`.
 - [x] Milestone D scope reviewed against Milestone C prep Task 02 and Task 03 contracts.
 
 ## Scope and format analysis

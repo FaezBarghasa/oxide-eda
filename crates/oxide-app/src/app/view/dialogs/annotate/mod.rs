@@ -3,7 +3,7 @@
 //!
 //! Extracted verbatim from `view/dialogs.rs` (ADR-0001, issue #164) as pure
 //! code motion — no behaviour change. These are methods of the same
-//! `Signex` view impl, split across sibling files.
+//! `Oxide` view impl, split across sibling files.
 
 use super::*;
 use iced::widget::{Space, button, column, container, row, scrollable, text};
@@ -20,7 +20,7 @@ mod controls;
 
 use controls::{bordered_style, check_pip, order_preview, order_radio};
 
-impl Signex {
+impl Oxide {
     pub(in crate::app::view) fn view_annotate_dialog(&self) -> Element<'_, Message> {
         let modal_w = 1100.0_f32;
         let modal_h = 760.0_f32;

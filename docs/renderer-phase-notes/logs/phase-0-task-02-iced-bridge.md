@@ -4,7 +4,7 @@
 
 - Phase: 0
 - Task ID: 02
-- Task name: signex-renderer iced bridge skeleton
+- Task name: oxide-renderer iced bridge skeleton
 - Owner: renderer-team
 - Date: 2026-05-04
 - Status: done
@@ -25,7 +25,7 @@ Create the initial renderer-side bridge structure that will host iced shader int
 - Derivation: skeletal bridge state mapped to scene + dirty flags.
 - Rationale: start integration contracts now while deferring full runtime trait wiring to later phase tasks.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: `cargo check -p signex-gfx -p signex-renderer` and `cargo build -p signex-gfx -p signex-renderer` succeeded.
+- Verification: `cargo check -p oxide-gfx -p oxide-renderer` and `cargo build -p oxide-gfx -p oxide-renderer` succeeded.
 
 ## Artifacts
 

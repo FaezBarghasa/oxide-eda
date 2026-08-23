@@ -1,4 +1,4 @@
-# Signex command reference
+# Oxide command reference
 
 Every command the application exposes by a stable id, with the default
 binding each shipped keyboard profile gives it. A keymap profile binds
@@ -6,18 +6,18 @@ keys to these ids — see [KEYBOARD_SHORTCUTS.md](KEYBOARD_SHORTCUTS.md)
 for the file format.
 
 **Generated — do not edit by hand.** Produced from
-`crates/signex-app/src/keymap/catalog/` and
-`crates/signex-app/assets/keyboard-shortcuts/` by
-`crates/signex-app/tests/command_reference.rs`, which fails if this
+`crates/oxide-app/src/keymap/catalog/` and
+`crates/oxide-app/assets/keyboard-shortcuts/` by
+`crates/oxide-app/tests/command_reference.rs`, which fails if this
 file drifts. Regenerate with:
 
 ```sh
-UPDATE_DOCS=1 cargo test -p signex-app --test command_reference
+UPDATE_DOCS=1 cargo test -p oxide-app --test command_reference
 ```
 
 A command listed here resolves in the keymap. Not all of them reach an
 action yet — the ones that do not are pinned in
-`crates/signex-app/src/app/command/bridge.rs`, and that set may only
+`crates/oxide-app/src/app/command/bridge.rs`, and that set may only
 shrink.
 
 ## General

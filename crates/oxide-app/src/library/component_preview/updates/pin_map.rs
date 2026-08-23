@@ -20,7 +20,7 @@ pub(super) fn clear_overrides(state: &mut ComponentPreviewState) {
 /// emits a tracing warning and leaves the overrides untouched.
 pub(super) fn warn_auto_match_by_name() {
     tracing::warn!(
-        target: "signex::library",
+        target: "oxide::library",
         "Pin Map: Auto-Match by Name is stubbed; awaiting heuristic implementation"
     );
 }

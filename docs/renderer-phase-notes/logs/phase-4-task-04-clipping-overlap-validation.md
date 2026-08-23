@@ -23,16 +23,16 @@ Validate clipping and overlap controls to preserve text readability.
 
 ## Clean-room evidence
 
-- Source: renderer acceptance criteria and Signex UX readability targets.
+- Source: renderer acceptance criteria and Oxide UX readability targets.
 - Derivation: deterministic clipping and overlap guard tests.
 - Rationale: maintain edit-time readability in dense schematics.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: `cargo test -p signex-gfx -- --nocapture`, `cargo test -p signex-renderer -- --nocapture`, `cargo check -p signex-gfx -p signex-renderer`, and `cargo build -p signex-gfx -p signex-renderer` passed.
+- Verification: `cargo test -p oxide-gfx -- --nocapture`, `cargo test -p oxide-renderer -- --nocapture`, `cargo check -p oxide-gfx -p oxide-renderer`, and `cargo build -p oxide-gfx -p oxide-renderer` passed.
 
 ## Artifacts
 
 - PR/commit: pending
-- Test output: signex-gfx tests passed (23 passed, 0 failed), signex-renderer tests passed (6 passed, 0 failed)
+- Test output: oxide-gfx tests passed (23 passed, 0 failed), oxide-renderer tests passed (6 passed, 0 failed)
 - Screenshot/benchmark: pending
 
 ## Exit checklist

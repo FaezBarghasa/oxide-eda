@@ -43,7 +43,7 @@ pub(crate) fn pcb_renderer_events_for_message(message: &Message) -> &'static [Pc
     }
 }
 
-impl Signex {
+impl Oxide {
     pub(crate) fn apply_pcb_renderer_dirty_hint(&mut self, message: &Message) {
         if !self.has_active_pcb() {
             return;
@@ -87,7 +87,7 @@ mod tests {
 
     #[test]
     fn theme_change_message_maps_to_theme_dirty_event() {
-        let message = Message::Ui(UiMsg::ThemeChanged(ThemeId::Signex));
+        let message = Message::Ui(UiMsg::ThemeChanged(ThemeId::Oxide));
         let events = pcb_renderer_events_for_message(&message);
 
         assert_eq!(events, &[PcbAppEvent::ThemeChanged]);

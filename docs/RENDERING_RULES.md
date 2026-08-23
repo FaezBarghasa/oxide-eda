@@ -1,19 +1,19 @@
-# Signex Schematic Rendering Rules
+# Oxide Schematic Rendering Rules
 
 This document is the authoritative behavioural spec for the
-`signex-render` crate's schematic renderer. It exists so the
+`oxide-render` crate's schematic renderer. It exists so the
 renderer's source comments can reference a single, independent
-Signex spec rather than citing third-party tooling.
+Oxide spec rather than citing third-party tooling.
 
 The rules below are derived from:
 
-1. **The Signex `.snxsch` schematic format** (defined in
-   `crates/signex-types/src/schematic.rs` and
-   `crates/signex-types/src/format.rs`). The format is Signex's
+1. **The Oxide `.snxsch` schematic format** (defined in
+   `crates/oxide-types/src/schematic.rs` and
+   `crates/oxide-types/src/format.rs`). The format is Oxide's
    own — TOML envelope plus TSV bulk-block bodies — and these
    types are the canonical input to the renderer.
 2. **Altium Designer parity goals** (see
-   `docs/UX_REFERENCE_ALTIUM.md`). Signex aims to feel familiar
+   `docs/UX_REFERENCE_ALTIUM.md`). Oxide aims to feel familiar
    to Altium users; where the rendering rules below pick a
    particular convention, the choice mirrors Altium's
    conventions where they are observable from running Altium
@@ -33,10 +33,10 @@ sources is flagged for clean-room rewrite — see
 
 ## sch-labels — Label rendering
 
-Source file: `crates/signex-render/src/schematic/label.rs`
+Source file: `crates/oxide-render/src/schematic/label.rs`
 (flagged for clean-room rewrite)
 
-Signex labels — `signex_types::schematic::Label` — render in
+Oxide labels — `oxide_types::schematic::Label` — render in
 four kinds, distinguished by `LabelType`:
 
 | Label kind | Shape | Anchor / alignment |
@@ -54,25 +54,25 @@ the label's `rotation` field — 0° points right, 90° points up,
 180° left, 270° down.
 
 Flag dimensions are derived from the rendered text height
-(`font_size`) times Signex-tuned multipliers — flag width is
+(`font_size`) times Oxide-tuned multipliers — flag width is
 `text_width + 2 × pad`, height is `text_height × M_HEIGHT`,
 point depth is `text_height × M_POINT`. The actual multiplier
 values used live in `label.rs` as named constants and are
-chosen by Signex to match the visual proportions seen in
+chosen by Oxide to match the visual proportions seen in
 Altium's rendering of equivalent labels.
 
 ---
 
 ## field-rotation-and-justify — Field text under rotated symbols
 
-Source file: `crates/signex-render/src/schematic/mod.rs`,
+Source file: `crates/oxide-render/src/schematic/mod.rs`,
 function `field_effective_style`. (Flagged for clean-room
 rewrite — the current implementation's specific parameter
 choices were informed by paths that included other sources.)
 
 A schematic symbol's reference / value / footprint / user fields
 are stored with their own position and rotation independent of
-the parent symbol (`signex_types::schematic::TextProp`). When the
+the parent symbol (`oxide_types::schematic::TextProp`). When the
 parent symbol is rotated or mirrored, two adjustments must be
 applied to the field's stored angle and justification so the
 text remains readable and stays anchored sensibly relative to
@@ -104,16 +104,16 @@ the text anchored "outside" the body regardless of the parent's
 orientation.
 
 The clean-room rewrite implements this rule from first
-principles against `signex_types::schematic::Symbol::rotation` /
+principles against `oxide_types::schematic::Symbol::rotation` /
 `mirror_x` / `mirror_y` and `TextProp::justify_h` /
-`justify_v` — using only Signex domain types, no third-party
+`justify_v` — using only Oxide domain types, no third-party
 references.
 
 ---
 
 ## pin-shape-decorators — Pin shape modifiers
 
-Source file: `crates/signex-render/src/schematic/pin.rs`
+Source file: `crates/oxide-render/src/schematic/pin.rs`
 (flagged for clean-room rewrite)
 
 Pin shape decorators draw graphical modifiers on top of the base
@@ -145,7 +145,7 @@ during the clean-room rewrite.
 
 - **Not** a reverse-engineering of any third-party EDA tool's
   source code, internal docs, or published file format
-  specifications. The Signex codebase contains no copies of, and
+  specifications. The Oxide codebase contains no copies of, and
   no structural ports of, any third-party renderer's source.
 - **Not** comprehensive — it only documents rendering rules
   that needed to be made explicit for the source comments to
@@ -158,6 +158,6 @@ during the clean-room rewrite.
 
 ## License
 
-Licensed under the same Apache-2.0 terms as the rest of `signex`
-(see `LICENSE`). This document is original Signex prose and may
+Licensed under the same Apache-2.0 terms as the rest of `oxide`
+(see `LICENSE`). This document is original Oxide prose and may
 be reproduced under those terms.

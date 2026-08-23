@@ -25,7 +25,7 @@ Integrate static wire and junction emit paths into schematic scene building.
 - Derivation: direct mapping from wire/junction inputs to scene primitives.
 - Rationale: make scene path operational for the first two primitive classes in Phase 1.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: `cargo check -p signex-gfx -p signex-renderer` and `cargo build -p signex-gfx -p signex-renderer` succeeded.
+- Verification: `cargo check -p oxide-gfx -p oxide-renderer` and `cargo build -p oxide-gfx -p oxide-renderer` succeeded.
 
 ## Artifacts
 

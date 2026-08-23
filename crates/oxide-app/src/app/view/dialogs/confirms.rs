@@ -3,7 +3,7 @@
 //!
 //! Extracted verbatim from `view/dialogs.rs` (ADR-0001, issue #164) as pure
 //! code motion — no behaviour change. These are methods of the same
-//! `Signex` view impl, split across sibling files.
+//! `Oxide` view impl, split across sibling files.
 
 use super::*;
 use iced::widget::{Space, button, column, container, row, scrollable, text};
@@ -14,7 +14,7 @@ use super::widgets::{
 };
 use super::{MODAL_HEADER_HEIGHT, MODAL_HEADER_PADDING, MODAL_HEADER_TITLE_SIZE};
 
-impl Signex {
+impl Oxide {
     pub(in crate::app::view) fn view_remove_dialog(&self) -> Element<'_, Message> {
         let dialog = self.view_remove_dialog_body();
         let offset = self
@@ -288,7 +288,7 @@ impl Signex {
         let theme_id = self.ui_state.theme_id;
         let header_content: Element<'_, Message> = container(
             row![
-                text("Exit Signex — Unsaved Edits")
+                text("Exit Oxide — Unsaved Edits")
                     .size(MODAL_HEADER_TITLE_SIZE)
                     .color(text_c),
                 Space::new().width(Length::Fill),

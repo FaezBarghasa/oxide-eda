@@ -4,7 +4,7 @@
 //! built on top of `standard-parser::sexpr`. As part of the issue #62
 //! Apache-clean cutover that codepath was removed; user-defined
 //! templates will return when `.snxsht` is reimplemented on top of
-//! Signex's native TOML-based format.
+//! Oxide's native TOML-based format.
 //!
 //! The 17 built-in templates (`builtin.rs`) cover every shipping
 //! template, so the loss is functionally the lack of *user-authored*
@@ -20,7 +20,7 @@ use super::Template;
 #[derive(Debug, thiserror::Error)]
 pub enum SnxshtError {
     #[error(
-        "user-defined .snxsht templates are not yet available in Signex Community; \
+        "user-defined .snxsht templates are not yet available in Oxide Community; \
          use the built-in templates for now (issue #62)"
     )]
     NotImplemented,

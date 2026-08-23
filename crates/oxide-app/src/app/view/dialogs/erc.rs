@@ -3,7 +3,7 @@
 //!
 //! Extracted verbatim from `view/dialogs.rs` (ADR-0001, issue #164) as pure
 //! code motion — no behaviour change. These are methods of the same
-//! `Signex` view impl, split across sibling files.
+//! `Oxide` view impl, split across sibling files.
 
 use super::*;
 use iced::widget::{Space, button, column, container, row, text};
@@ -14,7 +14,7 @@ use super::widgets::{
 };
 use super::{MODAL_HEADER_HEIGHT, MODAL_HEADER_PADDING, MODAL_HEADER_TITLE_SIZE};
 
-impl Signex {
+impl Oxide {
     pub(in crate::app::view) fn view_erc_dialog(&self) -> Element<'_, Message> {
         let dialog = self.view_erc_dialog_body_inner(true);
         let offset = self

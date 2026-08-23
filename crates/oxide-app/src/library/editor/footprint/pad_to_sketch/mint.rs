@@ -102,7 +102,7 @@ pub(super) fn mint_round_rect_pad_geometry(
 
     if r <= f64::EPSILON {
         tracing::warn!(
-            target: "signex::v024",
+            target: "oxide::v024",
             "RoundRect pad has zero / negative corner radius (ratio = {radius_ratio}); falling \
              back to bbox 4-Line outline"
         );
@@ -201,7 +201,7 @@ pub(super) fn mint_oval_pad_geometry(
     // Degenerate case: W ≈ H means the oval is a circle.
     if (w - h).abs() <= f64::EPSILON {
         tracing::warn!(
-            target: "signex::v024",
+            target: "oxide::v024",
             "Oval pad has equal long+short axes (W={w}, H={h}); falling back to bbox 4-Line \
              outline. Switch to Round shape for circular pads."
         );
@@ -330,14 +330,14 @@ pub(super) fn mint_chamfered_pad_geometry(
         || corner_flags.bottom_right;
     if !any_enabled {
         tracing::warn!(
-            target: "signex::v024",
+            target: "oxide::v024",
             "Chamfered pad has no enabled corners; falling back to bbox 4-Line outline"
         );
         return mint_pad_corner_outline(sketch, plane_id, pad);
     }
     if r <= f64::EPSILON {
         tracing::warn!(
-            target: "signex::v024",
+            target: "oxide::v024",
             "Chamfered pad has zero / negative chamfer length (ratio = {chamfer_ratio}); \
              falling back to bbox 4-Line outline"
         );

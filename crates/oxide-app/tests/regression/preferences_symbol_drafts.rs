@@ -18,7 +18,7 @@
 //! `multisheet_style` and `grid_style`. Closing that gap needs a lock
 //! shared across modules first.
 
-use oxide_app::app::{Message, PreferencesMsg, Signex};
+use oxide_app::app::{Message, PreferencesMsg, Oxide};
 use oxide_app::preferences::PrefMsg;
 use oxide_app::render_config::{GridStyle, PinSelectionMode};
 
@@ -51,7 +51,7 @@ fn other_pin_selection(current: PinSelectionMode) -> PinSelectionMode {
 #[test]
 fn changing_a_symbol_setting_marks_the_dialog_dirty_without_committing() {
     // Arrange
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let _ = app.update(Message::Preferences(PreferencesMsg::Open));
     let committed = app.ui_state.symbol_grid_style;
     let wanted = other_grid_style(committed);
@@ -80,7 +80,7 @@ fn changing_a_symbol_setting_marks_the_dialog_dirty_without_committing() {
 #[test]
 fn discarding_puts_all_three_symbol_drafts_back() {
     // Arrange
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let _ = app.update(Message::Preferences(PreferencesMsg::Open));
     let committed_style = app.ui_state.symbol_grid_style;
     let committed_size = app.ui_state.symbol_grid_size_mm;
@@ -134,9 +134,9 @@ fn the_dirty_predicate_covers_each_symbol_setting_on_its_own() {
     /// Open a fresh dialog, move exactly one draft, and require the
     /// predicate to notice. One setting per call so a predicate that
     /// happens to catch a different term cannot carry this one.
-    fn assert_dirty_on(label: &str, mutate: impl FnOnce(&mut Signex)) {
+    fn assert_dirty_on(label: &str, mutate: impl FnOnce(&mut Oxide)) {
         // Arrange
-        let (mut app, _t) = Signex::new();
+        let (mut app, _t) = Oxide::new();
         let _ = app.update(Message::Preferences(PreferencesMsg::Open));
         assert!(
             !app.ui_state.preferences_draft_differs(),

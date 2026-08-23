@@ -2,7 +2,7 @@ use iced::Task;
 
 use super::super::super::*;
 
-impl Signex {
+impl Oxide {
     pub(super) fn handle_menu_placement_command(
         &mut self,
         msg: &MenuMessage,

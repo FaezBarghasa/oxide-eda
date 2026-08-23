@@ -15,9 +15,9 @@ Add edge-case coverage for arc sweep wraparound and very small radius values.
 
 ## Implementation notes
 
-- Added `arc_emitter_preserves_wraparound_and_tiny_radius_inputs` in `signex-renderer` schematic tests.
-- Added `arc_smoke_pass_handles_wraparound_sweep` in `signex-gfx` debug pass tests.
-- Added `arc_smoke_pass_handles_tiny_radius` in `signex-gfx` debug pass tests.
+- Added `arc_emitter_preserves_wraparound_and_tiny_radius_inputs` in `oxide-renderer` schematic tests.
+- Added `arc_smoke_pass_handles_wraparound_sweep` in `oxide-gfx` debug pass tests.
+- Added `arc_smoke_pass_handles_tiny_radius` in `oxide-gfx` debug pass tests.
 - Kept tests focused on preserving arc parameters through translation and executing the runtime pass for the edge values.
 
 ## Clean-room evidence
@@ -26,12 +26,12 @@ Add edge-case coverage for arc sweep wraparound and very small radius values.
 - Derivation: edge parameters encoded directly in deterministic tests.
 - Rationale: protect against regressions around angle wrap boundaries and degenerate geometry scales.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: `cargo test -p signex-renderer -- --nocapture` and `cargo test -p signex-gfx -- --nocapture` passed.
+- Verification: `cargo test -p oxide-renderer -- --nocapture` and `cargo test -p oxide-gfx -- --nocapture` passed.
 
 ## Artifacts
 
 - PR/commit: local workspace changes, commit pending
-- Test output: signex-gfx tests passed (4 passed, 0 failed)
+- Test output: oxide-gfx tests passed (4 passed, 0 failed)
 - Screenshot/benchmark: n/a
 
 ## Exit checklist

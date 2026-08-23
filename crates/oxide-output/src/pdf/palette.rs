@@ -149,8 +149,8 @@ mod tests {
 
     #[test]
     fn from_canvas_colors_normalises_u8_rgb() {
-        let signex = canvas_colors(ThemeId::Signex);
-        let pal = SchematicPalette::from(&signex);
+        let oxide = canvas_colors(ThemeId::Oxide);
+        let pal = SchematicPalette::from(&oxide);
         assert!(pal.paper.0 >= 0.0 && pal.paper.0 <= 1.0);
         assert!(pal.wire.2 >= 0.0 && pal.wire.2 <= 1.0);
     }

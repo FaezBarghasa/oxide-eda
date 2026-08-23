@@ -29,7 +29,7 @@ use wiremock::{Mock, MockServer, ResponseTemplate};
 
 /// Test bearer token — every request must carry it via `Authorization: Bearer`.
 const TEST_TOKEN: &str = "wiremock-bearer-token";
-const TEST_HOLDER: &str = "test@signex";
+const TEST_HOLDER: &str = "test@oxide";
 
 /// Spin up a wiremock `MockServer` on a private runtime, run the setup
 /// closure to register expectations, then hand the adapter (built against

@@ -23,7 +23,7 @@ pub struct SheetInfo {
     pub is_active: bool,
     /// F24 (2026-05-03) — `true` when the file backing this entry
     /// is registered on the project but no longer exists on disk
-    /// (orphan reference, e.g. user moved/deleted outside Signex).
+    /// (orphan reference, e.g. user moved/deleted outside Oxide).
     /// Drives the `(missing)` suffix in `build_project_tree` so the
     /// user sees the broken state at a glance instead of having to
     /// double-click and read an error.
@@ -147,7 +147,7 @@ fn project_root_node(project: &ProjectPanelInfo) -> TreeNode {
 
     // F24 — surface a `(missing)` suffix on every leaf whose backing
     // file is registered on the project but absent from disk. Catches
-    // orphan references (e.g. user moved/deleted a file outside Signex,
+    // orphan references (e.g. user moved/deleted a file outside Oxide,
     // or a previous library-create attempt left an entry behind without
     // the file). User sees the broken state at a glance instead of
     // having to double-click and read an error.

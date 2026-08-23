@@ -67,7 +67,7 @@ pub fn draw_label_preview(
         frame,
         &snapshot,
         &ResolvedTheme::from_canvas_colors(oxide_types::theme::canvas_colors(
-            oxide_types::theme::ThemeId::Signex,
+            oxide_types::theme::ThemeId::Oxide,
         )),
         DirtyFlags::POLYGONS | DirtyFlags::TEXT,
         transform,

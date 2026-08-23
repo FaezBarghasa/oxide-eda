@@ -1,11 +1,11 @@
-//! Signex-wide global library preferences.
+//! Oxide-wide global library preferences.
 //!
 //! Stage 9 of `v0.9-snxlib-as-file-plan.md`. The Components Panel
 //! surfaces three mount sources: Project (auto-mounted from
 //! `Project.libraries`), Installed (session-scoped, in-memory), and
 //! Global. This module owns the on-disk persistence for the Global
 //! source — a single TOML file at
-//! `<config_dir>/signex/global_libraries.toml`.
+//! `<config_dir>/oxide/global_libraries.toml`.
 //!
 //! Schema (TOML):
 //! ```toml
@@ -73,7 +73,7 @@ pub fn load_at(path: &Path) -> Vec<GlobalLibraryEntry> {
             Ok(file) => file.libraries,
             Err(e) => {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     path = %path.display(),
                     error = %e,
                     "global_libraries.toml parse failed; treating as empty"
@@ -83,7 +83,7 @@ pub fn load_at(path: &Path) -> Vec<GlobalLibraryEntry> {
         },
         Err(e) => {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 path = %path.display(),
                 error = %e,
                 "global_libraries.toml read failed; treating as empty"
@@ -159,7 +159,7 @@ pub fn mount_all(library_state: &mut crate::library::LibraryState, entries: &[Gl
     for entry in entries {
         if let Err(e) = library_state.open_library(entry.path.clone()) {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 path = %entry.path.display(),
                 error = %e,
                 "global library mount failed"

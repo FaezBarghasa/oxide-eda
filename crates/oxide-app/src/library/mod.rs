@@ -40,7 +40,7 @@ pub mod updates_dialog;
 // Re-export the heavily-used types so callers don't have to know
 // the internal module layout. `LibraryMessage` is folded into the
 // top-level Message; `LibraryState` holds the subsystem's state on
-// `Signex`. The remaining sub-types are used widely enough across
+// `Oxide`. The remaining sub-types are used widely enough across
 // the app crate to warrant a flat re-export, even where the only
 // current consumer is the dispatcher (Phase 2 widens the surface).
 pub use messages::{

@@ -2,7 +2,7 @@ use iced::Task;
 
 use super::super::*;
 
-impl Signex {
+impl Oxide {
     pub(super) fn dispatch_text_edit_message(&mut self, message: TextEditMsg) -> Task<Message> {
         match message {
             TextEditMsg::Changed(text) => {

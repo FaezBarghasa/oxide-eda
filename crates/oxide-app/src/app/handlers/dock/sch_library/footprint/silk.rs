@@ -28,7 +28,7 @@ pub(crate) enum SilkTextField {
     Size,
 }
 
-impl Signex {
+impl Oxide {
     pub(crate) fn fp_editor_set_silk_line_endpoint(
         &mut self,
         endpoint: SilkLineEndpoint,

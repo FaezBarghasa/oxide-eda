@@ -1,25 +1,25 @@
 # Keyboard Shortcut Profiles
 
-Signex maps keyboard input to stable command ids first, then maps those command
+Oxide maps keyboard input to stable command ids first, then maps those command
 ids to application messages. The shortcut profile files do not serialize Rust
 `Message` variants directly.
 
 ## Files
 
 - Built-in profiles live in
-  `crates/signex-app/assets/keyboard-shortcuts/altium.toml` and
-  `crates/signex-app/assets/keyboard-shortcuts/classic.toml`.
+  `crates/oxide-app/assets/keyboard-shortcuts/altium.toml` and
+  `crates/oxide-app/assets/keyboard-shortcuts/classic.toml`.
 - User profiles persist to the OS config directory at
-  `<config_dir>/signex/keyboard_shortcuts.toml`.
-- The Rust model lives under `crates/signex-app/src/keymap/`.
+  `<config_dir>/oxide/keyboard_shortcuts.toml`.
+- The Rust model lives under `crates/oxide-app/src/keymap/`.
 
 ## TOML Format
 
-Every shortcut TOML document starts with a machine-readable Signex header:
+Every shortcut TOML document starts with a machine-readable Oxide header:
 
 ```toml
-[signex_settings]
-application = "signex"
+[oxide_settings]
+application = "oxide"
 file_kind = "keyboard_shortcuts"
 version = 1
 ```
@@ -48,11 +48,11 @@ context = "global"
 ```
 
 Command labels and categories are not stored in the TOML. They are owned by
-`crates/signex-app/src/keymap/catalog.rs`.
+`crates/oxide-app/src/keymap/catalog.rs`.
 
 ## Runtime Flow
 
-1. `Signex::new` loads built-in profiles and merges any user custom profiles.
+1. `Oxide::new` loads built-in profiles and merges any user custom profiles.
 2. The active profile is compiled into `CompiledKeymap`.
 3. `app/bootstrap.rs::subscription` receives `iced::keyboard::Event::KeyPressed`.
 4. Modal and text-entry guards run first. For example, Escape closes open

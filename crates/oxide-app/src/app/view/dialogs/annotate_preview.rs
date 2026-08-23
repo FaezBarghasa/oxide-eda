@@ -69,7 +69,7 @@ fn annotate_order(sheet: &SchematicSheet) -> Vec<usize> {
     idx
 }
 
-impl super::super::super::Signex {
+impl super::super::super::Oxide {
     /// The display title a sheet is shown under: its tab title when it is open,
     /// its file stem otherwise.
     fn sheet_display_title(&self, path: &Path) -> String {

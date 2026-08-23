@@ -39,7 +39,7 @@ impl DockArea {
     /// Where `kind` currently lives, searching every region in display
     /// order and then the floating list. `None` when it is not in the
     /// dock at all — note that it may still own a detached OS window,
-    /// which only `Signex::show_panel` can see.
+    /// which only `Oxide::show_panel` can see.
     pub fn locate(&self, kind: PanelKind) -> Option<PanelSite> {
         for position in [
             PanelPosition::Left,

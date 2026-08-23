@@ -11,7 +11,7 @@ use super::*;
 // Stage 16 — Library Updates Available scan + apply (§3.5)
 // ─────────────────────────────────────────────────────────────────────
 
-impl Signex {
+impl Oxide {
     /// Toggle one row's checkbox in the Library Updates modal.
     pub(super) fn handle_library_updates_toggle_selection(
         &mut self,
@@ -100,7 +100,7 @@ impl Signex {
                 .find(|lib| lib.library_id == *library_id)
             else {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     library_id = %library_id,
                     symbol = %symbol_uuid,
                     "library_updates_scan: library not mounted; skipping drift check"
@@ -112,7 +112,7 @@ impl Signex {
 
             let Some(adapter) = self.library.set.get(*library_id) else {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     library_id = %library_id,
                     "library_updates_scan: adapter missing on LibrarySet; skipping"
                 );
@@ -136,7 +136,7 @@ impl Signex {
             }
             let Some((_table, row)) = found else {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     library_id = %library_id,
                     row_id = %row_id,
                     "library_updates_scan: row not found in any table; skipping"
@@ -192,7 +192,7 @@ impl Signex {
                 .dirty_paths
                 .insert(schematic_path.clone());
             tracing::info!(
-                target: "signex::library",
+                target: "oxide::library",
                 schematic = %schematic_path.display(),
                 count = applied,
                 "library_updates_scan: auto-applied {} update(s) under Personal mode",

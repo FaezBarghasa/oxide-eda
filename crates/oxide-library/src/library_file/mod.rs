@@ -1,6 +1,6 @@
 //! `LibraryFile` — on-disk representation of a `.snxlib` file.
 //!
-//! Per `v0.9-snxlib-as-file-plan.md` §1, a Signex component library is a
+//! Per `v0.9-snxlib-as-file-plan.md` §1, a Oxide component library is a
 //! directory whose `.snxlib` file is the user-facing entry point. The file
 //! is a TOML document combining a small manifest header with one
 //! `[tables.<name>]` block per user-defined component category. Each table
@@ -32,7 +32,7 @@ use crate::adapter::LibraryError;
 use crate::manifest::{LibraryMode, UsersConfig, WorkflowConfig};
 
 /// Format token written at the top of every `.snxlib`. Bumping this is a
-/// wire-format break — older Signex versions refuse to open the file.
+/// wire-format break — older Oxide versions refuse to open the file.
 pub const FORMAT_TOKEN: &str = "snxlib/1";
 
 /// Top-level on-disk shape of a `.snxlib` file.

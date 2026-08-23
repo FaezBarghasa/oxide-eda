@@ -17,7 +17,7 @@ use oxide_library::project_file_history;
 /// Mint a signature for fixture commits without leaning on the
 /// caller's `git` config (CI machines often have neither set).
 fn fixture_signature() -> git2::Signature<'static> {
-    git2::Signature::now("oxide-test", "test@signex.local").unwrap()
+    git2::Signature::now("oxide-test", "test@oxide.local").unwrap()
 }
 
 /// Stage `rel_path` (under `repo`'s working tree) and create a
@@ -113,7 +113,7 @@ fn returns_n_commits_newest_first() {
 
     // Author identity from the fixture signature flows through.
     assert_eq!(entries[0].author_name, "oxide-test");
-    assert_eq!(entries[0].author_email, "test@signex.local");
+    assert_eq!(entries[0].author_email, "test@oxide.local");
 
     // The unrelated commit on `other.txt` is filtered out — confirm
     // nothing else snuck through.

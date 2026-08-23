@@ -11,14 +11,14 @@
 
 ## Scope
 
-Deactivate legacy schematic runtime usage in `signex-app` canvas path and
+Deactivate legacy schematic runtime usage in `oxide-app` canvas path and
 replace it with a clean-room local runtime surface to avoid GPL/KiCad coupling
 risk while Milestone F migration continues.
 
 ## Implementation summary (this slice)
 
-- Replaced bridge re-exports in `crates/signex-app/src/schematic_runtime.rs`:
-  - removed all `signex_render::schematic` re-exports
+- Replaced bridge re-exports in `crates/oxide-app/src/schematic_runtime.rs`:
+  - removed all `oxide_render::schematic` re-exports
   - implemented local clean-room runtime API used by app modules
 - Kept app callsites stable by preserving the same surface:
   - `SchematicRenderCache`
@@ -43,14 +43,14 @@ risk while Milestone F migration continues.
 Commands:
 
 ```text
-cargo check -p signex-app
-rg -n "signex_render::schematic::" crates/signex-app/src
+cargo check -p oxide-app
+rg -n "oxide_render::schematic::" crates/oxide-app/src
 ```
 
 Result:
 
-- `cargo check -p signex-app`: pass
-- Direct `signex_render::schematic` references in app source: 0
+- `cargo check -p oxide-app`: pass
+- Direct `oxide_render::schematic` references in app source: 0
 
 ## Notes
 
@@ -71,4 +71,4 @@ Result:
 - [x] Legacy schematic runtime imports removed from app call path
 - [x] Build validation completed
 - [x] Evidence log added
-- [x] Full `signex-renderer` scene contract adoption completed
+- [x] Full `oxide-renderer` scene contract adoption completed

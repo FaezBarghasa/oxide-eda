@@ -4,7 +4,7 @@
 //!
 //! Extracted verbatim from `view/mod.rs` (ADR-0001, issue #164) as pure
 //! code motion — no behaviour change. These are methods of the same
-//! `Signex` view impl, split across sibling files. The overlay-assembly
+//! `Oxide` view impl, split across sibling files. The overlay-assembly
 //! entry point `collect_overlays` stays in `view/mod.rs` alongside the
 //! other composition-core methods.
 
@@ -13,7 +13,7 @@ use super::*;
 mod bars;
 mod modals;
 
-impl Signex {
+impl Oxide {
     /// Hover tooltip card showing the placed symbol's designator,
     /// value, footprint, and library id. Only paints after the cursor
     /// has dwelled on a Symbol hit for >= 250 ms — gates impulsive

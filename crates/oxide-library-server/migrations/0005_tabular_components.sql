@@ -5,7 +5,7 @@
 -- `0001_initial.sql` and `004_primitives.sql` (components / revisions /
 -- parameters / suppliers) is superseded by a single `component_rows` table
 -- whose payload is the JSON-serialised `ComponentRow` struct from
--- `signex-library`.
+-- `oxide-library`.
 --
 -- Layout intentionally mirrors the WS-D primitives tables: `(library_id, …)`
 -- is the partition key, the row's `row_id` (UUIDv7 stringified) is the

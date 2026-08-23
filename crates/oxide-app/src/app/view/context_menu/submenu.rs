@@ -266,7 +266,7 @@ pub(super) fn add_new_entries(tid: ThemeId, target: Vec<usize>) -> Vec<DropdownE
     v
 }
 
-impl Signex {
+impl Oxide {
     /// Build the secondary submenu (Place / Align / Add New to Project)
     /// shown to the right of the parent context menu. Resolves the
     /// selection count / target project from `self`, then delegates to the

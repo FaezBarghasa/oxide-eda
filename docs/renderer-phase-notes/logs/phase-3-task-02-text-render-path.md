@@ -27,12 +27,12 @@ Implement text rendering path foundations for schematic labels and annotation st
 - Derivation: direct translation from `TextItem` fields into per-item GPU text instances.
 - Rationale: establish a working text render bridge before full glyph rendering integration.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: `cargo test -p signex-gfx -- --nocapture`, `cargo check -p signex-gfx -p signex-renderer`, and `cargo build -p signex-gfx -p signex-renderer` passed.
+- Verification: `cargo test -p oxide-gfx -- --nocapture`, `cargo check -p oxide-gfx -p oxide-renderer`, and `cargo build -p oxide-gfx -p oxide-renderer` passed.
 
 ## Artifacts
 
 - PR/commit: local workspace changes, commit pending
-- Test output: signex-gfx tests passed (13 passed, 0 failed)
+- Test output: oxide-gfx tests passed (13 passed, 0 failed)
 - Screenshot/benchmark: pending
 
 ## Exit checklist

@@ -2,7 +2,7 @@ use iced::Task;
 
 use super::super::super::*;
 
-impl Signex {
+impl Oxide {
     /// Push the effective paper dimensions from PanelContext into the canvas so
     /// the background / grid track Page Options changes immediately. Also
     /// called from the document-load path so an opened sheet's stored paper

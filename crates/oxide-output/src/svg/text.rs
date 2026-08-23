@@ -8,7 +8,7 @@
 //! motion, zero behaviour change.
 
 use super::*;
-use oxide_types::markup::{RichSegment, parse_signex_markup};
+use oxide_types::markup::{RichSegment, parse_oxide_markup};
 use tiny_skia::{FillRule, Paint, PathBuilder, Pixmap, Stroke};
 use ttf_parser::{Face, GlyphId, OutlineBuilder};
 
@@ -145,7 +145,7 @@ struct MarkupRun {
 
 fn markup_runs(input: &str) -> Vec<MarkupRun> {
     let expanded = normalize_standard_text(input);
-    let segments = parse_signex_markup(&expanded);
+    let segments = parse_oxide_markup(&expanded);
     if segments.is_empty() {
         return vec![MarkupRun {
             text: expanded,

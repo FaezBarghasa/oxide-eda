@@ -1,6 +1,6 @@
 use super::super::super::*;
 
-impl Signex {
+impl Oxide {
     pub(super) fn handle_dock_property_editor_message(
         &mut self,
         panel_msg: &crate::panels::PanelMsg,

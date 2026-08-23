@@ -9,7 +9,7 @@ Prepare Milestone C execution boundaries, architecture contracts, and validation
 ## Scope
 
 - Freeze Milestone C scope and non-goals from the renderer plan.
-- Define import pipeline contract for `signex-model-import`.
+- Define import pipeline contract for `oxide-model-import`.
 - Define format conversion and cache policy (`source path + mtime`).
 - Define runtime GLB-only ingestion contract for 3D renderer.
 - Define hybrid 3D rendering approach for solids and projected board-layer visuals.

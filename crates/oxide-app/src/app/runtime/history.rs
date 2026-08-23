@@ -1,6 +1,6 @@
 use super::super::*;
 
-impl Signex {
+impl Oxide {
     /// Recompute the History panel's target path from the active tab,
     /// bump the generation counter on change, and return a
     /// `Task::perform` that loads the file's git history off the UI
@@ -142,7 +142,7 @@ impl HistoryTarget {
 /// Returns `None` for tab kinds that don't correspond to an
 /// on-disk file we want to track (e.g. ComponentEditor — the
 /// row-shaped editor doesn't write an addressable file in v1).
-fn resolve_history_target(app: &super::super::Signex) -> Option<HistoryTarget> {
+fn resolve_history_target(app: &super::super::Oxide) -> Option<HistoryTarget> {
     let active = app.document_state.tabs.get(app.document_state.active_tab)?;
     let full_path: std::path::PathBuf = match &active.kind {
         // Schematic / Pcb / SymbolEditor / FootprintEditor all carry

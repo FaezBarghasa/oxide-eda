@@ -168,7 +168,7 @@ pub enum ActiveBarMsg {
 pub const CUSTOM_FILTER_PRESET_LIMIT: usize = 4;
 
 /// A user-defined named selection-filter preset. Persisted to
-/// `~/.config/signex/prefs.json` under `custom_filter_presets` and
+/// `~/.config/oxide/prefs.json` under `custom_filter_presets` and
 /// surfaced as a shortcut button in the Active Bar's filter dropdown.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct CustomFilterPreset {

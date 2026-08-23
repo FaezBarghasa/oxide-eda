@@ -1,10 +1,10 @@
 # Pin design rationale
 
-Documents why `signex-types::schematic::PinDirection` and
+Documents why `oxide-types::schematic::PinDirection` and
 `PinShapeStyle` look the way they do, and how the variant set differs
 from Standard's `ELECTRICAL_PINTYPE` / `GRAPHIC_PINSHAPE`.
 
-The previous Signex versions exposed `PinElectricalType` (12 variants,
+The previous Oxide versions exposed `PinElectricalType` (12 variants,
 identical canonical strings to Standard's enum) and `PinShape` (9
 variants, same set as Standard's). Those types were strong derivations
 of Standard's `pin_type.h` headers and were removed in the issue #62
@@ -21,35 +21,35 @@ Apache-clean remediation.
 | `Passive` | Resistor/cap/inductor terminal | Generic |
 | `PowerInput` | Power supply input | Generic (renamed from `PowerIn`) |
 | `PowerOutput` | Power supply output | Generic (renamed from `PowerOut`) |
-| `GroundReference` | Distinguishes ground from generic power | **Signex-original** |
+| `GroundReference` | Distinguishes ground from generic power | **Oxide-original** |
 | `OpenDrainLow` | Open-drain active-low output | Generic (renamed from `OpenCollector`) |
 | `OpenDrainHigh` | Open-drain active-high output | Generic (renamed from `OpenEmitter`) |
-| `Differential` | Differential pair member | **Signex-original** (HSD-friendly) |
-| `Clock` | Clock pin (modeled as direction, not shape) | **Signex-original** |
+| `Differential` | Differential pair member | **Oxide-original** (HSD-friendly) |
+| `Clock` | Clock pin (modeled as direction, not shape) | **Oxide-original** |
 | `DoNotConnect` | Manufacturer-marked NC | Generic (renamed from `NotConnected`) |
 | `Unclassified` | Default for new pins | Generic (collapses `Free` + `Unspecified`) |
 
 ### Differences from other EDA tools
 
 Same direction concepts apply across all major EDA tools — pin types
-existed long before any one of them — but the Signex curation is:
+existed long before any one of them — but the Oxide curation is:
 
-- **14 vs 12 variants.** Three Signex-original additions
+- **14 vs 12 variants.** Three Oxide-original additions
   (`GroundReference`, `Differential`, `Clock`) and one
   collapsed variant (`Unclassified` covers two prior concepts).
 - **`OpenDrainLow` / `OpenDrainHigh`** uses the modern industry term
   (open drain) and the polarity is part of the variant name. Other
   EDA tools historically split this as `OpenCollector` / `OpenEmitter`,
   which conflates the technology (BJT vs MOSFET) with the polarity
-  (active-low vs active-high). Signex picks the polarity-tagged
+  (active-low vs active-high). Oxide picks the polarity-tagged
   semantics.
 - **`Clock` is a direction, not a shape.** Other EDA tools express
   clock-ness via the pin shape (`ClockTriangle`, `EdgeClockHigh`,
-  `ClockLow`). Signex models it at the directional level — a clock
+  `ClockLow`). Oxide models it at the directional level — a clock
   is a kind of input/output, not just a graphic decoration. The
   shape decoration follows from `PinShapeStyle`, but the semantic
   identity ("this pin is a clock") is in `PinDirection`.
-- **`GroundReference` and `Differential`** are Signex-original
+- **`GroundReference` and `Differential`** are Oxide-original
   additions. Ground is technically a kind of power input, but
   treating it distinctly enables ERC checks (e.g. "every chip has at
   least one `GroundReference` pin connected") and BOM/datasheet
@@ -65,9 +65,9 @@ existed long before any one of them — but the Signex curation is:
 | `InvertedBubble` | Active-low marker (small circle) | Generic |
 | `ClockTriangle` | Clock indicator | Generic |
 | `InvertedClockBubble` | Inverted-clock indicator | Generic |
-| `HysteresisInput` | Schmitt trigger input | **Signex-original** |
-| `HysteresisOutput` | Schmitt trigger output | **Signex-original** |
-| `Schmitt` | Generic Schmitt symbol | **Signex-original** |
+| `HysteresisInput` | Schmitt trigger input | **Oxide-original** |
+| `HysteresisOutput` | Schmitt trigger output | **Oxide-original** |
+| `Schmitt` | Generic Schmitt symbol | **Oxide-original** |
 
 ### Differences from other EDA tools
 
@@ -78,23 +78,23 @@ existed long before any one of them — but the Signex curation is:
   designs typically encode edge sensitivity as a netlist annotation
   rather than on the symbol pin.
 - **`HysteresisInput` / `HysteresisOutput` / `Schmitt`** are
-  Signex-original additions for symbols that include explicit
+  Oxide-original additions for symbols that include explicit
   hysteresis marking. Mostly visible on Schmitt-trigger inverters
   and comparators.
 
 ## Round-trip with foreign formats
 
-When Signex Community reads a foreign file (e.g. via the
-`signex-standard-import` companion tool), a translation layer maps the
-foreign tool's enum to Signex's curated set. Some information loss
+When Oxide Community reads a foreign file (e.g. via the
+`oxide-standard-import` companion tool), a translation layer maps the
+foreign tool's enum to Oxide's curated set. Some information loss
 is acceptable in that direction — for example, `Free` and
-`Unspecified` from Standard both collapse to `Unclassified` in Signex.
+`Unspecified` from Standard both collapse to `Unclassified` in Oxide.
 
-Going the other way (Signex → foreign format), Signex-original
+Going the other way (Oxide → foreign format), Oxide-original
 variants (`GroundReference`, `Differential`, `Clock`,
 `HysteresisInput/Output`, `Schmitt`) collapse to the closest foreign
 equivalent — typically `power_in`, `passive`, or `unspecified`. The
-Signex-native `.snxsch` format preserves all 14 variants losslessly;
+Oxide-native `.snxsch` format preserves all 14 variants losslessly;
 foreign formats are best-effort.
 
 ## Adding new variants

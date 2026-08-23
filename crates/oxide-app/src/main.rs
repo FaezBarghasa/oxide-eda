@@ -1,10 +1,10 @@
-//! Signex EDA — AI-first electronics design automation.
+//! Oxide EDA — AI-first electronics design automation.
 //!
 //! Thin binary entrypoint. The real implementation lives in the
 //! library face (`lib.rs`) so integration tests can drive
 //! dispatchers without spinning up the iced runtime.
 
-use oxide_app::app::Signex;
+use oxide_app::app::Oxide;
 use oxide_app::{diagnostics, fonts};
 
 const IOSEVKA_REGULAR: &[u8] = include_bytes!("../assets/fonts/Iosevka-Regular.ttf");
@@ -14,16 +14,16 @@ const ROBOTO_BOLD: &[u8] = include_bytes!("../assets/fonts/Roboto-Bold.ttf");
 
 fn main() -> iced::Result {
     if let Err(error) = diagnostics::init_logging() {
-        eprintln!("[signex] failed to initialize logging: {error:#}");
+        eprintln!("[oxide] failed to initialize logging: {error:#}");
     }
 
     // Read the persisted UI font preference (defaults to "Roboto").
     let ui_font_name = fonts::read_ui_font_pref();
 
-    iced::daemon(Signex::new, Signex::update, Signex::view)
-        .title(Signex::title)
-        .theme(Signex::theme)
-        .subscription(Signex::subscription)
+    iced::daemon(Oxide::new, Oxide::update, Oxide::view)
+        .title(Oxide::title)
+        .theme(Oxide::theme)
+        .subscription(Oxide::subscription)
         // Iosevka — schematic / PCB canvas text (monospace, tuned for EDA).
         .font(IOSEVKA_REGULAR)
         .font(IOSEVKA_BOLD)

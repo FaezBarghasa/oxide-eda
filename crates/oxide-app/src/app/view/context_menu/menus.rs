@@ -29,7 +29,7 @@ pub(super) struct CanvasShortcuts {
     pub smart_paste: String,
 }
 
-impl Signex {
+impl Oxide {
     /// v0.18.10 — Altium-style grid picker popup body. Renders the
     /// standard 1mil…2.5mm ladder; clicking a row sends
     /// `Message::Ui(UiMsg::GridPickerSelect(step_mm))` and closes the popup.

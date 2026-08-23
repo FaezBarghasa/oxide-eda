@@ -2,11 +2,11 @@
 //!
 //! Extracted verbatim from `view/mod.rs` (ADR-0001, issue #164) as pure
 //! code motion — no behaviour change. These are methods of the same
-//! `Signex` view impl, split across sibling files.
+//! `Oxide` view impl, split across sibling files.
 
 use super::*;
 
-impl Signex {
+impl Oxide {
     /// Export-error modal — plain "something went wrong, here's the
     /// message" dialog with an OK button. Sits on top of the print-preview
     /// overlay when both would otherwise render; dismiss_layer handles

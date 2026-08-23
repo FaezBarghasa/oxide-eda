@@ -5,12 +5,12 @@
 //! `docs/KEYBOARD_SHORTCUTS.md` documents the TOML profile *format* and
 //! contains no command table, so a user could not discover what they were
 //! allowed to bind a key to except by reading `keymap/catalog/*.rs`
-//! (signex#517 §8).
+//! (oxide#517 §8).
 //!
 //! Generated rather than hand-written for the reason the epic exists: the
 //! catalog is the single source, and a hand-kept second copy drifts. Same
 //! golden-file shape as `command_id_surface_matches_golden_snapshot`
-//! (signex#276) — regenerate deliberately, never just to make a test pass:
+//! (oxide#276) — regenerate deliberately, never just to make a test pass:
 //!
 //! ```text
 //! UPDATE_DOCS=1 cargo test -p oxide-app --test command_reference
@@ -71,7 +71,7 @@ fn render() -> String {
 
     let mut doc = String::new();
     doc.push_str(
-        "# Signex command reference\n\
+        "# Oxide command reference\n\
          \n\
          Every command the application exposes by a stable id, with the default\n\
          binding each shipped keyboard profile gives it. A keymap profile binds\n\

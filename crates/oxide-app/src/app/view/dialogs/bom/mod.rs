@@ -19,7 +19,7 @@ use super::{MODAL_HEADER_HEIGHT, MODAL_HEADER_PADDING, MODAL_HEADER_TITLE_SIZE};
 mod sidebar;
 mod table;
 
-impl Signex {
+impl Oxide {
     pub(in crate::app::view) fn view_bom_preview(&self) -> Element<'_, Message> {
         let modal_w = 1000.0_f32;
         let modal_h = 700.0_f32;

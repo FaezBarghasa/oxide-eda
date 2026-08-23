@@ -7,7 +7,7 @@
 
 use super::*;
 
-impl Signex {
+impl Oxide {
     /// Toggle the collapse flag for the named section.
     pub(super) fn handle_components_panel_toggle_section(
         &mut self,
@@ -61,7 +61,7 @@ impl Signex {
         // File ▸ Library ▸ Open Library… flow uses.
         if let Err(e) = commands::open_library(&mut self.library, path.clone()) {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 error = %e,
                 path = %path.display(),
                 "components-panel add-library failed"
@@ -81,7 +81,7 @@ impl Signex {
                     }
                     Err(e) => {
                         tracing::warn!(
-                            target: "signex::library",
+                            target: "oxide::library",
                             error = %e,
                             "global_libraries.toml save failed"
                         );
@@ -94,7 +94,7 @@ impl Signex {
                 // from `.snxprj`), but the dispatcher still
                 // handles the variant for future wiring.
                 tracing::info!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     path = %path.display(),
                     "TODO: add-library to active project (ComponentsMountSource::Project)"
                 );
@@ -119,7 +119,7 @@ impl Signex {
                 Ok(updated) => self.library.global_libraries = updated,
                 Err(e) => {
                     tracing::warn!(
-                        target: "signex::library",
+                        target: "oxide::library",
                         error = %e,
                         "promote-to-global save failed"
                     );
@@ -132,7 +132,7 @@ impl Signex {
     /// "Manage…" on the Global section header. Stage 9 stub.
     pub(super) fn handle_components_panel_manage_global(&mut self) -> Task<Message> {
         tracing::info!(
-            target: "signex::library",
+            target: "oxide::library",
             "TODO: open Global Libraries management dialog"
         );
         Task::none()
@@ -144,7 +144,7 @@ impl Signex {
         library_path: std::path::PathBuf,
     ) -> Task<Message> {
         tracing::info!(
-            target: "signex::library",
+            target: "oxide::library",
             path = %library_path.display(),
             "TODO: add library to active project's Project.libraries"
         );

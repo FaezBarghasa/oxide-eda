@@ -27,7 +27,7 @@ use std::path::{Path, PathBuf};
 use oxide_types::schematic::{ChildSheet, FillType, Point, SchematicSheet};
 use uuid::Uuid;
 
-use crate::app::Signex;
+use crate::app::Oxide;
 use crate::app::state::{DocumentState, LoadedProject};
 use oxide_types::project::{ProjectData, SheetEntry};
 
@@ -193,11 +193,11 @@ fn netlist_references(ctx: &oxide_output::ExportContext) -> Vec<String> {
     refs
 }
 
-/// A `Signex` with one loaded, *active* project whose persisted sheet list is
+/// A `Oxide` with one loaded, *active* project whose persisted sheet list is
 /// `listed`. Sheets are not opened here — callers add the engines they need
 /// with [`open`].
-pub(crate) fn app_workspace(dir: &str, listed: &[&str]) -> Signex {
-    let (mut app, _task) = Signex::new();
+pub(crate) fn app_workspace(dir: &str, listed: &[&str]) -> Oxide {
+    let (mut app, _task) = Oxide::new();
     let id = app.document_state.mint_project_id();
     app.document_state.projects.push(LoadedProject {
         id,
@@ -552,7 +552,7 @@ fn diagnostic_count(marker: &str) -> usize {
 
 /// A project whose root references `missing` — a child that is neither open
 /// nor on disk. The one case that is a *genuine* `MissingChild`.
-fn app_with_missing_child(missing: &str) -> Signex {
+fn app_with_missing_child(missing: &str) -> Oxide {
     let dir = std::env::temp_dir().join(format!("oxide-export-missing-{}", Uuid::new_v4()));
     let mut app = app_workspace(&dir.to_string_lossy(), &["top.snxsch"]);
     let top = dir.join("top.snxsch");
@@ -778,7 +778,7 @@ fn rerasterizing_the_preview_does_not_flood_the_messages_panel() {
 /// other as a child sheet. `project_navigation::add` appends to `data.sheets`
 /// with no requirement that anything reference the sheet, so this is routine,
 /// not pathological.
-fn app_flat_project() -> Signex {
+fn app_flat_project() -> Oxide {
     let mut app = app_workspace("/w/flat", &["a.snxsch", "b.snxsch"]);
     let a = PathBuf::from("/w/flat").join("a.snxsch");
     let b = PathBuf::from("/w/flat").join("b.snxsch");

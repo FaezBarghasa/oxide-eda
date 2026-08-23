@@ -30,7 +30,7 @@ use support::{Scale, generate_library};
 const SYMBOLS: usize = 10;
 const FOOTPRINTS: usize = 10;
 
-/// A real `.snxlib` written by the real Signex writers. Returns the
+/// A real `.snxlib` written by the real Oxide writers. Returns the
 /// tempdir too — dropping it deletes the library out from under the test.
 fn fixture(tag: &'static str) -> (tempfile::TempDir, PathBuf) {
     let scale = Scale::new(tag, SYMBOLS, FOOTPRINTS);

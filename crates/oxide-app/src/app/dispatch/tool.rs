@@ -2,7 +2,7 @@ use iced::Task;
 
 use super::super::*;
 
-impl Signex {
+impl Oxide {
     /// On TAB during placement: commit the ghost at the current cursor
     /// world position as a real engine object and select it, so the normal
     /// selection-aware Properties panel (with full per-kind fields) renders.

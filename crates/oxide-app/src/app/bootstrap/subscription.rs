@@ -1,4 +1,4 @@
-//! `Signex::subscription` — keyboard / window / tick event wiring.
+//! `Oxide::subscription` — keyboard / window / tick event wiring.
 //! Split from `app/bootstrap.rs` as pure code motion.
 
 use super::super::*;
@@ -128,7 +128,7 @@ impl OpenOverlays {
     /// Whether a blocking modal owns the overlay stack — i.e. whether
     /// everything painted after the pre-blocking block is suppressed.
     ///
-    /// Mirrors `Signex::has_blocking_modal`
+    /// Mirrors `Oxide::has_blocking_modal`
     /// (`app/view/overlays/bars.rs`). The two agreed on three of their
     /// four terms until #547: `print_preview_open` was already false here
     /// once Print Preview had been detached into its own OS window, while
@@ -370,7 +370,7 @@ fn modal_overlay_id(modal: crate::app::state::ModalId) -> Option<OverlayId> {
     }
 }
 
-impl Signex {
+impl Oxide {
     /// Resolve the Esc ladder against live state, or `None` when no
     /// overlay claims the key.
     ///
@@ -752,7 +752,7 @@ mod tests {
     //
     // The two tests below are the ladder's half of that question — the
     // rung table and the detachment filters. The behavioural half, which
-    // drives `Signex::update` per window kind, lives beside the code it
+    // drives `Oxide::update` per window kind, lives beside the code it
     // exercises in `app/dispatch/escape.rs`.
 
     #[test]
@@ -785,7 +785,7 @@ mod tests {
         // The whole point of routing through `modal_overlay_id` + `rung`
         // rather than a second table of Close messages: the detached
         // window and the in-window card cannot drift apart.
-        let (mut app, _boot) = Signex::new();
+        let (mut app, _boot) = Oxide::new();
         app.ui_state.erc_dialog_open = true;
 
         let card = only(|o| o.erc_open = true);

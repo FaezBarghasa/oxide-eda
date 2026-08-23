@@ -1,4 +1,4 @@
-//! Global 2D rotation utilities for Signex geometry.
+//! Global 2D rotation utilities for Oxide geometry.
 //!
 //! This module is intentionally domain-agnostic: callers provide object pose,
 //! geometry center, rotation space, and pivot. The same API can be reused by

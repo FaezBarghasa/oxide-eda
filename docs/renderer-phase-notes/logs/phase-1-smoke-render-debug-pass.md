@@ -15,7 +15,7 @@ Validate the wire and junction render path using an offscreen debug pass with mu
 
 ## Implementation notes
 
-- Added offscreen smoke function in signex-gfx debug_pass module.
+- Added offscreen smoke function in oxide-gfx debug_pass module.
 - Rendered both line and circle pipelines in a real render pass.
 - Executed the smoke path at low and high zoom scales.
 
@@ -25,7 +25,7 @@ Validate the wire and junction render path using an offscreen debug pass with mu
 - Derivation: direct render-pass validation of line and circle draw paths.
 - Rationale: prove runtime rendering path works beyond compile-only checks.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: `cargo test -p signex-gfx line_circle_smoke_pass_runs_for_multiple_scales -- --nocapture` passed.
+- Verification: `cargo test -p oxide-gfx line_circle_smoke_pass_runs_for_multiple_scales -- --nocapture` passed.
 
 ## Artifacts
 

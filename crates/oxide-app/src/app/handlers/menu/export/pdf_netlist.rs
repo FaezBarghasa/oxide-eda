@@ -7,7 +7,7 @@ use oxide_output::{Exporter, NetlistExporter, NetlistOptions, PdfExporter};
 
 use super::super::super::super::*;
 
-impl Signex {
+impl Oxide {
     pub(crate) fn handle_export_pdf_open_dialog(&mut self) -> iced::Task<Message> {
         if !self.document_state.has_active_engine() {
             log::warn!("PDF export: no active schematic");

@@ -10,7 +10,7 @@ use super::*;
 #[cfg(test)]
 mod cache_refresh_tests;
 
-impl Signex {
+impl Oxide {
     /// Open a standalone primitive editor tab for the file at `path`.
     /// Fired by the Component Preview tab's right-click context menu on
     /// the Symbol / Footprint render panes. Standalone tab opens in WS-7.
@@ -19,7 +19,7 @@ impl Signex {
         path: std::path::PathBuf,
     ) -> Task<Message> {
         tracing::info!(
-            target: "signex::library",
+            target: "oxide::library",
             path = %path.display(),
             "OpenPrimitiveEditor — standalone document tab opens in WS-7"
         );
@@ -138,7 +138,7 @@ impl Signex {
                     // A deliberate release gate, not a failure — stays
                     // silent, and must not raise the error card.
                     tracing::info!(
-                        target: "signex::library",
+                        target: "oxide::library",
                         path = %path.display(),
                         "open primitive: footprint editor disabled (v0.13.0) — ignoring .snxfpt open",
                     );
@@ -308,7 +308,7 @@ impl Signex {
         }
 
         tracing::warn!(
-            target: "signex::library",
+            target: "oxide::library",
             path = %path.display(),
             "primitive editor event: no matching tab state",
         );
@@ -365,7 +365,7 @@ impl Signex {
         }
 
         tracing::warn!(
-            target: "signex::library",
+            target: "oxide::library",
             path = %path.display(),
             "primitive editor event: no matching tab state",
         );
@@ -396,7 +396,7 @@ impl Signex {
     /// surface WHY a save failed (Ctrl+S diagnostics, the Save-All-on-
     /// exit dialog) instead of silently dropping it. Historically both
     /// error legs emitted a `tracing::warn!` and returned `()`; those
-    /// events never reached `SignexLogger`, so a failed primitive save
+    /// events never reached `OxideLogger`, so a failed primitive save
     /// was invisible in both stderr and the Messages panel.
     pub(crate) fn save_primitive_tab_at(&mut self, path: &std::path::Path) -> anyhow::Result<()> {
         // Symbol path — write the full multi-symbol container back to
@@ -541,7 +541,7 @@ impl Signex {
         };
         if let Err(e) = adapter.commit_external_change(path, message) {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 path = %path.display(),
                 error = %e,
                 "save primitive: commit_external_change failed (file written; commit deferred)",

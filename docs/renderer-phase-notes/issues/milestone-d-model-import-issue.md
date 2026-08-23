@@ -1,11 +1,11 @@
-# Issue: Milestone D - `signex-model-import` Pipeline Preparation
+# Issue: Milestone D - `oxide-model-import` Pipeline Preparation
 
 Status: done
 
 ## Goal
 
 Prepare Milestone D execution boundaries, architecture contracts, and validation
-gates for the `signex-model-import` crate — the import pipeline responsible for
+gates for the `oxide-model-import` crate — the import pipeline responsible for
 converting STEP, VRML, and GLTF source models into cached GLB artifacts consumed
 by the PCB 3D runtime.
 
@@ -14,7 +14,7 @@ by the PCB 3D runtime.
 Milestone C locked the runtime GLB-only contract and documented the import
 pipeline crate boundary (Milestone C prep Task 02 and Task 03). Milestone D
 translates those contracts into implementation-ready specifications for
-`signex-model-import` as a standalone crate in the workspace.
+`oxide-model-import` as a standalone crate in the workspace.
 
 ## Scope
 
@@ -41,7 +41,7 @@ translates those contracts into implementation-ready specifications for
 - [x] Milestone D scope, assumptions, and non-goals are explicit and testable.
 - [x] Each supported source format has a documented parser contract with clean-room sources.
 - [x] GLB output normalization rules are deterministic and implementation-ready.
-- [x] Crate boundary between `signex-model-import` and `signex-renderer` remains GLB-only at runtime.
+- [x] Crate boundary between `oxide-model-import` and `oxide-renderer` remains GLB-only at runtime.
 - [x] Error model covers all failure modes across all supported source formats.
 - [x] Execution handoff includes first vertical slice, Definition of Ready, and Definition of Done.
 
@@ -59,7 +59,7 @@ Suggested filenames:
 
 ## Non-goals
 
-- No STEP/VRML parsing inside the runtime renderer (`signex-renderer`).
+- No STEP/VRML parsing inside the runtime renderer (`oxide-renderer`).
 - No GUI file-picker or import wizard in this milestone (import is triggered programmatically).
 - No online or cloud-based conversion pipeline.
 - No dependency on OCCT or any GPL-licensed geometry kernel in the crate.

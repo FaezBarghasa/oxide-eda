@@ -6,7 +6,7 @@ mod action_groups;
 mod filter_controls;
 mod placement_presets;
 
-impl Signex {
+impl Oxide {
     pub(crate) fn handle_active_bar_message(
         &mut self,
         msg: crate::active_bar::ActiveBarMsg,

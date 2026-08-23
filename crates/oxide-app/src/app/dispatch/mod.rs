@@ -13,7 +13,7 @@ mod text_edit;
 mod tool;
 mod ui;
 
-impl Signex {
+impl Oxide {
     pub(crate) fn dispatch_update(&mut self, message: Message) -> Task<Message> {
         self.apply_pcb_renderer_dirty_hint(&message);
 
@@ -186,7 +186,7 @@ impl Signex {
                         // diagnosis is worth more there than the path,
                         // which the panel itself is already showing.
                         tracing::error!(
-                            target: "signex::history",
+                            target: "oxide::history",
                             error = %error,
                             path = %path.display(),
                             "git history could not be read; Restore is unavailable"
@@ -417,7 +417,7 @@ impl Signex {
                 // raised by the OS, so it can appear *behind* the main
                 // window — the user would have to move the main window
                 // to find the dialog. Focusing here is permitted:
-                // signex owns the foreground at the moment it opens the
+                // oxide owns the foreground at the moment it opens the
                 // modal, so the OS honours the request (unlike a
                 // foreground grab from a background process).
                 Task::batch([

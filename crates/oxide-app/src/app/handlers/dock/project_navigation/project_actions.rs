@@ -6,7 +6,7 @@
 
 use super::*;
 
-impl Signex {
+impl Oxide {
     pub(crate) fn open_project_options_dialog(&mut self, tree_path: Vec<usize>) {
         let Some(&project_idx) = tree_path.first() else {
             return;

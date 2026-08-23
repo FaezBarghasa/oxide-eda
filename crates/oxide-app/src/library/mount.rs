@@ -159,7 +159,7 @@ pub fn prepare_mount(path: &Path) -> Result<PreparedMount, String> {
     // warn carries the path.
     if let Err(e) = entry.reload_tables(adapter_ref(&adapter)) {
         tracing::warn!(
-            target: "signex::library",
+            target: "oxide::library",
             path = %path.display(),
             error = %e,
             "prepare_mount: reload_tables failed; library will mount with an empty cache"

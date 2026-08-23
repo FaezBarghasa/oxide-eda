@@ -1,4 +1,4 @@
-//! Anchor-aware 2D transform for Signex geometry.
+//! Anchor-aware 2D transform for Oxide geometry.
 //!
 //! This module provides [`Transform2D`], a transform that stores the pivot/anchor
 //! point explicitly in world space — the "B-type compensated" model.

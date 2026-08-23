@@ -11,11 +11,11 @@
 
 ## Scope
 
-Define crate-level ownership boundaries for `signex-model-import` and its integration contract with runtime 3D renderer.
+Define crate-level ownership boundaries for `oxide-model-import` and its integration contract with runtime 3D renderer.
 
 ## Implementation notes
 
-- Defined `signex-model-import` as the only crate responsible for non-GLB source ingestion (`.step`, `.stp`, `.wrl`, `.gltf`, `.glb`).
+- Defined `oxide-model-import` as the only crate responsible for non-GLB source ingestion (`.step`, `.stp`, `.wrl`, `.gltf`, `.glb`).
 - Defined runtime handoff artifact as GLB-only payload plus metadata envelope.
 - Defined crate boundary split:
   - Import crate owns source parsing, normalization, and conversion pipeline.

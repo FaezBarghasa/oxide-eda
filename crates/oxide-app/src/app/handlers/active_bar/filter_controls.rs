@@ -3,7 +3,7 @@ use iced::Task;
 use super::super::super::*;
 use crate::active_bar::{CUSTOM_FILTER_PRESET_LIMIT, CustomFilterPreset, SelectionFilter};
 
-impl Signex {
+impl Oxide {
     pub(crate) fn handle_active_bar_filter_toggle(
         &mut self,
         filter: SelectionFilter,

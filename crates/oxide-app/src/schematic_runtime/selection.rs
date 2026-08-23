@@ -90,7 +90,7 @@ pub fn draw_selection_overlay(
         frame,
         &snapshot,
         &ResolvedTheme::from_canvas_colors(oxide_types::theme::canvas_colors(
-            oxide_types::theme::ThemeId::Signex,
+            oxide_types::theme::ThemeId::Oxide,
         )),
         DirtyFlags::OVERLAY,
         transform,

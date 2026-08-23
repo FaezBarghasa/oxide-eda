@@ -379,7 +379,7 @@ fn snxsch_without_junction_extras_defaults_to_user_placed() {
     let full = SnxSchematic::new(sheet).write_string().expect("serialise");
 
     // Simulate the pre-#422 writer: strip the `[extras...]` tail this
-    // writer added for the minted dot, leaving only what an older Signex
+    // writer added for the minted dot, leaving only what an older Oxide
     // would have written for the same sheet.
     let legacy = full
         .split("\n[extras")

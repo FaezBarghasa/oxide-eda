@@ -15,7 +15,7 @@ Integrate static arc inputs into schematic scene translation with selective rebu
 
 ## Implementation notes
 
-- Added `ArcInput` in `signex-renderer` schematic snapshot model.
+- Added `ArcInput` in `oxide-renderer` schematic snapshot model.
 - Added `emit_arcs` helper to map snapshot arc data into scene arc primitives.
 - Wired `DirtyFlags::ARCS` into scene rebuild logic so arc updates are isolated from line and circle updates.
 - Expanded selective rebuild unit test to include arc dirty path.
@@ -23,15 +23,15 @@ Integrate static arc inputs into schematic scene translation with selective rebu
 ## Clean-room evidence
 
 - Source: Phase 2 issue scope and existing clean-room mapping rules for schematic primitives.
-- Derivation: direct field mapping from `ArcInput` to `signex_gfx::primitive::arc::Arc`.
+- Derivation: direct field mapping from `ArcInput` to `oxide_gfx::primitive::arc::Arc`.
 - Rationale: complete the scene translator path required for arc pipeline consumption.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: `cargo test -p signex-renderer -- --nocapture` and `cargo check -p signex-gfx -p signex-renderer` passed.
+- Verification: `cargo test -p oxide-renderer -- --nocapture` and `cargo check -p oxide-gfx -p oxide-renderer` passed.
 
 ## Artifacts
 
 - PR/commit: local workspace changes, commit pending
-- Test output: signex-renderer tests passed (3 passed, 0 failed)
+- Test output: oxide-renderer tests passed (3 passed, 0 failed)
 - Screenshot/benchmark: n/a
 
 ## Exit checklist

@@ -243,7 +243,7 @@ pub struct UiState {
     /// close request that intersects `dirty_paths`. Cleared on any
     /// of the three button choices.
     pub project_close_confirm: Option<crate::app::ProjectCloseConfirmState>,
-    /// "Exit Signex — Unsaved Edits" confirmation modal. `Some` while
+    /// "Exit Oxide — Unsaved Edits" confirmation modal. `Some` while
     /// the user is being asked to save / discard / cancel an app-exit
     /// request that intersects `dirty_paths`. Cleared on any of the
     /// three button choices.
@@ -368,7 +368,7 @@ pub struct UiState {
     /// decide whether it's rendering the main shell or a secondary
     /// (detached modal / undocked tab) window.
     pub main_window_id: Option<iced::window::Id>,
-    /// Every non-main window Signex owns, keyed by its iced id. Lets
+    /// Every non-main window Oxide owns, keyed by its iced id. Lets
     /// `view(id)` dispatch between the main shell, detached modals, and
     /// (later) undocked tabs. `SecondaryWindowClosed` removes entries so
     /// the detached content reattaches to the main window.

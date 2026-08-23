@@ -4,14 +4,14 @@
 
 - Phase: 0
 - Task ID: 01
-- Task name: signex-gfx foundation modules
+- Task name: oxide-gfx foundation modules
 - Owner: renderer-team
 - Date: 2026-05-04
 - Status: done
 
 ## Scope
 
-Create the minimum foundation modules for signex-gfx: context, camera, scene, and dirty flags.
+Create the minimum foundation modules for oxide-gfx: context, camera, scene, and dirty flags.
 
 ## Implementation notes
 
@@ -25,7 +25,7 @@ Create the minimum foundation modules for signex-gfx: context, camera, scene, an
 - Derivation: direct API and data-model mapping from phase requirements.
 - Rationale: establish a compile-safe foundation before shader and scene complexity increases.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: `cargo check -p signex-gfx -p signex-renderer` and `cargo build -p signex-gfx -p signex-renderer` succeeded.
+- Verification: `cargo check -p oxide-gfx -p oxide-renderer` and `cargo build -p oxide-gfx -p oxide-renderer` succeeded.
 
 ## Artifacts
 

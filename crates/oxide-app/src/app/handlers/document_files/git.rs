@@ -4,7 +4,7 @@ use anyhow::Result;
 
 use super::super::super::*;
 
-impl Signex {
+impl Oxide {
     /// v0.22 Phase 8.4 — auto-commit a saved file into the owning
     /// project's local Git repo when `enable_git` is on.
     ///

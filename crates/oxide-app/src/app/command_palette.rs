@@ -25,7 +25,7 @@ use crate::panels::{ALL_PANELS, PanelKind};
 /// the keyboard shortcut handler to drive
 /// `iced::widget::operation::focus`.
 pub static COMMAND_PALETTE_INPUT_ID: LazyLock<Id> =
-    LazyLock::new(|| Id::new("signex.command_palette"));
+    LazyLock::new(|| Id::new("oxide.command_palette"));
 
 /// Cap on rows rendered in the dropdown. Beyond this the user sees a
 /// "More results — refine query" footer; matches VS Code's behaviour.
@@ -82,7 +82,7 @@ pub enum CommandAction {
 /// O(panels) + O(placed symbols across active project) +
 /// O(sheets across all projects). Called once per query keystroke; the
 /// catalog is filtered/scored downstream.
-pub fn build_catalog(app: &super::Signex) -> Vec<CommandEntry> {
+pub fn build_catalog(app: &super::Oxide) -> Vec<CommandEntry> {
     let mut out = Vec::with_capacity(256);
 
     // 1. Commands — straight from the registry (#366).
@@ -352,7 +352,7 @@ mod tests {
     /// and a menu of silent no-ops.
     #[test]
     fn every_palette_command_row_resolves_through_the_bridge() {
-        let (app, _task) = crate::app::Signex::new();
+        let (app, _task) = crate::app::Oxide::new();
         let dead: Vec<String> = build_catalog(&app)
             .into_iter()
             .filter_map(|entry| match entry.action {
@@ -381,7 +381,7 @@ mod tests {
     /// vacuously.
     #[test]
     fn the_palette_offers_command_rows_from_the_catalog() {
-        let (app, _task) = crate::app::Signex::new();
+        let (app, _task) = crate::app::Oxide::new();
         let commands = build_catalog(&app)
             .into_iter()
             .filter(|entry| matches!(entry.action, CommandAction::Command(_)))
@@ -397,7 +397,7 @@ mod tests {
     /// its detail text.
     #[test]
     fn a_bound_command_row_shows_its_shortcut() {
-        let (app, _task) = crate::app::Signex::new();
+        let (app, _task) = crate::app::Oxide::new();
         let undo = build_catalog(&app)
             .into_iter()
             .find(|entry| match &entry.action {

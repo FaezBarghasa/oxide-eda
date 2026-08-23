@@ -6,7 +6,7 @@ use anyhow::{Context, Result};
 
 use super::super::super::*;
 
-impl Signex {
+impl Oxide {
     pub(crate) fn handle_document_file_opened(
         &mut self,
         path: Option<PathBuf>,
@@ -214,7 +214,7 @@ impl Signex {
             crate::library::commands::auto_mount_project_libraries(&mut self.library, &data);
         if outcome.refreshed > 0 || !outcome.pending.is_empty() {
             tracing::info!(
-                target: "signex::library",
+                target: "oxide::library",
                 project = %project_path.display(),
                 refreshed = outcome.refreshed,
                 pending = outcome.pending.len(),

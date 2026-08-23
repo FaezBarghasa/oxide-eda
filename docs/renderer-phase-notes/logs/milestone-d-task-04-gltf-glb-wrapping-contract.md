@@ -23,7 +23,7 @@ glTF 2.0 exists in two forms:
 - **GLB** (binary form): a single binary container with a 12-byte header, a
   JSON chunk (type `0x4E4F534A`), and an optional binary chunk (type `0x004E4942`).
 
-The runtime (`signex-renderer`) already consumes GLB exclusively. GLTF wrapping
+The runtime (`oxide-renderer`) already consumes GLB exclusively. GLTF wrapping
 is therefore a straightforward packaging operation.
 
 ## Wrapping algorithm

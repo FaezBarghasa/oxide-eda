@@ -22,16 +22,16 @@ Add robust text rotation and alignment behavior for schematic rendering.
 
 ## Clean-room evidence
 
-- Source: renderer text policy and Signex design decisions.
+- Source: renderer text policy and Oxide design decisions.
 - Derivation: anchor-based placement transform model.
 - Rationale: improve legibility and deterministic text placement.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: `cargo test -p signex-gfx -- --nocapture`, `cargo test -p signex-renderer -- --nocapture`, `cargo check -p signex-gfx -p signex-renderer`, and `cargo build -p signex-gfx -p signex-renderer` passed.
+- Verification: `cargo test -p oxide-gfx -- --nocapture`, `cargo test -p oxide-renderer -- --nocapture`, `cargo check -p oxide-gfx -p oxide-renderer`, and `cargo build -p oxide-gfx -p oxide-renderer` passed.
 
 ## Artifacts
 
 - PR/commit: pending
-- Test output: signex-gfx tests passed (18 passed, 0 failed), signex-renderer tests passed (6 passed, 0 failed)
+- Test output: oxide-gfx tests passed (18 passed, 0 failed), oxide-renderer tests passed (6 passed, 0 failed)
 - Screenshot/benchmark: pending
 
 ## Exit checklist

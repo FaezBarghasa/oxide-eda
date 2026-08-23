@@ -1,6 +1,6 @@
 //! Pad selection, clipboard, rotate/flip, courtyard recompute, and context-menu dispatch.
 
-use oxide_app::app::{Message, Signex};
+use oxide_app::app::{Message, Oxide};
 
 use std::path::PathBuf;
 
@@ -16,7 +16,7 @@ use std::path::PathBuf;
 /// Helper — fresh standalone footprint editor with N pads parked at
 /// `path` inside `document_state.footprint_editors`. Returns the app
 /// and the path so the caller can dispatch and re-borrow.
-fn fixture_footprint_with_pads(stem: &str, count: usize) -> (Signex, PathBuf) {
+fn fixture_footprint_with_pads(stem: &str, count: usize) -> (Oxide, PathBuf) {
     use oxide_app::app::FootprintEditorState;
     use oxide_app::library::editor::footprint::state::EditorPad;
     use oxide_library::{Footprint, FootprintFile};
@@ -30,7 +30,7 @@ fn fixture_footprint_with_pads(stem: &str, count: usize) -> (Signex, PathBuf) {
             (i as f64 * 2.0, 0.0),
         ));
     }
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);

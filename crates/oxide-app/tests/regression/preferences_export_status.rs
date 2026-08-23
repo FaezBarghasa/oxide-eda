@@ -12,7 +12,7 @@
 //! tests drive the completion messages the async task now emits, which
 //! is where the reporting lives.
 
-use oxide_app::app::{Message, PreferencesMsg, Signex};
+use oxide_app::app::{Message, PreferencesMsg, Oxide};
 use oxide_app::preferences::PrefMsg;
 use std::path::PathBuf;
 
@@ -22,7 +22,7 @@ fn inner(msg: PrefMsg) -> Message {
 
 #[test]
 fn theme_export_failure_is_reported_and_names_the_cause() {
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let _ = app.update(Message::Preferences(PreferencesMsg::Open));
 
     let _ = app.update(inner(PrefMsg::ThemeExportFinished(Err(
@@ -42,7 +42,7 @@ fn theme_export_failure_is_reported_and_names_the_cause() {
 
 #[test]
 fn theme_export_success_names_the_written_path() {
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let _ = app.update(Message::Preferences(PreferencesMsg::Open));
 
     let _ = app.update(inner(PrefMsg::ThemeExportFinished(Ok(PathBuf::from(
@@ -63,7 +63,7 @@ fn theme_export_success_names_the_written_path() {
 /// would trap the user in a dialog that refuses to close.
 #[test]
 fn reporting_an_export_outcome_does_not_mark_the_dialog_dirty() {
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let _ = app.update(Message::Preferences(PreferencesMsg::Open));
     assert!(
         !app.ui_state.preferences_dirty,
@@ -83,7 +83,7 @@ fn reporting_an_export_outcome_does_not_mark_the_dialog_dirty() {
 
 #[test]
 fn keymap_export_failure_is_reported_and_names_the_cause() {
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let _ = app.update(Message::Preferences(PreferencesMsg::Open));
 
     let _ = app.update(inner(PrefMsg::KeymapExportFinished(Err(
@@ -103,7 +103,7 @@ fn keymap_export_failure_is_reported_and_names_the_cause() {
 
 #[test]
 fn keymap_export_success_names_the_written_path() {
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let _ = app.update(Message::Preferences(PreferencesMsg::Open));
 
     let _ = app.update(inner(PrefMsg::KeymapExportFinished(Ok(PathBuf::from(
@@ -124,7 +124,7 @@ fn keymap_export_success_names_the_written_path() {
 /// come back with it and describe a write that is no longer on screen.
 #[test]
 fn opening_preferences_clears_a_stale_export_status() {
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     app.ui_state.preferences_theme_status = "Exported theme to /old/path.json.".to_string();
     app.ui_state.preferences_keymap_status =
         "Could not export keyboard shortcuts: boom".to_string();

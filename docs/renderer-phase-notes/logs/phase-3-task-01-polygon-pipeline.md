@@ -26,12 +26,12 @@ Implement polygon shader and GPU pipeline upload/draw path for schematic polygon
 - Derivation: direct mapping from `GpuPolygon` inputs into triangle-list vertex uploads.
 - Rationale: provide polygon runtime path before schematic polygon emitter integration in Task 03.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: `cargo test -p signex-gfx -- --nocapture`, `cargo test -p signex-renderer -- --nocapture`, `cargo check -p signex-gfx -p signex-renderer`, and `cargo build -p signex-gfx -p signex-renderer` passed.
+- Verification: `cargo test -p oxide-gfx -- --nocapture`, `cargo test -p oxide-renderer -- --nocapture`, `cargo check -p oxide-gfx -p oxide-renderer`, and `cargo build -p oxide-gfx -p oxide-renderer` passed.
 
 ## Artifacts
 
 - PR/commit: local workspace changes, commit pending
-- Test output: signex-gfx tests passed (16 passed, 0 failed), signex-renderer tests passed (4 passed, 0 failed)
+- Test output: oxide-gfx tests passed (16 passed, 0 failed), oxide-renderer tests passed (4 passed, 0 failed)
 - Screenshot/benchmark: pending
 
 ## Exit checklist

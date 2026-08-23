@@ -8,7 +8,7 @@
 
 use super::*;
 
-impl Signex {
+impl Oxide {
     /// Resolution of the "New Component Library" save-as dialog — pops
     /// the "Library Options" modal (Git / LFS opt-in) rather than
     /// creating immediately.
@@ -98,7 +98,7 @@ impl Signex {
             })
         else {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 path = %project_root.display(),
                 "create library: no loaded project matches root"
             );
@@ -133,7 +133,7 @@ impl Signex {
             async move {
                 rfd::AsyncFileDialog::new()
                     .set_title("New Component Library")
-                    .add_filter("Signex Component Library", &["snxlib"])
+                    .add_filter("Oxide Component Library", &["snxlib"])
                     .set_directory(&project_dir)
                     .set_file_name(&suggested_filename)
                     .save_file()
@@ -177,7 +177,7 @@ impl Signex {
             .find(|p| p.path == project_path)
         else {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 path = %project_path.display(),
                 "create library: project unloaded between dialog spawn and confirm"
             );
@@ -192,7 +192,7 @@ impl Signex {
             Ok((library_id, spec)) => {
                 loaded.pending_libraries.insert(library_id, spec);
                 tracing::info!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     project = %loaded.path.display(),
                     library = %lib_path.display(),
                     library_id = %library_id,
@@ -206,7 +206,7 @@ impl Signex {
             }
             Err(e) => {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     project = %loaded.path.display(),
                     library = %lib_path.display(),
                     use_lfs,
@@ -246,7 +246,7 @@ impl Signex {
             PickerMsg::PlaceSelected => {
                 if let Some((path, summary)) = picker.selected.clone() {
                     tracing::warn!(
-                        target: "signex::library",
+                        target: "oxide::library",
                         library = %path.display(),
                         internal_pn = %summary.internal_pn.as_str(),
                         "place flow shipped in Phase 2 — picker dismissed"
@@ -283,7 +283,7 @@ impl Signex {
             Ok(s) => s,
             Err(e) => {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     path = %path.display(),
                     error = %e,
                     "AddLibrarySymbolFilePicked: serialize failed"
@@ -295,7 +295,7 @@ impl Signex {
             && let Err(e) = std::fs::create_dir_all(parent)
         {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 parent = %parent.display(),
                 error = %e,
                 "AddLibrarySymbolFilePicked: create symbols dir failed"
@@ -304,7 +304,7 @@ impl Signex {
         }
         if let Err(e) = oxide_types::atomic_io::atomic_write(&path, text.as_bytes()) {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 path = %path.display(),
                 error = %e,
                 "AddLibrarySymbolFilePicked: write .snxsym failed"
@@ -336,7 +336,7 @@ impl Signex {
             Ok(s) => s,
             Err(e) => {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     path = %path.display(),
                     error = %e,
                     "AddLibraryFootprintFilePicked: serialize failed"
@@ -348,7 +348,7 @@ impl Signex {
             && let Err(e) = std::fs::create_dir_all(parent)
         {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 parent = %parent.display(),
                 error = %e,
                 "AddLibraryFootprintFilePicked: create footprints dir failed"
@@ -357,7 +357,7 @@ impl Signex {
         }
         if let Err(e) = oxide_types::atomic_io::atomic_write(&path, text.as_bytes()) {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 path = %path.display(),
                 error = %e,
                 "AddLibraryFootprintFilePicked: write .snxfpt failed"
@@ -394,7 +394,7 @@ impl Signex {
             });
         let Some(idx) = target_idx else {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 path = %path.display(),
                 "register_standalone_library: no project to attach to"
             );

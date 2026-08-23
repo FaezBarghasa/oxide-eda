@@ -1,6 +1,6 @@
 //! Sketch-tool gestures and live numeric placement input (typed distance/angle, Tab-cycling, Escape).
 
-use oxide_app::app::{Message, Signex};
+use oxide_app::app::{Message, Oxide};
 
 use std::fs;
 use std::path::PathBuf;
@@ -9,7 +9,7 @@ use tempfile::TempDir;
 // ─────────────────────────────────────────────────────────────────
 // v0.24 Track C — Tangent Arc sketch sub-tool
 //
-// Drives the dispatcher via Signex::update(Message::Library(...))
+// Drives the dispatcher via Oxide::update(Message::Library(...))
 // against a FootprintEditorState parked in document_state.footprint
 // _editors so the dispatcher's existing routing keeps the test
 // realistic. Tool-based gesture only — never a click-and-drag mode
@@ -41,7 +41,7 @@ fn tangent_arc_tool_first_click_sets_pending() {
     let mut editor = FootprintEditorState::new(path.clone(), file);
     editor.state.active_tool = SketchTool::TangentArc;
 
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
@@ -140,7 +140,7 @@ fn tangent_arc_tool_second_click_mints_arc_and_tangent_constraint() {
     // first = B (the Line's end). The next click is click 2.
     editor.state.tool_pending = ToolPending::TangentArcFirst { first: b_id };
 
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
@@ -250,10 +250,10 @@ fn placement_input_line_length_pins_second_click_at_exact_distance() {
     let path = tmp.path().join("track-d.snxfpt");
     fs::write(&path, b"{}").expect("write .snxfpt placeholder");
 
-    // Empty `Signex` + a fresh footprint editor state pre-populated in
+    // Empty `Oxide` + a fresh footprint editor state pre-populated in
     // `document_state.footprint_editors` so the dispatcher's
     // path-keyed lookup resolves.
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     let fp = Footprint::empty("track-d-fixture");
     let file = FootprintFile::from_footprint(fp);
     let mut editor = FootprintEditorState::new(path.clone(), file);
@@ -374,7 +374,7 @@ fn placement_input_clears_after_commit() {
     let path = tmp.path().join("track-d-clear.snxfpt");
     fs::write(&path, b"{}").expect("write .snxfpt placeholder");
 
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     let fp = Footprint::empty("track-d-fixture");
     let file = FootprintFile::from_footprint(fp);
     let mut editor = FootprintEditorState::new(path.clone(), file);
@@ -448,7 +448,7 @@ fn placement_input_char_append_validates_decimal_point() {
     let path = tmp.path().join("track-d-buffer.snxfpt");
     fs::write(&path, b"{}").expect("write .snxfpt placeholder");
 
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     let fp = Footprint::empty("track-d-fixture");
     let file = FootprintFile::from_footprint(fp);
     let mut editor = FootprintEditorState::new(path.clone(), file);
@@ -511,7 +511,7 @@ fn placement_input_escape_clears_buffer() {
     let path = tmp.path().join("track-d-escape.snxfpt");
     fs::write(&path, b"{}").expect("write .snxfpt placeholder");
 
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     let fp = Footprint::empty("track-d-fixture");
     let file = FootprintFile::from_footprint(fp);
     let mut editor = FootprintEditorState::new(path.clone(), file);
@@ -599,7 +599,7 @@ fn v025_offset_placement_input_pins_typed_distance_over_cursor() {
         buffer: "2".into(),
         kind: PlacementInputKind::OffsetDistance,
     });
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
@@ -712,7 +712,7 @@ fn v027_sketch_line_drag_resizes_rect_pad_bbox() {
     let mut editor = FootprintEditorState::new(path.clone(), file);
     editor.state.pads = vec![pad];
     editor.state.selected_pad = Some(0);
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
@@ -787,7 +787,7 @@ fn placement_paused_suppresses_rounded_rect_commit_click() {
     let tmp = TempDir::new().expect("tempdir");
     let path = tmp.path().join("pause-rrect.snxfpt");
     fs::write(&path, b"{}").expect("write .snxfpt placeholder");
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     let fp = Footprint::empty("pause-rrect-fixture");
     let file = FootprintFile::from_footprint(fp);
     let mut editor = FootprintEditorState::new(path.clone(), file);
@@ -894,7 +894,7 @@ fn placement_input_tab_swaps_line_length_and_angle() {
     let tmp = TempDir::new().expect("tempdir");
     let path = tmp.path().join("line-tab.snxfpt");
     fs::write(&path, b"{}").expect("write .snxfpt placeholder");
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     let fp = Footprint::empty("line-tab-fixture");
     let file = FootprintFile::from_footprint(fp);
     let mut editor = FootprintEditorState::new(path.clone(), file);
@@ -1011,7 +1011,7 @@ fn placement_input_line_length_and_angle_commit_at_polar_offset() {
     let tmp = TempDir::new().expect("tempdir");
     let path = tmp.path().join("line-polar.snxfpt");
     fs::write(&path, b"{}").expect("write .snxfpt placeholder");
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     let fp = Footprint::empty("line-polar-fixture");
     let file = FootprintFile::from_footprint(fp);
     let mut editor = FootprintEditorState::new(path.clone(), file);
@@ -1107,7 +1107,7 @@ fn placement_input_circle_radius_pins_typed_radius() {
     let tmp = TempDir::new().expect("tempdir");
     let path = tmp.path().join("circle-r.snxfpt");
     fs::write(&path, b"{}").expect("write .snxfpt placeholder");
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     let fp = Footprint::empty("circle-r-fixture");
     let file = FootprintFile::from_footprint(fp);
     let mut editor = FootprintEditorState::new(path.clone(), file);
@@ -1175,7 +1175,7 @@ fn placement_input_rectangle_commits_typed_width_height() {
     let tmp = TempDir::new().expect("tempdir");
     let path = tmp.path().join("rect-wh.snxfpt");
     fs::write(&path, b"{}").expect("write .snxfpt placeholder");
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     let fp = Footprint::empty("rect-wh-fixture");
     let file = FootprintFile::from_footprint(fp);
     let mut editor = FootprintEditorState::new(path.clone(), file);
@@ -1255,7 +1255,7 @@ fn placement_input_tab_cycles_rounded_rect_three_fields() {
     let tmp = TempDir::new().expect("tempdir");
     let path = tmp.path().join("rrect-tab.snxfpt");
     fs::write(&path, b"{}").expect("write .snxfpt placeholder");
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     let fp = Footprint::empty("rrect-tab-fixture");
     let file = FootprintFile::from_footprint(fp);
     let mut editor = FootprintEditorState::new(path.clone(), file);
@@ -1290,13 +1290,13 @@ fn placement_input_tab_cycles_rounded_rect_three_fields() {
         });
         editor.state.placement_input_others.clear();
     }
-    let tab = |app: &mut Signex| {
+    let tab = |app: &mut Oxide| {
         let _ = app.update(Message::Library(LibraryMessage::PrimitiveEditorEvent {
             path: path.clone(),
             msg: PrimitiveEdit::Footprint(FootprintEditorMsg::SketchPlacementInputTab),
         }));
     };
-    let focused_kind = |app: &Signex| {
+    let focused_kind = |app: &Oxide| {
         app.document_state.footprint_editors[&path]
             .state
             .placement_input
@@ -1350,7 +1350,7 @@ fn placement_input_rounded_rect_commits_typed_size_and_radius() {
     let tmp = TempDir::new().expect("tempdir");
     let path = tmp.path().join("rrect-commit.snxfpt");
     fs::write(&path, b"{}").expect("write .snxfpt placeholder");
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     let fp = Footprint::empty("rrect-commit-fixture");
     let file = FootprintFile::from_footprint(fp);
     let mut editor = FootprintEditorState::new(path.clone(), file);
@@ -1468,7 +1468,7 @@ fn issue_180_sketch_placement_tab_advances_placement_input_kind() {
     let tmp = TempDir::new().expect("tempdir");
     let path = tmp.path().join("issue-180-tab.snxfpt");
     fs::write(&path, b"{}").expect("write .snxfpt placeholder");
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     let fp = Footprint::empty("issue-180-fixture");
     let file = FootprintFile::from_footprint(fp);
     let mut editor = FootprintEditorState::new(path.clone(), file);

@@ -20,7 +20,7 @@ pub fn view<'a>(tokens: &'a ThemeTokens) -> Element<'a, Message> {
 
     let header = container(
         row![
-            text("Welcome to Signex").size(13).color(text_primary),
+            text("Welcome to Oxide").size(13).color(text_primary),
             Space::new().width(Length::Fill),
             button(text("✕").size(11).color(text_secondary))
                 .on_press(Message::Overlay(OverlayMsg::DismissFirstRunTour))

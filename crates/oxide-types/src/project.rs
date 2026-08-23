@@ -109,7 +109,7 @@ pub struct ProjectData {
     /// auto-mounts every entry; the project tree renders each as a
     /// `Libraries ▸ <name>.snxlib` node. `#[serde(default)]` so old
     /// `.snxprj` files (and `.standard_pro` files which know nothing
-    /// about Signex libraries) load with an empty list.
+    /// about Oxide libraries) load with an empty list.
     #[serde(default)]
     pub libraries: Vec<LibraryEntry>,
     /// v0.22 — opt-in local Git versioning for this project's design
@@ -277,13 +277,13 @@ mod tests {
             enable_git: false,
         };
         let shared = LibraryEntry {
-            path: PathBuf::from("/var/signex/Power.snxlib"),
+            path: PathBuf::from("/var/oxide/Power.snxlib"),
             kind: LibraryEntryKind::Shared,
             library_id: None,
         };
         assert_eq!(
             project.resolve_library_path(&shared),
-            PathBuf::from("/var/signex/Power.snxlib")
+            PathBuf::from("/var/oxide/Power.snxlib")
         );
     }
 }
@@ -303,7 +303,7 @@ pub enum ProjectError {
         source: std::io::Error,
     },
     #[error(
-        "unsupported project file extension: .{0} (Signex Community only opens .snxprj; convert Standard projects with the oxide-standard-import companion)"
+        "unsupported project file extension: .{0} (Oxide Community only opens .snxprj; convert Standard projects with the oxide-standard-import companion)"
     )]
     UnsupportedExtension(String),
     #[error(
@@ -324,7 +324,7 @@ pub enum ProjectError {
 ///    (probe for `<name>.snxsch` / `<name>.snxpcb`). We keep that
 ///    fallback so existing projects keep loading.
 ///
-/// Standard project files (`.standard_pro`) are not supported in Signex
+/// Standard project files (`.standard_pro`) are not supported in Oxide
 /// Community. Users running Standard projects use the optional
 /// `oxide-standard-import` GPL-3.0 companion tool to convert their files
 /// first.

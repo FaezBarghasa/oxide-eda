@@ -29,9 +29,9 @@ Define measurable validation for memory gate readiness before PCB runtime implem
   - Eviction rate per second.
   - Frame time percentiles (p50, p95, p99).
 - Defined planned command set placeholder for execution sprint:
-  - cargo test -p signex-renderer pcb_memory_gate -- --nocapture
-  - cargo test -p signex-renderer pcb_large_board_stress -- --nocapture
-  - cargo bench -p signex-renderer pcb_streaming
+  - cargo test -p oxide-renderer pcb_memory_gate -- --nocapture
+  - cargo test -p oxide-renderer pcb_large_board_stress -- --nocapture
+  - cargo bench -p oxide-renderer pcb_streaming
 
 ## Clean-room evidence
 

@@ -2,7 +2,7 @@
 
 # Branching & merge policy
 
-The PR preconditions for `signex`: which branch work targets, which
+The PR preconditions for `oxide`: which branch work targets, which
 checks gate a merge, how branches are merged, and the server-side
 branch-protection settings that enforce it. Mirrors the org policy used
 across Alp Lab repos (see `alp-sdk`'s equivalent doc), adapted to this
@@ -59,7 +59,7 @@ as status-check contexts):
 - `no discarded tasks` — no `let _ = …`-shaped discard of an `iced::Task`.
 - `lint lockstep` — every `[workspace.lints.*]` entry is present, at the same
   level, in each member that does not inherit with `[lints] workspace = true`.
-  Only `signex-app` opts out today, and cargo forbids it from inheriting while
+  Only `oxide-app` opts out today, and cargo forbids it from inheriting while
   it keeps its own per-lint override (#570).
 
 **Clippy is half a gate, by design.** It has no status-check context of its

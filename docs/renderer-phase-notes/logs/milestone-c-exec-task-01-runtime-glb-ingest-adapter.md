@@ -15,7 +15,7 @@ Implement first execution vertical slice for Milestone C by adding runtime GLB i
 
 ## Implementation notes
 
-- Added new module `crates/signex-renderer/src/pcb3d.rs` with runtime ingestion contract types:
+- Added new module `crates/oxide-renderer/src/pcb3d.rs` with runtime ingestion contract types:
   - `RuntimeGlbIngestRequest`
   - `GlbSource` (file path or in-memory bytes)
   - `ModelTransform`
@@ -32,7 +32,7 @@ Implement first execution vertical slice for Milestone C by adding runtime GLB i
   - JSON chunk presence and JSON parse validation.
   - `asset.version` 2.x enforcement.
   - Scene graph/node presence and mesh-count sanity validation.
-- Exported runtime module through `signex-renderer` crate root.
+- Exported runtime module through `oxide-renderer` crate root.
 
 ## Clean-room evidence
 
@@ -46,7 +46,7 @@ Implement first execution vertical slice for Milestone C by adding runtime GLB i
 
 - PR/commit: pending
 - Test output:
-  - `cargo test -p signex-renderer pcb3d_runtime_glb_ingest -- --nocapture`
+  - `cargo test -p oxide-renderer pcb3d_runtime_glb_ingest -- --nocapture`
 - Screenshot/benchmark: n/a
 
 ## Exit checklist

@@ -4,7 +4,7 @@
 //! - typed pad list,
 //! - courtyard polygon,
 //! - silk / fab graphics for both copper sides,
-//! - an embedded [`Body3D`] (drives Signex's procedural 3D render),
+//! - an embedded [`Body3D`] (drives Oxide's procedural 3D render),
 //! - an optional [`StepAttachment`] (mech-CAD STEP file, content-hashed).
 //!
 //! Two MPNs sharing a SOIC-8 footprint reference the same `Footprint` UUID

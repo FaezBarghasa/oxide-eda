@@ -11,7 +11,7 @@ name = "oxide_app"
 path = "src/lib.rs"
 
 [[bin]]
-name = "signex"
+name = "oxide"
 path = "src/main.rs"
 
 [dependencies]
@@ -84,7 +84,7 @@ tempfile = "3"
 # (a crate depending on itself as a dev-dependency to get test-only cfg
 # gating in code paths that regular `cargo build`/`cargo run` never see).
 # The workspace's `resolver = "2"` keeps this feature from leaking into
-# non-test builds of the `signex` binary. See issue #437, hoisted to
+# non-test builds of the `oxide` binary. See issue #437, hoisted to
 # cover all four resolvers in #440.
 test-prefs-redirect = []
 

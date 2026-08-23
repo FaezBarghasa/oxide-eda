@@ -139,7 +139,7 @@ pub(super) fn reject_tool_dimension(
     use crate::library::editor::footprint::state::ToolPending;
 
     tracing::error!(
-        target: "signex::sketch_tools",
+        target: "oxide::sketch_tools",
         tool = tool,
         field = field,
         buffer = buffer,

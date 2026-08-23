@@ -1,7 +1,7 @@
 use super::super::super::*;
 use crate::dock::DockMessage;
 
-impl Signex {
+impl Oxide {
     pub(crate) fn handle_layout_drag_started(&mut self, target: DragTarget) {
         crate::diagnostics::log_debug(format!("[drag] START {target:?}"));
         self.interaction_state.dragging = Some(target);

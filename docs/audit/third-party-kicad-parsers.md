@@ -2,7 +2,7 @@
 
 Per `.claude/PRPs/issue-62-execution-plan.md` §0.4, before committing
 to a hand-rolled `kicad-parser`/`kicad-writer` in the
-`signex-kicad-import` companion repo, we search crates.io for a
+`oxide-kicad-import` companion repo, we search crates.io for a
 maintained MIT/Apache-licensed Rust KiCad parser that could simplify
 the companion tool — or, if it cleanly covers all three formats,
 allow consolidation back to a single Apache repo.
@@ -32,8 +32,8 @@ we keep the two-repo split for the following reasons:
 
 ### 1. Structural-derivation residual risk
 
-Even if Signex depended on a third-party MIT parser, the **translation
-logic** between that parser's KiCad-shaped data model and Signex's
+Even if Oxide depended on a third-party MIT parser, the **translation
+logic** between that parser's KiCad-shaped data model and Oxide's
 native types would still encode KiCad's file-format structure inside
 the Apache main repo. Seth's audit was about KiCad-derived **structure**,
 not just verbatim copying — replacing our hand-rolled parser with someone
@@ -79,7 +79,7 @@ The decision can be revisited if:
   surface).
 
 Until then: hand-rolled `kicad-parser` + `kicad-writer` move to
-`signex-kicad-import` (GPL-3.0-or-later) per Phase 4.
+`oxide-kicad-import` (GPL-3.0-or-later) per Phase 4.
 
 ## Reproducing the search
 

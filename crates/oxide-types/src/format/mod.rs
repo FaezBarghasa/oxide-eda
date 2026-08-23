@@ -1,4 +1,4 @@
-//! Signex native file formats — `.snxsch` (schematic) and `.snxpcb` (PCB).
+//! Oxide native file formats — `.snxsch` (schematic) and `.snxpcb` (PCB).
 //!
 //! Wire format: TOML envelope + TSV bulk-block pattern (matches
 //! `.snxlib` / `.snxsym` / `.snxfpt` from the v0.9 library refactor).
@@ -13,7 +13,7 @@
 //! `.snxprj` (project) is unchanged and uses its own pre-existing
 //! format. Stays as-is.
 //!
-//! These types are the canonical Signex schema. Standard I/O — when it
+//! These types are the canonical Oxide schema. Standard I/O — when it
 //! returns via the `oxide-standard-import` companion repo (GPL-3.0) —
 //! translates to/from these types at the file-format boundary; no
 //! Standard-shaped types live in this Apache codebase.
@@ -62,7 +62,7 @@ use tsv::write_tsv_section;
 // ---------------------------------------------------------------------------
 
 /// Current `.snxsch` format version. Bumping this is a wire-format
-/// break: older Signex versions refuse to open the file.
+/// break: older Oxide versions refuse to open the file.
 pub const SNXSCH_FORMAT_V1: &str = "snxsch/1";
 
 /// Current `.snxpcb` format version.

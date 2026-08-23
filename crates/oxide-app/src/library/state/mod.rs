@@ -1,6 +1,6 @@
 //! In-memory state for the Library subsystem (DBLib model).
 //!
-//! Owned by [`crate::app::Signex::library`]. In the v0.9-refactor-2
+//! Owned by [`crate::app::Oxide::library`]. In the v0.9-refactor-2
 //! model, components are rows inside per-category TSV tables under
 //! `<lib>/tables/<category>.tsv`, addressed by
 //! `(library_path, table, row_id)`. The main pieces:
@@ -386,7 +386,7 @@ pub enum PrimitivePickerTarget {
 }
 
 /// Top-level Library subsystem state. Stored on
-/// [`crate::app::Signex`] as a single field so the dispatcher can
+/// [`crate::app::Oxide`] as a single field so the dispatcher can
 /// borrow it independently of the rest of `DocumentState`.
 pub struct LibraryState {
     /// Cross-library resolver — maps `library_id → adapter`. New in
@@ -463,8 +463,8 @@ pub struct LibraryState {
     /// close; the user can promote an entry to Global to make it
     /// stick.
     pub installed_libraries: Vec<PathBuf>,
-    /// Signex-wide "Global" libraries — persisted to
-    /// `<config_dir>/signex/global_libraries.toml` and re-mounted on
+    /// Oxide-wide "Global" libraries — persisted to
+    /// `<config_dir>/oxide/global_libraries.toml` and re-mounted on
     /// every app start (Stage 9 mount-source 3). The on-disk schema
     /// lives in `panels::components_panel::global_prefs`.
     pub global_libraries: Vec<crate::panels::components_panel::global_prefs::GlobalLibraryEntry>,
@@ -509,7 +509,7 @@ pub enum ComponentsMountSource {
     /// "+ Add Library…" button. Wiped on app close.
     Installed,
     /// Persisted across app launches via
-    /// `<config_dir>/signex/global_libraries.toml`.
+    /// `<config_dir>/oxide/global_libraries.toml`.
     Global,
 }
 

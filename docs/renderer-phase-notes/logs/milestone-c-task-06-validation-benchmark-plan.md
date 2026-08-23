@@ -20,11 +20,11 @@ Define measurable validation and benchmark plan for Milestone C implementation s
   - Medium: mixed board with connector-heavy model set and varied transforms.
   - Large: dense board with high model count and layered projected textures.
 - Regression command set documented (planned for execution sprint):
-  - `cargo test -p signex-renderer pcb3d_import_contract -- --nocapture`
-  - `cargo test -p signex-renderer pcb3d_runtime_glb_ingest -- --nocapture`
-  - `cargo test -p signex-renderer pcb3d_projection_parity -- --nocapture`
-  - `cargo bench -p signex-renderer pcb3d_camera_orbit`
-  - `cargo bench -p signex-renderer pcb3d_large_board_streaming`
+  - `cargo test -p oxide-renderer pcb3d_import_contract -- --nocapture`
+  - `cargo test -p oxide-renderer pcb3d_runtime_glb_ingest -- --nocapture`
+  - `cargo test -p oxide-renderer pcb3d_projection_parity -- --nocapture`
+  - `cargo bench -p oxide-renderer pcb3d_camera_orbit`
+  - `cargo bench -p oxide-renderer pcb3d_large_board_streaming`
 - Pass/fail thresholds documented:
   - No runtime source-format parse attempts in GLB ingest tests.
   - Cache hit ratio remains stable for unchanged key tuples.

@@ -6,7 +6,7 @@ Branch: feature/v0.12-cleanroom-rewrite
 ## Scope
 
 Implement the projection texture pass integration and alignment checks for the
-PCB 3D runtime (`signex-renderer/src/pcb3d.rs`), establishing the ordering
+PCB 3D runtime (`oxide-renderer/src/pcb3d.rs`), establishing the ordering
 boundary between the opaque pass (`scene.polygons`) and the projection overlay
 pass (`scene.overlay_polygons`).
 
@@ -51,7 +51,7 @@ This separation is enforced at the API level; callers invoke
 
 ## Full suite result
 
-`cargo test -p signex-renderer`: 41 tests, 0 failed.
+`cargo test -p oxide-renderer`: 41 tests, 0 failed.
 
 ## Checklist / issue updates
 

@@ -6,7 +6,7 @@
 
 use super::*;
 
-impl Signex {
+impl Oxide {
     pub(super) fn open_rename_dialog(&mut self, tree_path: Vec<usize>) {
         let Some(target_path) = self.tree_path_to_file_path(&tree_path) else {
             return;

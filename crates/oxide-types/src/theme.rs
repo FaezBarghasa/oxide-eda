@@ -1,8 +1,8 @@
-//! Built-in themes for the Signex EDA application.
+//! Built-in themes for the Oxide EDA application.
 //!
 //! # The one central theme source
 //!
-//! This module is the **single source of truth** for every colour in Signex.
+//! This module is the **single source of truth** for every colour in Oxide.
 //! [`ThemeId`] selects a theme; [`ThemeTokens`] holds the UI-chrome palette
 //! (backgrounds, text, accent, panels, status colours) and [`CanvasColors`]
 //! holds the drawing palette (wire, junction, body, pad, silk, …). Nothing
@@ -66,8 +66,8 @@ impl Color {
 pub enum ThemeId {
     CatppuccinMocha,
     VsCodeDark,
-    Signex,
-    /// Alp Lab brand theme — clones the Signex chrome palette and swaps
+    Oxide,
+    /// Alp Lab brand theme — clones the Oxide chrome palette and swaps
     /// the accent (and any visually-linked iconography) to cyan
     /// `#0891b2`. Used for co-branded or white-labelled builds.
     Alplab,
@@ -81,7 +81,7 @@ pub enum ThemeId {
 impl ThemeId {
     /// All built-in themes (excludes Custom).
     pub const BUILTINS: &[ThemeId] = &[
-        ThemeId::Signex,
+        ThemeId::Oxide,
         ThemeId::Alplab,
         ThemeId::VsCodeDark,
         ThemeId::CatppuccinMocha,
@@ -97,7 +97,7 @@ impl ThemeId {
         match self {
             ThemeId::CatppuccinMocha => "Catppuccin Mocha",
             ThemeId::VsCodeDark => "VS Code Dark",
-            ThemeId::Signex => "Signex",
+            ThemeId::Oxide => "Oxide",
             ThemeId::Alplab => "Alp Lab",
             ThemeId::GitHubDark => "GitHub Dark",
             ThemeId::SolarizedLight => "Solarized Light",
@@ -259,7 +259,7 @@ const VSCODE_DARK_CANVAS: CanvasColors = CanvasColors {
     cursor: c(0xFF, 0xFF, 0xFF),
 };
 
-// ===== Signex =====
+// ===== Oxide =====
 
 const OXIDE_TOKENS: ThemeTokens = ThemeTokens {
     bg: c(0x2D, 0x2D, 0x30),
@@ -304,7 +304,7 @@ const OXIDE_CANVAS: CanvasColors = CanvasColors {
 
 // ===== Alp Lab =====
 //
-// Clone of the Signex chrome tokens with the accent swapped to the Alp
+// Clone of the Oxide chrome tokens with the accent swapped to the Alp
 // Lab brand cyan. The icon tree in `assets/icons/alplab/` pre-tints the
 // SVG fills to this same cyan; keeping the accent aligned so dropdown
 // chevrons, focus rings and button highlights read as one palette.
@@ -456,7 +456,7 @@ pub fn theme_tokens(id: ThemeId) -> ThemeTokens {
     match id {
         ThemeId::CatppuccinMocha => CATPPUCCIN_MOCHA_TOKENS,
         ThemeId::VsCodeDark => VSCODE_DARK_TOKENS,
-        ThemeId::Signex => OXIDE_TOKENS,
+        ThemeId::Oxide => OXIDE_TOKENS,
         ThemeId::Alplab => ALPLAB_TOKENS,
         ThemeId::GitHubDark => GITHUB_DARK_TOKENS,
         ThemeId::SolarizedLight => SOLARIZED_LIGHT_TOKENS,
@@ -469,7 +469,7 @@ pub fn canvas_colors(id: ThemeId) -> CanvasColors {
     match id {
         ThemeId::CatppuccinMocha => CATPPUCCIN_MOCHA_CANVAS,
         ThemeId::VsCodeDark => VSCODE_DARK_CANVAS,
-        ThemeId::Signex => OXIDE_CANVAS,
+        ThemeId::Oxide => OXIDE_CANVAS,
         // Alp Lab reuses the Altium-style cream schematic palette; only
         // the chrome accent differs.
         ThemeId::Alplab => OXIDE_CANVAS,

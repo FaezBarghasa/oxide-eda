@@ -163,7 +163,7 @@ pub(super) fn write_lfs_attributes(root_dir: &Path) -> Result<(), LibraryError> 
     let path = root_dir.join(GITATTRIBUTES_FILE);
     let mut text = String::new();
     text.push_str(
-        "# Git LFS attributes for Signex 3D model binaries.\n\
+        "# Git LFS attributes for Oxide 3D model binaries.\n\
          # Written at library-create time when LFS opt-in was selected.\n",
     );
     for ext in LFS_EXTENSIONS {
@@ -245,7 +245,7 @@ pub(super) fn classes_or_report(
         Err(poisoned) => {
             let recovered = poisoned.into_inner();
             tracing::error!(
-                target: "signex::library",
+                target: "oxide::library",
                 path = %file_path.display(),
                 classes = recovered.manifest.classes.len(),
                 "component-class registry lock is poisoned — a writer panicked mid-update; the registry was read through, but this library's in-memory state should be considered suspect until it is reopened"
@@ -260,11 +260,11 @@ pub(super) fn identity_for_repo(repo: &git2::Repository) -> (String, String) {
     let name = cfg
         .as_ref()
         .and_then(|c| c.get_string("user.name").ok())
-        .unwrap_or_else(|| "Signex Library".to_string());
+        .unwrap_or_else(|| "Oxide Library".to_string());
     let email = cfg
         .as_ref()
         .and_then(|c| c.get_string("user.email").ok())
-        .unwrap_or_else(|| "library@signex.local".to_string());
+        .unwrap_or_else(|| "library@oxide.local".to_string());
     (name, email)
 }
 

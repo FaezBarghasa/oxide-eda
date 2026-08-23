@@ -1,4 +1,4 @@
-//! QA harness — exercise every v0.8 exporter against a real Signex
+//! QA harness — exercise every v0.8 exporter against a real Oxide
 //! project and report sizes / sheet counts / validation issues.
 //!
 //! Usage: `cargo run --example qa_harness -p oxide-output -- <project.snxprj> [out_dir]`
@@ -29,13 +29,13 @@ fn main() {
     };
     let out_dir = PathBuf::from(args.next().unwrap_or_else(|| {
         std::env::temp_dir()
-            .join("signex_qa")
+            .join("oxide_qa")
             .to_string_lossy()
             .into_owned()
     }));
     std::fs::create_dir_all(&out_dir).expect("create out dir");
 
-    println!("== Signex v0.8 QA harness ==");
+    println!("== Oxide v0.8 QA harness ==");
     println!("project: {}", project_path.display());
     println!("out_dir: {}", out_dir.display());
 

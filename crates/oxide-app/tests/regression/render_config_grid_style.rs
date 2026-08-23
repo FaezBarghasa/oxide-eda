@@ -15,7 +15,7 @@
 //! prefs path guarded by another module's `Mutex`, and the regression
 //! tests are one binary with no lock shared across modules.
 
-use oxide_app::app::{Message, PreferencesMsg, Signex, UiMsg};
+use oxide_app::app::{Message, PreferencesMsg, Oxide, UiMsg};
 use oxide_app::preferences::PrefMsg;
 use oxide_app::render_config::GridStyle;
 
@@ -43,7 +43,7 @@ fn other_grid_style(current: GridStyle) -> GridStyle {
 #[test]
 fn boot_seeds_the_grid_style_render_input_from_the_saved_pref() {
     // Arrange / Act
-    let (app, _t) = Signex::new();
+    let (app, _t) = Oxide::new();
 
     // Assert
     assert_eq!(
@@ -61,7 +61,7 @@ fn boot_seeds_the_grid_style_render_input_from_the_saved_pref() {
 #[test]
 fn drafting_the_grid_style_previews_on_the_canvas_without_committing() {
     // Arrange
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let _ = app.update(Message::Preferences(PreferencesMsg::Open));
     let committed = app.ui_state.grid_style;
     let wanted = other_grid_style(committed);
@@ -91,7 +91,7 @@ fn drafting_the_grid_style_previews_on_the_canvas_without_committing() {
 #[test]
 fn discarding_puts_the_canvas_grid_style_back() {
     // Arrange
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let _ = app.update(Message::Preferences(PreferencesMsg::Open));
     let committed = app.ui_state.grid_style;
     let _ = app.update(inner(PrefMsg::DraftGridStyle(other_grid_style(committed))));
@@ -119,7 +119,7 @@ fn discarding_puts_the_canvas_grid_style_back() {
 #[test]
 fn no_per_window_copy_of_the_grid_style_exists() {
     // Arrange
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let undocked_id = iced::window::Id::unique();
     app.interaction_state
         .canvases
@@ -153,7 +153,7 @@ fn no_per_window_copy_of_the_grid_style_exists() {
 #[test]
 fn a_panel_ctx_rebuild_keeps_the_symbol_grid_preview() {
     // Arrange
-    let (mut app, _t) = Signex::new();
+    let (mut app, _t) = Oxide::new();
     let _ = app.update(Message::Preferences(PreferencesMsg::Open));
     let wanted = other_grid_style(app.ui_state.symbol_grid_style);
     let _ = app.update(inner(PrefMsg::DraftSymbolGridStyle(wanted)));

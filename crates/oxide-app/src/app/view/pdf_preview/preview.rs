@@ -1,10 +1,10 @@
 //! PDF preview tab (toolbar, thumbnail rail, pan/zoom viewport) — a
-//! method of the shared `Signex` view impl, split from
+//! method of the shared `Oxide` view impl, split from
 //! `view/pdf_preview.rs` as pure code motion.
 
 use super::super::*;
 
-impl Signex {
+impl Oxide {
     /// Preview tab — top toolbar (Sheet/Colour/Pages/Output), thumb
     /// rail on the left, pan/zoom viewport on the right.
     pub(in crate::app::view) fn view_pdf_preview_tab(

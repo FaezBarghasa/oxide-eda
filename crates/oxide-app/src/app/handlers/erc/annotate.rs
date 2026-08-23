@@ -4,7 +4,7 @@ use iced::Task;
 
 use super::super::super::*;
 
-impl Signex {
+impl Oxide {
     pub(crate) fn handle_annotate(&mut self, mode: oxide_engine::AnnotateMode) -> Task<Message> {
         // Share one per-prefix counter across every open sheet so designators
         // don't collide across sheets of the same project.
@@ -350,7 +350,7 @@ impl Signex {
             }
         }
         // Unopened sheets — mutate the already-parsed copy and write
-        // back. NOTE: direct save, not undoable from within Signex;
+        // back. NOTE: direct save, not undoable from within Oxide;
         // the user would need to re-open the sheet and Ctrl+Z manually.
         for (path, mut sheet) in unopened {
             if !reset_in(&mut sheet, &duplicates) {

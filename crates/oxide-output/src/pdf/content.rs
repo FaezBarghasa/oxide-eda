@@ -208,7 +208,7 @@ pub(super) fn build_page_content(
             sheet_name: sheet.sheet_name.clone(),
             sheet_number: sheet.sheet_number,
             sheet_count: sheet.sheet_count,
-            signex_version: env!("CARGO_PKG_VERSION"),
+            oxide_version: env!("CARGO_PKG_VERSION"),
             variant: opts.variant.clone(),
             physical_structure: opts.use_physical_structure,
             physical_sheet_number: opts.physical_sheet_number,
@@ -282,7 +282,7 @@ struct PdfTextRun {
 
 fn pdf_markup_runs(input: &str) -> Vec<PdfTextRun> {
     let expanded = normalize_standard_text(input);
-    let segments = parse_signex_markup(&expanded);
+    let segments = parse_oxide_markup(&expanded);
     if segments.is_empty() {
         return vec![PdfTextRun {
             text: expanded,

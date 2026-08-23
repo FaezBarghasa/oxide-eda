@@ -3,7 +3,7 @@
 //! Design
 //! ------
 //! There is **one canonical SVG tree** at `assets/icons/…`. Every accent
-//! path in those SVGs uses the Signex brand amber `#f59e0b` as a
+//! path in those SVGs uses the Oxide brand amber `#f59e0b` as a
 //! sentinel colour. At fetch time the sentinel is string-replaced with
 //! the current theme's accent hex and the resulting bytes are handed to
 //! `iced::widget::svg::Handle::from_memory`, which de-duplicates by
@@ -38,7 +38,7 @@
 use iced::widget::svg;
 use oxide_types::theme::{ThemeId, theme_tokens};
 
-/// The Signex brand amber. Any accent path in a canonical SVG that is
+/// The Oxide brand amber. Any accent path in a canonical SVG that is
 /// coloured with this literal hex gets replaced at load time by the
 /// active theme's accent. Keeping the sentinel equal to the default
 /// theme's accent means the canonical tree also reads correctly in
@@ -53,7 +53,7 @@ fn accent_hex(theme: ThemeId) -> String {
 }
 
 /// Swap the sentinel hex for the theme accent and hand the bytes to
-/// iced. When the theme accent already equals the sentinel (Signex
+/// iced. When the theme accent already equals the sentinel (Oxide
 /// default) the canonical bytes go straight through — no allocation.
 fn tinted_handle(canonical: &'static [u8], theme: ThemeId) -> svg::Handle {
     let accent = accent_hex(theme);

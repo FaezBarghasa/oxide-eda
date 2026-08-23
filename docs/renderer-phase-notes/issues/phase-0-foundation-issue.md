@@ -8,15 +8,15 @@ Deliver the foundation required to start schematic rendering in a clean-room pro
 
 ## Scope
 
-- Build baseline modules for signex-gfx.
-- Add signex-renderer iced shader bridge skeleton.
+- Build baseline modules for oxide-gfx.
+- Add oxide-renderer iced shader bridge skeleton.
 - Establish theme slot infrastructure with no literal color path in renderer core.
 - Add clean-room module header template and commit derivation checklist.
 
 ## Checklist
 
-- [x] Create signex-gfx foundation modules: context, camera, scene, dirty.
-- [x] Create signex-renderer iced bridge skeleton (canvas clear and basic draw path).
+- [x] Create oxide-gfx foundation modules: context, camera, scene, dirty.
+- [x] Create oxide-renderer iced bridge skeleton (canvas clear and basic draw path).
 - [x] Add theme slot infrastructure: StyleRef and palette uniform path.
 - [x] Add clean-room module header template and commit checklist.
 

@@ -1,6 +1,6 @@
 //! BGA row/column numbering (skip-letters, start-row, start-col).
 
-use oxide_app::app::{Message, Signex};
+use oxide_app::app::{Message, Oxide};
 
 use std::path::PathBuf;
 
@@ -18,7 +18,7 @@ use std::path::PathBuf;
 /// Build a footprint editor with one Linear array + BgaRowCol numbering,
 /// plant it as the active tab, and return the array's id so the test
 /// can target it by id (the dispatcher matches arrays by id).
-fn fixture_footprint_with_bga_array(stem: &str) -> (Signex, oxide_sketch::array::ArrayId) {
+fn fixture_footprint_with_bga_array(stem: &str) -> (Oxide, oxide_sketch::array::ArrayId) {
     use oxide_app::app::{FootprintEditorState, TabInfo, TabKind};
     use oxide_library::{Footprint, FootprintFile};
     use oxide_sketch::SketchData;
@@ -59,7 +59,7 @@ fn fixture_footprint_with_bga_array(stem: &str) -> (Signex, oxide_sketch::array:
     let path = PathBuf::from(format!("{stem}.snxfpt"));
     let file = FootprintFile::from_footprint(fp);
     let editor = FootprintEditorState::new(path.clone(), file);
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
@@ -78,7 +78,7 @@ fn fixture_footprint_with_bga_array(stem: &str) -> (Signex, oxide_sketch::array:
 /// Read back the current BgaRowCol triple from the active footprint
 /// editor's first array. Panics if the array isn't BgaRowCol — that
 /// would indicate the test setup got clobbered.
-fn read_bga_config(app: &Signex) -> (bool, char, u32) {
+fn read_bga_config(app: &Oxide) -> (bool, char, u32) {
     use oxide_sketch::array::NumberingScheme;
     let editor = app
         .document_state

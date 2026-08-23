@@ -26,12 +26,12 @@ Integrate schematic overlay emitters for preview, ghost, lasso, and snap visuals
 - Derivation: direct mapping from interaction state to overlay primitives.
 - Rationale: complete interaction feedback path for schematic editing.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: `cargo test -p signex-renderer -- --nocapture`, `cargo test -p signex-gfx -- --nocapture`, `cargo check -p signex-gfx -p signex-renderer`, and `cargo build -p signex-gfx -p signex-renderer` passed.
+- Verification: `cargo test -p oxide-renderer -- --nocapture`, `cargo test -p oxide-gfx -- --nocapture`, `cargo check -p oxide-gfx -p oxide-renderer`, and `cargo build -p oxide-gfx -p oxide-renderer` passed.
 
 ## Artifacts
 
 - PR/commit: pending
-- Test output: signex-renderer tests passed (7 passed, 0 failed), signex-gfx tests passed (27 passed, 0 failed)
+- Test output: oxide-renderer tests passed (7 passed, 0 failed), oxide-gfx tests passed (27 passed, 0 failed)
 - Screenshot/benchmark: pending
 
 ## Exit checklist

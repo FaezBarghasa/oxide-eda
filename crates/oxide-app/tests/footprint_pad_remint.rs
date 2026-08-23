@@ -24,13 +24,13 @@
     reason = "integration tests discard Results with `let _ = ...` routinely; this is test scaffolding, not a production `iced::Task` being dropped, and `[lints]` in Cargo.toml is package-scoped so each integration-test crate root needs its own"
 )]
 
-use oxide_app::app::{EditMsg, Message, Signex};
+use oxide_app::app::{EditMsg, Message, Oxide};
 use oxide_app::library::editor::footprint::state::EditorPad;
 use oxide_app::library::messages::{FootprintEditorMsg, LibraryMessage, PrimitiveEdit};
 use oxide_sketch::sketch::SketchData;
 use std::path::{Path, PathBuf};
 
-fn dispatch(app: &mut Signex, path: &Path, msg: FootprintEditorMsg) {
+fn dispatch(app: &mut Oxide, path: &Path, msg: FootprintEditorMsg) {
     let _ = app.update(Message::Library(LibraryMessage::PrimitiveEditorEvent {
         path: path.to_path_buf(),
         msg: PrimitiveEdit::Footprint(msg),
@@ -58,7 +58,7 @@ fn chamfered_repro_pad() -> EditorPad {
 /// A footprint editor holding one selected pad whose sketch geometry
 /// has already been minted, plus the tab wiring `Message::Edit` needs
 /// to resolve the active editor.
-fn editor_with_minted_pad(stem: &str, mut pad: EditorPad) -> (Signex, PathBuf) {
+fn editor_with_minted_pad(stem: &str, mut pad: EditorPad) -> (Oxide, PathBuf) {
     use oxide_app::app::{FootprintEditorState, TabInfo, TabKind};
     use oxide_app::library::editor::footprint::pad_to_sketch::mirror_add_pad_to_sketch;
     use oxide_library::{Footprint, FootprintFile};
@@ -72,7 +72,7 @@ fn editor_with_minted_pad(stem: &str, mut pad: EditorPad) -> (Signex, PathBuf) {
     editor.state.pads = vec![pad];
     editor.state.selected_pad = Some(0);
 
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
@@ -92,7 +92,7 @@ fn editor_with_minted_pad(stem: &str, mut pad: EditorPad) -> (Signex, PathBuf) {
 /// entity census. Entity IDs are freshly generated on every mint, so
 /// two sketches are compared through their geometry rather than their
 /// UUIDs. Positions are compared at nanometre resolution — the unit
-/// signex coordinates are integral in downstream.
+/// oxide coordinates are integral in downstream.
 fn geometry_fingerprint(sketch: &SketchData) -> (Vec<(i64, i64)>, [usize; 4]) {
     use oxide_sketch::entity::EntityKind;
 
@@ -480,7 +480,7 @@ fn translating_a_chamfered_pad_carries_its_chamfer_anchor_with_it() {
 
 /// The `Line` whose two endpoints both sit at world y == `y` — a pad's
 /// top or bottom bbox edge, the handle a Sketch-mode edge drag grabs.
-fn horizontal_edge_at_y(app: &Signex, path: &PathBuf, y: f64) -> oxide_sketch::id::SketchEntityId {
+fn horizontal_edge_at_y(app: &Oxide, path: &PathBuf, y: f64) -> oxide_sketch::id::SketchEntityId {
     use oxide_sketch::entity::EntityKind;
     use oxide_sketch::id::SketchEntityId;
 

@@ -10,7 +10,7 @@ use iced::{Background, Border, Color, Element, Length, Theme};
 
 use super::super::widgets::section_header;
 
-impl Signex {
+impl Oxide {
     /// Build the Properties sidebar column (tab strip + active pane) for the
     /// active preview. Returns the sidebar `column` the modal drops into its
     /// main row.

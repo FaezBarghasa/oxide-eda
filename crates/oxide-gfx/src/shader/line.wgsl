@@ -40,7 +40,7 @@ struct VertexOut {
 };
 
 // Low `style` bit selects the dash pattern — mirrors `LineSegment::STYLE_DASHED`
-// (`crates/signex-gfx/src/primitive/line.rs`).
+// (`crates/oxide-gfx/src/primitive/line.rs`).
 const STYLE_DASHED: u32 = 1u;
 
 fn sdf_segment(p: vec2<f32>, a: vec2<f32>, b: vec2<f32>) -> f32 {

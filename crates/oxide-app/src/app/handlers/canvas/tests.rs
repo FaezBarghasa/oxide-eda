@@ -9,7 +9,7 @@
 use std::path::PathBuf;
 
 use crate::app::state::LoadedProject;
-use crate::app::{Signex, TabInfo, TabKind};
+use crate::app::{Oxide, TabInfo, TabKind};
 use oxide_types::project::{ProjectData, SheetEntry};
 
 /// An app with one loaded project whose `.snxprj` is at `/w/a`, listing both
@@ -19,8 +19,8 @@ use oxide_types::project::{ProjectData, SheetEntry};
 /// `active_document_project()` resolve to ProjectA, which is what made the old
 /// project-relative base directory fire. A fixture whose focused sheet is
 /// unowned falls through to the loose-document branch and cannot go red.
-fn app_focused_on(focused: &str) -> Signex {
-    let (mut app, _task) = Signex::new();
+fn app_focused_on(focused: &str) -> Oxide {
+    let (mut app, _task) = Oxide::new();
     let id = app.document_state.mint_project_id();
     app.document_state.projects.push(LoadedProject {
         id,

@@ -1,4 +1,4 @@
-//! ERC / annotate / modal handler impls for `Signex`, grouped by concern.
+//! ERC / annotate / modal handler impls for `Oxide`, grouped by concern.
 
 mod annotate;
 mod erc_run;

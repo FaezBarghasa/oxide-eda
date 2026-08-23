@@ -247,7 +247,7 @@ pub fn view_panel<'a>(kind: PanelKind, ctx: &'a PanelContext) -> Element<'a, Pan
         PanelKind::Wiki => view_stub("Wiki", "Project documentation wiki", ctx),
         PanelKind::Library => view_stub(
             "Library",
-            "Library panel — see Signex.library state. Use the dock host's Library panel \
+            "Library panel — see Oxide.library state. Use the dock host's Library panel \
              rendering path; this stub fires only if Library is mounted via PanelMsg \
              instead of LibraryMessage routing.",
             ctx,

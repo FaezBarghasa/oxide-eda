@@ -7,7 +7,7 @@
 
 use super::*;
 
-impl Signex {
+impl Oxide {
     /// File ▸ Library ▸ New Component… — v0.13 appends a draft row
     /// directly to the active library's first table and focuses it,
     /// falling back to the legacy modal when no library / table exists.
@@ -59,7 +59,7 @@ impl Signex {
             }
             Err(e) => {
                 tracing::warn!(
-                    target: "signex::library",
+                    target: "oxide::library",
                     error = %e,
                     "NewComponent: append-row failed; falling back to modal",
                 );
@@ -239,7 +239,7 @@ impl Signex {
         }
         if let Err(e) = self.library.refresh_components(&lib_path) {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 path = %lib_path.display(),
                 error = %e,
                 "refresh after create_empty_table failed"

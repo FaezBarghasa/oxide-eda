@@ -8,10 +8,10 @@
 
 ## Implementation
 
-- [x] Add signex-gfx context module.
-- [x] Add signex-gfx camera module.
-- [x] Add signex-gfx scene and dirty modules.
-- [x] Add signex-renderer iced bridge skeleton.
+- [x] Add oxide-gfx context module.
+- [x] Add oxide-gfx camera module.
+- [x] Add oxide-gfx scene and dirty modules.
+- [x] Add oxide-renderer iced bridge skeleton.
 - [x] Add StyleRef and palette uniform pathway.
 
 ## Validation

@@ -149,7 +149,7 @@ fn entity_to_graphic(
 }
 
 /// Default silkscreen stroke width — IPC-7351 says 0.15 mm is the
-/// fab-grade lower bound; we use 0.12 mm as the Signex default
+/// fab-grade lower bound; we use 0.12 mm as the Oxide default
 /// (matches the v1 fixtures' `stroke_width = 0.12`).
 const DEFAULT_SILK_STROKE_MM: f64 = 0.12;
 

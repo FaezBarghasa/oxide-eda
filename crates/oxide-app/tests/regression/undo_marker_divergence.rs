@@ -35,7 +35,7 @@
 //! now without having been touched. The others are `modals.rs:325` and
 //! `erc/annotate.rs:77,268,296`.
 
-use oxide_app::app::{EditMsg, Message, MoveSelectionMsg, Signex};
+use oxide_app::app::{EditMsg, Message, MoveSelectionMsg, Oxide};
 use oxide_types::schematic::{
     NoConnect, Point, SchematicSheet, SelectedItem, SelectedKind, Symbol,
 };
@@ -101,7 +101,7 @@ fn sheet_with(symbols: Vec<Symbol>) -> SchematicSheet {
 
 /// Insert an engine for `path` and give it a matching `TabInfo`, which
 /// `finish_schematic_mutation` requires or it silently no-ops.
-fn add_tab(app: &mut Signex, path: &Path, sheet: SchematicSheet) {
+fn add_tab(app: &mut Oxide, path: &Path, sheet: SchematicSheet) {
     let engine = oxide_engine::Engine::new(sheet).expect("engine");
     app.document_state
         .engines
@@ -118,7 +118,7 @@ fn add_tab(app: &mut Signex, path: &Path, sheet: SchematicSheet) {
 
 /// Make the tab whose document lives at `path` the active one — the same
 /// two fields the tab-switch handlers set.
-fn activate(app: &mut Signex, path: &Path) {
+fn activate(app: &mut Oxide, path: &Path) {
     let idx = app
         .document_state
         .tabs
@@ -129,7 +129,7 @@ fn activate(app: &mut Signex, path: &Path) {
     app.document_state.active_path = Some(path.to_path_buf());
 }
 
-fn symbols_of(app: &Signex, path: &Path) -> Vec<Symbol> {
+fn symbols_of(app: &Oxide, path: &Path) -> Vec<Symbol> {
     app.document_state
         .engines
         .get(path)
@@ -141,12 +141,12 @@ fn symbols_of(app: &Signex, path: &Path) -> Vec<Symbol> {
 
 /// A loaded, active schematic holding two plain symbols, so a test can
 /// spend one on a gateway edit and one on a gateway-bypassing edit.
-fn fixture_two_symbols() -> (Signex, uuid::Uuid, uuid::Uuid) {
+fn fixture_two_symbols() -> (Oxide, uuid::Uuid, uuid::Uuid) {
     let doomed_uuid = uuid::Uuid::new_v4();
     let moved_uuid = uuid::Uuid::new_v4();
 
     let path = PathBuf::from("undo-marker.snxsch");
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     add_tab(
         &mut app,
         &path,
@@ -162,7 +162,7 @@ fn fixture_two_symbols() -> (Signex, uuid::Uuid, uuid::Uuid) {
 
 /// Delete one symbol through the gateway, then move the other through
 /// the Move Selection dialog, which calls `engine.execute` directly.
-fn one_gateway_edit_then_one_bypassing_edit() -> (Signex, uuid::Uuid) {
+fn one_gateway_edit_then_one_bypassing_edit() -> (Oxide, uuid::Uuid) {
     let (mut app, doomed_uuid, moved_uuid) = fixture_two_symbols();
 
     // Edit 1: through the gateway. `handle_selection_delete_requested`
@@ -295,7 +295,7 @@ fn undo_availability_agrees_with_what_undo_can_actually_do() {
 #[test]
 fn a_pasted_batch_is_one_undo_step() {
     let path = PathBuf::from("undo-batch.snxsch");
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     add_tab(&mut app, &path, sheet_with(Vec::new()));
     activate(&mut app, &path);
 
@@ -355,7 +355,7 @@ fn an_undo_in_one_tab_spends_exactly_one_of_that_tabs_edits() {
     let path_b = PathBuf::from("undo-tab-b.snxsch");
     let b_symbols: Vec<uuid::Uuid> = (0..3).map(|_| uuid::Uuid::new_v4()).collect();
 
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     add_tab(&mut app, &path_a, sheet_with(Vec::new()));
     add_tab(
         &mut app,

@@ -604,7 +604,7 @@ pub fn export_custom_profiles(set: &ShortcutProfileSet) -> Result<String, Profil
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TomlShortcutProfile {
-    signex_settings: TomlSignexSettings,
+    oxide_settings: TomlOxideSettings,
     keyboard_shortcuts: TomlKeyboardShortcuts,
 }
 
@@ -614,13 +614,13 @@ impl TomlShortcutProfile {
     }
 
     pub fn into_profile(self) -> Result<ShortcutProfile, ProfileLoadError> {
-        self.signex_settings.validate()?;
+        self.oxide_settings.validate()?;
         self.keyboard_shortcuts.into_profile()
     }
 
     fn from_profile(profile: &ShortcutProfile) -> Result<Self, ProfileLoadError> {
         Ok(Self {
-            signex_settings: TomlSignexSettings::default(),
+            oxide_settings: TomlOxideSettings::default(),
             keyboard_shortcuts: TomlKeyboardShortcuts::from_profile(profile)?,
         })
     }
@@ -628,7 +628,7 @@ impl TomlShortcutProfile {
 
 #[derive(Debug, Serialize, Deserialize)]
 struct TomlShortcutConfig {
-    signex_settings: TomlSignexSettings,
+    oxide_settings: TomlOxideSettings,
     keyboard_shortcuts: TomlKeyboardShortcutsConfig,
 }
 
@@ -644,7 +644,7 @@ impl TomlShortcutConfig {
             .map(TomlKeyboardShortcuts::from_profile)
             .collect::<Result<Vec<_>, _>>()?;
         Ok(Self {
-            signex_settings: TomlSignexSettings::default(),
+            oxide_settings: TomlOxideSettings::default(),
             keyboard_shortcuts: TomlKeyboardShortcutsConfig {
                 active_profile: set.active_profile_id().to_string(),
                 profiles,
@@ -679,7 +679,7 @@ impl TomlShortcutConfig {
         self,
         set: &mut ShortcutProfileSet,
     ) -> Result<Option<String>, ProfileLoadError> {
-        self.signex_settings.validate()?;
+        self.oxide_settings.validate()?;
         for profile in self.keyboard_shortcuts.profiles {
             set.insert_custom_profile(profile.into_profile()?)?;
         }
@@ -693,27 +693,27 @@ impl TomlShortcutConfig {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct TomlSignexSettings {
+struct TomlOxideSettings {
     application: String,
     file_kind: String,
     version: u32,
 }
 
-impl Default for TomlSignexSettings {
+impl Default for TomlOxideSettings {
     fn default() -> Self {
         Self {
-            application: "signex".to_string(),
+            application: "oxide".to_string(),
             file_kind: "keyboard_shortcuts".to_string(),
             version: 1,
         }
     }
 }
 
-impl TomlSignexSettings {
+impl TomlOxideSettings {
     fn validate(&self) -> Result<(), ProfileLoadError> {
-        if self.application != "signex" {
+        if self.application != "oxide" {
             return Err(ProfileLoadError::InvalidHeader(
-                "application must be `signex`".to_string(),
+                "application must be `oxide`".to_string(),
             ));
         }
         if self.file_kind != "keyboard_shortcuts" {
@@ -891,7 +891,7 @@ impl fmt::Display for ProfileLoadError {
             Self::NoConfigDir => f.write_str("no config directory available"),
             Self::InvalidHeader(error) => write!(f, "invalid shortcut profile header: {error}"),
             Self::UnsupportedHeaderVersion(version) => {
-                write!(f, "unsupported Signex settings header version {version}")
+                write!(f, "unsupported Oxide settings header version {version}")
             }
             Self::UnsupportedSchemaVersion(version) => {
                 write!(f, "unsupported keyboard shortcut schema version {version}")

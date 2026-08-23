@@ -1,4 +1,4 @@
-//! Output generation for Signex — PDF, BOM, netlist.
+//! Output generation for Oxide — PDF, BOM, netlist.
 //!
 //! See `docs/internal/docs/OUTPUT_PLAN.md` for the v0.8 design.
 //!

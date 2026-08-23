@@ -6,7 +6,7 @@ use crate::panels::PanelKind;
 
 use super::super::super::*;
 
-impl Signex {
+impl Oxide {
     /// Open `kind`, or reveal it if it is already on screen.
     ///
     /// A panel kind exists at most once across the whole app (#641).

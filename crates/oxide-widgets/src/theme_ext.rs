@@ -11,7 +11,7 @@ use oxide_types::theme::{Color as SxColor, ThemeTokens};
 // Core color conversion
 // ---------------------------------------------------------------------------
 
-/// Convert a signex `Color` (u8 components) to an Iced `Color` (f32 0..1).
+/// Convert a oxide `Color` (u8 components) to an Iced `Color` (f32 0..1).
 pub fn to_color(c: &SxColor) -> Color {
     Color::from_rgba8(c.r, c.g, c.b, c.a as f32 / 255.0)
 }

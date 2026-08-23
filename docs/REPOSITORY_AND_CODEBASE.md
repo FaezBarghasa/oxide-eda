@@ -1,11 +1,11 @@
-# Signex — Repository and Codebase
+# Oxide — Repository and Codebase
 
 > **Status:** Repository structure and implementation map.
 > **Audience:** Engineers, contributors, and maintainers working in this repo.
 > **Companion to:** `MASTER_PLAN.md`, `ARCHITECTURE.md`, `PRODUCT_AND_EDITIONS.md`,
 > `ROADMAP.md`.
 
-This document explains how the Signex repository is organized today, how the
+This document explains how the Oxide repository is organized today, how the
 codebase is expected to evolve, and how the single repository supports both the
 Community and Pro product lines.
 
@@ -18,12 +18,12 @@ repository should be kept coherent as the project grows.
 
 ## 1. Repository Purpose
 
-This repository contains the Signex desktop editor codebase.
+This repository contains the Oxide desktop editor codebase.
 
 The repository exists to build one product family from one shared foundation:
 
-- **Signex Community** — the open desktop EDA editor
-- **Signex Pro** — the commercial edition that adds Signal AI and live
+- **Oxide Community** — the open desktop EDA editor
+- **Oxide Pro** — the commercial edition that adds Signal AI and live
   collaboration
 
 The core rule is simple:
@@ -53,8 +53,8 @@ This repository is responsible for:
 - Product documentation and planning documents
 
 KiCad import is **not** part of this repository. It lives in the separate
-GPL-3.0 companion repo `signex-kicad-import`, which provides one-way
-`KiCad → Signex` conversion only. See the v0.9 Apache-clean cutover and
+GPL-3.0 companion repo `oxide-kicad-import`, which provides one-way
+`KiCad → Oxide` conversion only. See the v0.9 Apache-clean cutover and
 issue #62 for the rationale, plus `docs/audit/cleanroom-rewrite-2026-05-01.md`
 for the cleanroom-rewrite audit trail.
 
@@ -72,11 +72,11 @@ itself belongs here.
 
 ## 3. Edition Model in One Codebase
 
-Signex is developed as a single codebase with a shared core.
+Oxide is developed as a single codebase with a shared core.
 
 ### 3.1. Community
 
-Signex Community is the main editor foundation made available as open source.
+Oxide Community is the main editor foundation made available as open source.
 
 The intended licensing direction for Community is:
 
@@ -88,7 +88,7 @@ services for normal editing workflows.
 
 ### 3.2. Pro
 
-Signex Pro is built on top of the same core and adds capabilities that require
+Oxide Pro is built on top of the same core and adds capabilities that require
 commercial infrastructure or proprietary integration, especially:
 
 - Signal AI
@@ -116,31 +116,31 @@ or managed AI usage, it can live behind the Pro boundary.
 Today, the repository is organized around a Rust workspace:
 
 ```text
-signex/
+oxide/
 ├── Cargo.toml
 ├── README.md
 ├── LICENSE
 ├── crates/
-│   ├── signex-app/                 # desktop application shell (apex)
-│   ├── signex-types/               # shared domain types (foundation)
-│   ├── signex-engine/              # command / patch / undo engine
-│   ├── signex-net/                 # authoritative netlist + connectivity
-│   ├── signex-erc/                 # ERC rule engine (+ signex-erc-dsl)
-│   ├── signex-sketch/              # Newton-LM constraint solver + sketch schema
-│   ├── signex-bake/                # sketch → footprint bake pipeline
-│   ├── signex-output/              # PDF / netlist / BOM export (+ signex-bom)
-│   ├── signex-renderer/            # domain types → render primitives (+ signex-gfx)
-│   ├── signex-library/             # .snxlib library model (+ signex-library-server)
-│   ├── signex-widgets/             # reusable iced widgets
-│   └── signex-3d-model-importer/   # STEP / WRL importer
+│   ├── oxide-app/                 # desktop application shell (apex)
+│   ├── oxide-types/               # shared domain types (foundation)
+│   ├── oxide-engine/              # command / patch / undo engine
+│   ├── oxide-net/                 # authoritative netlist + connectivity
+│   ├── oxide-erc/                 # ERC rule engine (+ oxide-erc-dsl)
+│   ├── oxide-sketch/              # Newton-LM constraint solver + sketch schema
+│   ├── oxide-bake/                # sketch → footprint bake pipeline
+│   ├── oxide-output/              # PDF / netlist / BOM export (+ oxide-bom)
+│   ├── oxide-renderer/            # domain types → render primitives (+ oxide-gfx)
+│   ├── oxide-library/             # .snxlib library model (+ oxide-library-server)
+│   ├── oxide-widgets/             # reusable iced widgets
+│   └── oxide-3d-model-importer/   # STEP / WRL importer
 └── docs/
 ```
 
 > **v0.9 cutover note:** earlier revisions of this document listed
 > `crates/kicad-parser/` and `crates/kicad-writer/` here. Both crates were
 > removed from the main workspace in v0.9 (Apr 2026) as part of the
-> Apache-clean cutover for issue #62, and one-way KiCad → Signex import
-> now lives in the separate GPL-3.0 companion repo `signex-kicad-import`.
+> Apache-clean cutover for issue #62, and one-way KiCad → Oxide import
+> now lives in the separate GPL-3.0 companion repo `oxide-kicad-import`.
 
 This is the correct direction for the current phase of the project: small,
 focused crates with clear boundaries.
@@ -149,7 +149,7 @@ focused crates with clear boundaries.
 
 ## 5. Crate Responsibilities
 
-### 5.1. `signex-app`
+### 5.1. `oxide-app`
 
 The desktop application crate.
 
@@ -165,9 +165,9 @@ Responsibilities:
 This crate should not become the home for parser internals, raw file mutation,
 or renderer-specific geometry logic.
 
-### 5.1.1. `signex-app` internal app layout
+### 5.1.1. `oxide-app` internal app layout
 
-Inside `crates/signex-app/src/app/`, the app shell is now split by responsibility:
+Inside `crates/oxide-app/src/app/`, the app shell is now split by responsibility:
 
 - `state.rs` owns grouped application state for UI, document/session, and interaction concerns.
 - `view/` owns `Element` construction and overlay composition.
@@ -178,7 +178,7 @@ Inside `crates/signex-app/src/app/`, the app shell is now split by responsibilit
 
 This split exists to keep the Iced `update()` entry point aligned with MVU responsibilities without turning `app.rs` back into a catch-all file.
 
-### 5.2. `signex-types`
+### 5.2. `oxide-types`
 
 The shared domain types crate.
 
@@ -191,9 +191,9 @@ Responsibilities:
 This crate must stay lightweight and should not depend on rendering or UI
 frameworks.
 
-### 5.3. `signex-renderer`
+### 5.3. `oxide-renderer`
 
-The rendering crate (with `signex-gfx` for the wgpu pipeline layer).
+The rendering crate (with `oxide-gfx` for the wgpu pipeline layer).
 
 Responsibilities:
 
@@ -205,7 +205,7 @@ Responsibilities:
 This crate should derive from editor semantics. It should not become a second
 owner of document semantics.
 
-### 5.4. `signex-widgets`
+### 5.4. `oxide-widgets`
 
 Reusable UI widgets.
 
@@ -215,16 +215,16 @@ Responsibilities:
 - icon and toolbar widgets
 - reusable UI building blocks used across the application shell
 
-This crate exists to keep `signex-app` from collapsing into a monolith of local
+This crate exists to keep `oxide-app` from collapsing into a monolith of local
 widget implementations.
 
 ### 5.5. Native `.snx*` parser/writer (in-tree, in-progress)
 
-The Signex S-expression-style parser and writer for the native canonical
+The Oxide S-expression-style parser and writer for the native canonical
 formats — `.snxsch`, `.snxpcb`, `.snxlib`, `.snxsym`, `.snxfpt`, `.snxpro` —
-currently lives inside `signex-engine` (and supporting helpers in
-`signex-types`). The medium-term direction (see Section 8) is to extract this
-into its own `signex-document` crate.
+currently lives inside `oxide-engine` (and supporting helpers in
+`oxide-types`). The medium-term direction (see Section 8) is to extract this
+into its own `oxide-document` crate.
 
 Responsibilities:
 
@@ -238,8 +238,8 @@ Responsibilities:
 > `kicad-parser` and `kicad-writer` as Sections 5.5 and 5.6. Both crates
 > were removed from this workspace in v0.9 as part of the Apache-clean
 > cutover for issue #62. KiCad I/O is now optional and lives in the
-> separate GPL-3.0 companion repo `signex-kicad-import` (one-way
-> KiCad → Signex import only). License Guard CI enforces that
+> separate GPL-3.0 companion repo `oxide-kicad-import` (one-way
+> KiCad → Oxide import only). License Guard CI enforces that
 > `crates/` contains zero KiCad imports, dependencies, or shaped symbols.
 
 ---
@@ -276,7 +276,7 @@ In particular:
 - the current app crate still owns more editing flow than the long-term design
   should allow
 - native `.snx*` parser/writer responsibilities exist (currently inside
-  `signex-engine`), but the future raw-document and engine split is still ahead
+  `oxide-engine`), but the future raw-document and engine split is still ahead
 - some behavior is still organized around application update handlers rather
   than a dedicated engine crate
 
@@ -298,16 +298,16 @@ crate layout.
 
 The most likely additions are:
 
-- `signex-engine` — command execution, patching, undo/redo orchestration
+- `oxide-engine` — command execution, patching, undo/redo orchestration
   *(landed; currently also hosts the native `.snx*` parser/writer)*
-- `signex-model` — semantic model layer
-- `signex-document` — raw native `.snx*` document representation with node
+- `oxide-model` — semantic model layer
+- `oxide-document` — raw native `.snx*` document representation with node
   identity and preservation of unknown constructs (extracted from
-  `signex-engine`; pre-v0.9 plan named this `kicad-document`)
-- `signex-erc` — schematic rule check engine *(landed in v0.7)*
-- `signex-sketch` — 2D parametric sketch mode for footprint editor + PCB
+  `oxide-engine`; pre-v0.9 plan named this `kicad-document`)
+- `oxide-erc` — schematic rule check engine *(landed in v0.7)*
+- `oxide-sketch` — 2D parametric sketch mode for footprint editor + PCB
   outline (v0.13+; see `docs/internal/SKETCH_MODE_PLAN.md`)
-- `signex-drc` — PCB design rule check engine (v2.0+)
+- `oxide-drc` — PCB design rule check engine (v2.0+)
 - `pcb-geom` — geometry primitives for PCB (polygon offset, R-tree,
   Delaunay, boolean ops) shared by router, DRC, and render. Added in v2.0.
 - `pcb-router` — interactive router (walkaround, shove, diff pair,
@@ -346,9 +346,9 @@ layout should continue to reflect that shared constraint.
 
 > **Pre-v0.9 framing:** earlier revisions of this section read "Preserve
 > KiCad compatibility as a repository-wide concern". After the v0.9
-> Apache-clean cutover (issue #62), Signex's canonical formats are the
+> Apache-clean cutover (issue #62), Oxide's canonical formats are the
 > native `.snx*` family; KiCad I/O is optional and one-way via
-> `signex-kicad-import`, so the repo-wide constraint is now native
+> `oxide-kicad-import`, so the repo-wide constraint is now native
 > round-trip stability rather than KiCad compatibility.
 
 ---
@@ -377,8 +377,8 @@ That is the standard this repository should hold.
 
 For product and repository planning purposes, the intended licensing model is:
 
-- **Signex Community:** Apache License 2.0
-- **Signex Pro:** commercial / proprietary terms for Pro-only additions
+- **Oxide Community:** Apache License 2.0
+- **Oxide Pro:** commercial / proprietary terms for Pro-only additions
 
 This document records the intended direction so the repository can be organized
 around a clean open-core boundary.
@@ -391,8 +391,8 @@ change rather than by silent drift.
 
 ## 12. One-Sentence Summary
 
-This repository is the shared engineering home of Signex: an Apache-clean
+This repository is the shared engineering home of Oxide: an Apache-clean
 EDA editor core with native `.snx*` formats and a clean path to both an
 Apache-2.0 Community edition and a commercial Pro edition from the same
 codebase. Optional one-way KiCad import lives in the separate GPL-3.0
-companion repo `signex-kicad-import`.
+companion repo `oxide-kicad-import`.

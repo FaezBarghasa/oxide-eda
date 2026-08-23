@@ -7,7 +7,7 @@
 
 use super::*;
 
-impl Signex {
+impl Oxide {
     /// File ▸ Library ▸ Open Library… — runs `rfd::AsyncFileDialog` on
     /// the directory level and lands in [`LibraryMessage::OpenLibraryAt`].
     pub(super) fn handle_open_library_dialog(&mut self) -> Task<Message> {
@@ -27,7 +27,7 @@ impl Signex {
     /// routing any open error into the recovery flow.
     pub(super) fn handle_open_library_at(&mut self, path: std::path::PathBuf) -> Task<Message> {
         if let Err(e) = commands::open_library(&mut self.library, path.clone()) {
-            tracing::warn!(target: "signex::library", error = %e, path = %path.display(), "open_library failed");
+            tracing::warn!(target: "oxide::library", error = %e, path = %path.display(), "open_library failed");
             route_open_error(&mut self.library, &path, &e);
         }
         Task::none()
@@ -62,7 +62,7 @@ impl Signex {
     ) -> Task<Message> {
         let Some(intent) = self.library.take_mount_intent(&path) else {
             tracing::debug!(
-                target: "signex::library",
+                target: "oxide::library",
                 path = %path.display(),
                 "mount_finished: no longer pending (closed while preparing); discarding"
             );
@@ -70,7 +70,7 @@ impl Signex {
         };
         let Some(result) = prepared.take() else {
             tracing::warn!(
-                target: "signex::library",
+                target: "oxide::library",
                 path = %path.display(),
                 "mount_finished: payload already taken; library not mounted"
             );

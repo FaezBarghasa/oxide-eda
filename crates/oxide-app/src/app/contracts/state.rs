@@ -137,7 +137,7 @@ pub struct ProjectCloseConfirmState {
     pub dirty_paths: Vec<std::path::PathBuf>,
 }
 
-/// State for the "Exit Signex — Unsaved Edits" confirmation modal.
+/// State for the "Exit Oxide — Unsaved Edits" confirmation modal.
 /// Opens when the user requests app exit (chrome ✕, File ▸ Exit,
 /// Alt+F4) while `DocumentState.dirty_paths` is non-empty. Lists
 /// every dirty file across the whole workspace so the user sees what

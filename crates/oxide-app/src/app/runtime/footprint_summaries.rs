@@ -151,7 +151,7 @@ fn residual_magnitude_of(
         Ok(v) => Some(v.iter().map(|x| x * x).sum::<f64>().sqrt()),
         Err(e) => {
             tracing::warn!(
-                target: "signex::sketch",
+                target: "oxide::sketch",
                 constraint = %c.id,
                 kind = kind_label,
                 error = %e,

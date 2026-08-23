@@ -48,16 +48,16 @@ pub struct DiagnosticEntry {
     pub message: String,
 }
 
-struct SignexLogger {
+struct OxideLogger {
     level: LevelFilter,
 }
 
 pub fn init_logging() -> Result<()> {
     let level = configured_level();
-    log::set_boxed_logger(Box::new(SignexLogger { level }))
+    log::set_boxed_logger(Box::new(OxideLogger { level }))
         .map_err(|error| anyhow::anyhow!("initialize application logger: {error}"))?;
     log::set_max_level(level);
-    info!("Signex logging initialized");
+    info!("Oxide logging initialized");
     Ok(())
 }
 
@@ -101,7 +101,7 @@ pub fn configured_level_label() -> &'static str {
     }
 }
 
-impl Log for SignexLogger {
+impl Log for OxideLogger {
     fn enabled(&self, metadata: &Metadata<'_>) -> bool {
         self.level >= metadata.level().to_level_filter()
     }
@@ -163,7 +163,7 @@ fn parse_level_filter(value: &str) -> Option<LevelFilter> {
     {
         if let Some((target, level)) = directive.split_once('=') {
             let target = target.trim();
-            if matches!(target, "signex" | "oxide_app") {
+            if matches!(target, "oxide" | "oxide_app") {
                 return parse_level(level.trim());
             }
             continue;

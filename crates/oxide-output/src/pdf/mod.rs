@@ -21,7 +21,7 @@
 
 use pdf_writer::{Finish, Name, Pdf, Rect, Ref};
 use oxide_types::markup::{
-    ExpressionEvalContext, RichSegment, evaluate_expressions, parse_signex_markup,
+    ExpressionEvalContext, RichSegment, evaluate_expressions, parse_oxide_markup,
 };
 use thiserror::Error;
 

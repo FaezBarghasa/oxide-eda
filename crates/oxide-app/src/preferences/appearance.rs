@@ -38,14 +38,14 @@ pub(super) fn content_appearance<'a>(v: PrefsView<'a>) -> Element<'a, PrefMsg> {
     // Built-in theme data: (id, display name, description)
     let builtins: &[(ThemeId, &str, &str)] = &[
         (
-            ThemeId::Signex,
-            "Signex",
-            "Default Signex schematic palette",
+            ThemeId::Oxide,
+            "Oxide",
+            "Default Oxide schematic palette",
         ),
         (
             ThemeId::Alplab,
             "Alp Lab",
-            "Alp Lab brand cyan accent on the Signex chrome",
+            "Alp Lab brand cyan accent on the Oxide chrome",
         ),
         (
             ThemeId::VsCodeDark,

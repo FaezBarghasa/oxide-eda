@@ -165,7 +165,7 @@ const CLAIM_ORDER: [InputConsumer; 6] = [
     InputConsumer::Keymap,
 ];
 
-impl Signex {
+impl Oxide {
     /// Classify the window an input event landed in.
     ///
     /// The main window is deliberately absent from `ui_state.windows`
@@ -202,7 +202,7 @@ impl Signex {
     /// Walk [`CLAIM_ORDER`] and return the one message this event earns,
     /// or `None` when it was swallowed or nobody wanted it.
     ///
-    /// `&self` on purpose: this is the testable heart. Build a `Signex`,
+    /// `&self` on purpose: this is the testable heart. Build a `Oxide`,
     /// set state, feed an event, assert the message — none of which was
     /// possible while these branches lived in a subscription closure.
     fn route_key(&self, window: iced::window::Id, event: &keyboard::Event) -> Option<Message> {
@@ -462,16 +462,16 @@ mod tests {
     use super::*;
     use crate::app::state::{ModalId, WindowKind};
 
-    fn quiet_app() -> Signex {
-        let (mut app, _boot) = Signex::new();
+    fn quiet_app() -> Oxide {
+        let (mut app, _boot) = Oxide::new();
         app.ui_state.first_run_tour_open = false;
         app
     }
 
-    fn main_window(app: &Signex) -> iced::window::Id {
+    fn main_window(app: &Oxide) -> iced::window::Id {
         app.ui_state
             .main_window_id
-            .expect("Signex::new opens the main window")
+            .expect("Oxide::new opens the main window")
     }
 
     fn unidentified() -> keyboard::key::Physical {
@@ -479,7 +479,7 @@ mod tests {
     }
 
     /// Give `kind` its own OS window and hand back that window's id.
-    fn open_window(app: &mut Signex, kind: WindowKind) -> iced::window::Id {
+    fn open_window(app: &mut Oxide, kind: WindowKind) -> iced::window::Id {
         let id = iced::window::Id::unique();
         app.ui_state.windows.insert(id, kind);
         id

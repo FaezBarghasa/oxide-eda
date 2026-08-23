@@ -341,7 +341,7 @@ impl Engine {
                                 }
                             }
                         }
-                        // Signex schematics have no explicit z-order for
+                        // Oxide schematics have no explicit z-order for
                         // drawings, junctions, no-connects, or bus entries —
                         // render order is file order. Left out intentionally.
                         _ => {}

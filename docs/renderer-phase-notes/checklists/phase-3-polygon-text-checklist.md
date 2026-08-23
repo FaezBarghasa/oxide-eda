@@ -16,8 +16,8 @@
 
 ## Validation
 
-- [x] cargo check passes for signex-gfx and signex-renderer.
-- [x] cargo build passes for signex-gfx and signex-renderer.
+- [x] cargo check passes for oxide-gfx and oxide-renderer.
+- [x] cargo build passes for oxide-gfx and oxide-renderer.
 - [x] Polygon/text smoke render path is verified.
 
 ## Evidence completion

@@ -435,7 +435,7 @@ fn unlink_corner_radius(
 
     let Some((pad_idx, corner_key)) = pad_corner else {
         tracing::warn!(
-            target: "signex::v024",
+            target: "oxide::v024",
             "FootprintSketchUnlinkCornerRadius: arc {arc_entity_id:?} doesn't belong \
              to any pad's shape_params; ignoring"
         );
@@ -448,7 +448,7 @@ fn unlink_corner_radius(
         .contains_key(corner_key)
     {
         tracing::warn!(
-            target: "signex::v024",
+            target: "oxide::v024",
             "FootprintSketchUnlinkCornerRadius: corner {corner_key} on pad {pad_idx} \
              is already unlinked; ignoring"
         );
@@ -464,7 +464,7 @@ fn unlink_corner_radius(
         Some(n) => n,
         None => {
             tracing::warn!(
-                target: "signex::v024",
+                target: "oxide::v024",
                 "FootprintSketchUnlinkCornerRadius: pad {pad_idx} has no shared \
                  corner_r binding; ignoring"
             );

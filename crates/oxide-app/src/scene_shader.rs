@@ -156,7 +156,7 @@ fn log_text_error_once(
 ) {
     if !flag.swap(true, Ordering::Relaxed) {
         tracing::warn!(
-            target: "signex::gfx",
+            target: "oxide::gfx",
             "{surface} GPU text {stage} failed ({error}); dropping this frame's text"
         );
     }

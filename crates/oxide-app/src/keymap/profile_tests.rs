@@ -86,7 +86,7 @@ fn exports_and_imports_custom_profile_toml() {
 
     let exported = export_custom_profile(&custom).unwrap();
 
-    assert!(exported.contains("[signex_settings]"));
+    assert!(exported.contains("[oxide_settings]"));
     assert!(exported.contains("[keyboard_shortcuts]"));
     assert!(exported.contains("profile_kind = \"custom\""));
     assert!(!exported.contains("\nlabel ="));
@@ -171,8 +171,8 @@ fn save_profile_set_at_leaves_previous_profiles_intact_when_write_fails() {
 #[test]
 fn import_rejects_built_in_profile_documents() {
     let source = r#"
-[signex_settings]
-application = "signex"
+[oxide_settings]
+application = "oxide"
 file_kind = "keyboard_shortcuts"
 version = 1
 
@@ -195,8 +195,8 @@ fn persistence_rejects_custom_profile_shadowing_built_in_id() {
     std::fs::write(
         &path,
         r#"
-[signex_settings]
-application = "signex"
+[oxide_settings]
+application = "oxide"
 file_kind = "keyboard_shortcuts"
 version = 1
 

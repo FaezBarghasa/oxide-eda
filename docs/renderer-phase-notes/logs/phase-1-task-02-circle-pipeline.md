@@ -27,7 +27,7 @@ Start circle shader and pipeline implementation for schematic junction rendering
 - Derivation: circle/ring SDF baseline and pipeline scaffolding.
 - Rationale: prepare junction rendering path before full GPU draw integration.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: `cargo check -p signex-gfx -p signex-renderer` and `cargo build -p signex-gfx -p signex-renderer` succeeded.
+- Verification: `cargo check -p oxide-gfx -p oxide-renderer` and `cargo build -p oxide-gfx -p oxide-renderer` succeeded.
 
 ## Artifacts
 

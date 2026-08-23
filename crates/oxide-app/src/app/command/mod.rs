@@ -1,6 +1,6 @@
 //! Home of the Command Registry (#278). Slice 1 landed the
 //! id→[`crate::app::Message`] bridge (`bridge.rs`). Slice 2 adds the
-//! registry's dispatch entry point ([`Signex::dispatch_command`]) and
+//! registry's dispatch entry point ([`Oxide::dispatch_command`]) and
 //! its argument type ([`CommandArgs`]); enablement gating (slice 3) and
 //! rewiring menus/palette onto it (slice 4) are still ahead.
 
@@ -15,7 +15,7 @@ use iced::Task;
 
 use super::*;
 
-impl Signex {
+impl Oxide {
     /// The Command Registry's dispatch entry point — resolve a stable
     /// [`crate::keymap::AppCommandId`] and run it exactly as if the
     /// resolved [`Message`] had been sent directly.
@@ -58,7 +58,7 @@ mod tests {
     /// comparing `Message`/`Task` values.
     #[test]
     fn known_id_dispatches_to_the_right_message() {
-        let (mut app, _task) = Signex::new();
+        let (mut app, _task) = Oxide::new();
         app.ui_state.selection_mode = SelectionMode::Touching;
 
         let command = AppCommandId::new("cycle_selection_mode").unwrap();
@@ -71,7 +71,7 @@ mod tests {
     /// programmer error — it must resolve to a no-op, never panic.
     #[test]
     fn unknown_id_is_a_no_op_and_does_not_panic() {
-        let (mut app, _task) = Signex::new();
+        let (mut app, _task) = Oxide::new();
 
         let command = AppCommandId::new("not_a_real_command").unwrap();
         let task = app.dispatch_command(&command, CommandArgs::none());
@@ -84,7 +84,7 @@ mod tests {
     /// yet — it must resolve to a no-op too, not panic.
     #[test]
     fn catalog_id_with_no_bridge_arm_is_a_no_op_and_does_not_panic() {
-        let (mut app, _task) = Signex::new();
+        let (mut app, _task) = Oxide::new();
 
         let command = AppCommandId::new("clear_net_highlighting").unwrap();
         assert!(

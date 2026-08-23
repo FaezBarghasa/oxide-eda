@@ -1,4 +1,4 @@
-//! `Signex::new` — initial application state + boot Task. Split from
+//! `Oxide::new` — initial application state + boot Task. Split from
 //! `app/bootstrap.rs` as pure code motion.
 
 use super::super::*;
@@ -7,7 +7,7 @@ use crate::canvas::CanvasSlot;
 use crate::dock::{DockArea, PanelPosition};
 use crate::panels::PanelKind;
 
-impl Signex {
+impl Oxide {
     pub fn new() -> (Self, Task<Message>) {
         // Default panel layout — restored from disk if a previous
         // session persisted one, otherwise seeded with the Altium-ish
@@ -94,7 +94,7 @@ impl Signex {
         // away from losing every shortcut they have customised.
         if let Some(error) = keymap_load_error.as_deref() {
             tracing::error!(
-                target: "signex::keymap",
+                target: "oxide::keymap",
                 path = %crate::keymap::config_path()
                     .map(|path| path.display().to_string())
                     .unwrap_or_else(|| "<no config directory>".to_string()),
@@ -113,7 +113,7 @@ impl Signex {
         // once and carry the answer to the Preferences banner.
         //
         // `main.rs` installs the logger and takes the first prefs read
-        // (which is what runs `migrate_legacy_prefs`) before `Signex::new`
+        // (which is what runs `migrate_legacy_prefs`) before `Oxide::new`
         // is called, so this probe sees the post-migration file and its
         // log line is not emitted into a missing subscriber.
         let prefs_load_error = crate::fonts::check_prefs_file()
@@ -125,7 +125,7 @@ impl Signex {
         // panel — and this is every preference they have, not saving.
         if let Some(error) = prefs_load_error.as_deref() {
             tracing::error!(
-                target: "signex::prefs",
+                target: "oxide::prefs",
                 path = %crate::fonts::prefs_file_path().display(),
                 error = error,
                 "the preferences file could not be loaded; every preference is showing \
@@ -182,7 +182,7 @@ impl Signex {
                 // was harmless while nothing read the draft before the
                 // dialog first opened (`seed_preferences_drafts_from_live`
                 // fixed it there); the canvas now renders from it, so a
-                // user whose saved theme is not Signex would have opened
+                // user whose saved theme is not Oxide would have opened
                 // to the wrong canvas colours.
                 preferences_draft_theme: crate::fonts::read_theme_pref(),
                 preferences_draft_font: String::new(),
@@ -286,8 +286,8 @@ impl Signex {
                     lib_symbol_count: 0,
                     lib_symbol_names: vec![],
                     placed_symbols: vec![],
-                    tokens: oxide_types::theme::theme_tokens(ThemeId::Signex),
-                    theme_id: ThemeId::Signex,
+                    tokens: oxide_types::theme::theme_tokens(ThemeId::Oxide),
+                    theme_id: ThemeId::Oxide,
                     unit: Unit::Mm,
                     grid_visible: true,
                     snap_enabled: true,
@@ -441,7 +441,7 @@ impl Signex {
             size: iced::Size::new(1400.0, 900.0),
             icon: super::bundled_window_icon(),
             // Borderless main window: the custom chrome in
-            // `Signex::view_main_window_chrome` supplies wordmark +
+            // `Oxide::view_main_window_chrome` supplies wordmark +
             // menus + drag zone + search bar + min/max/close. Edge
             // resize handles inside `view_main_for` add 6 px strips
             // that call `iced::window::drag_resize` per direction so

@@ -8,7 +8,7 @@ use super::*;
 use anyhow::{Context, Result};
 use iced::Task;
 
-impl Signex {
+impl Oxide {
     /// Resolve a project-tree path (indices) to the file path on disk
     /// for the leaf node at that position. Multi-root aware: the first
     /// index picks which project's directory to resolve against, so a
@@ -223,7 +223,7 @@ fn canonical_tree_label(label: &str) -> &str {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::app::Signex;
+    use crate::app::Oxide;
 
     /// Regression (#99 part 1): `open_project_tree_document` used to
     /// return `Result<()>` and the `.snxsym` / `.snxlib` branches
@@ -240,7 +240,7 @@ mod tests {
     /// and dropped cases are runtime-indistinguishable until then.
     #[test]
     fn open_project_tree_document_snxsym_carries_the_task_out() {
-        let (mut app, _bootstrap_task) = Signex::new();
+        let (mut app, _bootstrap_task) = Oxide::new();
 
         let dir = tempfile::tempdir().unwrap();
         let project_path = dir.path().join("proj.snxprj");

@@ -18,14 +18,14 @@ fn f1_legacy_prefs_path_copied_forward_when_canonical_empty() {
     let canonical = tmp
         .path()
         .join("canonical")
-        .join("signex")
+        .join("oxide")
         .join("prefs.json");
-    let legacy = tmp.path().join("legacy").join("signex").join("prefs.json");
+    let legacy = tmp.path().join("legacy").join("oxide").join("prefs.json");
 
     fs::create_dir_all(legacy.parent().unwrap()).unwrap();
     fs::write(
         &legacy,
-        br#"{"ui_font":"Roboto","theme":"signex","label_style":"standard"}"#,
+        br#"{"ui_font":"Roboto","theme":"oxide","label_style":"standard"}"#,
     )
     .unwrap();
     assert!(!canonical.exists(), "canonical absent before migration");
@@ -50,9 +50,9 @@ fn f1_canonical_present_blocks_legacy_copy() {
     let canonical = tmp
         .path()
         .join("canonical")
-        .join("signex")
+        .join("oxide")
         .join("prefs.json");
-    let legacy = tmp.path().join("legacy").join("signex").join("prefs.json");
+    let legacy = tmp.path().join("legacy").join("oxide").join("prefs.json");
 
     fs::create_dir_all(canonical.parent().unwrap()).unwrap();
     fs::create_dir_all(legacy.parent().unwrap()).unwrap();
@@ -78,9 +78,9 @@ fn f1_no_legacy_no_canonical_is_a_clean_noop() {
     let canonical = tmp
         .path()
         .join("canonical")
-        .join("signex")
+        .join("oxide")
         .join("prefs.json");
-    let legacy = tmp.path().join("legacy").join("signex").join("prefs.json");
+    let legacy = tmp.path().join("legacy").join("oxide").join("prefs.json");
 
     // Neither exists. Migration should not panic, not create anything.
     oxide_app::fonts::migrate_legacy_prefs(&canonical, &legacy);
@@ -92,7 +92,7 @@ fn f1_no_legacy_no_canonical_is_a_clean_noop() {
 #[test]
 fn f3_stale_label_style_rewritten_to_standard() {
     let tmp = TempDir::new().unwrap();
-    let canonical = tmp.path().join("signex").join("prefs.json");
+    let canonical = tmp.path().join("oxide").join("prefs.json");
     let legacy = canonical.clone(); // legacy unused — canonical exists already.
 
     fs::create_dir_all(canonical.parent().unwrap()).unwrap();
@@ -122,7 +122,7 @@ fn f3_stale_label_style_rewritten_to_standard() {
 #[test]
 fn f3_canonical_label_style_left_alone() {
     let tmp = TempDir::new().unwrap();
-    let canonical = tmp.path().join("signex").join("prefs.json");
+    let canonical = tmp.path().join("oxide").join("prefs.json");
     let legacy = canonical.clone();
 
     fs::create_dir_all(canonical.parent().unwrap()).unwrap();
@@ -148,7 +148,7 @@ fn f3_label_style_case_variants_all_normalise() {
         // These are case variants of CANONICAL tokens — they should
         // round-trip unchanged (eq_ignore_ascii_case match).
         let tmp = TempDir::new().unwrap();
-        let canonical = tmp.path().join("signex").join("prefs.json");
+        let canonical = tmp.path().join("oxide").join("prefs.json");
         let legacy = canonical.clone();
         fs::create_dir_all(canonical.parent().unwrap()).unwrap();
         fs::write(
@@ -171,7 +171,7 @@ fn f3_label_style_case_variants_all_normalise() {
 #[test]
 fn f3_garbage_json_doesnt_corrupt_file() {
     let tmp = TempDir::new().unwrap();
-    let canonical = tmp.path().join("signex").join("prefs.json");
+    let canonical = tmp.path().join("oxide").join("prefs.json");
     let legacy = canonical.clone();
     fs::create_dir_all(canonical.parent().unwrap()).unwrap();
 
@@ -203,7 +203,7 @@ fn f3_garbage_json_doesnt_corrupt_file() {
 
 fn temp_prefs_path() -> (TempDir, PathBuf) {
     let tmp = TempDir::new().unwrap();
-    let path = tmp.path().join("signex").join("prefs.json");
+    let path = tmp.path().join("oxide").join("prefs.json");
     (tmp, path)
 }
 
@@ -213,7 +213,7 @@ fn prefs_theme_round_trip_through_json() {
     // Default when missing.
     assert_eq!(
         oxide_app::fonts::read_theme_pref_at(&path),
-        ThemeId::Signex
+        ThemeId::Oxide
     );
 
     // Each builtin theme survives a write→read cycle.
@@ -287,7 +287,7 @@ fn prefs_writes_dont_clobber_neighboring_keys() {
     let (_tmp, path) = temp_prefs_path();
 
     // Seed multiple keys.
-    oxide_app::fonts::write_theme_pref_at(&path, ThemeId::Signex);
+    oxide_app::fonts::write_theme_pref_at(&path, ThemeId::Oxide);
     oxide_app::fonts::write_unit_pref_at(&path, Unit::Mil);
     oxide_app::fonts::write_grid_visible_pref_at(&path, false);
 
@@ -296,7 +296,7 @@ fn prefs_writes_dont_clobber_neighboring_keys() {
 
     assert_eq!(
         oxide_app::fonts::read_theme_pref_at(&path),
-        ThemeId::Signex
+        ThemeId::Oxide
     );
     assert_eq!(oxide_app::fonts::read_unit_pref_at(&path), Unit::Mil);
     assert!(!oxide_app::fonts::read_grid_visible_pref_at(&path));
@@ -312,7 +312,7 @@ fn prefs_garbage_json_falls_back_to_defaults() {
     // Each read returns its default rather than panicking on parse error.
     assert_eq!(
         oxide_app::fonts::read_theme_pref_at(&path),
-        ThemeId::Signex
+        ThemeId::Oxide
     );
     assert_eq!(oxide_app::fonts::read_unit_pref_at(&path), Unit::Mm);
     assert!(oxide_app::fonts::read_grid_visible_pref_at(&path));
@@ -451,7 +451,7 @@ fn prefs_cross_pref_independence() {
 
     // Write each pref in a different "session" (sequential writes,
     // each through update_prefs_json which does read-modify-write).
-    oxide_app::fonts::write_theme_pref_at(&path, ThemeId::Signex);
+    oxide_app::fonts::write_theme_pref_at(&path, ThemeId::Oxide);
     oxide_app::fonts::write_grid_size_mm_pref_at(&path, 2.54);
     oxide_app::fonts::write_unit_pref_at(&path, Unit::Mil);
     oxide_app::fonts::write_grid_visible_pref_at(&path, false);
@@ -460,7 +460,7 @@ fn prefs_cross_pref_independence() {
     // Read everything back — none should have been clobbered.
     assert_eq!(
         oxide_app::fonts::read_theme_pref_at(&path),
-        ThemeId::Signex
+        ThemeId::Oxide
     );
     assert!((oxide_app::fonts::read_grid_size_mm_pref_at(&path).unwrap() - 2.54).abs() < 1e-5);
     assert_eq!(oxide_app::fonts::read_unit_pref_at(&path), Unit::Mil);

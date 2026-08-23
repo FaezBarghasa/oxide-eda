@@ -407,7 +407,7 @@ impl TantivySearchIndex {
                         // to the same text as a literal phrase keeps
                         // the search a search.
                         tracing::warn!(
-                            target: "signex::search",
+                            target: "oxide::search",
                             error = %e,
                             query = %trimmed,
                             "search text is not valid query syntax; matching it as a literal phrase instead"
@@ -640,7 +640,7 @@ impl SearchIndex for TantivySearchIndex {
                 // index-error → empty-result outcome is distinguishable
                 // from a legitimate "no matches" outcome.
                 tracing::warn!(
-                    target: "signex::search",
+                    target: "oxide::search",
                     error = %e,
                     "search build_query failed; returning empty result set"
                 );
@@ -652,7 +652,7 @@ impl SearchIndex for TantivySearchIndex {
             Ok(t) => t,
             Err(e) => {
                 tracing::warn!(
-                    target: "signex::search",
+                    target: "oxide::search",
                     error = %e,
                     "tantivy search failed; returning empty result set"
                 );
@@ -671,7 +671,7 @@ impl SearchIndex for TantivySearchIndex {
             split_readable_docs(top.into_iter().map(|(_score, addr)| searcher.doc(addr)));
         if let Some(first_error) = &unreadable.first_error {
             tracing::warn!(
-                target: "signex::search",
+                target: "oxide::search",
                 unreadable = unreadable.count,
                 matched,
                 error = %first_error,

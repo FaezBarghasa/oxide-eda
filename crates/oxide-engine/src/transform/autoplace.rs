@@ -147,7 +147,7 @@ pub(super) fn autoplace_fields(
     }
 
     // 4. Pick the side. Score = pin_count + anchor_penalty.
-    //    Tie-break order is Signex-original: Bottom > Top > Left > Right.
+    //    Tie-break order is Oxide-original: Bottom > Top > Left > Right.
     #[derive(Clone, Copy)]
     enum Side {
         Bottom,

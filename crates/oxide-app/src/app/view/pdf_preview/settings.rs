@@ -1,10 +1,10 @@
 //! PDF Settings tab and its section builders (files / structure /
-//! additional) — methods of the shared `Signex` view impl, split from
+//! additional) — methods of the shared `Oxide` view impl, split from
 //! `view/pdf_preview.rs` as pure code motion.
 
 use super::super::*;
 
-impl Signex {
+impl Oxide {
     /// Settings tab — stitches the three section helpers below into a
     /// single scrollable column. Each helper owns its own widgets and
     /// reads/writes through `preview.pdf_options.*` directly so the

@@ -8,7 +8,7 @@
 
 ## Implemented slices
 
-- [x] Runtime GLB ingest adapter module added to `signex-renderer`.
+- [x] Runtime GLB ingest adapter module added to `oxide-renderer`.
 - [x] Runtime GLB ingest error model mapped to contract failures.
 - [x] Integration tests cover reject/accept flows for bytes and cached file-path sources.
 
@@ -20,7 +20,7 @@
 
 ## Validation
 
-- [x] `cargo test -p signex-renderer pcb3d_runtime_glb_ingest -- --nocapture` passes.
+- [x] `cargo test -p oxide-renderer pcb3d_runtime_glb_ingest -- --nocapture` passes.
 - [x] Full Milestone C runtime integration and benchmark command set passes.
 
 ## Exit gate

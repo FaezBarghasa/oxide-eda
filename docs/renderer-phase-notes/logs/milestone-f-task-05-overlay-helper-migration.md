@@ -17,7 +17,7 @@ selection, and marker visuals flow through the renderer snapshot scene path.
 ## Implementation summary
 
 - Added shared `draw_renderer_snapshot(...)` helper in
-  `crates/signex-app/src/schematic_runtime.rs` and reused it for runtime scene
+  `crates/oxide-app/src/schematic_runtime.rs` and reused it for runtime scene
   emission.
 - Migrated overlay families to renderer snapshot overlay buckets:
   - selection overlay (`preview_lines`, `ghost_polygons`, `lasso_lines`,
@@ -33,20 +33,20 @@ selection, and marker visuals flow through the renderer snapshot scene path.
 Commands:
 
 ```text
-cargo check -p signex-app
-cargo test -p signex-app schematic_runtime::tests
+cargo check -p oxide-app
+cargo test -p oxide-app schematic_runtime::tests
 ```
 
 Result:
 
-- `cargo check -p signex-app`: pass (warnings only).
-- `cargo test -p signex-app schematic_runtime::tests`: pass
+- `cargo check -p oxide-app`: pass (warnings only).
+- `cargo test -p oxide-app schematic_runtime::tests`: pass
   (`3 passed; 0 failed`).
 
 ## Clean-room evidence
 
 - Source: Milestone F overlay parity requirements and app-local runtime APIs.
-- Derivation: overlay/text helpers rebuilt on `signex-renderer` snapshot flow.
+- Derivation: overlay/text helpers rebuilt on `oxide-renderer` snapshot flow.
 - Clean-room check: no legacy GPL schematic runtime helper code used.
 
 ## Exit checklist

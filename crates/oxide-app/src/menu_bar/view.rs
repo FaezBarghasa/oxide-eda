@@ -415,7 +415,7 @@ pub fn view(tokens: &ThemeTokens, ctx: MenuContext) -> Element<'static, MenuMess
     let help_menu = Item::with_menu(
         root_btn("Help", mc),
         menu_template(vec![
-            leaf_stub("About Signex", None, mc),
+            leaf_stub("About Oxide", None, mc),
             separator(mc),
             leaf(
                 &cmd_label("show_current_command_hotkeys", "Keyboard Shortcuts"),

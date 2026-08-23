@@ -11,14 +11,14 @@
 
 ## Scope
 
-Design the `signex-model-import` crate structure, public API surface, error
+Design the `oxide-model-import` crate structure, public API surface, error
 model, and test harness plan for the Milestone D execution sprint.
 
 ## Crate scaffold
 
 ### Location
 
-`crates/signex-model-import/`
+`crates/oxide-model-import/`
 
 ### Cargo.toml dependencies
 
@@ -33,7 +33,7 @@ base64 = "0.22"                    # GLTF embedded buffer encoding
 tempfile = "3"
 ```
 
-No `signex-gfx` or `signex-renderer` dependency. The crate is self-contained
+No `oxide-gfx` or `oxide-renderer` dependency. The crate is self-contained
 and only produces GLB bytes / path artifacts.
 
 ### Module layout

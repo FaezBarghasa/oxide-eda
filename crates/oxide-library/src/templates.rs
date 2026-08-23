@@ -8,7 +8,7 @@
 //!
 //! Resolution order (§4.3):
 //! 1. per-library override (inside `*.snxlib/templates/<class>.toml`),
-//! 2. global override (`<config_dir>/signex/templates/<class>.toml`) — *not
+//! 2. global override (`<config_dir>/oxide/templates/<class>.toml`) — *not
 //!    loaded by this crate; `TemplateRegistry::load_global_dir` is called by
 //!    the app shell during start-up*,
 //! 3. the bundled built-in.

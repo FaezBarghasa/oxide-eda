@@ -277,7 +277,7 @@ fn report_constraint_not_added(
     let warning = match &bad_dimension {
         Some(buffer) => {
             tracing::error!(
-                target: "signex::sketch_constraints",
+                target: "oxide::sketch_constraints",
                 constraint = ?tag,
                 dimension_input = buffer.as_str(),
                 "constraint not added: the dimension field is not a number"
@@ -289,7 +289,7 @@ fn report_constraint_not_added(
         }
         None => {
             tracing::error!(
-                target: "signex::sketch_constraints",
+                target: "oxide::sketch_constraints",
                 constraint = ?tag,
                 "constraint not added: the selection does not match this constraint"
             );

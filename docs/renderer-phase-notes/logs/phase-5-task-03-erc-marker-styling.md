@@ -22,16 +22,16 @@ Add ERC marker primitives and severity-based styling through semantic theme slot
 
 ## Clean-room evidence
 
-- Source: Signex design decision for ERC overlay semantics.
+- Source: Oxide design decision for ERC overlay semantics.
 - Derivation: deterministic severity-to-style mapping.
 - Rationale: make ERC diagnostics visually distinguishable and stable.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: `cargo test -p signex-renderer -- --nocapture`, `cargo test -p signex-gfx -- --nocapture`, `cargo check -p signex-gfx -p signex-renderer`, and `cargo build -p signex-gfx -p signex-renderer` passed.
+- Verification: `cargo test -p oxide-renderer -- --nocapture`, `cargo test -p oxide-gfx -- --nocapture`, `cargo check -p oxide-gfx -p oxide-renderer`, and `cargo build -p oxide-gfx -p oxide-renderer` passed.
 
 ## Artifacts
 
 - PR/commit: pending
-- Test output: signex-renderer tests passed (9 passed, 0 failed), signex-gfx tests passed (27 passed, 0 failed)
+- Test output: oxide-renderer tests passed (9 passed, 0 failed), oxide-gfx tests passed (27 passed, 0 failed)
 - Screenshot/benchmark: pending
 
 ## Exit checklist

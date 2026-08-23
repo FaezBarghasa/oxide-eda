@@ -551,7 +551,7 @@ pub enum AlignOp {
 /// pad list onto the freshly-rebuilt one, matching by pad number.
 ///
 /// Only where the number identifies exactly ONE pad on each side.
-/// Numbers are not unique in signex, and a last-wins number map hands
+/// Numbers are not unique in oxide, and a last-wins number map hands
 /// several pads the same `sketch_entity_id` — after which a Pads-mode
 /// delete of one pad runs the delete mirror over another's geometry
 /// and that pad's copper silently disappears from the bake. An
@@ -620,7 +620,7 @@ pub(super) fn carry_links_by_unique_number(old: &[EditorPad], new_pads: &mut [Ed
 ///
 /// # Pad numbers are NOT unique
 ///
-/// Nothing in signex enforces a unique pad number — the Properties
+/// Nothing in oxide enforces a unique pad number — the Properties
 /// field takes any string and `next_pad_defaults.designator_override`
 /// stamps one number onto every pad placed after it, which is how a
 /// shared-designator row / thermal / shield pad set is authored. Each

@@ -51,31 +51,31 @@ pub enum TreeIcon {
     Sheet,
     Net,
     Pin,
-    // ─── Signex native file formats ─────────────────────────────
+    // ─── Oxide native file formats ─────────────────────────────
     // Each renders as a full-color SVG (see `svg_bytes`). Glyph +
     // colour methods below return sensible fallbacks but the SVG
     // path is what actually paints in the tree.
-    /// `.snxprj` — Signex project file.
+    /// `.snxprj` — Oxide project file.
     SnxProject,
-    /// `.snxsch` — Signex schematic.
+    /// `.snxsch` — Oxide schematic.
     SnxSchematic,
-    /// `.snxpcb` — Signex PCB.
+    /// `.snxpcb` — Oxide PCB.
     SnxPcb,
-    /// `.snxfpt` — Signex footprint.
+    /// `.snxfpt` — Oxide footprint.
     SnxFootprint,
-    /// `.snxsim` — Signex simulation.
+    /// `.snxsim` — Oxide simulation.
     SnxSimulation,
-    /// `.snxlib` — Signex library.
+    /// `.snxlib` — Oxide library.
     SnxLibrary,
-    /// `.snxsym` — Signex symbol.
+    /// `.snxsym` — Oxide symbol.
     SnxSymbol,
-    /// `.snxpkg` — Signex package / distributable bundle.
+    /// `.snxpkg` — Oxide package / distributable bundle.
     Package,
-    /// `.snxmat` — Signex PCB material / stackup sidecar.
+    /// `.snxmat` — Oxide PCB material / stackup sidecar.
     Material,
-    /// `.snxcfg` — Signex project config.
+    /// `.snxcfg` — Oxide project config.
     Config,
-    /// `.snxmod` — Signex encrypted SPICE model (distinct from
+    /// `.snxmod` — Oxide encrypted SPICE model (distinct from
     /// `.snxsim`, which is the testbench, not the model).
     Model,
 }
@@ -87,13 +87,13 @@ pub enum TreeIcon {
 //  * **Generic tree icons** — folder / file / library / component /
 //    sheet / net / pin. Live at
 //    `crates/oxide-widgets/assets/tree-icons/`.
-//  * **Signex native `.snx***` file family** — shared with the
+//  * **Oxide native `.snx***` file family** — shared with the
 //    installer's file-association artwork at
 //    `crates/oxide-app/assets/icons/files/`. Reached cross-crate via
 //    `include_bytes!` so one copy of the artwork serves both the
 //    tree view and the .ico/.icns raster pipeline.
 //  * **Standard handoff formats** — `.standard_sch` / `.standard_pcb` /
-//    `.standard_sym` / `.standard_mod` render with the matching Signex-
+//    `.standard_sym` / `.standard_mod` render with the matching Oxide-
 //    brand glyph (same chamfered silhouette + amber wedge), so the
 //    project tree stays visually consistent regardless of whether
 //    files are native or Standard. The `TreeIcon::Schematic` / `::Pcb`
@@ -123,7 +123,7 @@ const SVG_TREE_MATERIAL: &[u8] = include_bytes!("../assets/tree-icons/material.s
 const SVG_TREE_CONFIG: &[u8] = include_bytes!("../assets/tree-icons/config.svg");
 const SVG_TREE_MODEL: &[u8] = include_bytes!("../assets/tree-icons/model.svg");
 
-// Signex native `.snx***` file family (SVG). Shared with the
+// Oxide native `.snx***` file family (SVG). Shared with the
 // installer's file-association artwork; update both paths together
 // if the asset layout changes.
 const SVG_SNX_PROJECT: &[u8] = include_bytes!("../../oxide-app/assets/icons/files/snxprj.svg");
@@ -149,14 +149,14 @@ impl TreeIcon {
             Self::Sheet => cached_svg_handle!(SVG_TREE_SHEET),
             Self::Net => cached_svg_handle!(SVG_TREE_NET),
             Self::Pin => cached_svg_handle!(SVG_TREE_PIN),
-            // Standard handoff formats — share the Signex-brand glyph
+            // Standard handoff formats — share the Oxide-brand glyph
             // for visual consistency in the project tree. The enum
             // variants remain for backward-compat with older call
             // sites that construct `TreeIcon::Schematic/::Pcb`
             // directly.
             Self::Schematic => cached_svg_handle!(SVG_SNX_SCHEMATIC),
             Self::Pcb => cached_svg_handle!(SVG_SNX_PCB),
-            // Signex native `.snx***` family.
+            // Oxide native `.snx***` family.
             Self::SnxProject => cached_svg_handle!(SVG_SNX_PROJECT),
             Self::SnxSchematic => cached_svg_handle!(SVG_SNX_SCHEMATIC),
             Self::SnxPcb => cached_svg_handle!(SVG_SNX_PCB),
@@ -171,8 +171,8 @@ impl TreeIcon {
         }
     }
 
-    /// Pick a `TreeIcon` for a filename. Both Signex `.snx***` and
-    /// Standard `.standard_*` extensions route to the same Signex-brand
+    /// Pick a `TreeIcon` for a filename. Both Oxide `.snx***` and
+    /// Standard `.standard_*` extensions route to the same Oxide-brand
     /// glyph family so the project tree reads as one cohesive visual
     /// family regardless of whether the underlying file is native or
     /// Standard. Unknown extensions fall back to `File`.
@@ -180,7 +180,7 @@ impl TreeIcon {
         let lower = filename.to_ascii_lowercase();
         if let Some(ext) = lower.rsplit('.').next() {
             match ext {
-                // Native Signex files.
+                // Native Oxide files.
                 "snxprj" => Self::SnxProject,
                 "snxsch" => Self::SnxSchematic,
                 "snxpcb" => Self::SnxPcb,
@@ -192,7 +192,7 @@ impl TreeIcon {
                 "snxmat" => Self::Material,
                 "snxcfg" => Self::Config,
                 "snxmod" => Self::Model,
-                // Standard handoff formats — map to the matching Signex
+                // Standard handoff formats — map to the matching Oxide
                 // glyph. `.standard_sym` is a symbol library (multiple
                 // symbols) so it pairs with the library glyph;
                 // `.standard_mod` is a single footprint.
@@ -446,7 +446,7 @@ fn render_node(
 
     // Icon — full-colour bundled SVG. Cached per variant; render via
     // `iced::widget::svg`. Standard handoff formats share glyphs with
-    // their Signex-native counterparts (see `TreeIcon::svg`).
+    // their Oxide-native counterparts (see `TreeIcon::svg`).
     //
     // Active-project marker: when this row is the accented root in a
     // multi-project workspace (`node.accent && depth == 0`), tint the

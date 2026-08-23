@@ -1,9 +1,9 @@
-# Signex — External Tools
+# Oxide — External Tools
 
 > **Status:** Living document. Updated when a choice changes.
 > **Audience:** Anyone about to build, propose, or vendor a dependency in
 > one of the domains below.
-> **Owns:** what we build on. For each domain Signex depends on, this file
+> **Owns:** what we build on. For each domain Oxide depends on, this file
 > names the tool we chose, why, and how it is reached.
 > **Does not own:** version numbers (`docs/ROADMAP.md` owns the version
 > axis) or feature semantics (the internal plans own those). The roadmap
@@ -23,7 +23,7 @@ spend thirty seconds before spending a weekend.
 
 ## 2. Why This File Exists
 
-Signex's planning documents live in a private submodule at
+Oxide's planning documents live in a private submodule at
 `docs/internal/`. That means the stack decisions in this section were
 made, written down, and then made invisible to everyone outside the
 repository. We never published them, and we never told anyone we hadn't.
@@ -53,7 +53,7 @@ missed. This file is the fix, and it is tracked by issue #306.
 | Formula + document rendering | **typst** | Apache-2.0 | Rust crate, linked | v1.4 |
 | 3D kernel / STEP import | **OpenCascade** + **truck-modeling** | LGPL / Apache-2.0 | OpenCascade via a `step-to-gltf` conversion step; `truck-modeling` linked | v2.3 |
 | Router geometry | **rstar**, **spade**, **kurbo**, **parry2d** | MIT / Apache-2.0 | Cargo dependencies of `pcb-geom` | v2.1 |
-| 2D constraint solving | **our own Newton-LM solver** (`crates/signex-sketch`) | Apache-2.0 | In-tree | shipped (v0.13.0) |
+| 2D constraint solving | **our own Newton-LM solver** (`crates/oxide-sketch`) | Apache-2.0 | In-tree | shipped (v0.13.0) |
 
 ### Notes per domain
 
@@ -68,7 +68,7 @@ is a mix rooted in the Berkeley SPICE3 lineage. Read upstream `COPYING`
 before you assume anything about it.
 
 **EM / S-parameters — OpenEMS + CSXCAD.** OpenEMS is an EC-FDTD solver;
-CSXCAD is the geometry library it consumes. Signex writes a CSX geometry
+CSXCAD is the geometry library it consumes. Oxide writes a CSX geometry
 description, runs the solver as a separate process, and reads HDF5 results
 back. This is the path for extracting S-parameters from real PCB
 geometry — trace, via, and region blocks. It is the reason a hand-rolled
@@ -76,7 +76,7 @@ Touchstone parser is not needed: the numbers come from the solver and the
 post-processing comes from scikit-rf.
 
 **FEM / thermal — Elmer + GMSH.** GMSH meshes the geometry, Elmer solves
-it, Signex reads VTK back. Same subprocess shape as OpenEMS. GMSH is used
+it, Oxide reads VTK back. Same subprocess shape as OpenEMS. GMSH is used
 straight from upstream — no fork.
 
 **RF math — scikit-rf.** Touchstone parsing, network algebra, cascading,
@@ -112,7 +112,7 @@ read the Topola proposal and the answer is that routing is the feature we
 are least willing to outsource — it is the core of the product's
 differentiation and it is planned in detail.
 
-**2D constraint solving — ours.** `crates/signex-sketch` implements a
+**2D constraint solving — ours.** `crates/oxide-sketch` implements a
 Newton–Levenberg-Marquardt constraint solver, written from textbook and
 published-paper descriptions. See §6.
 
@@ -121,7 +121,7 @@ published-paper descriptions. See §6.
 ## 4. The GPL / LGPL Bridge Boundary
 
 **This is the most important section in this file.** The forks listed in
-§5 are copyleft. Linking any of them into Signex would relicense Signex.
+§5 are copyleft. Linking any of them into Oxide would relicense Oxide.
 It will not happen.
 
 The rules, imperatively:
@@ -136,7 +136,7 @@ The rules, imperatively:
   solver as a subprocess, and reads results back:
 
 ```
-signex (Apache-2.0)                        ‖   solver (GPL / LGPL)
+oxide (Apache-2.0)                        ‖   solver (GPL / LGPL)
                                            ‖
   write .csx / .sif / mesh input   ────────╫──►  openEMS | ElmerSolver
                                            ‖         (separate process,
@@ -172,10 +172,10 @@ carry those fixes on a named branch. Public forks:
 | [alplabai/openEMS-Project](https://github.com/alplabai/openEMS-Project) | thliebig/openEMS-Project | see submodules | Superproject pinning the submodule set |
 | [alplabai/CSXCAD](https://github.com/alplabai/CSXCAD) | thliebig/CSXCAD | LGPL-3.0 | Iterator UB after `erase`, `UpdateIDs` logic bug |
 | [alplabai/fparser](https://github.com/alplabai/fparser) | thliebig/fparser | consult upstream | Function parser for openEMS expressions |
-| [alplabai/elmerfem](https://github.com/alplabai/elmerfem) | ElmerCSC/elmerfem | mixed; consult upstream | Branch `signex-pcb`: VectorHelmholtz segfault plus four HIGH-severity fixes in `Load.c` / `cholmod.c` |
+| [alplabai/elmerfem](https://github.com/alplabai/elmerfem) | ElmerCSC/elmerfem | mixed; consult upstream | Branch `oxide-pcb`: VectorHelmholtz segfault plus four HIGH-severity fixes in `Load.c` / `cholmod.c` |
 | [alplabai/AppCSXCAD](https://github.com/alplabai/AppCSXCAD) | thliebig/AppCSXCAD | GPL-3.0 | Qt GUI for CSXCAD |
 | [alplabai/QCSXCAD](https://github.com/alplabai/QCSXCAD) | thliebig/QCSXCAD | LGPL-3.0 | Qt GUI library for CSXCAD |
-| [alplabai/signex-kicad-import](https://github.com/alplabai/signex-kicad-import) | — (ours) | GPL-3.0-or-later | The one-way KiCad → Signex migration companion. Not a fork; a deliberately separate GPL repo. See [`docs/LICENSING.md`](LICENSING.md). |
+| [alplabai/oxide-kicad-import](https://github.com/alplabai/oxide-kicad-import) | — (ours) | GPL-3.0-or-later | The one-way KiCad → Oxide migration companion. Not a fork; a deliberately separate GPL repo. See [`docs/LICENSING.md`](LICENSING.md). |
 
 GMSH is used from upstream unmodified. Our ngspice fork is not public;
 see §3.
@@ -195,7 +195,7 @@ So:
   upstream** where it is appropriate for upstream — `thliebig/openEMS`,
   `thliebig/CSXCAD`, `ElmerCSC/elmerfem`. That helps more people than a
   patch to our fork does, and it shortens our fork. If the fix is
-  Signex-specific, then send it to our fork.
+  Oxide-specific, then send it to our fork.
 
 ---
 
@@ -208,7 +208,7 @@ The highest-value section for anyone about to start work.
 Both are good. Both are unusable here: a constraint solver lives *inside*
 the editor, in-process, on the hot path — the §4 subprocess escape hatch
 does not apply to something called on every mouse-move. So we wrote our
-own Newton–Levenberg-Marquardt solver in `crates/signex-sketch`, from
+own Newton–Levenberg-Marquardt solver in `crates/oxide-sketch`, from
 textbook and published-paper descriptions, under clean-room discipline
 with a contemporaneous audit trail. Sources are cited in the source
 comments. If you are improving the solver, cite the maths, never another
@@ -216,7 +216,7 @@ tool's implementation.
 
 **KiCad — no code, in either direction.** This repository is Apache-clean
 and CI enforces it. KiCad interoperability ships as a separate
-GPL-3.0-or-later companion, `signex-kicad-import`. The full history is in
+GPL-3.0-or-later companion, `oxide-kicad-import`. The full history is in
 [`docs/LICENSING.md`](LICENSING.md); read it before proposing anything
 that touches KiCad formats.
 

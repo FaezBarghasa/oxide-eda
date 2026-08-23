@@ -14,7 +14,7 @@
 
 use std::path::PathBuf;
 
-use oxide_app::app::{Message, Signex};
+use oxide_app::app::{Message, Oxide};
 use oxide_app::library::messages::LibraryMessage;
 use oxide_app::library::state::LibraryBrowserState;
 use oxide_library::adapter::LibraryAdapter;
@@ -127,7 +127,7 @@ fn an_unparseable_buffer_does_not_retype_a_measurement_parameter() {
         .expect("tempdir");
     let (snxlib, row_id) = library_with_a_measurement_row(tmp.path());
 
-    let (mut app, _boot) = Signex::new();
+    let (mut app, _boot) = Oxide::new();
     app.library
         .open_library(snxlib.clone())
         .expect("mount library");
@@ -180,7 +180,7 @@ fn a_refused_cell_commit_reaches_the_messages_panel() {
         .expect("tempdir");
     let (snxlib, row_id) = library_with_a_measurement_row(tmp.path());
 
-    let (mut app, _boot) = Signex::new();
+    let (mut app, _boot) = Oxide::new();
     app.library
         .open_library(snxlib.clone())
         .expect("mount library");

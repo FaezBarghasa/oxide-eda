@@ -1,10 +1,10 @@
-# Signex — Roadmap
+# Oxide — Roadmap
 
 > **Status:** Living document. Updated quarterly. Last reconciled against
 > reality 2026-07-15.
 > **Audience:** Anyone planning work, allocating engineering time, or
 > communicating timelines.
-> **Owns:** the version axis. Every version number Signex ships is defined
+> **Owns:** the version axis. Every version number Oxide ships is defined
 > here and nowhere else.
 
 This document describes *when* things ship. It does not describe *what*
@@ -27,7 +27,7 @@ Nothing else defines what ships in a version.
 | `docs/ROADMAP.md` (this file) | Version numbers, ordering, gates, exit criteria | Feature semantics |
 | `MASTER_PLAN.md` | Scope, principles, product thesis, format stance | Version numbers |
 | `.github/milestones.yml` | The GitHub projection of this file | Anything not listed here |
-| `signex-internal` → `docs/ROADMAP_DETAIL.md` | Near-term per-version scope decomposition | Gate definitions |
+| `oxide-internal` → `docs/ROADMAP_DETAIL.md` | Near-term per-version scope decomposition | Gate definitions |
 
 This rule exists because it was broken. Before 2026-07-15 the version
 axis was defined in three places at once — this file, `MASTER_PLAN.md`
@@ -69,7 +69,7 @@ this document read as fiction until it was reconciled.
 
 ## 3. Versioning Strategy
 
-Signex uses **semantic versioning**.
+Oxide uses **semantic versioning**.
 
 | Version | Meaning                                                          |
 |---------|------------------------------------------------------------------|
@@ -81,7 +81,7 @@ Signex uses **semantic versioning**.
 | 3.0     | Pro launch. Signal AI, plugins, and collaboration ship.           |
 | 3.x     | Pro refinement.                                                   |
 | 4.x     | Simulation, advanced output, foreign-format import.               |
-| 5.x     | Signex 365 — cloud PLM platform.                                  |
+| 5.x     | Oxide 365 — cloud PLM platform.                                  |
 
 **Major versions are gates, not arbitrary cuts.** v1.0 ships when the
 schematic editor is production-ready — not when a date passes. We do not
@@ -128,19 +128,19 @@ workstream is active in every phase.
 
 | ID      | Name                          | Owns                                         |
 |---------|-------------------------------|----------------------------------------------|
-| **WS-D**  | Document Layer              | `signex-document` (native `.snx*` raw doc)   |
-| **WS-M**  | Semantic Model              | `signex-model`                               |
-| **WS-E**  | Engine                      | `signex-engine`                              |
-| **WS-R**  | Render                      | `signex-render`                              |
-| **WS-U**  | UI Shell + Schematic Canvas | `signex-app` (shell, panels, schematic)      |
-| **WS-V**  | Validation (ERC/DRC)        | `signex-erc`, `signex-drc`                   |
+| **WS-D**  | Document Layer              | `oxide-document` (native `.snx*` raw doc)   |
+| **WS-M**  | Semantic Model              | `oxide-model`                               |
+| **WS-E**  | Engine                      | `oxide-engine`                              |
+| **WS-R**  | Render                      | `oxide-render`                              |
+| **WS-U**  | UI Shell + Schematic Canvas | `oxide-app` (shell, panels, schematic)      |
+| **WS-V**  | Validation (ERC/DRC)        | `oxide-erc`, `oxide-drc`                   |
 | **WS-O**  | Output                      | export modules (PDF, BOM, Gerber, etc.)      |
 | **WS-P**  | PCB Geometry + Router       | `pcb-geom`, `pcb-router`                     |
-| **WS-3D** | 3D Viewer                   | `signex-model-import`, `signex-render-3d`    |
+| **WS-3D** | 3D Viewer                   | `oxide-model-import`, `oxide-render-3d`    |
 | **WS-S**  | Simulation                  | `spice-bridge`, `openems-bridge`, etc.       |
-| **WS-AI** | Signal AI (Pro)             | `signex-signal`                              |
-| **WS-C**  | Collaboration (Pro)         | `signex-collab`, Supabase backend            |
-| **WS-X**  | Plugins                     | `signex-plugin`                              |
+| **WS-AI** | Signal AI (Pro)             | `oxide-signal`                              |
+| **WS-C**  | Collaboration (Pro)         | `oxide-collab`, Supabase backend            |
+| **WS-X**  | Plugins                     | `oxide-plugin`                              |
 
 Workstreams are deliberately **not** GitHub labels. They overlap the
 `area:` family almost exactly, and two labels meaning the same thing is
@@ -162,7 +162,7 @@ plan. Detail lives in `CHANGELOG.md`.
 | v0.10.0 – v0.11.0 | ✅ | Library browser, `.snxlib` classes, master-detail browser |
 | v0.12.0 | ⚠️ | Cleanroom renderer rewrite — merged, **never released** (see §2) |
 | v0.13.0 | ✅ | Sketch mode α — Newton-LM constraint solver, footprint pad-bake |
-| v0.14.0 | ✅ | Footprint editor parity, symbol multi-unit + polygon, `signex-net` netlist contract, keyboard-shortcut profiles, schematic GPU render, ADR-0001 decomposition |
+| v0.14.0 | ✅ | Footprint editor parity, symbol multi-unit + polygon, `oxide-net` netlist contract, keyboard-shortcut profiles, schematic GPU render, ADR-0001 decomposition |
 
 This covers Phases 0–6 of the original plan. Those phases are closed.
 
@@ -192,7 +192,7 @@ of this document lost credibility.
 
 **Where near-term scope comes from.** The issue tracker: every open issue
 carries a `tier:` label and, where scheduled, a milestone. The internal
-specs (`signex-internal`) are **not** a source of forward scope — they
+specs (`oxide-internal`) are **not** a source of forward scope — they
 describe work that has largely already shipped. They remain useful as
 implementation detail for whatever is genuinely outstanding.
 
@@ -217,7 +217,7 @@ macOS, Linux.
 
 - All v1.0 must-do items from `MASTER_PLAN.md` §5.1 complete
 - Fixture corpus of 50+ native `.snx*` projects, all round-tripping cleanly
-- A non-developer beta tester can install Signex, create or open a project,
+- A non-developer beta tester can install Oxide, create or open a project,
   edit it, and save it without consulting a developer
 - Issue tracker has zero `tier: p0` bugs
 
@@ -252,11 +252,11 @@ between bands.
 A first-class document type alongside Schematic and PCB: design
 rationale, calculations, measurement data, and debug logs attached to the
 design rather than to a separate file. The notebook is a Typst document
-with Signex extensions for component / pin / net references.
+with Oxide extensions for component / pin / net references.
 
 | Version | Scope |
 |---------|-------|
-| **v1.4.0 — Design Notebook** | Notebook tab (fourth document mode); `signex-notebook` crate — Typst source model, compile pipeline, annotation types; split-pane source + live preview editor; syntax highlighting and autocomplete; notebook file format (Typst source + metadata sidecar); PDF export |
+| **v1.4.0 — Design Notebook** | Notebook tab (fourth document mode); `oxide-notebook` crate — Typst source model, compile pipeline, annotation types; split-pane source + live preview editor; syntax highlighting and autocomplete; notebook file format (Typst source + metadata sidecar); PDF export |
 | **v1.4.1 — Design References & Annotations** | Custom Typst functions `@component` / `@pin` / `@net`; reference resolution against the active schematic with stale warnings; bidirectional navigation notebook ↔ schematic; schematic badge overlay with hover preview; annotation types (Note, Calculation, Measurement, Issue, Decision); dockable Annotations panel |
 | **v1.4.2 — Measurements & Signal AI Integration** | `#measurement()` function (value + unit + conditions + timestamp); per-pin / per-component measurement timeline; attachments (scope screenshots, thermal images, simulation plots); stale detection when referenced values change; Signal AI reads and writes notebook context (Pro) |
 | **v1.4.3 — Computational Layer** | `#python()` inline calculation cells; embedded CPython (`pyo3`) with pruned NumPy / SciPy / Matplotlib / pint / python-control / scikit-rf; schematic-value bridge (`@component(R7).value` → units-aware Python variable); inline Matplotlib plot rendering; result caching; sandboxed execution (no subprocess / network / out-of-project FS); slim installer variant without the Python embed |
@@ -295,7 +295,7 @@ management land in this band.
 
 | Version | Scope |
 |---------|-------|
-| **v2.1.0 — PCB Routing** | Router stage 1, greedy single-trace. `pcb-geom` crate (polygon offset, R-tree, Delaunay, Minkowski); `pcb-router` skeleton (session model, preview / commit); single-trace routing with 45° / 90° / arc45 / arc90 corners; via placement (through / blind / buried); net-class editor (width, clearance, via size per class); live DRC feedback with the 15 base rules (`signex-drc`) |
+| **v2.1.0 — PCB Routing** | Router stage 1, greedy single-trace. `pcb-geom` crate (polygon offset, R-tree, Delaunay, Minkowski); `pcb-router` skeleton (session model, preview / commit); single-trace routing with 45° / 90° / arc45 / arc90 corners; via placement (through / blind / buried); net-class editor (width, clearance, via size per class); live DRC feedback with the 15 base rules (`oxide-drc`) |
 | **v2.1.1 — Router: Walkaround** | Obstacle graph with clearance-inflated Minkowski offsets; A* pathfinder with corner / via / layer costs; corner-insertion pass preserving 45° / 90° / arc style; incremental debounced DRC on the proposed path; routing test-corpus tooling (50 open-source PCBs) |
 | **v2.1.2 — Router: Push-and-Shove** | Topology-preserving shove solver with fixed-point iteration; rigidity heuristics (pad / via / edge proximity); via shove within a rigidity budget; preview buffer + commit barrier with Escape rollback; the whole shove cascade undone as one action |
 | **v2.1.3 — Router: Diff Pairs & Length Tuning** | Coupled two-net router with gap control; length meander generator (accordion / trombone / sawtooth); length and skew reporting per net and per pair; teardrops as a design rule and a per-pad property |
@@ -323,7 +323,7 @@ editor: design, validate, route, DRC, and export to fabrication.
 | **v2.2.1 — Assembly & 3D Export** | Pick-and-place CSV; IPC-2581 export; STEP 3D export (board body); assembly SVG |
 
 **Exit criteria:** a complete project can be designed, validated, and
-exported to manufacturing files; a real PCB designed in Signex has been
+exported to manufacturing files; a real PCB designed in Oxide has been
 successfully fabricated by at least one beta user; zero `tier: p0` bugs.
 
 ### v2.3 — 3D Viewer (P3)
@@ -334,11 +334,11 @@ orbitable 3D in place, no separate window. See `PCB_3D_RENDER_PLAN.md`.
 
 | Version | Scope |
 |---------|-------|
-| **v2.3.0 — 3D Viewer** | `signex-scene3d` Scene IR crate (camera, materials, lights, units); `signex-board3d` board mesh + CSG cutouts + drill / via holes; board surface texture bake (albedo / normal / roughness / metallic); `BoardStackMaterials` + preset library; flat-2D view consumes the baked textures |
-| **v2.3.1 — Realistic 3D View Mode** | `Realistic3D` view mode + `2` / `3` toggle; orbit camera rig (yaw / pitch / distance, middle-drag orbit, wheel zoom); `signex-render-wgpu-3d` PBR-lite pipeline; board rendered with baked textures, components as extruded courtyard blocks |
+| **v2.3.0 — 3D Viewer** | `oxide-scene3d` Scene IR crate (camera, materials, lights, units); `oxide-board3d` board mesh + CSG cutouts + drill / via holes; board surface texture bake (albedo / normal / roughness / metallic); `BoardStackMaterials` + preset library; flat-2D view consumes the baked textures |
+| **v2.3.1 — Realistic 3D View Mode** | `Realistic3D` view mode + `2` / `3` toggle; orbit camera rig (yaw / pitch / distance, middle-drag orbit, wheel zoom); `oxide-render-wgpu-3d` PBR-lite pipeline; board rendered with baked textures, components as extruded courtyard blocks |
 | **v2.3.2 — 3D Selection & Cross-Probe** | Ray-cast hit-test with parity to 2D selection; cross-probe from schematic orbits the 3D camera to the selected component; layer visibility honoured in 3D |
 | **v2.3.3 — On-Canvas 3D Toolbar** | Floating toolbar in 3D mode; camera presets (Top, Iso, Front, Side, Back, Reset); board flip and component explode slider; HDRI preset cycle, screenshot, send-to-render-manager |
-| **v2.3.4 — STEP → glTF Cache Pipeline** | `signex-3d-models` crate (STEP import, tessellation, glTF write); hashed on-disk model cache; family-heuristic material fallback; fallback extrusion for components with no model |
+| **v2.3.4 — STEP → glTF Cache Pipeline** | `oxide-3d-models` crate (STEP import, tessellation, glTF write); hashed on-disk model cache; family-heuristic material fallback; fallback extrusion for components with no model |
 | **v2.3.5 — Material Sidecars & Controls** | `.snxmat` parser (face-attribute matching → PBR presets); `.snxmat` applied during STEP → glTF conversion; Properties-panel Board context (mask colour, silkscreen, surface finish); PBR preset library v1 (~30 presets) |
 | **v2.3.6 — Curated Footprint Library** | Curated `.glb` models for the top 50 stock-library footprints (IPC-7351 standard package set); CI per-footprint golden-image render gate; missing-model on-demand download flow |
 | **v2.3.7 — Parametric Generators: R / C / L** | Family generators for R_* (0201 … 2512, cement) and C_* / L_*; BOM-driven value / tolerance label bake; CI regenerates the full family glTF set on schema change |
@@ -371,8 +371,8 @@ bundled.** See `PCB_3D_RENDER_PLAN.md` §4.
 
 | Version | Scope |
 |---------|-------|
-| **v2.6.0 — Render Manager & Scene Export** | Render Manager dock panel (Appearance / Environment / Output / Queue); `signex-render-blender` crate — scene-bundle export (glTF + materials + board textures + render script); Blender auto-detect with a Preferences override |
-| **v2.6.1 — Blender Addon & Single-Frame Render** | Signex Blender addon, auto-installed on first render; script generation (import glTF, wire HDRI, camera, lights, samples); single-frame render to PNG / JPG / EXR; "Install Blender" helper on macOS / Windows |
+| **v2.6.0 — Render Manager & Scene Export** | Render Manager dock panel (Appearance / Environment / Output / Queue); `oxide-render-blender` crate — scene-bundle export (glTF + materials + board textures + render script); Blender auto-detect with a Preferences override |
+| **v2.6.1 — Blender Addon & Single-Frame Render** | Oxide Blender addon, auto-installed on first render; script generation (import glTF, wire HDRI, camera, lights, samples); single-frame render to PNG / JPG / EXR; "Install Blender" helper on macOS / Windows |
 | **v2.6.2 — HDRI Presets & Lighting Rigs** | HDRI library (Studio / Workbench / Daylight / Pure White); lighting rig presets (key / fill / rim, product-shot, flat); sample count presets (Draft / Good / Final) |
 | **v2.6.3 — Render Queue** | Multiple queued jobs with per-job progress and cancel; queue survives app restart; open-output-folder action and per-job log viewer |
 | **v2.6.4 — Preview-Parity CI Gate** | CI renders a reference scene through Tier 1 and Tier 2 and diffs them; regression fails CI on material drift between preview and render; golden-image corpus covering common component families |
@@ -451,7 +451,7 @@ plan, per §12.
 
 | Version | Scope |
 |---------|-------|
-| **v3.4.0 — Realtime & CRDT** | Realtime WebSocket client (`signex-collab` crate); CRDT document model for conflict-free concurrent editing; auth (accounts, teams, roles) |
+| **v3.4.0 — Realtime & CRDT** | Realtime WebSocket client (`oxide-collab` crate); CRDT document model for conflict-free concurrent editing; auth (accounts, teams, roles) |
 | **v3.4.1 — Presence & Cursors** | Per-user canvas cursors (coloured + name label); presence panel with online status and follow mode; sheet / region / layer / net locking |
 | **v3.4.2 — Storage & Review** | Cloud project storage, version history + edit attribution; comments pinned to canvas locations with a review workflow; offline support (local SQLite op queue, replay on reconnect); server-side merge / notify / lock functions |
 
@@ -486,12 +486,12 @@ composition workspace separate from the schematic editor. See
 Each foreign-format importer is a **separate companion repo / binary**,
 licensed appropriately for its source-format constraints and distributed
 independently of the main workspace — the same architectural pattern as
-`signex-kicad-import` shipped at v0.9.0. One-way conversion to native
+`oxide-kicad-import` shipped at v0.9.0. One-way conversion to native
 `.snx*`, no compile-time dependency from the main repo.
 
 | Version | Scope |
 |---------|-------|
-| **v4.3.0 — Altium & Eagle Import** | `signex-altium-import` companion (`.SchDoc`, `.PcbDoc`, `.SchLib`, `.PcbLib`, `.PrjPcb` → native, one-way); `signex-eagle-import` companion (`.sch`, `.brd` → native, one-way); creepage / clearance measurement + DRC (IEC 60950), in the main repo |
+| **v4.3.0 — Altium & Eagle Import** | `oxide-altium-import` companion (`.SchDoc`, `.PcbDoc`, `.SchLib`, `.PcbLib`, `.PrjPcb` → native, one-way); `oxide-eagle-import` companion (`.sch`, `.brd` → native, one-way); creepage / clearance measurement + DRC (IEC 60950), in the main repo |
 | **v4.3.1 — Built-in Git** | Built-in Git (branch, commit, merge, visual diff, blame); visual schematic diff as a canvas overlay; visual PCB diff as a canvas overlay |
 
 ### v4.4 — Polish
@@ -503,12 +503,12 @@ independently of the main workspace — the same architectural pattern as
 
 ### v5.0 — PLM Core
 
-Signex 365 is the cloud platform connecting the desktop editor to the
+Oxide 365 is the cloud platform connecting the desktop editor to the
 PLM. See `PLM_INTEGRATION.md`.
 
 | Version | Scope |
 |---------|-------|
-| **v5.0.0 — Signex 365** | Signex 365 web platform; shared auth (PLM + collaboration + desktop on one account); part-link table (PLM parts ↔ native symbol / footprint IDs by `ObjectId`); project-link table (PLM assemblies ↔ Signex projects) |
+| **v5.0.0 — Oxide 365** | Oxide 365 web platform; shared auth (PLM + collaboration + desktop on one account); part-link table (PLM parts ↔ native symbol / footprint IDs by `ObjectId`); project-link table (PLM assemblies ↔ Oxide projects) |
 | **v5.0.1 — Component Picker** | Component Picker — desktop queries the PLM for part placement; fast paginated component-search service; lifecycle alerts in the schematic editor (EOL / NRND / Obsolete badges) |
 
 ### v5.1 — BOM Studio
@@ -522,14 +522,14 @@ PLM. See `PLM_INTEGRATION.md`.
 
 | Version | Scope |
 |---------|-------|
-| **v5.2.0 — BOM & ECO Sync** | BOM push from Signex to the PLM; delta sync (only changed BOM lines updated); ECO creation from Signex |
+| **v5.2.0 — BOM & ECO Sync** | BOM push from Oxide to the PLM; delta sync (only changed BOM lines updated); ECO creation from Oxide |
 | **v5.2.1 — Documents & Lifecycle** | Document publishing (design files → PLM document management); batch lifecycle status check on file open |
 
 ### v5.3 — ERP Bridge
 
 | Version | Scope |
 |---------|-------|
-| **v5.3.0 — Odoo / ERPNext Sync** | Released BOMs flow Signex → PLM → Odoo / ERPNext; ERP pricing flows back to BOM Studio as real purchase prices |
+| **v5.3.0 — Odoo / ERPNext Sync** | Released BOMs flow Oxide → PLM → Odoo / ERPNext; ERP pricing flows back to BOM Studio as real purchase prices |
 | **v5.3.1 — ECO & Vendor Sync** | ECO traceability through manufacturing (PLM → ERP); vendor sync (PLM AVL → ERP supplier list) |
 
 ### v5.4 — PLM Advanced

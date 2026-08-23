@@ -221,7 +221,7 @@ pub(super) fn primary_button(
 }
 
 /// Theme-aware primary button. Pass `Some(accent)` to use the
-/// theme's accent colour as the button bg (Altium-amber on Signex,
+/// theme's accent colour as the button bg (Altium-amber on Oxide,
 /// cyan on Alp Lab, etc.). Pass `None` to fall back to the legacy
 /// hardcoded blue (existing call sites that haven't been migrated).
 pub(super) fn primary_button_themed(

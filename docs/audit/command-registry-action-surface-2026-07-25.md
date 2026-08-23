@@ -23,7 +23,7 @@ deliverable #274 asks for.
 `PanelMsg`. Three things are wrong with that framing:
 
 - **The message surface is far larger.** 1239 variants across 61 message-like
-  enums in `crates/signex-app/src` — 4.4× the stated figure.
+  enums in `crates/oxide-app/src` — 4.4× the stated figure.
 - **`ContextMenuAction` does not exist.** Context-menu actions are per-surface:
   `ContextAction` (`app/contracts/state.rs:12`), `FootprintContextAction`
   (`library/editor/footprint/state/context_menu.rs:38`), and — for the symbol
@@ -43,7 +43,7 @@ understates the addressable set while overstating the work.
 
 Reproducible against the tree at `f211e7d1`.
 
-1. **Inventory.** Parse every `enum` in `crates/signex-app/src` whose name ends in
+1. **Inventory.** Parse every `enum` in `crates/oxide-app/src` whose name ends in
    `Msg` / `Message` / `Action` / `Request` / `Event`; count top-level variants
    with attributes, doc comments and nested generics stripped.
    → **61 enums, 1239 variants**.
@@ -226,7 +226,7 @@ because it decides whether a fix is one bridge arm or a feature:
   `move_selection` (`::MoveSelection`).
 - **Unimplemented** — the catalog entry and the key binding are the *only*
   occurrences in the tree; there is no action to reach. Verified absent from
-  `crates/signex-app/src` and `crates/signex-engine/src` entirely:
+  `crates/oxide-app/src` and `crates/oxide-engine/src` entirely:
   `measure_distance`, `break_wire`, `place_global_label`,
   `place_hierarchical_label`, `repeat_last_item`, `rubber_stamp_copy`.
   `place_junction` and `place_no_connect` have a *data type*

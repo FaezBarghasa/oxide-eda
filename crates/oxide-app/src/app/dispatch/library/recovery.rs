@@ -22,7 +22,7 @@ pub(super) fn atomic_write(path: &std::path::Path, bytes: &[u8]) -> std::io::Res
 //
 // `LocalGitAdapter::open` returns a few recoverable error shapes that
 // shouldn't drop on the floor as a bare `tracing::warn!`. The user
-// either wants to point Signex at a moved file, accept that history
+// either wants to point Oxide at a moved file, accept that history
 // is gone, or remove the library from the project entirely. The
 // recovery module owns the modal layer; this section owns the
 // classification + per-choice action.
@@ -79,7 +79,7 @@ pub(crate) fn route_open_error(
 
 /// Handle the user's choice from the *Library missing* recovery dialog.
 pub(super) fn handle_recovery_library_missing(
-    app: &mut Signex,
+    app: &mut Oxide,
     choice: LibraryMissingChoice,
 ) -> Task<Message> {
     match choice {
@@ -91,7 +91,7 @@ pub(super) fn handle_recovery_library_missing(
             async {
                 rfd::AsyncFileDialog::new()
                     .set_title("Locate Library (*.snxlib)")
-                    .add_filter("Signex Library", &["snxlib"])
+                    .add_filter("Oxide Library", &["snxlib"])
                     .pick_file()
                     .await
                     .map(|f| f.path().to_path_buf())
@@ -133,7 +133,7 @@ pub(super) fn handle_recovery_library_missing(
 /// *Library missing* recovery dialog. Clears the recovery state and,
 /// when the user picked a replacement, re-opens the library there.
 pub(super) fn handle_recovery_library_missing_locate_result(
-    app: &mut Signex,
+    app: &mut Oxide,
     picked: Option<std::path::PathBuf>,
 ) -> Task<Message> {
     app.library.recovery = None;
@@ -147,7 +147,7 @@ pub(super) fn handle_recovery_library_missing_locate_result(
 
 /// Handle the user's choice from the *Git missing* recovery dialog.
 pub(super) fn handle_recovery_git_missing(
-    app: &mut Signex,
+    app: &mut Oxide,
     choice: GitMissingChoice,
 ) -> Task<Message> {
     match choice {
@@ -168,7 +168,7 @@ pub(super) fn handle_recovery_git_missing(
                 Ok(_) => Task::done(Message::Library(LibraryMessage::OpenLibraryAt(Some(path)))),
                 Err(e) => {
                     tracing::warn!(
-                        target: "signex::library",
+                        target: "oxide::library",
                         path = %path.display(),
                         error = %e,
                         "git recover-init failed"
@@ -194,7 +194,7 @@ pub(super) fn handle_recovery_git_missing(
 /// remove-row flows queue behind the detection plumbing. The dialog
 /// surface itself ships now so the overlay layer is in place.
 pub(super) fn handle_recovery_broken_binding(
-    app: &mut Signex,
+    app: &mut Oxide,
     _choice: BrokenBindingChoice,
 ) -> Task<Message> {
     app.library.recovery = None;

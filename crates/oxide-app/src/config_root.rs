@@ -1,20 +1,20 @@
-//! Shared config-root resolver for signex's on-disk preference files.
+//! Shared config-root resolver for oxide's on-disk preference files.
 //!
 //! Four files persist independently under the same OS-native config
 //! directory: `prefs.json` ([`crate::fonts`]), `keyboard_shortcuts.toml`
 //! (`crate::keymap::profile`), `distributors.toml`
 //! (`crate::library::settings::persistence`), and `global_libraries.toml`
 //! (`crate::panels::components_panel::global_prefs`). Each of those
-//! modules used to compute `dirs::config_dir().join("signex")` itself;
+//! modules used to compute `dirs::config_dir().join("oxide")` itself;
 //! this module hoists that one shared computation — and its test
-//! redirect — so there is a single place that decides *where* signex's
+//! redirect — so there is a single place that decides *where* oxide's
 //! config directory is. Each file keeps its own name, its own `None`
 //! fallback, and its own error handling (issue #440).
 //!
 //! Resolves to:
-//! - Windows: `%APPDATA%\signex\`
-//! - macOS:   `~/Library/Application Support/signex/`
-//! - Linux:   `$XDG_CONFIG_HOME/signex/` (or `~/.config/signex/`)
+//! - Windows: `%APPDATA%\oxide\`
+//! - macOS:   `~/Library/Application Support/oxide/`
+//! - Linux:   `$XDG_CONFIG_HOME/oxide/` (or `~/.config/oxide/`)
 //!
 //! `None` when the platform has no config directory to offer at all
 //! (`dirs::config_dir()` returned `None` — rare: a stripped-down sandbox
@@ -37,7 +37,7 @@ pub(crate) fn is_test_redirect_active() -> bool {
     cfg!(test) || cfg!(feature = "test-prefs-redirect")
 }
 
-/// Resolve the directory signex's per-user config files live under.
+/// Resolve the directory oxide's per-user config files live under.
 ///
 /// Under the test/dev redirect ([`is_test_redirect_active`]), returns one
 /// shared per-process tempdir instead of the real OS config directory —
@@ -55,18 +55,18 @@ pub fn config_root() -> Option<PathBuf> {
     dirs::config_dir().map(|dir| config_root_for_dir(&dir))
 }
 
-/// Join the `signex` subdirectory onto an arbitrary base directory.
+/// Join the `oxide` subdirectory onto an arbitrary base directory.
 ///
 /// [`config_root`] uses this for the real OS config dir, and it's the
 /// one place the two `config_path_for_dir` test helpers
 /// (`keymap::profile`, `library::settings::persistence`) get the same
 /// join from — before #440 hoisted this, production went through
 /// `config_root()` while those two test helpers still hardcoded
-/// `base.join("signex")` themselves, so a rename of the folder here
+/// `base.join("oxide")` themselves, so a rename of the folder here
 /// would have silently diverged production from the tests that are
 /// supposed to prove it (#440 review).
 pub fn config_root_for_dir(base: &std::path::Path) -> PathBuf {
-    base.join("signex")
+    base.join("oxide")
 }
 
 #[cfg(test)]

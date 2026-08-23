@@ -201,7 +201,7 @@ pub fn run_blocking(
                     continue;
                 }
                 let req_line = read_first_line(&mut stream);
-                let response_body = "<html><body><p>Signex: DigiKey connected. You can close this window.</p></body></html>";
+                let response_body = "<html><body><p>Oxide: DigiKey connected. You can close this window.</p></body></html>";
                 // Courtesy page only. `req_line` was already read above and
                 // `parse_callback` below works entirely from it, so the OAuth
                 // exchange completes whether or not this reaches the browser
@@ -287,7 +287,7 @@ fn callback_params(req_line: Result<String, std::io::Error>) -> Result<(String, 
         Ok(line) => line,
         Err(error) => {
             tracing::error!(
-                target: "signex::distributor",
+                target: "oxide::distributor",
                 distributor = "digikey",
                 error = %error,
                 error_kind = ?error.kind(),
@@ -307,10 +307,10 @@ fn callback_params(req_line: Result<String, std::io::Error>) -> Result<(String, 
         Some(pair) => Ok(pair),
         None => {
             tracing::error!(
-                target: "signex::distributor",
+                target: "oxide::distributor",
                 distributor = "digikey",
                 query_keys = %callback_query_keys(&line),
-                "the browser's redirect reached Signex but carries no code/state pair, so the \
+                "the browser's redirect reached Oxide but carries no code/state pair, so the \
                  DigiKey account was not connected; check the redirect URI registered on the \
                  DigiKey app"
             );

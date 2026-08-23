@@ -116,7 +116,7 @@ fn valid_selection_items(
         .collect()
 }
 
-impl Signex {
+impl Oxide {
     pub(crate) fn handle_selection_request(
         &mut self,
         request: selection_request::SelectionRequest,

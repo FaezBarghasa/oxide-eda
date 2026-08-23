@@ -1,6 +1,6 @@
 //! Phase-5 tests that span two tracks (undo + placement + geometry) at once — the Phase-5 counterparts of the Phase-3 `library_pad_geometry` tests.
 
-use oxide_app::app::{EditMsg, Message, Signex};
+use oxide_app::app::{EditMsg, Message, Oxide};
 
 use std::fs;
 use std::path::PathBuf;
@@ -12,13 +12,13 @@ use tempfile::TempDir;
 // These exercise feature interactions that span Tracks A/B/C/D —
 // e.g. parametric pad mint (A) + undo (B), or live placement input
 // (D) + tangent-arc tool (C). One scenario per test; each runs end-
-// to-end through the dispatcher (`Signex::update(Message::*)`) so
+// to-end through the dispatcher (`Oxide::update(Message::*)`) so
 // the full handler chain (mutates_footprint_state classifier →
 // push_history → match → state mutation → refresh_panel_ctx) gets
 // exercised in every assertion.
 // ─────────────────────────────────────────────────────────────────
 
-/// Phase-5 helper — fresh `Signex` + a `FootprintEditorState` parked
+/// Phase-5 helper — fresh `Oxide` + a `FootprintEditorState` parked
 /// in `document_state.footprint_editors` for a `<stem>.snxfpt` path
 /// inside a tempdir. The active tab points at the editor with
 /// `TabKind::FootprintEditor` so the `Message::Edit(EditMsg::Undo)`/`Redo` fork in
@@ -30,7 +30,7 @@ use tempfile::TempDir;
 /// `FootprintAddPad` arm only mirrors a pad into the sketch when
 /// the sketch already has at least one entity (avoids auto-minting
 /// a sketch the user never visited).
-fn fixture_empty_footprint_editor(stem: &str) -> (Signex, std::path::PathBuf, TempDir) {
+fn fixture_empty_footprint_editor(stem: &str) -> (Oxide, std::path::PathBuf, TempDir) {
     use oxide_app::app::{FootprintEditorState, TabInfo, TabKind};
     use oxide_library::{Footprint, FootprintFile};
     use oxide_sketch::SketchData;
@@ -61,7 +61,7 @@ fn fixture_empty_footprint_editor(stem: &str) -> (Signex, std::path::PathBuf, Te
     let file = FootprintFile::from_footprint(fp);
     let editor = FootprintEditorState::new(path.clone(), file);
 
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
@@ -90,7 +90,7 @@ struct EditorStateProj {
     parameters: usize,
 }
 
-fn editor_state_proj(app: &Signex, path: &std::path::Path) -> EditorStateProj {
+fn editor_state_proj(app: &Oxide, path: &std::path::Path) -> EditorStateProj {
     let editor = app
         .document_state
         .footprint_editors
@@ -111,7 +111,7 @@ fn editor_state_proj(app: &Signex, path: &std::path::Path) -> EditorStateProj {
 /// size. Mirrors what the Properties panel does when the user picks a
 /// shape from the Pad Stack picker before clicking the canvas.
 fn set_pad_defaults(
-    app: &mut Signex,
+    app: &mut Oxide,
     path: &std::path::Path,
     shape: oxide_library::PadShape,
     size_mm: (f64, f64),
@@ -259,7 +259,7 @@ fn ctrl_z_during_tangent_arc_undoes_last_segment() {
     // next click is click 2 (the gesture's commit).
     editor.state.tool_pending = ToolPending::TangentArcFirst { first: b_id };
 
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
@@ -514,7 +514,7 @@ fn place_round_rect_then_select_arc_unlink_then_undo_restores_link() {
     editor.state.pads = vec![pad];
     editor.state.selected_pad = Some(0);
 
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
@@ -642,7 +642,7 @@ fn editing_corner_r_via_properties_updates_all_4_arcs() {
     editor.state.pads = vec![pad];
     editor.state.selected_pad = Some(0);
 
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
@@ -782,7 +782,7 @@ fn unlink_one_corner_only_that_arc_reads_per_corner_param() {
     editor.state.pads = vec![pad];
     editor.state.selected_pad = Some(0);
 
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);
@@ -829,7 +829,7 @@ fn unlink_one_corner_only_that_arc_reads_per_corner_param() {
 
     // Initial values — both 0.25mm (the unlink action copies the
     // shared expression as the per-corner initial value).
-    let raw = |app: &Signex, name: &str| -> String {
+    let raw = |app: &Oxide, name: &str| -> String {
         let editor = app.document_state.footprint_editors.get(&path).unwrap();
         editor.file.footprints[0]
             .sketch
@@ -940,7 +940,7 @@ fn oval_width_edit_propagates_to_arc_centre_via_solve() {
     editor.state.pads = vec![pad];
     editor.state.selected_pad = Some(0);
 
-    let (mut app, _initial_task) = Signex::new();
+    let (mut app, _initial_task) = Oxide::new();
     app.document_state
         .footprint_editors
         .insert(path.clone(), editor);

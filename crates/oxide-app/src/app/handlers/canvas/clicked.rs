@@ -4,7 +4,7 @@ use super::super::super::helpers::constrain_segments;
 use super::super::super::*;
 use super::pre_placement_shape;
 
-impl Signex {
+impl Oxide {
     pub(super) fn handle_canvas_clicked(&mut self, world_x: f64, world_y: f64) -> Task<Message> {
         // Altium-style lasso: first click anchors the start,
         // the cursor path auto-samples vertices, a second

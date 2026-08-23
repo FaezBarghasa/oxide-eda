@@ -4,7 +4,7 @@
 **Branch:** `feature/v0.12-cleanroom-rewrite`
 **Base:** `ceb077acf2d0eb8f016d0320cf426dbd6521ecee` (= main HEAD post v0.11.0)
 **Spec authority:** `docs/RENDERING_RULES.md`, `docs/UX_REFERENCE_ALTIUM.md`,
-`crates/signex-types/src/schematic.rs`
+`crates/oxide-types/src/schematic.rs`
 **Plan:** `docs/internal/CLEANROOM_REWRITE_PLAN.md`
 
 This document is the contemporaneous audit trail for the v0.12 cleanroom
@@ -22,8 +22,8 @@ verbatim.
 | 1 | Skill audit | ✓ No `kicad-*` skills in `~/.claude/skills/` (only `learned/` + `slint-*`). Repo `.claude/skills/` does not exist (purged 2026-04-29 with the wider `.claude` history rewrite). No archival required. |
 | 2 | Memory audit | ✓ `MEMORY.md` lists `project_cleanroom_rewrite_decision_2026_05_01.md`. Memory files containing `kicad`/`render`/`sch_painter` are untouched for the duration of the session. |
 | 3 | Branch state | ✓ Branched off `main` at `ceb077ac` (= v0.11.0 plus the dev→main merge). `git status -sb` clean before branching. |
-| 4 | Spec doc presence | ✓ Read `docs/RENDERING_RULES.md`, `docs/internal/CLEANROOM_REWRITE_PLAN.md`, `docs/UX_REFERENCE_ALTIUM.md`, `crates/signex-types/src/schematic.rs` in full. |
-| 5 | Forbidden inputs | Acknowledged. The orchestrator will not read: any KiCad `.cpp`/`.h`, DeepWiki/wiki/blog summary of KiCad source, `.kicad_sch`/`.kicad_pcb`/`.kicad_sym` published format spec, the deleted contents of `crates/signex-render/src/schematic/*.rs` via any recovery path, the `signex-kicad-import` companion repo, or memory files containing `kicad`/`render`/`sch_painter`. |
+| 4 | Spec doc presence | ✓ Read `docs/RENDERING_RULES.md`, `docs/internal/CLEANROOM_REWRITE_PLAN.md`, `docs/UX_REFERENCE_ALTIUM.md`, `crates/oxide-types/src/schematic.rs` in full. |
+| 5 | Forbidden inputs | Acknowledged. The orchestrator will not read: any KiCad `.cpp`/`.h`, DeepWiki/wiki/blog summary of KiCad source, `.kicad_sch`/`.kicad_pcb`/`.kicad_sym` published format spec, the deleted contents of `crates/oxide-render/src/schematic/*.rs` via any recovery path, the `oxide-kicad-import` companion repo, or memory files containing `kicad`/`render`/`sch_painter`. |
 | 6 | Tooling | ✓ `cargo 1.94.1`, `rustc 1.94.1`, `git 2.39.0`, `gh 2.89.0` (logged in as alpCaner). |
 
 ## Upfront answers from user
@@ -35,10 +35,10 @@ verbatim.
    last; deliberately disjoint from the forbidden default).
 2. **Public API redesign** — (b) Redesign freely.
 3. **PCB renderer** — (b) Delete `pcb.rs` (clean-slate everything in
-   `signex-render`).
+   `oxide-render`).
 4. **Visual fidelity target** — Orchestrator chose **(b)** Correct /
    readable; spacing, font sizes, decorator scaling may diverge to
-   Signex-tuned defaults (combined with Q2 (b) free redesign + Q9 (c)
+   Oxide-tuned defaults (combined with Q2 (b) free redesign + Q9 (c)
    aggressive improvements, pixel-matching has no value).
 5. **Test coverage bar** — Orchestrator chose **(b)** Smoke + ≥1 edge
    case per primitive (Q9 (c) already mandates property-based math
@@ -71,13 +71,13 @@ and a one-line reason.
 | 2026-05-01T18:42:34Z | `docs/RENDERING_RULES.md` | spec — read in full at session start |
 | 2026-05-01T18:42:34Z | `docs/internal/CLEANROOM_REWRITE_PLAN.md` | working rules + phases |
 | 2026-05-01T18:42:34Z | `docs/UX_REFERENCE_ALTIUM.md` | Altium parity notes |
-| 2026-05-01T18:42:34Z | `crates/signex-types/src/schematic.rs` | domain types — Wave 0 scrub also touched this file |
-| 2026-05-01T18:42:34Z | `crates/signex-render/src/lib.rs` | drop `pub mod pcb;` + `pub mod schematic;`; rename `Standard` → `Classic` enum variants + scrub 3 docstring euphemisms |
-| 2026-05-01T18:42:34Z | `crates/signex-render/Cargo.toml` | confirm dependency surface (signex-types, iced, uuid) |
-| 2026-05-01T18:42:34Z | `crates/signex-engine/src/transform.rs` | delete `autoplace_fields`, `autoplace_all_marked_fields`, `transform_local_point`, `graphic_extent_points`, `rotate_point_around`; remove rotate/mirror autoplace call sites; scrub `Standard's autoplace` comment |
-| 2026-05-01T18:42:34Z | `crates/signex-engine/src/lib.rs` | scrub 3 `Standard` euphemisms (open() docstring, AnnotateAll comment, ReorderObjects comment); rename 5 `child.standard_sch` test fixture filenames |
-| 2026-05-01T18:42:34Z | `crates/signex-engine/src/command.rs` | scrub `ReorderObjects` z-order comment |
-| 2026-05-01T18:42:34Z | `crates/signex-engine/src/selection.rs` | scrub `circumcircle` arc-storage comment |
+| 2026-05-01T18:42:34Z | `crates/oxide-types/src/schematic.rs` | domain types — Wave 0 scrub also touched this file |
+| 2026-05-01T18:42:34Z | `crates/oxide-render/src/lib.rs` | drop `pub mod pcb;` + `pub mod schematic;`; rename `Standard` → `Classic` enum variants + scrub 3 docstring euphemisms |
+| 2026-05-01T18:42:34Z | `crates/oxide-render/Cargo.toml` | confirm dependency surface (oxide-types, iced, uuid) |
+| 2026-05-01T18:42:34Z | `crates/oxide-engine/src/transform.rs` | delete `autoplace_fields`, `autoplace_all_marked_fields`, `transform_local_point`, `graphic_extent_points`, `rotate_point_around`; remove rotate/mirror autoplace call sites; scrub `Standard's autoplace` comment |
+| 2026-05-01T18:42:34Z | `crates/oxide-engine/src/lib.rs` | scrub 3 `Standard` euphemisms (open() docstring, AnnotateAll comment, ReorderObjects comment); rename 5 `child.standard_sch` test fixture filenames |
+| 2026-05-01T18:42:34Z | `crates/oxide-engine/src/command.rs` | scrub `ReorderObjects` z-order comment |
+| 2026-05-01T18:42:34Z | `crates/oxide-engine/src/selection.rs` | scrub `circumcircle` arc-storage comment |
 | 2026-05-01T18:42:34Z | `MEMORY.md` (`~/.claude/projects/.../memory/MEMORY.md`) | confirm `project_cleanroom_rewrite_decision_2026_05_01.md` is listed |
 
 Sub-agents must report their own input list back to the orchestrator
@@ -96,46 +96,46 @@ sub-agent sequentially in its own worktree and logs the redo here.
 - **Branch created**: `feature/v0.12-cleanroom-rewrite` from
   `ceb077ac`.
 - **Deleted** (10 files, ~6,729 LOC):
-  - `crates/signex-render/src/schematic/{drawing,hit_test,junction,label,mod,pin,selection,symbol,text,wire}.rs`
-  - `crates/signex-render/src/pcb.rs` (per Stage 1 Q3 = b)
-- **Trimmed** in `crates/signex-engine/src/transform.rs` (~252 LOC
+  - `crates/oxide-render/src/schematic/{drawing,hit_test,junction,label,mod,pin,selection,symbol,text,wire}.rs`
+  - `crates/oxide-render/src/pcb.rs` (per Stage 1 Q3 = b)
+- **Trimmed** in `crates/oxide-engine/src/transform.rs` (~252 LOC
   removed): deleted `autoplace_fields`, `autoplace_all_marked_fields`,
   `transform_local_point`, `graphic_extent_points`,
   `rotate_point_around`, plus the rotate/mirror call sites; rotate
   and mirror now preserve stored field positions until Wave 2.5
-  reintroduces autoplace from Signex spec.
+  reintroduces autoplace from Oxide spec.
 - **Scrubbed `Standard` comment euphemisms** in
-  `crates/signex-engine/`:
+  `crates/oxide-engine/`:
   `transform.rs:337` (rotate field comment), `lib.rs:52-53` (open
   doc), `lib.rs:723` (annotate power-port comment), `lib.rs:970`
   (z-order comment), `command.rs:198` (ReorderObjects comment),
   `selection.rs:584` (circumcircle comment). All reworded as
-  Signex's own observations.
+  Oxide's own observations.
 - **Renamed** five test fixture string literals
   `child.standard_sch` → `child.snxsch` in
-  `crates/signex-engine/src/lib.rs` (lines 1102, 1134, 1172, 1193,
+  `crates/oxide-engine/src/lib.rs` (lines 1102, 1134, 1172, 1193,
   1220) so the License Guard `\bStandard\b` scan stays clean.
 - **Renamed `Standard` → `Classic`** in three render-style enums in
-  `crates/signex-render/src/lib.rs` (`PowerPortStyle::Classic`,
+  `crates/oxide-render/src/lib.rs` (`PowerPortStyle::Classic`,
   `LabelStyle::Classic`, `MultisheetStyle::Classic`) plus their
-  `Display` impls; signex-app callers will be updated in Wave 6
+  `Display` impls; oxide-app callers will be updated in Wave 6
   (consumer wire-up). The "Classic" name carries the same semantics
   (the original / non-Altium rendering style) without using a third-
   party-tool euphemism.
 - **Scrubbed 3 docstring euphemisms** in
-  `crates/signex-render/src/lib.rs` (lines around `SCHEMATIC_TEXT_EM_MM`,
-  `MultisheetStyle`, `GridStyle`) — reworded as Signex prose.
-- **Touched** `crates/signex-types/src/schematic.rs` to scrub two
+  `crates/oxide-render/src/lib.rs` (lines around `SCHEMATIC_TEXT_EM_MM`,
+  `MultisheetStyle`, `GridStyle`) — reworded as Oxide prose.
+- **Touched** `crates/oxide-types/src/schematic.rs` to scrub two
   remaining `Standard` euphemisms in `Symbol::library_id` doc and
   `StrokeColor` doc (technically out of the prompt's narrow Wave 0
   scope, but adjacent and contaminating; per Stage 1 Q10 = c
   opportunistic).
 - **Verified**:
-  `cargo build -p signex-render` ✓
-  `cargo build -p signex-engine` ✓
-  `git grep -nE '\bStandard\b' -- 'crates/signex-render/' 'crates/signex-engine/'` empty ✓
-  `git grep -n 'standard_sch' -- 'crates/signex-render/' 'crates/signex-engine/'` empty ✓
-- `signex-app` and `signex-erc` no longer build — that is intentional
+  `cargo build -p oxide-render` ✓
+  `cargo build -p oxide-engine` ✓
+  `git grep -nE '\bStandard\b' -- 'crates/oxide-render/' 'crates/oxide-engine/'` empty ✓
+  `git grep -n 'standard_sch' -- 'crates/oxide-render/' 'crates/oxide-engine/'` empty ✓
+- `oxide-app` and `oxide-erc` no longer build — that is intentional
   (they consume the deleted public API; Wave 6 reconnects them).
 
 ## Orchestrator decisions made beyond Stage 1 answers
@@ -167,7 +167,7 @@ so the audit trail isn't compromised.
 The cleanroom rewrite (Q2 = b, free redesign) produces an API shape
 that doesn't drop in to v0.11 consumers. To minimise the consumer-side
 diff in Wave 6, the orchestrator added a small set of `#[deprecated]`
-shims in `signex-render`:
+shims in `oxide-render`:
 
 - `pub type SchematicRenderSnapshot = SchematicSheet` (owned alias).
 - `pub type SchematicRenderCache = RenderLayers`.
@@ -209,10 +209,10 @@ The orchestrator and sub-agents append items here when they spot
 something worth fixing later. Each item is a one-liner; do not act on
 them in this PR.
 
-- `crates/signex-types/src/property.rs`, `markup.rs`, `pcb.rs`,
+- `crates/oxide-types/src/property.rs`, `markup.rs`, `pcb.rs`,
   `project.rs`, `layer.rs`, `coord.rs`, `format.rs` still contain
   `Standard` comment euphemisms — outside the v0.12 License-Guard
-  scope (which gates `signex-render` + `signex-engine` only) but worth
+  scope (which gates `oxide-render` + `oxide-engine` only) but worth
   a follow-up pass for consistency.
 
 ## Wave-by-wave summary
@@ -225,7 +225,7 @@ them in this PR.
 | 3 — label / symbol / field_style | ✅ done | `fd138f04` | full body + field rules |
 | 4 — hit_test (spatial-hash) | ✅ done | `2ee07e2d` | O(k) bucketing + render-order Z-rule |
 | 5 — selection overlay + render() | ✅ done | `2ee07e2d` | dashed-rect outline; one-shot render entry |
-| 6 — consumer wire-up | ✅ done | `aa7ee807` | signex-app + signex-erc both green via deprecated v0.11 compat shims; full punch list closed. |
+| 6 — consumer wire-up | ✅ done | `aa7ee807` | oxide-app + oxide-erc both green via deprecated v0.11 compat shims; full punch list closed. |
 | 7 — verification + License Guard CI | ✅ done | `aa7ee807` | Two new CI jobs added: `no-standard-as-comment-word-in-renderer` + `no-kicad-published-format-substrings`. |
 | 8 — PR ready-for-review | ✅ done | _this commit_ | PR #79 flipped from draft to ready. |
 
@@ -233,15 +233,15 @@ them in this PR.
 
 - Files deleted: 11 (10 schematic/ + pcb.rs)
 - Files added: 14 (mod + viewport + util + 11 primitives + new pcb stub)
-- LOC delta in `signex-render`: ~ +3,400 net (after deletions)
-- LOC trimmed in `signex-engine`: ~252 (autoplace + helpers); ~150 re-added for the v0.12 autoplace
+- LOC delta in `oxide-render`: ~ +3,400 net (after deletions)
+- LOC trimmed in `oxide-engine`: ~252 (autoplace + helpers); ~150 re-added for the v0.12 autoplace
 - New `Symbol::fields_user_placed` field (one-line types addition; backwards-compat via `#[serde(default)]`)
-- Workspace test count delta: +52 new render tests; signex-engine + signex-types tests unchanged.
+- Workspace test count delta: +52 new render tests; oxide-engine + oxide-types tests unchanged.
 - Verification status (Wave 7 close):
   - `cargo build --workspace` ✓
   - `cargo test --workspace --lib` ✓ (356+ tests pass: 52 render +
     40 types + 86 erc + 174 output + 4 engine + others)
-  - `cargo clippy -p signex-render --lib --no-deps -- -D warnings` ✓
+  - `cargo clippy -p oxide-render --lib --no-deps -- -D warnings` ✓
   - `cargo fmt --check` ✓
   - License Guard rules locally checked against current tree:
     `no-standard-as-comment-word-in-renderer` ✓,
@@ -252,7 +252,7 @@ them in this PR.
 The Wave 6 partial commit (`3e329c03`) and the Wave 6+7 close
 (`aa7ee807`) together resolved every error pattern listed below.
 The strategy across the board was **deprecated v0.11 compatibility
-shims in signex-render**, allowing the v0.11 consumer call sites to
+shims in oxide-render**, allowing the v0.11 consumer call sites to
 keep compiling against the redesigned API; v0.13 will cull the
 shims as consumers migrate to the new names.
 
@@ -261,7 +261,7 @@ fixing during Wave 6 close.)
 
 ## Wave 6 — punch-list snapshot (resolved)
 
-The 70 remaining `signex-app` errors cluster into a handful of
+The 70 remaining `oxide-app` errors cluster into a handful of
 patterns. Each pattern is a follow-up commit that doesn't
 re-touch the renderer:
 
@@ -317,9 +317,9 @@ follow-up session: ~3 hours.
 
 ## Sign-off (Waves 0–8 complete)
 
-Cleanroom rewrite of `signex-render::schematic` and
-`signex-engine::autoplace_fields` completed against
-`docs/RENDERING_RULES.md` and Signex domain types only. No
+Cleanroom rewrite of `oxide-render::schematic` and
+`oxide-engine::autoplace_fields` completed against
+`docs/RENDERING_RULES.md` and Oxide domain types only. No
 third-party EDA tool source code, no third-party file format
 specifications, no contaminated agent-context skills consulted
 during this session.

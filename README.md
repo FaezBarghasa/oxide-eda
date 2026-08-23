@@ -1,18 +1,18 @@
 <p align="center">
-  <img src="assets/screenshots/hero.png" alt="Signex — schematic editor" width="900">
+  <img src="assets/screenshots/hero.png" alt="Oxide — schematic editor" width="900">
 </p>
 
-<h1 align="center">Signex</h1>
+<h1 align="center">Oxide</h1>
 <p align="center">
   Open-source, AI-first electronics design automation
 </p>
 
 <p align="center">
-  <a href="https://github.com/alplabai/signex/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="License"></a>
-  <a href="https://github.com/alplabai/signex/releases/tag/v0.14.0"><img src="https://img.shields.io/badge/version-v0.14.0-green.svg" alt="Version"></a>
+  <a href="https://github.com/alplabai/oxide/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="License"></a>
+  <a href="https://github.com/alplabai/oxide/releases/tag/v0.14.0"><img src="https://img.shields.io/badge/version-v0.14.0-green.svg" alt="Version"></a>
   <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/rust-1.88%2B-orange.svg" alt="Rust"></a>
-  <a href="https://github.com/alplabai/signex/wiki"><img src="https://img.shields.io/badge/wiki-user%20guide-blueviolet.svg" alt="Wiki"></a>
-  <a href="https://github.com/alplabai/signex/discussions"><img src="https://img.shields.io/badge/discussions-join-brightgreen.svg" alt="Discussions"></a>
+  <a href="https://github.com/alplabai/oxide/wiki"><img src="https://img.shields.io/badge/wiki-user%20guide-blueviolet.svg" alt="Wiki"></a>
+  <a href="https://github.com/alplabai/oxide/discussions"><img src="https://img.shields.io/badge/discussions-join-brightgreen.svg" alt="Discussions"></a>
 </p>
 
 <p align="center">
@@ -20,31 +20,31 @@
   <a href="#screenshots">Screenshots</a> &middot;
   <a href="#building">Building</a> &middot;
   <a href="#roadmap">Roadmap</a> &middot;
-  <a href="https://github.com/alplabai/signex/wiki">Wiki</a> &middot;
+  <a href="https://github.com/alplabai/oxide/wiki">Wiki</a> &middot;
   <a href="#contributing">Contributing</a> &middot;
   <a href="#license">License</a>
 </p>
 
 ---
 
-Signex is open-source EDA tooling built in Rust with GPU-accelerated
+Oxide is open-source EDA tooling built in Rust with GPU-accelerated
 rendering and an Altium Designer-quality UI — schematic + PCB editor,
 3D viewer, simulation, plugin system. Native file formats (`.snxsch`,
 `.snxpcb`) are line-diffable in git and ~5× smaller than the equivalent
 JSON.
 
-**Migrating from KiCad?** The optional [signex-kicad-import](https://github.com/alplabai/signex-kicad-import)
+**Migrating from KiCad?** The optional [oxide-kicad-import](https://github.com/alplabai/oxide-kicad-import)
 companion tool (GPL-3.0-or-later, distributed independently) converts
-`.kicad_sch` / `.kicad_pcb` / `.kicad_pro` files to Signex's native
+`.kicad_sch` / `.kicad_pcb` / `.kicad_pro` files to Oxide's native
 formats one-way. Run it once against your project; open the resulting
-`.snxprj` in Signex.
+`.snxprj` in Oxide.
 
 **Two editions from one codebase:**
 
-- **Signex Community** (Apache-2.0, free forever) — full schematic + PCB
+- **Oxide Community** (Apache-2.0, free forever) — full schematic + PCB
   editor, 3D viewer, simulation, plugin system
-- **Signex Pro** (subscription) — adds Signal AI (Claude-powered design
-  copilot), real-time collaboration, and Signex 365 cloud PLM
+- **Oxide Pro** (subscription) — adds Signal AI (Claude-powered design
+  copilot), real-time collaboration, and Oxide 365 cloud PLM
 
 > **Status:** Early development — **v0.14.0 shipped** — the **Footprint
 > Editor** milestone. The `.snxfpt` pad + parametric-sketch editor is
@@ -56,14 +56,14 @@ formats one-way. Run it once against your project; open the resulting
 > v0.13 **clean-room schematic renderer** and the **Symbol & Library**
 > surfaces (unified Active Bar, `.snxsym` TOML envelope, Library Browser,
 > Pick Symbol / Footprint) carry forward.
-> [Join the discussion](https://github.com/alplabai/signex/discussions) or check the [roadmap](#roadmap).
+> [Join the discussion](https://github.com/alplabai/oxide/discussions) or check the [roadmap](#roadmap).
 
 ## Features
 
 **What works today (v0.1–v0.14):**
 
-- Open native Signex schematics (`.snxsch`, `.snxsym`, `.snxprj`); migrate
-  legacy KiCad files via the [signex-kicad-import](https://github.com/alplabai/signex-kicad-import)
+- Open native Oxide schematics (`.snxsch`, `.snxsym`, `.snxprj`); migrate
+  legacy KiCad files via the [oxide-kicad-import](https://github.com/alplabai/oxide-kicad-import)
   companion tool
 - Full schematic editing: select, move, wire (W), bus (B), label (L),
   component placement (P), delete, rotate (Space), mirror (X/Y)
@@ -107,7 +107,7 @@ formats one-way. Run it once against your project; open the resulting
   auto-mount, DigiKey / Mouser / LCSC / JLCPCB distributor adapters,
   per-library git version control + History panel
 - **Clean-room schematic renderer + Symbol editor (v0.13)** — renderer
-  reimplemented against Signex-only specs (`docs/RENDERING_RULES.md`,
+  reimplemented against Oxide-only specs (`docs/RENDERING_RULES.md`,
   IEEE-Std-91); unified Active Bar and TOML `.snxsym` envelope
 - **Multi-unit symbols (v0.14)** — `part_count`, per-unit body geometry and
   graphics, unit buttons, two-click rect / line / circle + three-click arc
@@ -116,11 +116,11 @@ formats one-way. Run it once against your project; open the resulting
   kinds); bake to pads / silk / courtyard; Align / Distribute / Move / Fill /
   Text tooling; CPU 3D-body extrude preview
 - **Authoritative netlist contract (v0.14)** — one connectivity derivation in
-  `signex-net` (`build_netlist` / `build_project_netlist`) consumed by ERC,
+  `oxide-net` (`build_netlist` / `build_project_netlist`) consumed by ERC,
   net-flood, and export; same-name labels + T-junctions merge correctly
 - **Configurable keyboard-shortcut profiles (v0.14)** — grouped, searchable
   in-app editor; menu labels sourced from the command table
-- **GPU schematic render path (v0.14)** — `signex-gfx` aligned to iced's
+- **GPU schematic render path (v0.14)** — `oxide-gfx` aligned to iced's
   wgpu 27; schematic render module via the shader widget (feature-gated)
 
 **What's next:**
@@ -132,7 +132,7 @@ formats one-way. Run it once against your project; open the resulting
 | **v2.3–v2.5** | 3D Viewer, Advanced PCB, High-Speed Design |
 | **v3.0** | **Pro Release** — Signal AI + plugins + collaboration |
 | **v4.0** | Unified simulation view with SPICE, EM, thermal |
-| **v5.0** | Signex 365 cloud PLM |
+| **v5.0** | Oxide 365 cloud PLM |
 
 ## Screenshots
 
@@ -159,38 +159,38 @@ formats one-way. Run it once against your project; open the resulting
 ## Architecture
 
 A 17-crate Rust workspace (`edition = 2024`), an acyclic DAG with
-`signex-app` at the apex and `signex-types` as the shared foundation:
+`oxide-app` at the apex and `oxide-types` as the shared foundation:
 
 ```
-signex/
+oxide/
 ├── crates/
-│   ├── signex-app/            # Main binary — iced 0.14 app (panels, dock, canvas, editors)
-│   ├── signex-types/          # Domain types — schematic/PCB/layer/theme — NO rendering deps
-│   ├── signex-engine/         # Command / patch / undo engine for schematic edits
-│   ├── signex-net/            # Authoritative netlist + connectivity contract
-│   ├── signex-erc/            # ERC rule engine (+ signex-erc-dsl)
-│   ├── signex-sketch/         # Apache-clean Newton-LM constraint solver + sketch schema
-│   ├── signex-bake/           # Sketch → footprint bake (pad / silk / courtyard / mask / …)
-│   ├── signex-output/         # PDF / netlist / BOM export pipeline (+ signex-bom)
-│   ├── signex-renderer/       # Domain types → render primitives (+ signex-gfx wgpu pipelines)
-│   ├── signex-library/        # .snxlib component library — port/adapter model (+ signex-library-server)
-│   ├── signex-widgets/        # Reusable iced widgets (tree view, active bar, previews)
-│   └── signex-3d-model-importer/  # STEP / WRL importer for 3D body attach
+│   ├── oxide-app/            # Main binary — iced 0.14 app (panels, dock, canvas, editors)
+│   ├── oxide-types/          # Domain types — schematic/PCB/layer/theme — NO rendering deps
+│   ├── oxide-engine/         # Command / patch / undo engine for schematic edits
+│   ├── oxide-net/            # Authoritative netlist + connectivity contract
+│   ├── oxide-erc/            # ERC rule engine (+ oxide-erc-dsl)
+│   ├── oxide-sketch/         # Apache-clean Newton-LM constraint solver + sketch schema
+│   ├── oxide-bake/           # Sketch → footprint bake (pad / silk / courtyard / mask / …)
+│   ├── oxide-output/         # PDF / netlist / BOM export pipeline (+ oxide-bom)
+│   ├── oxide-renderer/       # Domain types → render primitives (+ oxide-gfx wgpu pipelines)
+│   ├── oxide-library/        # .snxlib component library — port/adapter model (+ oxide-library-server)
+│   ├── oxide-widgets/        # Reusable iced widgets (tree view, active bar, previews)
+│   └── oxide-3d-model-importer/  # STEP / WRL importer for 3D body attach
 └── Cargo.toml
 ```
 
 **Design principles:**
 
-- **Native `.snx*` formats first.** `.snxsch` / `.snxpcb` / `.snxprj` are the canonical format (TOML envelope + TSV bulk blocks, line-diffable, ~5× smaller than JSON). One-way KiCad → Signex import is an optional, independently-distributed companion tool.
+- **Native `.snx*` formats first.** `.snxsch` / `.snxpcb` / `.snxprj` are the canonical format (TOML envelope + TSV bulk blocks, line-diffable, ~5× smaller than JSON). One-way KiCad → Oxide import is an optional, independently-distributed companion tool.
 - **Elm architecture (MVU).** iced's `state → view → Message → update` cycle; `view` is pure, `update` is the only mutation site and never blocks — all IO returns as a `Task`. No process-global mutable state.
-- **Domain logic in domain crates.** Types and engines below `signex-app` carry zero `iced`/`wgpu` deps (Cargo-enforced); connectivity is derived once in `signex-net` and read everywhere else, never re-derived.
+- **Domain logic in domain crates.** Types and engines below `oxide-app` carry zero `iced`/`wgpu` deps (Cargo-enforced); connectivity is derived once in `oxide-net` and read everywhere else, never re-derived.
 - **Multi-window by default.** Built on `iced::daemon`; every undocked tab gets its own engine + canvas keyed by window id, so two schematics can be edited in parallel without cross-talk.
 - **Nanometer coordinates.** `i64` nanometers internally; exact in both metric and imperial — no float `EPS` comparisons for "same point".
-- **Canvas for schematic, Shader for PCB.** CPU tessellation for schematics, GPU instanced rendering (`signex-gfx`, wgpu 27) for large PCB scenes.
+- **Canvas for schematic, Shader for PCB.** CPU tessellation for schematics, GPU instanced rendering (`oxide-gfx`, wgpu 27) for large PCB scenes.
 
 ## Hardware Requirements
 
-Signex uses [wgpu](https://wgpu.rs) for hardware-accelerated rendering and
+Oxide uses [wgpu](https://wgpu.rs) for hardware-accelerated rendering and
 expects a modern GPU with effective Vulkan 1.1 (Linux), DirectX 12 (Windows),
 or Metal (macOS) support. In practice this means **a GPU released around 2014
 or later** — Intel HD Graphics 4400+, NVIDIA GeForce 600-series and newer, AMD
@@ -207,9 +207,9 @@ installs it automatically; this is also the MSRV (we build and support exactly
 this toolchain) — and a GPU supporting Vulkan, Metal, or DX12.
 
 ```bash
-git clone https://github.com/alplabai/signex.git
-cd signex
-cargo run -p signex-app          # Run
+git clone https://github.com/alplabai/oxide.git
+cd oxide
+cargo run -p oxide-app          # Run
 cargo test --workspace           # Test
 cargo clippy --workspace -- -D warnings  # Lint
 ```
@@ -226,7 +226,7 @@ cargo clippy --workspace -- -D warnings  # Lint
 | Full SCH Editor — copy/paste, labels, components, Active Bar | v0.6 | Done |
 | Validation + Multi-Window — ERC, annotation, pin matrix, undockable tabs | v0.7 | Done |
 | Output — PDF, BOM, netlist, multi-project workspaces, dirty tracking | v0.8 | Done |
-| Native file formats — `.snxsch` / `.snxpcb` TOML+TSV; KiCad I/O via signex-kicad-import companion | v0.9 | Done |
+| Native file formats — `.snxsch` / `.snxpcb` TOML+TSV; KiCad I/O via oxide-kicad-import companion | v0.9 | Done |
 | Library Browser tab — read-only `.snxlib` table | v0.10 | Done |
 | Library & Polish — full DBLib model, SCH Library editor, Component Preview, picker + auto-mount, distributor adapters | v0.11 | Done |
 | Symbol & Library — clean-room schematic renderer, unified Active Bar in symbol editor, `.snxsym` TOML envelope | v0.13 | Done |
@@ -238,21 +238,21 @@ cargo clippy --workspace -- -D warnings  # Lint
 | 3D Viewer, Advanced PCB, High-Speed Design | v2.3–v2.5 | |
 | **Pro Release** — Signal AI + plugins + collaboration | **v3.0** | |
 | Simulation — SPICE, EM, thermal, simulation wizards | v4.0–v4.1 | |
-| **Signex 365** — cloud PLM, BOM Studio, ERP bridge | **v5.0** | |
+| **Oxide 365** — cloud PLM, BOM Studio, ERP bridge | **v5.0** | |
 
 See [docs/ROADMAP.md](docs/ROADMAP.md) for the detailed version plan.
 
 ## Documentation
 
-The **[Signex Wiki](https://github.com/alplabai/signex/wiki)** is the user
+The **[Oxide Wiki](https://github.com/alplabai/oxide/wiki)** is the user
 guide — installation, quick start, keyboard shortcuts, and feature-by-feature
 walkthroughs (ERC, annotation, multi-window editing, hierarchical sheets,
 net-color pen, the library subsystem, the symbol + footprint editors, themes,
 and more), plus an FAQ and roadmap.
 
-Start with **[Quick Start](https://github.com/alplabai/signex/wiki/Quick-Start)**
-to open your first Signex project, or jump straight to
-**[Keyboard Shortcuts](https://github.com/alplabai/signex/wiki/Keyboard-Shortcuts)**
+Start with **[Quick Start](https://github.com/alplabai/oxide/wiki/Quick-Start)**
+to open your first Oxide project, or jump straight to
+**[Keyboard Shortcuts](https://github.com/alplabai/oxide/wiki/Keyboard-Shortcuts)**
 for the full reference. In-repo docs live under
 [`docs/`](docs/) — see [ROADMAP.md](docs/ROADMAP.md),
 [LICENSING.md](docs/LICENSING.md), and
@@ -260,7 +260,7 @@ for the full reference. In-repo docs live under
 
 ## Contributing
 
-Signex is open source and we welcome contributions from everyone — whether
+Oxide is open source and we welcome contributions from everyone — whether
 you're an EDA professional, a Rust developer, or someone who just wants to
 help build a better design tool.
 
@@ -269,16 +269,16 @@ help build a better design tool.
 - Report bugs or rendering discrepancies
 - Add test fixtures from real projects
 - Implement a feature from the [roadmap](docs/ROADMAP.md)
-- Fix an [open issue](https://github.com/alplabai/signex/issues)
+- Fix an [open issue](https://github.com/alplabai/oxide/issues)
 - Improve documentation
 
 **Quick start:**
 
 ```bash
-git clone https://github.com/alplabai/signex.git
-cd signex
+git clone https://github.com/alplabai/oxide.git
+cd oxide
 cargo build --workspace
-cargo run -p signex-app
+cargo run -p oxide-app
 ```
 
 See **[CONTRIBUTING.md](CONTRIBUTING.md)** for the full guide: branching
@@ -286,12 +286,12 @@ workflow, crate map, code style, and good first issues.
 
 ## License
 
-Signex Community Edition is licensed under the [Apache License 2.0](LICENSE).
+Oxide Community Edition is licensed under the [Apache License 2.0](LICENSE).
 The main repository contains no GPL-derived code; Apache consumers (anyone
-embedding or linking against Signex) get a clean Apache codebase with no GPL
+embedding or linking against Oxide) get a clean Apache codebase with no GPL
 aggregation in their build closure.
 
-KiCad migration is provided via the optional [signex-kicad-import](https://github.com/alplabai/signex-kicad-import)
+KiCad migration is provided via the optional [oxide-kicad-import](https://github.com/alplabai/oxide-kicad-import)
 companion tool, which is **GPL-3.0-or-later** because it implements KiCad's
 file format with structure derived from KiCad's GPL-3.0 source. The two
 projects are distributed independently. See [docs/LICENSING.md](docs/LICENSING.md)

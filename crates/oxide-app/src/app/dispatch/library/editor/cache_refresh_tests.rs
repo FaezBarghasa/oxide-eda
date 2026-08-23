@@ -8,15 +8,15 @@ use std::path::PathBuf;
 
 use uuid::Uuid;
 
-use crate::app::Signex;
+use crate::app::Oxide;
 use crate::library::state::{LibraryDisplaySettings, OpenLibrary};
 use crate::library::test_adapters::{FailingListingAdapter, cached_summary};
 
 /// A mounted library rooted at `<tmp>/<unique>/lib.snxlib` whose three
 /// primitive caches already hold one entry each, plus the path of a
 /// primitive just saved inside it.
-fn app_with_cached_library() -> (Signex, PathBuf) {
-    let (mut app, _task) = Signex::new();
+fn app_with_cached_library() -> (Oxide, PathBuf) {
+    let (mut app, _task) = Oxide::new();
     let library_id = Uuid::new_v4();
     let dir = std::env::temp_dir().join(format!("snx-editor-cache-{}", Uuid::new_v4().simple()));
     let root = dir.join("lib.snxlib");

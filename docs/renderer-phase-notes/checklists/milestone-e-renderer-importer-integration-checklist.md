@@ -2,7 +2,7 @@
 
 ## Preparation
 
-- [ ] Milestone D importer implementation reviewed (`signex-3d-model-importer`).
+- [ ] Milestone D importer implementation reviewed (`oxide-3d-model-importer`).
 - [ ] Milestone C runtime ingest contract reviewed (`ingest_runtime_glb`).
 - [ ] Integration boundary approved: runtime remains GLB-only.
 

@@ -25,7 +25,7 @@ Start arc pipeline implementation with shader source and upload/draw path.
 - Derivation: arc SDF fragment logic with explicit sweep normalization.
 - Rationale: support curved symbol geometry as the next primitive class.
 - Clean-room check: No GPL-licensed source consulted
-- Verification: `cargo test -p signex-gfx arc_smoke_pass_runs -- --nocapture` passed and `cargo check -p signex-gfx -p signex-renderer` passed.
+- Verification: `cargo test -p oxide-gfx arc_smoke_pass_runs -- --nocapture` passed and `cargo check -p oxide-gfx -p oxide-renderer` passed.
 
 ## Artifacts
 

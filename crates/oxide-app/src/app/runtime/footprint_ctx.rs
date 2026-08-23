@@ -6,7 +6,7 @@ use super::footprint_summaries::{
 /// v0.14.2 — project the active `.snxfpt` editor's data into a
 /// panel-side snapshot. Mirrors `build_symbol_editor_panel_ctx`.
 pub(super) fn build_footprint_editor_panel_ctx(
-    app: &super::super::Signex,
+    app: &super::super::Oxide,
 ) -> Option<crate::panels::FootprintEditorPanelContext> {
     use crate::library::editor::footprint::state::EditorMode;
     use crate::panels::{

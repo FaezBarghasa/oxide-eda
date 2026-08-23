@@ -1,6 +1,6 @@
 # UI Iteration Workflow
 
-This is how UI / chrome work gets done in Signex without burning round-trips on visual guesswork. Adopted after the v0.8 chrome batch took 6+ revisions to land tab styling.
+This is how UI / chrome work gets done in Oxide without burning round-trips on visual guesswork. Adopted after the v0.8 chrome batch took 6+ revisions to land tab styling.
 
 ## Three rules
 
@@ -13,7 +13,7 @@ This is how UI / chrome work gets done in Signex without burning round-trips on 
 ## When to launch the full app
 
 - After the catalog signs off and you want to verify the chrome lands correctly inside the real layout (panels, undock, modals interacting with each other).
-- When the change involves canvas, panels with live data, or anything that needs an open Signex project.
+- When the change involves canvas, panels with live data, or anything that needs an open Oxide project.
 - Final smoke pass before commit.
 
 ## Adding a new variant to the catalog

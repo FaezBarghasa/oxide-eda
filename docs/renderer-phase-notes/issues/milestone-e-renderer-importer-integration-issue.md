@@ -4,7 +4,7 @@ Status: not_started
 
 ## Goal
 
-Integrate `signex-3d-model-importer` output with `signex-renderer` runtime so
+Integrate `oxide-3d-model-importer` output with `oxide-renderer` runtime so
 VRML/WRL, GLTF, STEP, and GLB model sources can flow through one deterministic
 runtime path while preserving the GLB-only ingest contract inside renderer core.
 
@@ -19,7 +19,7 @@ runtime path while preserving the GLB-only ingest contract inside renderer core.
 
 ## Task breakdown (ordered)
 
-- [ ] Task 01: Integration contract and ownership boundaries (`signex-3d-model-importer` vs `signex-renderer`).
+- [ ] Task 01: Integration contract and ownership boundaries (`oxide-3d-model-importer` vs `oxide-renderer`).
 - [ ] Task 02: Source dispatcher (VRML/STEP/GLTF -> importer, GLB -> pass-through).
 - [ ] Task 03: Runtime bridge wiring to `ingest_runtime_glb` with cache path handoff.
 - [ ] Task 04: Error and warning mapping into renderer diagnostics contract.
@@ -48,7 +48,7 @@ Suggested filenames:
 
 ## Non-goals
 
-- No change to `signex-renderer` GLB container validation rules.
+- No change to `oxide-renderer` GLB container validation rules.
 - No new geometry kernels or tessellation algorithms in this issue.
 - No UI workflow redesign for model picker/import wizard in this issue.
 - No cloud conversion or remote service dependency.

@@ -54,7 +54,7 @@ pub(super) fn tree_node_role(icon: &TreeIcon, path_len: usize, has_children: boo
     TreeNodeRole::Unknown
 }
 
-impl Signex {
+impl Oxide {
     /// Build the Projects-panel tree-view right-click menu. The item set
     /// is derived from the clicked node's [`TreeNodeRole`] — project root
     /// vs library leaf vs openable leaf vs container branch — so the menu

@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Signex ship here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/spec/v2.0.0.html), both strictly.
+All notable changes to Oxide ship here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/spec/v2.0.0.html), both strictly.
 
 ## Format
 
@@ -8,7 +8,7 @@ All notable changes to Signex ship here. Format follows [Keep a Changelog](https
 - **Section heading:** `### <Type> — <scope>`, where `<Type>` is one of Keep a Changelog's six — **Added**, **Changed**, **Deprecated**, **Removed**, **Fixed**, **Security**. The scope suffix is free text (`### Fixed — netlist`); drop it when the section covers the whole release (`### Changed`). Lead with the type so a reader scanning for regressions finds every `Fixed` without reading section titles.
 - **No `####`.** Sub-scope goes in the suffix after a colon: `### Added — footprint editor: sketch constraints`.
 - **Note sections** are allowed alongside the types, because they record something other than a change: `### Breaking changes`, `### Deferred to <version>`, `### Constraints — …`, `### Upgrade notes`, `### Known issues / workarounds`, `### Issues closed`, `### Provenance`, `### Versions affected`. Anything that *is* a change takes a type instead — don't reach for a note heading to avoid choosing one.
-- **Close every section** with `[Full changelog](https://github.com/alplabai/signex/compare/v<prev>...v<this>)`, where `<prev>` is the previous *tag* — not the previous section. v0.12.0 and v0.6.2 have no section, and v0.6.2 has a tag with none.
+- **Close every section** with `[Full changelog](https://github.com/alplabai/oxide/compare/v<prev>...v<this>)`, where `<prev>` is the previous *tag* — not the previous section. v0.12.0 and v0.6.2 have no section, and v0.6.2 has a tag with none.
 
 ## Release mechanics
 
@@ -20,12 +20,12 @@ Each release section is authored **before** the `vX.Y.Z` tag is created, so the 
 
 ### Added — PCB GPU shader render (experimental, default-off)
 
-- **GPU scene render path** — the PCB editor canvas can render traces, pads, vias, and zones through the `signex_gfx` wgpu pipelines via iced's `shader` widget instead of CPU `canvas::Frame` tessellation. Gated behind `feature_flags::PCB_GPU_RENDER` (default `false`) plus a Preferences toggle; the CPU path stays the default until GPU visual parity is confirmed on hardware.
-- **CPU↔GPU draw-order parity lock** — a shared `signex_gfx::scene::order` module defines the canonical bucket draw order both paths walk, so neither path can drift silently.
+- **GPU scene render path** — the PCB editor canvas can render traces, pads, vias, and zones through the `oxide_gfx` wgpu pipelines via iced's `shader` widget instead of CPU `canvas::Frame` tessellation. Gated behind `feature_flags::PCB_GPU_RENDER` (default `false`) plus a Preferences toggle; the CPU path stays the default until GPU visual parity is confirmed on hardware.
+- **CPU↔GPU draw-order parity lock** — a shared `oxide_gfx::scene::order` module defines the canonical bucket draw order both paths walk, so neither path can drift silently.
 
 ### Fixed
 
-- **GPU concave polygon fill** — the polygon pipeline fanned every contour from its first vertex, which is exact only for convex shapes; a concave copper pour/rule-area bridged triangles across the notch and painted copper where the pour had none. `append_fill` now triangulates via `signex_sketch::ear_clip`, matching the CPU `frame.fill` (lyon) result exactly (pinned by a shoelace-area regression test). Found and fixed a latent bug in `ear_clip` itself while wiring it up: a bridge edge created by clipping one ear could pass exactly through another still-remaining vertex, letting the algorithm approve an invalid ear and collapse the rest of the polygon into a self-intersecting remainder — `is_ear`'s occlusion test now also blocks on a non-corner vertex sitting exactly on the ear's boundary.
+- **GPU concave polygon fill** — the polygon pipeline fanned every contour from its first vertex, which is exact only for convex shapes; a concave copper pour/rule-area bridged triangles across the notch and painted copper where the pour had none. `append_fill` now triangulates via `oxide_sketch::ear_clip`, matching the CPU `frame.fill` (lyon) result exactly (pinned by a shoelace-area regression test). Found and fixed a latent bug in `ear_clip` itself while wiring it up: a bridge edge created by clipping one ear could pass exactly through another still-remaining vertex, letting the algorithm approve an invalid ear and collapse the rest of the polygon into a self-intersecting remainder — `is_ear`'s occlusion test now also blocks on a non-corner vertex sitting exactly on the ear's boundary.
 - **GPU overlay z-order** — `gpu_scene()` folded overlay geometry (active-layer zone highlight, selection highlight, DRC markers, ratsnest) into the base `polygons`/`lines`/`circles` buckets, which the GPU draws before other base content — so an overlay meant to sit on top rendered underneath it. Overlays now stay in their own buffers and composite in a dedicated pass strictly after every base bucket, matching the CPU `draw_scene` overlay pass.
 - **GPU dashed lines** — `line.wgsl` declared the per-instance `style` field but never consumed it, so `RATSNEST_STYLE_DASHED` / keepout / DRC-overlay segments rendered solid on the GPU. The fragment shader now derives a dash/gap pattern from `camera.mm_per_px` (reproducing the CPU's literal 8px dash / 5px gap at any zoom) and discards the gap portions.
 - **GPU text now pans with the view** — glyph text rasterised for the GPU path was scaled by zoom but never translated by the pan offset, so labels drifted off the geometry they annotate on any pan; the screen-space pan term is now applied.
@@ -97,7 +97,7 @@ persistence, and CI/toolchain hardening (pinned Rust 1.97.0, an enforced
   Constraint this records for later: `net_name` is a persisted field of the PCB
   format (on pads, tracks and zones), so any future schematic → PCB net sync
   **must match by terminal set, not by auto-generated `N$k` name.** Nothing
-  in-tree feeds `build_netlist` into `signex-pcb` today, so no routed copper is
+  in-tree feeds `build_netlist` into `oxide-pcb` today, so no routed copper is
   remapped by this change.
 
 ### Added — ERC
@@ -176,9 +176,9 @@ persistence, and CI/toolchain hardening (pinned Rust 1.97.0, an enforced
   cap raised to 1000 lines (#451), counting production lines past an external
   `mod tests;` (#468).
 - **Data-driven dropdown table** replaces the `dropdown.rs` god-file (#458).
-- The labeler matches `signex-app` tests so test-only PRs get area labels (#441).
+- The labeler matches `oxide-app` tests so test-only PRs get area labels (#441).
 
-[Full changelog](https://github.com/alplabai/signex/compare/v0.14.0...v0.15.0)
+[Full changelog](https://github.com/alplabai/oxide/compare/v0.14.0...v0.15.0)
 
 ## [0.14.0] — 2026-07-18
 
@@ -186,7 +186,7 @@ persistence, and CI/toolchain hardening (pinned Rust 1.97.0, an enforced
 
 This section was originally written on 2026-05-31 covering only the footprint
 editor, and never tagged. Work kept landing past it: symbol multi-unit, the
-`signex-net` netlist contract, keyboard-shortcut profiles, the schematic GPU
+`oxide-net` netlist contract, keyboard-shortcut profiles, the schematic GPU
 render path, and 83 commits of ADR-0001 decomposition. Rather than mint a
 phantom version — v0.12 is already one, planned and merged but never tagged —
 v0.14.0 claims all of it. The bulk below was reconstructed from `git log` and
@@ -194,7 +194,7 @@ summarises by theme rather than listing every commit.
 
 ### Added — netlist
 
-- **`signex-net` crate — the authoritative `Netlist` contract** (#137). One
+- **`oxide-net` crate — the authoritative `Netlist` contract** (#137). One
   derivation of connectivity, consumed by everything that needs it instead of
   each subsystem rolling its own.
 - **Cross-sheet netlist stitching** — `build_project_netlist` (#168).
@@ -247,11 +247,11 @@ summarises by theme rather than listing every commit.
 
 ### Changed
 
-- **`signex-gfx` aligned to iced's wgpu 27 + cryoglyph**, dropping the dual
+- **`oxide-gfx` aligned to iced's wgpu 27 + cryoglyph**, dropping the dual
   GPU stack (#198).
 - **Large-scale decomposition under ADR-0001** — 83 commits splitting god-files
-  and god-functions across `signex-app`, `signex-engine`, `signex-renderer`,
-  `signex-gfx`, `signex-types`, `signex-library`, `signex-net`, `signex-output`,
+  and god-functions across `oxide-app`, `oxide-engine`, `oxide-renderer`,
+  `oxide-gfx`, `oxide-types`, `oxide-library`, `oxide-net`, `oxide-output`,
   and the 3D importer, under an 800-line cap. Includes the root `Message`
   namespacing (D3), the canvas `update`/`draw` splits, the property-panel
   family, and the 1,223-line `collect_overlays` (#210). Internal only — no
@@ -310,7 +310,7 @@ summarises by theme rather than listing every commit.
   hit-test, the GPU SDF shader, and rotation all read `start_deg`/`end_deg` as a
   CCW sweep that wraps through 360°, so a rotated 0°-crossing arc drew its
   complement while clicks landed on the real arc. All consumers now route
-  through one authority (`signex_gfx::primitive::arc::ccw_wrapped_sweep_rad`),
+  through one authority (`oxide_gfx::primitive::arc::ccw_wrapped_sweep_rad`),
   a full-turn arc draws and hit-tests as one circle, and a load-time migration
   self-heals legacy clockwise-signed pairs on read. Every endpoint writer
   (placement, rotation, the Properties panel, and the arc-endpoint drag handle)
@@ -330,7 +330,7 @@ summarises by theme rather than listing every commit.
 
 ### Changed — CI
 
-- lavapipe installed so `signex-gfx` GPU smoke tests run headless (#126).
+- lavapipe installed so `oxide-gfx` GPU smoke tests run headless (#126).
 - `cargo-deny` advisories are informational, not a merge gate (#123).
 - CI and license guards run on `trunk` (#121); PR preconditions aligned with
   the org control-process convention (#134); Linux dependency install hardened
@@ -403,7 +403,7 @@ tab, and the New Footprint / PCB Library create flow is live again.
 ### Changed — footprint editor
 
 - `FOOTPRINT_EDITOR_ENABLED` flipped `false` → `true`
-  (`crates/signex-app/src/feature_flags.rs`). The
+  (`crates/oxide-app/src/feature_flags.rs`). The
   `opening_snxfpt_does_not_create_editable_tab_when_gated` regression
   test branches on the flag and now asserts the enabled behaviour.
 
@@ -414,11 +414,11 @@ tab, and the New Footprint / PCB Library create flow is live again.
 ### Constraints — Apache-clean invariants (carry forward)
 
 - Zero `kicad` substrings under `crates/`; no third-party
-  constraint-solver substrings under `signex-sketch` / `signex-bake`;
+  constraint-solver substrings under `oxide-sketch` / `oxide-bake`;
   `cargo-deny` advisories + licenses green; full `cargo test --workspace`
   green (GPU smoke tests skip headlessly).
 
-[Full changelog](https://github.com/alplabai/signex/compare/v0.13.0...v0.14.0)
+[Full changelog](https://github.com/alplabai/oxide/compare/v0.13.0...v0.14.0)
 
 ## [0.13.0] — 2026-05-31
 
@@ -431,9 +431,9 @@ backward.
 
 ### Changed — cleanroom schematic renderer
 
-- **Clean-room reimplementation** of `crates/signex-renderer/src/schematic.rs`
+- **Clean-room reimplementation** of `crates/oxide-renderer/src/schematic.rs`
   (label / symbol / field-style rendering) and the field-autoplace
-  heuristic, executed against Signex-only specifications
+  heuristic, executed against Oxide-only specifications
   (`docs/RENDERING_RULES.md`, Altium parity goals, IEEE-Std-91) rather
   than any third-party EDA source. Schematic rendering output changes
   subtly versus v0.11 — label placement, field rotation/justification,
@@ -443,14 +443,14 @@ backward.
 ### Added — symbol editor
 
 - **Unified active-bar widget.** The `.snxsym` editor adopts the generic
-  `signex_widgets::active_bar` in a single-call form, so the symbol
+  `oxide_widgets::active_bar` in a single-call form, so the symbol
   editor's floating toolbar matches the schematic editor byte-for-byte
   (root highlight, dropdown panels, right-click, chevron). New
   `active_bar_dropdowns` module backs the per-tool dropdown overlays;
   dropdown panels position relative to the bar's `y_offset` so they open
   directly under their trigger button.
 - **`.snxsym` TOML+TSV envelope.** Standalone symbol files serialise to
-  the same TOML-header + TSV-bulk envelope as the rest of the Signex
+  the same TOML-header + TSV-bulk envelope as the rest of the Oxide
   format family (`SymbolFile::to_toml_string` / `from_bytes`), so pin
   tables are line-diffable in git. Legacy JSON `.snxsym` files still load
   (auto-detected on open).
@@ -468,7 +468,7 @@ backward.
 
 - **Per-file Git history right-dock panel** refinements — the History
   panel follows the active tab and renders the file's recent commits via
-  `signex_widgets::history_pane`, async-loaded with a generation counter
+  `oxide_widgets::history_pane`, async-loaded with a generation counter
   to drop stale results on tab switch.
 
 ### Changed — footprint editor hidden for this release
@@ -476,7 +476,7 @@ backward.
 - **The footprint / sketch editor is gated off in v0.13.0.** It is
   feature-incomplete and was under heavy daily iteration; rather than
   ship an unfinished editor, its user-facing entry points are disabled
-  behind a compile-time flag (`signex_app::feature_flags::FOOTPRINT_EDITOR_ENABLED`).
+  behind a compile-time flag (`oxide_app::feature_flags::FOOTPRINT_EDITOR_ENABLED`).
   Opening a `.snxfpt` no longer pushes an editable Footprint Editor tab,
   and the "New Footprint / PCB Library" create flow is removed from the
   command palette and project-tree menus.
@@ -500,10 +500,10 @@ backward.
 - Zero `kicad`/`KiCad`/`KICAD` substrings under `crates/`; no
   `kicad-parser` / `kicad-writer` deps or imports; no removed-API
   surface re-introduced; `cargo-deny check licenses` green. The
-  cleanroom renderer was authored against Signex-only specs with no
+  cleanroom renderer was authored against Oxide-only specs with no
   third-party EDA source in context.
 
-[Full changelog](https://github.com/alplabai/signex/compare/v0.11.0...v0.13.0)
+[Full changelog](https://github.com/alplabai/oxide/compare/v0.11.0...v0.13.0)
 
 ## [0.11.0] — 2026-05-01
 
@@ -511,9 +511,9 @@ The **v0.11 Library & Polish** milestone. Restores the full library subsystem im
 
 The library subsystem follows the **DBLib model** specified in the v0.9 plan series (`docs/internal/docs/v0.9-library-plan.md` → `v0.9-library-refactor-plan.md` → `v0.9-refactor-2-plan.md`): components live as **rows in TSV tables** (`tables/<category>.tsv`) rather than per-component files; symbols, footprints, and sim models stay as standalone editable primitive files (`.snxsym`, `.snxfpt`, `.snxsim`) addressed by UUID; component rows reference primitives by `(library_id, uuid)` tuples. The same column schema serialises to TSV (LocalGit) or JSONB rows (Database) — one wire format, two backends.
 
-### Added — `signex-library` crate (data model + adapters + diff + search)
+### Added — `oxide-library` crate (data model + adapters + diff + search)
 
-- **Component model** — `ComponentRow` carries `row_id` (stable Uuid v7), `internal_pn`, `class`, `datasheet`, `state` (lifecycle), `symbol_ref` / `footprint_ref` / `sim_ref` (`PrimitiveRef { library_id, uuid }`), `pin_map_overrides`, `primary_mpn` + `alternates`, `supply` (distributor listings), `parameters` (template-validated `ParamMap`), and PLM-reserved inert fields for forward compatibility with Signex 365.
+- **Component model** — `ComponentRow` carries `row_id` (stable Uuid v7), `internal_pn`, `class`, `datasheet`, `state` (lifecycle), `symbol_ref` / `footprint_ref` / `sim_ref` (`PrimitiveRef { library_id, uuid }`), `pin_map_overrides`, `primary_mpn` + `alternates`, `supply` (distributor listings), `parameters` (template-validated `ParamMap`), and PLM-reserved inert fields for forward compatibility with Oxide 365.
 - **Lifecycle states** — `Draft / InReview / Released / Deprecated / Obsolete` per the LIBRARY_PLAN §4 contract; placement gating + `state` field changes recorded in git history (LocalGit) or `updated_at` (Database).
 - **`LibraryAdapter` trait** — object-safe trait covering table CRUD (`list_tables`, `read_table`, `iter_rows`), row CRUD (`read_row`, `read_row_by_pn`, `insert_row`, `update_row`, `delete_row`), and primitive CRUD (`get_symbol`, `save_symbol`, `list_symbols`, etc.).
 - **`LocalGitAdapter`** — `*.snxlib/` directory format with `library.toml`, `tables/<category>.tsv`, `symbols/<uuid>.snxsym`, `footprints/<uuid>.snxfpt`, `sims/<uuid>.snxsim`, `step/<sha256>.step`. Every write commits via libgit2 with a supplied message; reads stream from the on-disk TSV.
@@ -525,18 +525,18 @@ The library subsystem follows the **DBLib model** specified in the v0.9 plan ser
 - **Diff API** — `RowDiff` with per-column-group flags drives lifecycle auto-bump heuristic.
 - **Manifest schema** — `library.toml` carries `[[tables]]` config (category → table name + class allowlist), `[users]` (per-email role table), `[workflow]` (review_required, reviewers_required, auto_lifecycle_promote).
 
-### Added — `signex-library-server` crate (axum HTTP+WS skeleton)
+### Added — `oxide-library-server` crate (axum HTTP+WS skeleton)
 
 - **REST API** — `GET /tables`, `GET /tables/:name`, `POST /tables/:name/rows`, `GET /tables/:name/rows/:row_id`, `PUT /tables/:name/rows/:row_id`, `DELETE /tables/:name/rows/:row_id`. Bearer-token gated.
 - **Lock service** — advisory locks per (table, row_id, field-set) with idle TTL + WS notification on release.
 - **Migrations** — sqlx-managed schema; `0001_initial.sql` through `0005_tabular_components.sql` covering both Postgres and SQLite via the same column DDL.
 - **Lifecycle transitions** with optional review workflow (per-library setting): `state = Draft` → `InReview` → `Released` (with reviewer approval), or direct `Draft` → `Released` when `review_required = false`.
 
-### Added — `signex-app` library UI
+### Added — `oxide-app` library UI
 
-- **SCH Library editor** — opens a `.snxsym` as a main-window tab (`TabKind::SymbolEditor(PathBuf)`). Multi-symbol container, per-pin Properties panel (name / number / direction / shape / position / length), drawing tools (Rectangle / Line / Circle), per-graphic Properties surface, drag-to-resize, multi-part component support via `SymbolPin.part_number`, `signex_widgets::active_bar` migration. Save uses the v0.9.1 borrow-based pattern.
+- **SCH Library editor** — opens a `.snxsym` as a main-window tab (`TabKind::SymbolEditor(PathBuf)`). Multi-symbol container, per-pin Properties panel (name / number / direction / shape / position / length), drawing tools (Rectangle / Line / Circle), per-graphic Properties surface, drag-to-resize, multi-part component support via `SymbolPin.part_number`, `oxide_widgets::active_bar` migration. Save uses the v0.9.1 borrow-based pattern.
 - **Footprint editor** — `.snxfpt` opens as `TabKind::FootprintEditor(PathBuf)`. Pad placement canvas, Body3D pane with STEP attach + 3D preview, layer toolbar, courtyard/silk/fab/paste-mask layers.
-- **Library Browser tab** — table on the left with clickable column headers (numeric-aware sort), Rev column showing the bound primitive's `version + released` indicator, side preview pane on the right rendering the bound symbol + footprint via `signex-render`. Substring filter across name / value / footprint / description.
+- **Library Browser tab** — table on the left with clickable column headers (numeric-aware sort), Rev column showing the bound primitive's `version + released` indicator, side preview pane on the right rendering the bound symbol + footprint via `oxide-render`. Substring filter across name / value / footprint / description.
 - **Component Preview tab** — 5 read-only tabs (Preview / Parameters / Supply / Datasheet / Simulation) per the v0.9-refactor-2 plan §11. Right-click the symbol render → "Open Symbol Editor" opens the standalone primitive tab.
 - **Library left-dock panel** — flat list of mounted libraries with single-click `[Open]` button. Filter input narrows the visible library list. Inline category-tree-with-row-grid is intentionally not in this panel — the canonical surface is the Library Browser tab (real libraries have thousands of components).
 - **Components panel** — Project / Installed / Global mount sources; renders the active Library Browser tab's row set as a placement palette.
@@ -565,16 +565,16 @@ The library subsystem follows the **DBLib model** specified in the v0.9 plan ser
 
 ### Added — Version control + history (2026-05-01)
 
-- **Per-item tracking-scope picker on Enable Version Control** — the modal opened from the project root context menu now shows a checkbox list of each `.snxsch` / `.snxpcb` / `.snxlib` in the project. Unchecked rows are written to a generated `.gitignore` at confirm time so users can scope the initial commit without manual editing. Library API (`signex_library::enable_project_version_control`) takes the gitignore body as `Option<&str>` and writes both the gitignore and `.gitattributes` atomically alongside `git init`, with rollback on failure — disk state never lands half-applied.
+- **Per-item tracking-scope picker on Enable Version Control** — the modal opened from the project root context menu now shows a checkbox list of each `.snxsch` / `.snxpcb` / `.snxlib` in the project. Unchecked rows are written to a generated `.gitignore` at confirm time so users can scope the initial commit without manual editing. Library API (`oxide_library::enable_project_version_control`) takes the gitignore body as `Option<&str>` and writes both the gitignore and `.gitattributes` atomically alongside `git init`, with rollback on failure — disk state never lands half-applied.
 - **Library-level Enable Version Control** — right-click an existing plain-files `.snxlib` node → `Enable Version Control...` opens the same modal scoped to the library directory. Surfaces `library.toml`, `components.tsv`, and any `classes/` / `symbols/` / `footprints/` / `sims/` / `models/` subdirectories that exist on disk as separately tickable rows. `TrackItem` shape refactored to `{ absolute, relative, label, is_directory, tracked }` so library-scope items plug into the same picker without enum bloat. Confirm branches on `VersionControlScope { Project, Library }` so the post-init refresh updates the right tree node.
-- **Per-file Git history right-dock panel** — new `PanelKind::History` follows the active tab and renders the file's last 50 commits via `signex_widgets::history_pane`. Wires on a new `signex_library::project_file_history(project_dir, rel_path)` helper that walks any `git2::Repository` (not just library-rooted ones). Async-loaded with a generation counter to drop stale results on tab switch. States: not-in-git / no-commits / dirty-only / normal. Working-tree pseudo-card on top when the active path is in `dirty_paths`.
+- **Per-file Git history right-dock panel** — new `PanelKind::History` follows the active tab and renders the file's last 50 commits via `oxide_widgets::history_pane`. Wires on a new `oxide_library::project_file_history(project_dir, rel_path)` helper that walks any `git2::Repository` (not just library-rooted ones). Async-loaded with a generation counter to drop stale results on tab switch. States: not-in-git / no-commits / dirty-only / normal. Working-tree pseudo-card on top when the active path is in `dirty_paths`.
 - **Per-class filter in Library Browser sidebar** — clicking a class row in the master-detail layout's left sidebar filters the right-side component grid to rows whose `class` field matches. Clicking the active class clears the filter; `LibraryBrowserState.class_filter: Option<String>` applied alongside `lifecycle_filter`. Active class row renders with the same accent-tint background as the table sidebar's selected row for visual feedback.
 
 ### Added — documentation (2026-05-01)
 
 - **Hardware Requirements** section in `README.md` (addresses #63) — Vulkan 1.1 / DirectX 12 / Metal floor (~2014+ GPU). Older GPUs that fall back to legacy OpenGL may render incorrectly.
-- **`docs/RENDERING_RULES.md`** (new public doc) — Apache-2.0 prose describing label rendering, field rotation/justify rules, and IEEE-Std-91 pin shape decorators. Sourced from `crates/signex-types/` (Signex's own `.snxsch` format), Altium parity goals, and public industry standards. Source comments in `signex-render` reference this spec instead of citing third-party EDA tooling.
-- **`docs/audit/comments-scrub-2026-05-01.md`** (new audit doc) — records the 2026-05-01 source comment scrub that removed residual KiCad C++ class name references from `signex-render` and `signex-engine` and `signex-output/pdf` even after the v0.10.0 "Standard" rename. Eight comment lines across seven files reworded to neutral descriptions; algorithms unchanged.
+- **`docs/RENDERING_RULES.md`** (new public doc) — Apache-2.0 prose describing label rendering, field rotation/justify rules, and IEEE-Std-91 pin shape decorators. Sourced from `crates/oxide-types/` (Oxide's own `.snxsch` format), Altium parity goals, and public industry standards. Source comments in `oxide-render` reference this spec instead of citing third-party EDA tooling.
+- **`docs/audit/comments-scrub-2026-05-01.md`** (new audit doc) — records the 2026-05-01 source comment scrub that removed residual KiCad C++ class name references from `oxide-render` and `oxide-engine` and `oxide-output/pdf` even after the v0.10.0 "Standard" rename. Eight comment lines across seven files reworded to neutral descriptions; algorithms unchanged.
 - **`docs/internal/CLEANROOM_REWRITE_PLAN.md`** (private submodule) — plan for the v0.12 cleanroom milestone: deletion scope, working rules for the fresh agent session, six rewrite phases, CI guard extensions.
 
 ### Changed — license-guard CI
@@ -589,8 +589,8 @@ The library subsystem follows the **DBLib model** specified in the v0.9 plan ser
 
 ### Changed — types & samples
 
-- **`PinElectricalType` → `PinDirection`** in the new `signex-library` crate to satisfy the License Guard's `no-removed-kicad-api` strict job. Variant set unchanged. Note: this is a different enum from `signex_types::schematic::PinDirection` (which has Signex-original variants); the two coexist as path-qualified `signex_library::PinDirection` vs `signex_types::schematic::PinDirection`. Consolidating them is a follow-up refactor.
-- `crates/signex-types/src/library.rs` — the v0.10.0 thin `Library` / `LibraryComponent` types are removed. Library Browser tab content now reads through the `signex-library` adapter trait.
+- **`PinElectricalType` → `PinDirection`** in the new `oxide-library` crate to satisfy the License Guard's `no-removed-kicad-api` strict job. Variant set unchanged. Note: this is a different enum from `oxide_types::schematic::PinDirection` (which has Oxide-original variants); the two coexist as path-qualified `oxide_library::PinDirection` vs `oxide_types::schematic::PinDirection`. Consolidating them is a follow-up refactor.
+- `crates/oxide-types/src/library.rs` — the v0.10.0 thin `Library` / `LibraryComponent` types are removed. Library Browser tab content now reads through the `oxide-library` adapter trait.
 - `assets/samples/library/resistors-standard.snxlib` — removed; the obsolete v0.10.0 sample no longer fits the DBLib data model.
 
 ### Added — documentation
@@ -617,7 +617,7 @@ The squash here is a tree-only restoration; full per-commit authorship and histo
 - `cargo-deny check licenses` green — every transitive dep is permissive.
 - Every PR description carries the self-declaration block (Source basis / LLM-assisted / KiCad source consulted).
 
-[Full changelog](https://github.com/alplabai/signex/compare/v0.10.0...v0.11.0)
+[Full changelog](https://github.com/alplabai/oxide/compare/v0.10.0...v0.11.0)
 
 
 ## [0.10.0] — 2026-04-29
@@ -628,35 +628,35 @@ The library subsystem paused on 2026-04-29 alongside the v0.9.0 Apache-clean cut
 
 ### Added
 
-- `signex-types::library::Library` and `LibraryComponent` — in-memory representation of a `.snxlib` package. `LibraryComponent` carries a sentinel-`nil` `symbol_uuid` / `footprint_uuid` for unbound rows; v0.10.8 wires the Pick Symbol/Footprint flow that fills them in.
-- `signex-types::format::SnxLibrary` — TOML+TSV envelope for `.snxlib` files. `parse(&str)`, `write_string()`, and `write_string_borrowed(&str, &Library)` mirror the v0.9.1 borrow-based pattern from `SnxSchematic` / `SnxPcb`, so v0.10.6's async-save plumbing drops in unchanged.
-- `signex-types::format::LibraryComponentRow` — TSV adapter row implementing `SnxTable` with columns `uuid name value footprint description symbol_uuid footprint_uuid`.
-- `signex-app::TabDocument::Library(Library)` variant — Library Browser tabs cache the parsed library on the tab. New `as_library()` accessor; the existing `as_pcb()` is unchanged.
-- `signex-app` open path — `open_document_path` and the project-tree handler both route `.snxlib` to a new `open_library_tab(path, title, library)` mirroring `open_pcb_tab`.
-- `signex-app::view::view_library_browser` — read-only Library Browser tab body. Header strip (library name + component count + optional description), 4-column scrollable table (Name, Value, Footprint, Description), and an empty-state placeholder when the library has zero components.
+- `oxide-types::library::Library` and `LibraryComponent` — in-memory representation of a `.snxlib` package. `LibraryComponent` carries a sentinel-`nil` `symbol_uuid` / `footprint_uuid` for unbound rows; v0.10.8 wires the Pick Symbol/Footprint flow that fills them in.
+- `oxide-types::format::SnxLibrary` — TOML+TSV envelope for `.snxlib` files. `parse(&str)`, `write_string()`, and `write_string_borrowed(&str, &Library)` mirror the v0.9.1 borrow-based pattern from `SnxSchematic` / `SnxPcb`, so v0.10.6's async-save plumbing drops in unchanged.
+- `oxide-types::format::LibraryComponentRow` — TSV adapter row implementing `SnxTable` with columns `uuid name value footprint description symbol_uuid footprint_uuid`.
+- `oxide-app::TabDocument::Library(Library)` variant — Library Browser tabs cache the parsed library on the tab. New `as_library()` accessor; the existing `as_pcb()` is unchanged.
+- `oxide-app` open path — `open_document_path` and the project-tree handler both route `.snxlib` to a new `open_library_tab(path, title, library)` mirroring `open_pcb_tab`.
+- `oxide-app::view::view_library_browser` — read-only Library Browser tab body. Header strip (library name + component count + optional description), 4-column scrollable table (Name, Value, Footprint, Description), and an empty-state placeholder when the library has zero components.
 - `assets/samples/library/resistors-standard.snxlib` — 3-component sample library shipped with the source tree for the smoke test.
 
 ### Changed
 
-- **Project tree click semantics — single click highlights, double click opens.** Previously a single click on a leaf both highlighted and opened the file, which was easy to trigger accidentally while navigating. Now a single click only highlights the row (`panel_ctx.selected_tree_path`); a second click on the same row within 500 ms opens the file. The icon-gate (only schematic / PCB / `.snxprj` / `.snxlib` / `.snxsym` / `.snxfpt` / `.snxsim` leaves open) is unchanged. Right-click → Open in the context menu still opens immediately, bypassing the double-click latch. Folder rows still toggle expand/collapse on a single click. Implementation lives in `signex-app::handlers::dock::project_navigation::handle_dock_project_navigation_panel_message` and routes through a new `open_tree_path_if_document` helper shared with the right-click menu path.
+- **Project tree click semantics — single click highlights, double click opens.** Previously a single click on a leaf both highlighted and opened the file, which was easy to trigger accidentally while navigating. Now a single click only highlights the row (`panel_ctx.selected_tree_path`); a second click on the same row within 500 ms opens the file. The icon-gate (only schematic / PCB / `.snxprj` / `.snxlib` / `.snxsym` / `.snxfpt` / `.snxsim` leaves open) is unchanged. Right-click → Open in the context menu still opens immediately, bypassing the double-click latch. Folder rows still toggle expand/collapse on a single click. Implementation lives in `oxide-app::handlers::dock::project_navigation::handle_dock_project_navigation_panel_message` and routes through a new `open_tree_path_if_document` helper shared with the right-click menu path.
 
 ### Changed — Apache-clean residual polish
 
-In response to ongoing discussion on [issue #62](https://github.com/alplabai/signex/issues/62), v0.10.0 also lands a residual-polish pass that removes vestigial KiCad-shaped names from the codebase. None of these changes alter user-visible functionality, but they reduce the surface that reads as "Signex was once derived from KiCad" — the substantive change was already delivered in v0.9.0; this is the cosmetic follow-through.
+In response to ongoing discussion on [issue #62](https://github.com/alplabai/oxide/issues/62), v0.10.0 also lands a residual-polish pass that removes vestigial KiCad-shaped names from the codebase. None of these changes alter user-visible functionality, but they reduce the surface that reads as "Oxide was once derived from KiCad" — the substantive change was already delivered in v0.9.0; this is the cosmetic follow-through.
 
 - **Style enum variant renames.** `MultisheetStyle::KiCad` / `LabelStyle::KiCad` / `PowerPortStyle::KiCad` → `::Standard` for all three. The `::Altium` variants stay (Altium is the project's stated design reference and isn't a GPL exposure). On-disk preference strings remain `"kicad"` / `"altium"` for backward compatibility with existing `prefs.json` files; the user-facing dropdown labels also stay "KiCad" / "Altium" so users coming from those tools recognise the modes.
 - **Legacy KiCad symbol-library scanner removed.** `helpers::find_kicad_symbols_dir` (which walked `/usr/share/kicad/symbols`, `C:\Program Files\KiCad\…`, etc.) and `helpers::list_kicad_libraries` deleted. The associated `DocumentState::kicad_lib_dir` field, `PanelContext::kicad_libraries` field, and the dock-panel `library_browser.rs` handler are gone. The Components panel's library dropdown is replaced by an inline placeholder until the v0.10.x `.snxlib` plumbing repopulates it. The scanner had been a no-op since v0.9.0 (the load handler logged "convert with companion tool" and skipped); removing it cleans up code that pointed at KiCad install layouts without serving a real flow.
-- **Direct-open KiCad-extension dispatch arm removed.** `open_document_path` no longer matches `"kicad_pro" | "kicad_sch" | "kicad_pcb"`; the same arm in the project-tree double-click handler is also gone. Opening a `.kicad_*` file now falls through to a generic "unsupported file type" error. The migration story for KiCad users is unchanged — run `signex-kicad-import` first; the README and `docs/LICENSING.md` continue to describe the flow.
+- **Direct-open KiCad-extension dispatch arm removed.** `open_document_path` no longer matches `"kicad_pro" | "kicad_sch" | "kicad_pcb"`; the same arm in the project-tree double-click handler is also gone. Opening a `.kicad_*` file now falls through to a generic "unsupported file type" error. The migration story for KiCad users is unchanged — run `oxide-kicad-import` first; the README and `docs/LICENSING.md` continue to describe the flow.
 - **`docs/LICENSING.md` strengthened.** New "LLM context discipline" section documenting that post-cutover development uses LLM-assisted workflows where KiCad source code is never placed in agent context, prompts, retrieval indexes, or reference material. Versions table updated through v0.10.0.
 - **License Guard CI tightened.** Three new jobs added to `.github/workflows/license-guard.yml`: forbid re-introduction of the v0.10.0-renamed names (`MultisheetStyle::KiCad`, `find_kicad_symbols_dir`, etc.); forbid KiCad-numbered layer-id constants (`F_CU = 0`, `B_CU = 31`, …); forbid the `Net-(<r>-Pad<p>)` auto-net-name format string.
 
 ### Added — tests
 
-- `signex_types::format::tests::snxlibrary_round_trip_preserves_components` — locks parser/writer round-trip parity.
-- `signex_types::format::tests::snxlibrary_borrow_matches_owned` — owned/borrowed serialise parity.
-- `signex_types::format::tests::snxlibrary_rejects_unknown_version` — `UnsupportedVersion` error path.
-- `signex_types::format::tests::snxlibrary_parses_empty_components_block` — empty-library round-trip.
-- `signex_types::format::tests::shipped_sample_library_parses` — guards the shipped sample against parser drift.
+- `oxide_types::format::tests::snxlibrary_round_trip_preserves_components` — locks parser/writer round-trip parity.
+- `oxide_types::format::tests::snxlibrary_borrow_matches_owned` — owned/borrowed serialise parity.
+- `oxide_types::format::tests::snxlibrary_rejects_unknown_version` — `UnsupportedVersion` error path.
+- `oxide_types::format::tests::snxlibrary_parses_empty_components_block` — empty-library round-trip.
+- `oxide_types::format::tests::shipped_sample_library_parses` — guards the shipped sample against parser drift.
 
 ### Constraints — Apache-clean invariants (carry forward from v0.9.0)
 
@@ -664,7 +664,7 @@ In response to ongoing discussion on [issue #62](https://github.com/alplabai/sig
 - No `kicad-parser` / `kicad-writer` Cargo.toml deps.
 - License Guard 4 jobs and `cargo-deny` continue to gate every PR.
 
-[Full changelog](https://github.com/alplabai/signex/compare/v0.9.1...v0.10.0)
+[Full changelog](https://github.com/alplabai/oxide/compare/v0.9.1...v0.10.0)
 
 ## [0.9.1] — 2026-04-29
 
@@ -672,26 +672,26 @@ The **async save + borrow-based serialise** patch deferred from v0.9.0. Schemati
 
 ### Changed
 
-- `signex-types::format::SnxSchematic::write_string_borrowed(&str, &SchematicSheet)` and the matching `SnxPcb::write_string_borrowed(&str, &PcbBoard)` — borrow-based serialise. The owned `write_string()` methods now delegate to these, so byte-for-byte output is unchanged. Skips the ~50–100 ms `self.sheet.clone()` / `self.board.clone()` that the engine previously paid before each serialise.
-- `signex-engine::Engine::serialize_for_save(&self) -> Result<Vec<u8>, EngineError>` — pure, side-effect-free serialise using the borrow path. Cheap to call repeatedly; no path mutation.
-- `signex-engine::Engine::write_to_file(path, bytes)` — stateless disk write half of the async-save pair. Pair with `serialize_for_save` to run the write off the UI thread.
-- `signex-engine::Engine::record_saved_path(path)` — set the engine's path after an async save resolves.
-- `signex-app` save handler — `Ctrl+S` and File → Save now serialise on the UI thread (cheap with the borrow-based path) and dispatch the disk write via `iced::Task::perform`. iced's tokio runtime runs the blocking `std::fs::write` on a worker thread, so the UI stays responsive even on huge boards.
+- `oxide-types::format::SnxSchematic::write_string_borrowed(&str, &SchematicSheet)` and the matching `SnxPcb::write_string_borrowed(&str, &PcbBoard)` — borrow-based serialise. The owned `write_string()` methods now delegate to these, so byte-for-byte output is unchanged. Skips the ~50–100 ms `self.sheet.clone()` / `self.board.clone()` that the engine previously paid before each serialise.
+- `oxide-engine::Engine::serialize_for_save(&self) -> Result<Vec<u8>, EngineError>` — pure, side-effect-free serialise using the borrow path. Cheap to call repeatedly; no path mutation.
+- `oxide-engine::Engine::write_to_file(path, bytes)` — stateless disk write half of the async-save pair. Pair with `serialize_for_save` to run the write off the UI thread.
+- `oxide-engine::Engine::record_saved_path(path)` — set the engine's path after an async save resolves.
+- `oxide-app` save handler — `Ctrl+S` and File → Save now serialise on the UI thread (cheap with the borrow-based path) and dispatch the disk write via `iced::Task::perform`. iced's tokio runtime runs the blocking `std::fs::write` on a worker thread, so the UI stays responsive even on huge boards.
 - New `Message::SaveFileFinished(PathBuf, Result<(), String>)` completion arm.
 - Status bar shows a small "Saving…" pill for the duration of the off-thread write; transient save errors surface as a 3-second pill before fading.
 
 ### Added — tests
 
-- `signex_types::format::tests::schematic_borrow_matches_owned_serialise` — locks owned/borrowed parity for `SnxSchematic`.
-- `signex_types::format::tests::pcb_borrow_matches_owned_serialise` — same, for `SnxPcb`.
-- `signex_engine::tests::serialize_for_save_returns_parseable_bytes` — serialise + reparse round-trip.
-- `signex_engine::tests::write_to_file_writes_serialised_bytes` — disk write + reparse round-trip via tempfile.
+- `oxide_types::format::tests::schematic_borrow_matches_owned_serialise` — locks owned/borrowed parity for `SnxSchematic`.
+- `oxide_types::format::tests::pcb_borrow_matches_owned_serialise` — same, for `SnxPcb`.
+- `oxide_engine::tests::serialize_for_save_returns_parseable_bytes` — serialise + reparse round-trip.
+- `oxide_engine::tests::write_to_file_writes_serialised_bytes` — disk write + reparse round-trip via tempfile.
 
-[Full changelog](https://github.com/alplabai/signex/compare/v0.9.0...v0.9.1)
+[Full changelog](https://github.com/alplabai/oxide/compare/v0.9.0...v0.9.1)
 
 ## [0.9.0] — 2026-04-29
 
-The **Apache-clean cutover** release. Resolves [issue #62](https://github.com/alplabai/signex/issues/62) raised by Seth Hillbrand of the KiCad project flagging that several Signex crates derived from KiCad's GPL-3.0 source were shipping under Apache-2.0. The main `signex` repository is now Apache-2.0 clean and contains no KiCad-derived code; KiCad I/O moves to the optional [signex-kicad-import](https://github.com/alplabai/signex-kicad-import) companion tool (GPL-3.0-or-later), shipped independently.
+The **Apache-clean cutover** release. Resolves [issue #62](https://github.com/alplabai/oxide/issues/62) raised by Seth Hillbrand of the KiCad project flagging that several Oxide crates derived from KiCad's GPL-3.0 source were shipping under Apache-2.0. The main `oxide` repository is now Apache-2.0 clean and contains no KiCad-derived code; KiCad I/O moves to the optional [oxide-kicad-import](https://github.com/alplabai/oxide-kicad-import) companion tool (GPL-3.0-or-later), shipped independently.
 
 The library subsystem (Library Browser, SCH Library editor, Component Editor) that was in flight on `feature/v0.9-snxlib-as-file` is preserved at the `v0.9-snxlib-paused-2026-04-29` tag and ships as **v0.10.0** on top of the Apache-clean foundations from this release.
 
@@ -702,26 +702,26 @@ The library subsystem (Library Browser, SCH Library editor, Component Editor) th
 - Format chosen for line-diff-friendly git workflows, ~5× smaller than the equivalent JSON, single file per design, and zero S-expression-shaped grammar that could regress KiCad-derivation exposure.
 - Round-trip preserves every field on `SchematicSheet` / `PcbBoard`.
 
-### Changed — Apache-clean signex-types
+### Changed — Apache-clean oxide-types
 
-- `PinElectricalType` (12-variant, KiCad-shaped) → **`PinDirection`** (14 variants — adds Signex-original `GroundReference`, `Differential`, `Clock`; collapses `Free`+`Unspecified` into `Unclassified`; renames `OpenCollector`/`OpenEmitter` → `OpenDrainLow`/`OpenDrainHigh`). Design rationale in `crates/signex-types/docs/pin-design.md`.
+- `PinElectricalType` (12-variant, KiCad-shaped) → **`PinDirection`** (14 variants — adds Oxide-original `GroundReference`, `Differential`, `Clock`; collapses `Free`+`Unspecified` into `Unclassified`; renames `OpenCollector`/`OpenEmitter` → `OpenDrainLow`/`OpenDrainHigh`). Design rationale in `crates/oxide-types/docs/pin-design.md`.
 - `PinShape` (9-variant) → **`PinShapeStyle`** (7 variants — drops per-direction-low modifiers since polarity is now on `PinDirection`; adds `HysteresisInput` / `HysteresisOutput` / `Schmitt`).
-- KiCad-numbered `LayerId(u8)` constants (`F_CU=0`, `B_CU=31`, …) → **`SignexLayer`** semantic enum + `LayerKind` categories + `altium_label()` per the Altium-flavoured Signex UI naming.
-- KiCad markup parser (`~{X}` / `^{X}` / `_{X}` curly-brace syntax) → **`parse_signex_markup`** using a Markdown subset: `**bold**`, `*italic*`, `~~strike~~`, `^superscript^`, `~subscript~`, `_~overbar~_` (Signex extension for active-low signal naming), `[label](url)`, `\X` escape.
+- KiCad-numbered `LayerId(u8)` constants (`F_CU=0`, `B_CU=31`, …) → **`OxideLayer`** semantic enum + `LayerKind` categories + `altium_label()` per the Altium-flavoured Oxide UI naming.
+- KiCad markup parser (`~{X}` / `^{X}` / `_{X}` curly-brace syntax) → **`parse_oxide_markup`** using a Markdown subset: `**bold**`, `*italic*`, `~~strike~~`, `^superscript^`, `~subscript~`, `_~overbar~_` (Oxide extension for active-low signal naming), `[label](url)`, `\X` escape.
 - `kicad_auto_net_name_from_pins` (`Net-(<r>-Pad<p>)` format string) → **`auto_net_name`** returning `unnamed-<sheet>:<ref>:<pin>`.
 
 ### Removed — crates moved to the GPL-3.0 companion repo
 
 - `crates/kicad-parser/` (3,938 LOC) — moved to the GPL-3.0 companion repo.
 - `crates/kicad-writer/` (2,274 LOC) — moved to the GPL-3.0 companion repo.
-- `crates/signex-output/src/netlist/kicad_sexpr.rs` (336 LOC) — KiCad netlist exporter; moved to the companion or a future `signex-kicad-export` sibling.
+- `crates/oxide-output/src/netlist/kicad_sexpr.rs` (336 LOC) — KiCad netlist exporter; moved to the companion or a future `oxide-kicad-export` sibling.
 
-### Added — companion repo `signex-kicad-import` (GPL-3.0-or-later)
+### Added — companion repo `oxide-kicad-import` (GPL-3.0-or-later)
 
-- New separate repository at <https://github.com/alplabai/signex-kicad-import>.
-- Houses the relocated `kicad-parser` + `kicad-writer` crates plus a CLI binary `signex-kicad-import`.
+- New separate repository at <https://github.com/alplabai/oxide-kicad-import>.
+- Houses the relocated `kicad-parser` + `kicad-writer` crates plus a CLI binary `oxide-kicad-import`.
 - One-way conversion: `.kicad_sch` / `.kicad_pcb` / `.kicad_pro` → `.snxsch` / `.snxpcb` / `.snxprj`. Originals remain intact.
-- Distributed independently — Apache consumers of Signex Community see no GPL aggregation in their build closure.
+- Distributed independently — Apache consumers of Oxide Community see no GPL aggregation in their build closure.
 
 ### Deferred to v0.9.1 — performance
 
@@ -754,23 +754,23 @@ high-end PCB case.
 - `docs/audit/contributors-2026-04-29.md` — contributor consent record (audit trail).
 - `docs/audit/third-party-kicad-parsers.md` — survey of clean-room third-party Rust KiCad parsers.
 - `docs/audit/release-notes-remediation-v07-v08.md` — text to apply manually to v0.7.0 / v0.7.1 / v0.8.0 GitHub Release bodies (those releases shipped Apache-2.0 with KiCad-derived code in error; flagged superseded).
-- `docs/audit/communication-drafts.md` — drafts of the issue #62 reply, signex.dev hero copy, GitHub Discussions sticky, Discord post.
+- `docs/audit/communication-drafts.md` — drafts of the issue #62 reply, oxide.dev hero copy, GitHub Discussions sticky, Discord post.
 - `CONTRIBUTING.md` — added License compliance section + PR self-declaration block.
-- `crates/signex-types/docs/pin-design.md` — rationale for the curated `PinDirection` / `PinShapeStyle` variant sets.
+- `crates/oxide-types/docs/pin-design.md` — rationale for the curated `PinDirection` / `PinShapeStyle` variant sets.
 
 ### Breaking changes
 
-- `.kicad_sch` / `.kicad_pcb` / `.kicad_pro` files no longer open directly in Signex. Users with existing KiCad projects install the [signex-kicad-import](https://github.com/alplabai/signex-kicad-import/releases) companion tool, run it once against their `.kicad_pro`, and open the resulting `.snxprj` from then on.
-- `signex_types::schematic::PinElectricalType` and `PinShape` are gone — downstream code uses `PinDirection` / `PinShapeStyle`.
-- `signex_types::layer::{F_CU, B_CU, F_SILKS, …}` constants are gone — downstream code uses `SignexLayer::*` variants.
-- `signex_types::markup::parse_markup` and `kicad_auto_net_name_from_pins` are gone — downstream code uses `parse_signex_markup` and `auto_net_name`.
+- `.kicad_sch` / `.kicad_pcb` / `.kicad_pro` files no longer open directly in Oxide. Users with existing KiCad projects install the [oxide-kicad-import](https://github.com/alplabai/oxide-kicad-import/releases) companion tool, run it once against their `.kicad_pro`, and open the resulting `.snxprj` from then on.
+- `oxide_types::schematic::PinElectricalType` and `PinShape` are gone — downstream code uses `PinDirection` / `PinShapeStyle`.
+- `oxide_types::layer::{F_CU, B_CU, F_SILKS, …}` constants are gone — downstream code uses `OxideLayer::*` variants.
+- `oxide_types::markup::parse_markup` and `kicad_auto_net_name_from_pins` are gone — downstream code uses `parse_oxide_markup` and `auto_net_name`.
 - `crates/kicad-parser` and `crates/kicad-writer` are gone from the workspace.
 
 ### Versions affected
 
 The v0.7.0 / v0.7.1 / v0.8.0 release notes have been edited to flag those releases as superseded with the licensing notice. Binaries remain available for historical use; please prefer v0.9.0 (or later) for new installations.
 
-[Full changelog](https://github.com/alplabai/signex/compare/v0.8.0...v0.9.0)
+[Full changelog](https://github.com/alplabai/oxide/compare/v0.8.0...v0.9.0)
 
 ## [0.8.0] — 2026-04-27
 
@@ -834,7 +834,7 @@ The output-and-polish release. Adds the full PDF / BOM / netlist export pipeline
 ### Changed — plumbing
 
 - `kicad-parser` / `kicad-writer` round-trip per-sheet stroke / fill colours and respect label style for defaults
-- `signex-types::Label` gains `justify_v` to match renderer + parser contract
+- `oxide-types::Label` gains `justify_v` to match renderer + parser contract
 - Engine command surface expanded with multi-project routing
 
 ### Issues closed
@@ -843,7 +843,7 @@ The output-and-polish release. Adds the full PDF / BOM / netlist export pipeline
 - #55 multi-project + chrome polish + unified PDF preview
 - #56 phase 2.5 cleanup of legacy single-project fields
 
-[Full changelog](https://github.com/alplabai/signex/compare/v0.7.1...v0.8.0) · [Release artifacts](https://github.com/alplabai/signex/releases/tag/v0.8.0)
+[Full changelog](https://github.com/alplabai/oxide/compare/v0.7.1...v0.8.0) · [Release artifacts](https://github.com/alplabai/oxide/releases/tag/v0.8.0)
 
 ## [0.7.1] — 2026-04-24
 
@@ -854,7 +854,7 @@ Patch release addressing a macOS launch failure on Apple Silicon.
 - **macOS (Apple Silicon) cannot launch the shipped `.app`** (#49). The
   DMG-packaged bundle was unsigned; arm64 macOS refuses to execute any
   binary without at least an ad-hoc signature, so users on M-series
-  Macs saw "Signex is damaged and can't be opened" / "cannot be
+  Macs saw "Oxide is damaged and can't be opened" / "cannot be
   verified" immediately after dragging the app to Applications. The
   installer script now ad-hoc signs the bundle (`codesign --force
   --deep --sign -`) as part of DMG assembly. This is the minimum
@@ -867,18 +867,18 @@ Patch release addressing a macOS launch failure on Apple Silicon.
   so first-launch users will see a "cannot be verified" Gatekeeper
   prompt. Bypass it with **right-click → Open** on the app icon the
   first time, or run
-  `xattr -dr com.apple.quarantine /Applications/Signex.app` in
+  `xattr -dr com.apple.quarantine /Applications/Oxide.app` in
   Terminal. Subsequent launches work without prompts.
 
-[Full changelog](https://github.com/alplabai/signex/compare/v0.7.0...v0.7.1)
+[Full changelog](https://github.com/alplabai/oxide/compare/v0.7.0...v0.7.1)
 
 ## [0.7.0] — 2026-04-22
 
-The schematic-phase release. Adds ERC & validation, project-wide annotation, real multi-window architecture via `iced::daemon`, per-window engine/canvas, borderless chrome, and a full Signex brand rollout. Every v0.7.x sub-feature ships under this one tag.
+The schematic-phase release. Adds ERC & validation, project-wide annotation, real multi-window architecture via `iced::daemon`, per-window engine/canvas, borderless chrome, and a full Oxide brand rollout. Every v0.7.x sub-feature ships under this one tag.
 
 ### Added — ERC & validation
 
-- New `signex-erc` crate with **11 rule kinds** (`run()` single-sheet, `run_with_project()` cross-sheet)
+- New `oxide-erc` crate with **11 rule kinds** (`run()` single-sheet, `run_with_project()` cross-sheet)
 - Project-wide ERC across open, cached, and unopened sheets
 - Cross-sheet BadHierSheetPin: parent pins ↔ child hier-labels, both directions
 - ERC markers rendered as overlays — zero KiCad schema drift
@@ -939,17 +939,17 @@ The schematic-phase release. Adds ERC & validation, project-wide annotation, rea
 
 ### Added — icons & installer
 
-- Signex brand SVGs (mark, wordmark, logo variants)
+- Oxide brand SVGs (mark, wordmark, logo variants)
 - Panton Bold wordmark regenerated from actual font (not fallback outlines)
-- Tighter `signex-mark.svg` viewBox: S fills ~97 % of icon canvas (was ~58 %)
+- Tighter `oxide-mark.svg` viewBox: S fills ~97 % of icon canvas (was ~58 %)
 - Regenerated installer artifacts: Windows `.ico` (multi-size), macOS `.icns`, Linux PNGs
 - Runtime window icon embedded via `iced::window::Icon`
-- `signex.exe` icon + DPI manifest embedded at build time via `winres`
+- `oxide.exe` icon + DPI manifest embedded at build time via `winres`
 - Pure-Python fallback for `build-icons.sh` — `tools/build_icons.py`, no rsvg-convert / magick / inkscape needed
 
 ### Changed — refactors
 
-- `signex-engine/src/lib.rs` split into semantic modules
+- `oxide-engine/src/lib.rs` split into semantic modules
 - `kicad-writer` migrated from `wln!` string formatting to full SExpr AST (`kicad-parser/sexpr_builder` → `kicad-writer/sexpr_render`)
 - Named constants for PCB magic numbers; `lib_symbol` unit round-trip fix
 - Wire rendering chains connected segments into polylines (rounded corners)
@@ -967,7 +967,7 @@ The schematic-phase release. Adds ERC & validation, project-wide annotation, rea
 
 - `expand_to_net` is now `O(N)` via quantised `HashSet` (was `O(P²·N²)`)
 
-[Full changelog](https://github.com/alplabai/signex/compare/v0.6.4...v0.7.0) · [Release artifacts](https://github.com/alplabai/signex/releases/tag/v0.7.0)
+[Full changelog](https://github.com/alplabai/oxide/compare/v0.6.4...v0.7.0) · [Release artifacts](https://github.com/alplabai/oxide/releases/tag/v0.7.0)
 
 ## [0.6.4] — 2026-04-20
 
@@ -975,14 +975,14 @@ First cumulative release since v0.6.1. Rolls in the abandoned v0.6.2 and the CI-
 
 ### Added — installers
 
-- **Windows** — `signex-setup-x86_64-0.6.4.exe` / `signex-setup-aarch64-0.6.4.exe` via InnoSetup. Installs to `Program Files`, adds Start Menu entry and optional Desktop shortcut, proper uninstaller. Portable `.zip` also attached for scripted installs.
-- **macOS** — `signex-macos-aarch64-0.6.4.dmg` with a full `Signex.app` bundle and `/Applications` drag-target. Registered as the editor for `.kicad_sch` / `.kicad_pro` files.
+- **Windows** — `oxide-setup-x86_64-0.6.4.exe` / `oxide-setup-aarch64-0.6.4.exe` via InnoSetup. Installs to `Program Files`, adds Start Menu entry and optional Desktop shortcut, proper uninstaller. Portable `.zip` also attached for scripted installs.
+- **macOS** — `oxide-macos-aarch64-0.6.4.dmg` with a full `Oxide.app` bundle and `/Applications` drag-target. Registered as the editor for `.kicad_sch` / `.kicad_pro` files.
 - **Linux** — native `.deb` (with `.desktop` entry + MIME types) plus a portable `.AppImage`. `.tar.gz` fallback also attached.
 
 ### Changed — KiCad pipeline refactor (from v0.6.2)
 
 - AST-based S-expression pipeline in `kicad-parser` / `kicad-writer` with a property-metadata layer. More robust round-trip, less fragile than prior ad-hoc string handling.
-- Named constants replace the magic numbers scattered through `signex-types`, `kicad-parser`, and `kicad-writer`.
+- Named constants replace the magic numbers scattered through `oxide-types`, `kicad-parser`, and `kicad-writer`.
 
 ### Fixed — release pipeline (from v0.6.3)
 
@@ -992,22 +992,22 @@ First cumulative release since v0.6.1. Rolls in the abandoned v0.6.2 and the CI-
 
 No `.kicad_sch` / `.kicad_pcb` breaking changes — opening a v0.6.1 project in v0.6.4 is a clean round-trip. If you were on v0.6.2 or v0.6.3, nothing additional to migrate — v0.6.4 is a superset.
 
-[Full changelog](https://github.com/alplabai/signex/compare/v0.6.1...v0.6.4)
+[Full changelog](https://github.com/alplabai/oxide/compare/v0.6.1...v0.6.4)
 
 ## [0.6.3] — 2026-04-20 _(superseded by 0.6.4)_
 
 - fix(ci): pin aarch64-apple-darwin to macos-14 (#34)
 
-[Full changelog](https://github.com/alplabai/signex/compare/v0.6.2...v0.6.3)
+[Full changelog](https://github.com/alplabai/oxide/compare/v0.6.2...v0.6.3)
 
 ## [0.6.1] — 2026-04-20
 
 Render + KiCad round-trip fixes (font scale, pin numbers, power-ref visibility).
 
-[Full changelog](https://github.com/alplabai/signex/compare/v0.6.0...v0.6.1)
+[Full changelog](https://github.com/alplabai/oxide/compare/v0.6.0...v0.6.1)
 
 ## [0.6.0] — 2026-04-18
 
 Full Schematic Editor — drag-move, properties editing, placement tools, iced_aw, Active Bar.
 
-[Full changelog](https://github.com/alplabai/signex/commits/v0.6.0)
+[Full changelog](https://github.com/alplabai/oxide/commits/v0.6.0)

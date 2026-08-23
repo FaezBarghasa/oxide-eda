@@ -5,10 +5,10 @@
 //!   indefinitely (the URL is stored as part of the same JSON; the
 //!   indefinite-ness is a property of the URL not changing — we re-read
 //!   stale entries explicitly when the caller wants a refresh).
-//! - Tests use a temp dir, never `~/.signex/`.
+//! - Tests use a temp dir, never `~/.oxide/`.
 //!
 //! `DistributorCache::with_root` is the test-friendly constructor;
-//! `DistributorCache::default_root()` resolves `~/.signex/cache/distributor`
+//! `DistributorCache::default_root()` resolves `~/.oxide/cache/distributor`
 //! for runtime use.
 
 use std::path::{Path, PathBuf};
@@ -46,11 +46,11 @@ impl DistributorCache {
         Ok(Self { root })
     }
 
-    /// Resolve `~/.signex/cache/distributor` (creates it on first use).
+    /// Resolve `~/.oxide/cache/distributor` (creates it on first use).
     /// Production callers use this; tests should call [`Self::with_root`].
     pub fn default_root() -> Result<Self, CacheError> {
         let home = dirs::home_dir().ok_or(CacheError::NoHomeDir)?;
-        let root = home.join(".signex").join("cache").join("distributor");
+        let root = home.join(".oxide").join("cache").join("distributor");
         Self::with_root(root)
     }
 
@@ -90,7 +90,7 @@ impl DistributorCache {
         // our case because we never canonicalise — the tree is brand-new and
         // `..` was already rejected above. A symlink-based escape would need
         // canonicalisation, but the cache root is created and owned by
-        // Signex; we don't follow user-controlled symlinks into it.
+        // Oxide; we don't follow user-controlled symlinks into it.
         if !path.starts_with(&self.root) {
             return Err(CacheError::Io(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,

@@ -39,7 +39,7 @@ fn pre_placement_shape(
         ))
 }
 
-impl Signex {
+impl Oxide {
     pub(crate) fn handle_canvas_interaction_event(&mut self, event: CanvasEvent) -> Task<Message> {
         match event {
             CanvasEvent::CursorAt { x, y, zoom_pct } => {

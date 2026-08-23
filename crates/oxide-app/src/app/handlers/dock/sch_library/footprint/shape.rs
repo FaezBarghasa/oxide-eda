@@ -9,7 +9,7 @@
 
 use super::super::*;
 
-impl Signex {
+impl Oxide {
     /// v0.16.4 — mutate the selected entity's pour `net` and re-bake.
     pub(crate) fn fp_editor_set_pour_net(
         &mut self,

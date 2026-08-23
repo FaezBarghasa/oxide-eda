@@ -489,7 +489,7 @@ impl<'a> SymbolCanvas<'a> {
         SchematicRenderer::build_scene(
             &snapshot,
             &ResolvedTheme::from_canvas_colors(oxide_types::theme::canvas_colors(
-                oxide_types::theme::ThemeId::Signex,
+                oxide_types::theme::ThemeId::Oxide,
             )),
             DirtyFlags::LINES
                 | DirtyFlags::CIRCLES
