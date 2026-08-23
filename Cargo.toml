@@ -18,6 +18,9 @@ members = [
     "crates/signex-sketch",
     "crates/signex-bake",
     "crates/signex-3d-model-importer",
+    "crates/oxide-physics",
+    "crates/oxide-rules",
+    "crates/oxide-ai",
 ]
 # A bare `cargo build` / `cargo test` at the root only builds the daily-
 # driver crates. The library server and the chrome-catalog dev sandbox are
@@ -38,6 +41,9 @@ default-members = [
     "crates/signex-gfx",
     "crates/signex-renderer",
     "crates/signex-widgets",
+    "crates/oxide-physics",
+    "crates/oxide-rules",
+    "crates/oxide-ai",
 ]
 
 [workspace.package]
@@ -99,6 +105,9 @@ signex-erc-dsl = { path = "crates/signex-erc-dsl" }
 signex-net = { path = "crates/signex-net" }
 signex-output = { path = "crates/signex-output" }
 signex-3d-model-importer = { path = "crates/signex-3d-model-importer" }
+oxide-physics = { path = "crates/oxide-physics" }
+oxide-rules = { path = "crates/oxide-rules" }
+oxide-ai = { path = "crates/oxide-ai" }
 
 # Library subsystem (v0.9 plan, restored at v0.11)
 chrono = { version = "0.4", features = ["serde"] }

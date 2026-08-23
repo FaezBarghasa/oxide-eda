@@ -4006,6 +4006,36 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxide-ai"
+version = "0.15.0"
+dependencies = [
+ "oxide-physics",
+ "oxide-rules",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "oxide-physics"
+version = "0.15.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "oxide-rules"
+version = "0.15.0"
+dependencies = [
+ "oxide-physics",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "parking"
 version = "2.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
