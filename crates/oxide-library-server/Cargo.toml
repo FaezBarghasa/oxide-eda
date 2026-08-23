@@ -1,6 +1,6 @@
 [package]
-name = "signex-library-server"
-description = "axum HTTP+WS server for Signex database-flavour libraries (v0.9.2)"
+name = "oxide-library-server"
+description = "axum HTTP+WS server for Oxide database-flavour libraries (v0.9.2)"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -8,7 +8,7 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-signex-library = { workspace = true }
+oxide-library = { workspace = true }
 axum = { workspace = true }
 tokio = { workspace = true }
 tower-http = { workspace = true }
@@ -24,9 +24,9 @@ uuid = { workspace = true }
 chrono = { workspace = true }
 
 [dev-dependencies]
-# Re-import signex-library with the `database` feature so the in-tree integration
+# Re-import oxide-library with the `database` feature so the in-tree integration
 # tests can construct a `DatabaseAdapter` against an in-process server.
-signex-library = { workspace = true, features = ["database"] }
+oxide-library = { workspace = true, features = ["database"] }
 tokio = { workspace = true }
 reqwest = { workspace = true }
 tower = { version = "0.5", features = ["util"] }

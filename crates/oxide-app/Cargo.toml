@@ -1,13 +1,13 @@
 [package]
-name = "signex-app"
-description = "Signex EDA — main application binary (Iced 0.14 + wgpu)"
+name = "oxide-app"
+description = "Oxide EDA — main application binary (Iced 0.14 + wgpu)"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 
 [lib]
-name = "signex_app"
+name = "oxide_app"
 path = "src/lib.rs"
 
 [[bin]]
@@ -15,10 +15,10 @@ name = "signex"
 path = "src/main.rs"
 
 [dependencies]
-signex-types = { workspace = true }
-signex-engine = { workspace = true }
-signex-renderer = { workspace = true }
-signex-gfx = { workspace = true }
+oxide-types = { workspace = true }
+oxide-engine = { workspace = true }
+oxide-renderer = { workspace = true }
+oxide-gfx = { workspace = true }
 iced = { workspace = true }
 iced_aw = { workspace = true }
 num-traits = "0.2"
@@ -26,22 +26,22 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 uuid = { workspace = true }
 anyhow = { workspace = true }
-signex-widgets = { workspace = true }
-signex-erc = { workspace = true }
-signex-erc-dsl = { workspace = true }
-signex-net = { workspace = true }
-signex-output = { workspace = true }
-signex-library = { workspace = true, features = [
+oxide-widgets = { workspace = true }
+oxide-erc = { workspace = true }
+oxide-erc-dsl = { workspace = true }
+oxide-net = { workspace = true }
+oxide-output = { workspace = true }
+oxide-library = { workspace = true, features = [
     "local-git",
     "database",
     "distributors-community",
     "ai-stub",
     "search-tantivy",
 ] }
-signex-sketch = { workspace = true }
-signex-bake = { workspace = true }
-# `log` feature: signex-app installs a `log`-based logger (SignexLogger) but
-# no tracing subscriber, and several crates (notably signex-library) report
+oxide-sketch = { workspace = true }
+oxide-bake = { workspace = true }
+# `log` feature: oxide-app installs a `log`-based logger (OxideLogger) but
+# no tracing subscriber, and several crates (notably oxide-library) report
 # non-fatal errors via tracing::warn!. Without this feature those records
 # only reached the log on Linux, via a Wayland-only transitive that happened
 # to enable tracing's log bridge. Enabling it here makes library warnings
@@ -79,7 +79,7 @@ tempfile = "3"
 # `panels::components_panel::global_prefs::prefs_path()`) to a shared
 # per-process tempdir via `config_root::config_root()` instead of the
 # real OS config dir, and skips the legacy-prefs migration. Activated for
-# signex-app's own integration-test binaries below via a self-referential
+# oxide-app's own integration-test binaries below via a self-referential
 # dev-dependency — the same pattern tokio uses for its `test-util` feature
 # (a crate depending on itself as a dev-dependency to get test-only cfg
 # gating in code paths that regular `cargo build`/`cargo run` never see).
@@ -89,7 +89,7 @@ tempfile = "3"
 test-prefs-redirect = []
 
 [dev-dependencies]
-signex-app = { path = ".", features = ["test-prefs-redirect"] }
+oxide-app = { path = ".", features = ["test-prefs-redirect"] }
 wiremock = "0.6"
 
 [target.'cfg(windows)'.build-dependencies]

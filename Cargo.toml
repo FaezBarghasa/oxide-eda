@@ -1,46 +1,46 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/signex-app",
-    "crates/signex-engine",
-    "crates/signex-bom",
-    "crates/signex-types",
-    "crates/signex-gfx",
-    "crates/signex-renderer",
-    "crates/signex-widgets",
-    "crates/signex-erc",
-    "crates/signex-erc-dsl",
-    "crates/signex-net",
-    "crates/signex-output",
+    "crates/oxide-app",
+    "crates/oxide-engine",
+    "crates/oxide-bom",
+    "crates/oxide-types",
+    "crates/oxide-gfx",
+    "crates/oxide-renderer",
+    "crates/oxide-widgets",
+    "crates/oxide-erc",
+    "crates/oxide-erc-dsl",
+    "crates/oxide-net",
+    "crates/oxide-output",
     "crates/chrome-catalog",
-    "crates/signex-library",
-    "crates/signex-library-server",
-    "crates/signex-sketch",
-    "crates/signex-bake",
-    "crates/signex-3d-model-importer",
+    "crates/oxide-library",
+    "crates/oxide-library-server",
+    "crates/oxide-sketch",
+    "crates/oxide-bake",
+    "crates/oxide-3d-model-importer",
     "crates/oxide-physics",
     "crates/oxide-rules",
     "crates/oxide-ai",
 ]
 # A bare `cargo build` / `cargo test` at the root only builds the daily-
 # driver crates. The library server and the chrome-catalog dev sandbox are
-# still built explicitly with `-p signex-library-server` / `-p chrome-catalog`.
+# still built explicitly with `-p oxide-library-server` / `-p chrome-catalog`.
 default-members = [
-    "crates/signex-app",
-    "crates/signex-engine",
-    "crates/signex-types",
-    "crates/signex-erc",
-    "crates/signex-erc-dsl",
-    "crates/signex-net",
-    "crates/signex-output",
-    "crates/signex-library",
-    "crates/signex-sketch",
-    "crates/signex-bake",
-    "crates/signex-3d-model-importer",
-    "crates/signex-bom",
-    "crates/signex-gfx",
-    "crates/signex-renderer",
-    "crates/signex-widgets",
+    "crates/oxide-app",
+    "crates/oxide-engine",
+    "crates/oxide-types",
+    "crates/oxide-erc",
+    "crates/oxide-erc-dsl",
+    "crates/oxide-net",
+    "crates/oxide-output",
+    "crates/oxide-library",
+    "crates/oxide-sketch",
+    "crates/oxide-bake",
+    "crates/oxide-3d-model-importer",
+    "crates/oxide-bom",
+    "crates/oxide-gfx",
+    "crates/oxide-renderer",
+    "crates/oxide-widgets",
     "crates/oxide-physics",
     "crates/oxide-rules",
     "crates/oxide-ai",
@@ -94,17 +94,17 @@ tiny-skia = "0.11"
 ttf-parser = "0.25"
 
 # Internal crates
-signex-types = { path = "crates/signex-types" }
-signex-engine = { path = "crates/signex-engine" }
-signex-bom = { path = "crates/signex-bom" }
-signex-gfx = { path = "crates/signex-gfx" }
-signex-renderer = { path = "crates/signex-renderer" }
-signex-widgets = { path = "crates/signex-widgets" }
-signex-erc = { path = "crates/signex-erc" }
-signex-erc-dsl = { path = "crates/signex-erc-dsl" }
-signex-net = { path = "crates/signex-net" }
-signex-output = { path = "crates/signex-output" }
-signex-3d-model-importer = { path = "crates/signex-3d-model-importer" }
+oxide-types = { path = "crates/oxide-types" }
+oxide-engine = { path = "crates/oxide-engine" }
+oxide-bom = { path = "crates/oxide-bom" }
+oxide-gfx = { path = "crates/oxide-gfx" }
+oxide-renderer = { path = "crates/oxide-renderer" }
+oxide-widgets = { path = "crates/oxide-widgets" }
+oxide-erc = { path = "crates/oxide-erc" }
+oxide-erc-dsl = { path = "crates/oxide-erc-dsl" }
+oxide-net = { path = "crates/oxide-net" }
+oxide-output = { path = "crates/oxide-output" }
+oxide-3d-model-importer = { path = "crates/oxide-3d-model-importer" }
 oxide-physics = { path = "crates/oxide-physics" }
 oxide-rules = { path = "crates/oxide-rules" }
 oxide-ai = { path = "crates/oxide-ai" }
@@ -117,7 +117,7 @@ sha2 = "0.10"
 git2 = { version = "0.19", default-features = false, features = ["vendored-libgit2"] }
 keyring = "3"
 tantivy = "0.22"
-# NOTE: oauth2 is declared directly in signex-library (it needs
+# NOTE: oauth2 is declared directly in oxide-library (it needs
 # default-features = false + the reqwest-blocking feature set, which cannot
 # be expressed by inheriting a workspace entry). No crate inherits an
 # `oauth2.workspace = true`, so a root entry here would be dead weight that
@@ -136,13 +136,13 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 # Internal — library
-signex-library = { path = "crates/signex-library" }
+oxide-library = { path = "crates/oxide-library" }
 
 # Internal — sketcher (v0.13)
-signex-sketch = { path = "crates/signex-sketch" }
+oxide-sketch = { path = "crates/oxide-sketch" }
 
 # Internal — bake pipeline (v0.13 Phase 7)
-signex-bake = { path = "crates/signex-bake" }
+oxide-bake = { path = "crates/oxide-bake" }
 
 # Inherited by every member via `[lints] workspace = true` (GH #548).
 [workspace.lints.rust]
@@ -158,19 +158,19 @@ signex-bake = { path = "crates/signex-bake" }
 unused_must_use = "deny"
 
 # Deliberately NOT lifted here: clippy's `let_underscore_must_use`, which
-# `signex-app` carries locally. Workspace-wide it fires 27 times outside
-# that crate — signex-output 17 (netlist/mod.rs, svg/document.rs), signex-gfx
-# 7 (debug_pass/), signex-types 3 (atomic_io.rs) — none of them `Task`
+# `oxide-app` carries locally. Workspace-wide it fires 27 times outside
+# that crate — oxide-output 17 (netlist/mod.rs, svg/document.rs), oxide-gfx
+# 7 (debug_pass/), oxide-types 3 (atomic_io.rs) — none of them `Task`
 # discards, and #548's whole complaint is that signal buried in noise is not
 # a gate. Measured on d6c5531e with `--force-warn`, production targets only.
-# An earlier version of this comment said 33 and listed signex-library; that
-# count was wrong and signex-library contributes none (#577). The 27 sit in
+# An earlier version of this comment said 33 and listed oxide-library; that
+# count was wrong and oxide-library contributes none (#577). The 27 sit in
 # three clusters rather than scattered, so lifting the lint here is more
 # tractable than "33 across four crates" suggested — revisit after #533.
 #
-# `signex-app` therefore keeps explicit `[lints.*]` tables instead of
+# `oxide-app` therefore keeps explicit `[lints.*]` tables instead of
 # `workspace = true`. A lint added above does NOT reach it automatically —
-# it must be hand-copied into crates/signex-app/Cargo.toml at the same
+# it must be hand-copied into crates/oxide-app/Cargo.toml at the same
 # level, which scripts/check_lint_lockstep.sh now fails CI over (#570).
 
 [profile.release]

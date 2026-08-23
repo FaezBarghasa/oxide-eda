@@ -1,13 +1,13 @@
 [package]
-name = "signex-erc"
+name = "oxide-erc"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
-signex-types.workspace = true
-signex-net.workspace = true
+oxide-types.workspace = true
+oxide-net.workspace = true
 uuid.workspace = true
 serde.workspace = true
 

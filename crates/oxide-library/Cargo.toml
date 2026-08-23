@@ -1,6 +1,6 @@
 [package]
-name = "signex-library"
-description = "Component library subsystem for Signex — data model, adapters, diff, search"
+name = "oxide-library"
+description = "Component library subsystem for Oxide — data model, adapters, diff, search"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -20,10 +20,10 @@ url = { version = "2", features = ["serde"] }
 csv = "1.3"
 
 # Atomic-write helper used by adapters (HI-6).
-signex-types = { workspace = true }
+oxide-types = { workspace = true }
 
 # Optional 2D parametric sketch field on Footprint (v0.13+).
-signex-sketch = { workspace = true }
+oxide-sketch = { workspace = true }
 
 # Heuristic AI-stub for symbol pinout extraction (WS-F).
 pdf-extract = { workspace = true, optional = true }

@@ -1,6 +1,6 @@
 [package]
 name = "chrome-catalog"
-description = "Visual sandbox for Signex chrome — tabs, panels, modals, buttons in every state. Used during UI iteration so we don't have to launch the full app to see whether a tab style is right."
+description = "Visual sandbox for Oxide chrome — tabs, panels, modals, buttons in every state. Used during UI iteration so we don't have to launch the full app to see whether a tab style is right."
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -8,8 +8,8 @@ license.workspace = true
 
 [dependencies]
 iced = { workspace = true }
-signex-types = { path = "../signex-types" }
-signex-widgets = { path = "../signex-widgets" }
+oxide-types = { path = "../oxide-types" }
+oxide-widgets = { path = "../oxide-widgets" }
 
 [[bin]]
 name = "chrome-catalog"

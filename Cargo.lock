@@ -734,8 +734,8 @@ name = "chrome-catalog"
 version = "0.15.0"
 dependencies = [
  "iced",
- "signex-types",
- "signex-widgets",
+ "oxide-types",
+ "oxide-widgets",
 ]
 
 [[package]]
@@ -4006,6 +4006,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxide-3d-model-importer"
+version = "0.15.0"
+dependencies = [
+ "base64",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tempfile",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "oxide-ai"
 version = "0.15.0"
 dependencies = [
@@ -4014,6 +4026,198 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 2.0.18",
+]
+
+[[package]]
+name = "oxide-app"
+version = "0.15.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "dirs",
+ "fontdb",
+ "iced",
+ "iced_aw",
+ "image",
+ "log",
+ "num-traits",
+ "oxide-app",
+ "oxide-bake",
+ "oxide-engine",
+ "oxide-erc",
+ "oxide-erc-dsl",
+ "oxide-gfx",
+ "oxide-library",
+ "oxide-net",
+ "oxide-output",
+ "oxide-renderer",
+ "oxide-sketch",
+ "oxide-types",
+ "oxide-widgets",
+ "rfd",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tempfile",
+ "tiny_http",
+ "tokio",
+ "toml 0.8.23",
+ "tracing",
+ "uuid",
+ "webbrowser",
+ "windows-sys 0.61.2",
+ "winres",
+ "wiremock",
+]
+
+[[package]]
+name = "oxide-bake"
+version = "0.15.0"
+dependencies = [
+ "oxide-library",
+ "oxide-sketch",
+ "oxide-types",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "toml 0.8.23",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "oxide-bom"
+version = "0.15.0"
+dependencies = [
+ "oxide-types",
+ "serde",
+]
+
+[[package]]
+name = "oxide-engine"
+version = "0.15.0"
+dependencies = [
+ "anyhow",
+ "oxide-net",
+ "oxide-types",
+ "thiserror 2.0.18",
+ "uuid",
+]
+
+[[package]]
+name = "oxide-erc"
+version = "0.15.0"
+dependencies = [
+ "oxide-net",
+ "oxide-types",
+ "serde",
+ "uuid",
+]
+
+[[package]]
+name = "oxide-erc-dsl"
+version = "0.15.0"
+dependencies = [
+ "chumsky",
+ "oxide-erc",
+ "oxide-types",
+ "regex",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "oxide-gfx"
+version = "0.15.0"
+dependencies = [
+ "bitflags 2.11.1",
+ "bytemuck",
+ "cryoglyph",
+ "glam 0.32.1",
+ "log",
+ "oxide-sketch",
+ "pollster",
+ "rstar",
+ "serde",
+ "serde_json",
+ "wgpu",
+]
+
+[[package]]
+name = "oxide-library"
+version = "0.15.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "csv",
+ "dirs",
+ "git2",
+ "keyring",
+ "oauth2",
+ "oxide-sketch",
+ "oxide-types",
+ "pdf-extract",
+ "pdf-writer",
+ "regex",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tantivy",
+ "tempfile",
+ "thiserror 2.0.18",
+ "tokio",
+ "toml 0.8.23",
+ "tracing",
+ "url",
+ "uuid",
+ "walkdir",
+ "wiremock",
+]
+
+[[package]]
+name = "oxide-library-server"
+version = "0.15.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "chrono",
+ "oxide-library",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "tempfile",
+ "thiserror 2.0.18",
+ "tokio",
+ "tower",
+ "tower-http",
+ "tower_governor",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
+]
+
+[[package]]
+name = "oxide-net"
+version = "0.15.0"
+dependencies = [
+ "oxide-types",
+ "uuid",
+]
+
+[[package]]
+name = "oxide-output"
+version = "0.15.0"
+dependencies = [
+ "oxide-bom",
+ "oxide-types",
+ "pdf-writer",
+ "rust_xlsxwriter",
+ "serde",
+ "thiserror 2.0.18",
+ "tiny-skia",
+ "ttf-parser",
+ "uuid",
 ]
 
 [[package]]
@@ -4026,6 +4230,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxide-renderer"
+version = "0.15.0"
+dependencies = [
+ "oxide-3d-model-importer",
+ "oxide-gfx",
+ "oxide-types",
+ "regex",
+ "serde",
+ "serde_json",
+ "tempfile",
+]
+
+[[package]]
 name = "oxide-rules"
 version = "0.15.0"
 dependencies = [
@@ -4033,6 +4250,42 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 2.0.18",
+]
+
+[[package]]
+name = "oxide-sketch"
+version = "0.15.0"
+dependencies = [
+ "approx",
+ "oxide-types",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "toml 0.8.23",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "oxide-types"
+version = "0.15.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror 2.0.18",
+ "toml 0.8.23",
+ "uuid",
+]
+
+[[package]]
+name = "oxide-widgets"
+version = "0.15.0"
+dependencies = [
+ "chrono",
+ "iced",
+ "iced_aw",
+ "oxide-types",
 ]
 
 [[package]]
@@ -5220,259 +5473,6 @@ checksum = "77549399552de45a898a580c1b41d445bf730df867cc44e6c0233bbc4b8329de"
 dependencies = [
  "digest",
  "rand_core 0.6.4",
-]
-
-[[package]]
-name = "signex-3d-model-importer"
-version = "0.15.0"
-dependencies = [
- "base64",
- "serde",
- "serde_json",
- "sha2",
- "tempfile",
- "thiserror 2.0.18",
-]
-
-[[package]]
-name = "signex-app"
-version = "0.15.0"
-dependencies = [
- "anyhow",
- "chrono",
- "dirs",
- "fontdb",
- "iced",
- "iced_aw",
- "image",
- "log",
- "num-traits",
- "rfd",
- "serde",
- "serde_json",
- "sha2",
- "signex-app",
- "signex-bake",
- "signex-engine",
- "signex-erc",
- "signex-erc-dsl",
- "signex-gfx",
- "signex-library",
- "signex-net",
- "signex-output",
- "signex-renderer",
- "signex-sketch",
- "signex-types",
- "signex-widgets",
- "tempfile",
- "tiny_http",
- "tokio",
- "toml 0.8.23",
- "tracing",
- "uuid",
- "webbrowser",
- "windows-sys 0.61.2",
- "winres",
- "wiremock",
-]
-
-[[package]]
-name = "signex-bake"
-version = "0.15.0"
-dependencies = [
- "serde",
- "serde_json",
- "signex-library",
- "signex-sketch",
- "signex-types",
- "thiserror 2.0.18",
- "toml 0.8.23",
- "tracing",
- "uuid",
-]
-
-[[package]]
-name = "signex-bom"
-version = "0.15.0"
-dependencies = [
- "serde",
- "signex-types",
-]
-
-[[package]]
-name = "signex-engine"
-version = "0.15.0"
-dependencies = [
- "anyhow",
- "signex-net",
- "signex-types",
- "thiserror 2.0.18",
- "uuid",
-]
-
-[[package]]
-name = "signex-erc"
-version = "0.15.0"
-dependencies = [
- "serde",
- "signex-net",
- "signex-types",
- "uuid",
-]
-
-[[package]]
-name = "signex-erc-dsl"
-version = "0.15.0"
-dependencies = [
- "chumsky",
- "regex",
- "signex-erc",
- "signex-types",
- "thiserror 2.0.18",
-]
-
-[[package]]
-name = "signex-gfx"
-version = "0.15.0"
-dependencies = [
- "bitflags 2.11.1",
- "bytemuck",
- "cryoglyph",
- "glam 0.32.1",
- "log",
- "pollster",
- "rstar",
- "serde",
- "serde_json",
- "signex-sketch",
- "wgpu",
-]
-
-[[package]]
-name = "signex-library"
-version = "0.15.0"
-dependencies = [
- "anyhow",
- "chrono",
- "csv",
- "dirs",
- "git2",
- "keyring",
- "oauth2",
- "pdf-extract",
- "pdf-writer",
- "regex",
- "reqwest",
- "serde",
- "serde_json",
- "sha2",
- "signex-sketch",
- "signex-types",
- "tantivy",
- "tempfile",
- "thiserror 2.0.18",
- "tokio",
- "toml 0.8.23",
- "tracing",
- "url",
- "uuid",
- "walkdir",
- "wiremock",
-]
-
-[[package]]
-name = "signex-library-server"
-version = "0.15.0"
-dependencies = [
- "anyhow",
- "axum",
- "chrono",
- "reqwest",
- "serde",
- "serde_json",
- "signex-library",
- "sqlx",
- "tempfile",
- "thiserror 2.0.18",
- "tokio",
- "tower",
- "tower-http",
- "tower_governor",
- "tracing",
- "tracing-subscriber",
- "uuid",
-]
-
-[[package]]
-name = "signex-net"
-version = "0.15.0"
-dependencies = [
- "signex-types",
- "uuid",
-]
-
-[[package]]
-name = "signex-output"
-version = "0.15.0"
-dependencies = [
- "pdf-writer",
- "rust_xlsxwriter",
- "serde",
- "signex-bom",
- "signex-types",
- "thiserror 2.0.18",
- "tiny-skia",
- "ttf-parser",
- "uuid",
-]
-
-[[package]]
-name = "signex-renderer"
-version = "0.15.0"
-dependencies = [
- "regex",
- "serde",
- "serde_json",
- "signex-3d-model-importer",
- "signex-gfx",
- "signex-types",
- "tempfile",
-]
-
-[[package]]
-name = "signex-sketch"
-version = "0.15.0"
-dependencies = [
- "approx",
- "serde",
- "serde_json",
- "signex-types",
- "thiserror 2.0.18",
- "toml 0.8.23",
- "tracing",
- "uuid",
-]
-
-[[package]]
-name = "signex-types"
-version = "0.15.0"
-dependencies = [
- "serde",
- "serde_json",
- "tempfile",
- "thiserror 2.0.18",
- "toml 0.8.23",
- "uuid",
-]
-
-[[package]]
-name = "signex-widgets"
-version = "0.15.0"
-dependencies = [
- "chrono",
- "iced",
- "iced_aw",
- "signex-types",
 ]
 
 [[package]]

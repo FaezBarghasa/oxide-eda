@@ -1,13 +1,13 @@
 [package]
-name = "signex-erc-dsl"
+name = "oxide-erc-dsl"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
-signex-erc.workspace = true
-signex-types.workspace = true
+oxide-erc.workspace = true
+oxide-types.workspace = true
 chumsky.workspace = true
 regex.workspace = true
 thiserror.workspace = true

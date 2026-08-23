@@ -1,5 +1,5 @@
 [package]
-name = "signex-gfx"
+name = "oxide-gfx"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -15,9 +15,9 @@ rstar = "0.12"
 bitflags = "2"
 log = "0.4"
 # Concave-safe polygon fill: the authoritative ear-clip triangulator (see
-# `polygon.rs::append_fill`) already lives in signex-sketch's geom toolkit —
+# `polygon.rs::append_fill`) already lives in oxide-sketch's geom toolkit —
 # reused here rather than re-derived, per the one-authoritative-contract rule.
-signex-sketch = { workspace = true }
+oxide-sketch = { workspace = true }
 
 [dev-dependencies]
 pollster = "0.4"

@@ -1,6 +1,6 @@
 [package]
-name = "signex-output"
-description = "Output generation for Signex EDA — PDF, BOM, netlist, sheet templates, print preview"
+name = "oxide-output"
+description = "Output generation for Oxide EDA — PDF, BOM, netlist, sheet templates, print preview"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -8,8 +8,8 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-signex-bom = { path = "../signex-bom" }
-signex-types = { path = "../signex-types" }
+oxide-bom = { path = "../oxide-bom" }
+oxide-types = { path = "../oxide-types" }
 thiserror = { workspace = true }
 serde = { workspace = true }
 pdf-writer = { workspace = true }
