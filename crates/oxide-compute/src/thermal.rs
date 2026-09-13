@@ -72,7 +72,7 @@ impl ThermalSimulator {
         iterations: u32,
     ) -> Result<ThermalResult, crate::backend::ComputeError> {
         let grid_size = (self.grid_width * self.grid_height) as usize;
-        let mut temp_current = vec![self.ambient_temp; grid_size];
+        let temp_current = vec![self.ambient_temp; grid_size];
 
         if self.backend.backend_type() == BackendType::Cpu {
             return Ok(self.simulate_cpu(power_map, material_map, iterations));

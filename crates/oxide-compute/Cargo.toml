@@ -7,9 +7,9 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-wgpu = "=27.0.1"
+wgpu = "30.0.1"
 bytemuck = { version = "1", features = ["derive"] }
-pollster = "0.4"
+pollster = "1.0.1"
 rayon = "1.10"
 log = "0.4"
 thiserror.workspace = true
@@ -21,7 +21,7 @@ oxide-physics = { workspace = true }
 oxide-rules = { workspace = true }
 
 [dev-dependencies]
-pollster = "0.4"
+pollster = "1.0.1"
 
 [lints]
 workspace = true

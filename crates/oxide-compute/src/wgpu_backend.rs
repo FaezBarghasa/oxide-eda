@@ -32,14 +32,16 @@ impl WgpuBackend {
             compatible_surface: None,
             force_fallback_adapter: false,
         }))
-        .ok_or(ComputeError::NoGpuAdapter)?;
+        .map_err(|e| ComputeError::DeviceCreation(format!("Failed to acquire adapter: {e}")))?;
 
         let (device, queue) = pollster::block_on(adapter.request_device(
             &wgpu::DeviceDescriptor {
                 label: Some("oxide-compute-device"),
                 required_features: wgpu::Features::empty(),
-                required_limits: wgpu::Limits::default(),
-                memory_hints: wgpu::MemoryHints::default(),
+                required_limits: wgpu::Limits::downlevel_defaults(),
+                experimental_features: wgpu::ExperimentalFeatures::disabled(),
+                memory_hints: wgpu::MemoryHints::Performance,
+                trace: wgpu::Trace::Off,
             },
             None,
         ))
@@ -153,7 +155,7 @@ impl ComputeBackend for WgpuBackend {
             let _ = sender.send(result);
         });
 
-        let _ = self.device.poll(wgpu::PollType::Wait);
+        let _ = self.device.poll(wgpu::PollType::wait_indefinitely());
 
         match receiver.recv() {
             Ok(Ok(())) => {
@@ -246,7 +248,7 @@ impl ComputeBackend for WgpuBackend {
     }
 
     fn synchronize(&mut self) -> Result<(), ComputeError> {
-        let _ = self.device.poll(wgpu::PollType::Wait);
+        let _ = self.device.poll(wgpu::PollType::wait_indefinitely());
         Ok(())
     }
 }

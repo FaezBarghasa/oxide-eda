@@ -77,8 +77,12 @@ impl FdtdSimulator {
         steps: u32,
     ) -> Result<(), crate::backend::ComputeError> {
         let total_cells = (self.grid_x * self.grid_y * self.grid_z) as usize;
-        if fields.len() != total_cells {
-            fields.resize(total_cells, FieldCell::default());
+        if fields.len() < total_cells {
+            return Err(crate::backend::ComputeError::BufferAllocation(format!(
+                "fields buffer size {} is smaller than required grid size {}",
+                fields.len(),
+                total_cells
+            )));
         }
 
         if self.backend.backend_type() == BackendType::Cpu {
