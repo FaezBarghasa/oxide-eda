@@ -1,0 +1,21 @@
+[package]
+name = "oxide-router"
+description = "High-performance interactive and Situs topological autorouting engine for Oxide EDA"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+oxide-types = { path = "../oxide-types" }
+oxide-physics = { path = "../oxide-physics" }
+oxide-rules = { path = "../oxide-rules" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+uuid = { workspace = true }
+
+[dev-dependencies]
+
+[lints]
+workspace = true
