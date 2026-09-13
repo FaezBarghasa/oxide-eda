@@ -37,11 +37,7 @@ pub struct ThermalSimulator {
 }
 
 impl ThermalSimulator {
-    pub fn new(
-        mut backend: Box<dyn ComputeBackend>,
-        grid_width: u32,
-        grid_height: u32,
-    ) -> Self {
+    pub fn new(mut backend: Box<dyn ComputeBackend>, grid_width: u32, grid_height: u32) -> Self {
         let pipeline_id = PipelineId(201);
         let shader = include_str!("shaders/thermal.wgsl");
         let _ = backend.create_compute_pipeline(pipeline_id, shader, "main");
@@ -95,11 +91,11 @@ impl ThermalSimulator {
         };
         let params_buf = self.backend.allocate_buffer(&[params])?;
 
-        let workgroups_x = (self.grid_width + 15) / 16;
-        let workgroups_y = (self.grid_height + 15) / 16;
+        let workgroups_x = self.grid_width.div_ceil(16);
+        let workgroups_y = self.grid_height.div_ceil(16);
 
         for i in 0..iterations {
-            let (src, dst) = if i % 2 == 0 {
+            let (src, dst) = if i.is_multiple_of(2) {
                 (temp_a, temp_b)
             } else {
                 (temp_b, temp_a)
@@ -114,7 +110,11 @@ impl ThermalSimulator {
 
         self.backend.synchronize()?;
 
-        let final_buf = if iterations % 2 == 0 { temp_a } else { temp_b };
+        let final_buf = if iterations.is_multiple_of(2) {
+            temp_a
+        } else {
+            temp_b
+        };
         let final_temp = self.backend.download::<f32>(final_buf, grid_size)?;
 
         let mut max_temp = f32::MIN;
@@ -152,10 +152,10 @@ impl ThermalSimulator {
 
         for _ in 0..iterations {
             next.par_chunks_mut(width).enumerate().for_each(|(y, row)| {
-                for x in 0..width {
+                for (x, cell_out) in row.iter_mut().enumerate().take(width) {
                     let idx = y * width + x;
                     if x == 0 || y == 0 || x == width - 1 || y == height - 1 {
-                        row[x] = self.ambient_temp;
+                        *cell_out = self.ambient_temp;
                         continue;
                     }
 
@@ -174,7 +174,7 @@ impl ThermalSimulator {
                     let laplacian = left + right + up + down - 4.0 * center;
                     let heat_source = power_map[idx];
 
-                    row[x] = center + self.dt * (k * laplacian + heat_source);
+                    *cell_out = center + self.dt * (k * laplacian + heat_source);
                 }
             });
 

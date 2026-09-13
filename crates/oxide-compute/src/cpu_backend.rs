@@ -38,7 +38,11 @@ impl ComputeBackend for CpuBackend {
         true
     }
 
-    fn allocate_buffer_raw(&mut self, size_bytes: usize, data: Option<&[u8]>) -> Result<BufferId, ComputeError> {
+    fn allocate_buffer_raw(
+        &mut self,
+        size_bytes: usize,
+        data: Option<&[u8]>,
+    ) -> Result<BufferId, ComputeError> {
         let buf = match data {
             Some(d) => d.to_vec(),
             None => vec![0u8; size_bytes],
@@ -49,7 +53,10 @@ impl ComputeBackend for CpuBackend {
     }
 
     fn upload_raw(&mut self, buffer_id: BufferId, data: &[u8]) -> Result<(), ComputeError> {
-        let entry = self.buffers.get_mut(&buffer_id).ok_or(ComputeError::BufferNotFound(buffer_id))?;
+        let entry = self
+            .buffers
+            .get_mut(&buffer_id)
+            .ok_or(ComputeError::BufferNotFound(buffer_id))?;
         if entry.len() < data.len() {
             entry.resize(data.len(), 0);
         }
@@ -57,8 +64,15 @@ impl ComputeBackend for CpuBackend {
         Ok(())
     }
 
-    fn download_raw(&mut self, buffer_id: BufferId, out_bytes: &mut [u8]) -> Result<(), ComputeError> {
-        let entry = self.buffers.get(&buffer_id).ok_or(ComputeError::BufferNotFound(buffer_id))?;
+    fn download_raw(
+        &mut self,
+        buffer_id: BufferId,
+        out_bytes: &mut [u8],
+    ) -> Result<(), ComputeError> {
+        let entry = self
+            .buffers
+            .get(&buffer_id)
+            .ok_or(ComputeError::BufferNotFound(buffer_id))?;
         let len = out_bytes.len().min(entry.len());
         out_bytes[..len].copy_from_slice(&entry[..len]);
         Ok(())

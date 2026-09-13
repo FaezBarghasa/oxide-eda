@@ -84,7 +84,7 @@ impl CongestionMapGenerator {
         };
         let params_buf = self.backend.allocate_buffer(&[params])?;
 
-        let workgroups = ((tracks.len() as u32) + 255) / 256;
+        let workgroups = (tracks.len() as u32).div_ceil(256);
         self.backend.dispatch(
             self.pipeline_id,
             [workgroups.max(1), 1, 1],
@@ -117,10 +117,14 @@ impl CongestionMapGenerator {
             .map(|chunk| {
                 let mut local = vec![0u32; grid_size];
                 for track in chunk {
-                    let gx0 = ((track.x0 / cell_size).max(0.0) as usize).min(width.saturating_sub(1));
-                    let gy0 = ((track.y0 / cell_size).max(0.0) as usize).min(height.saturating_sub(1));
-                    let gx1 = ((track.x1 / cell_size).max(0.0) as usize).min(width.saturating_sub(1));
-                    let gy1 = ((track.y1 / cell_size).max(0.0) as usize).min(height.saturating_sub(1));
+                    let gx0 =
+                        ((track.x0 / cell_size).max(0.0) as usize).min(width.saturating_sub(1));
+                    let gy0 =
+                        ((track.y0 / cell_size).max(0.0) as usize).min(height.saturating_sub(1));
+                    let gx1 =
+                        ((track.x1 / cell_size).max(0.0) as usize).min(width.saturating_sub(1));
+                    let gy1 =
+                        ((track.y1 / cell_size).max(0.0) as usize).min(height.saturating_sub(1));
 
                     let dx = (gx1 as isize) - (gx0 as isize);
                     let dy = (gy1 as isize) - (gy0 as isize);

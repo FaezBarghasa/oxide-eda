@@ -91,13 +91,18 @@ impl GpuDrcChecker {
         };
         let params_buffer = self.backend.allocate_buffer(&[params])?;
 
-        let workgroups_x = (num_objects + 15) / 16;
-        let workgroups_y = (num_objects + 15) / 16;
+        let workgroups_x = num_objects.div_ceil(16);
+        let workgroups_y = num_objects.div_ceil(16);
 
         self.backend.dispatch(
             self.pipeline_id,
             [workgroups_x, workgroups_y, 1],
-            &[objects_buffer, violations_buffer, count_buffer, params_buffer],
+            &[
+                objects_buffer,
+                violations_buffer,
+                count_buffer,
+                params_buffer,
+            ],
         )?;
 
         self.backend.synchronize()?;
@@ -105,7 +110,8 @@ impl GpuDrcChecker {
         let count: Vec<u32> = self.backend.download(count_buffer, 1)?;
         let total_violations = (count[0] as usize).min(max_violations);
 
-        let all_violations: Vec<GpuViolation> = self.backend.download(violations_buffer, total_violations)?;
+        let all_violations: Vec<GpuViolation> =
+            self.backend.download(violations_buffer, total_violations)?;
         Ok(all_violations)
     }
 
@@ -138,8 +144,12 @@ impl GpuDrcChecker {
                         continue;
                     }
 
-                    let dx = (obj_a.min_x - obj_b.max_x).max(obj_b.min_x - obj_a.max_x).max(0.0);
-                    let dy = (obj_a.min_y - obj_b.max_y).max(obj_b.min_y - obj_a.max_y).max(0.0);
+                    let dx = (obj_a.min_x - obj_b.max_x)
+                        .max(obj_b.min_x - obj_a.max_x)
+                        .max(0.0);
+                    let dy = (obj_a.min_y - obj_b.max_y)
+                        .max(obj_b.min_y - obj_a.max_y)
+                        .max(0.0);
                     let dist = (dx * dx + dy * dy).sqrt();
 
                     if dist < min_clearance {

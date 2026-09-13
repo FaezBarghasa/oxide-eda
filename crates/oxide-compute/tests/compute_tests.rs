@@ -1,6 +1,6 @@
 use oxide_compute::{
-    create_backend, BackendPreference, CpuBackend, GpuBBox, GpuDrcChecker,
-    ThermalSimulator, CongestionMapGenerator, GpuTrack,
+    BackendPreference, CongestionMapGenerator, CpuBackend, GpuBBox, GpuDrcChecker, GpuTrack,
+    ThermalSimulator, create_backend,
 };
 
 #[test]
@@ -43,7 +43,9 @@ fn test_cpu_drc_detection() {
 
     // Distance between obj 10 and 20 is 10.0 (110 - 100). Clearance rule is 20.0 -> violation!
     // Distance between obj 20 and 30 is 100.0 (300 - 200). Clearance rule is 20.0 -> OK.
-    let violations = checker.check_clearance(&objects, 20.0).expect("DRC check failed");
+    let violations = checker
+        .check_clearance(&objects, 20.0)
+        .expect("DRC check failed");
     assert_eq!(violations.len(), 1);
     assert_eq!(violations[0].obj_a, 10);
     assert_eq!(violations[0].obj_b, 20);
@@ -61,7 +63,9 @@ fn test_cpu_thermal_simulation() {
     // Place a heat source at center (16, 16)
     power_map[16 * 32 + 16] = 100.0;
 
-    let res = sim.simulate(&power_map, &material_map, 50).expect("Thermal sim failed");
+    let res = sim
+        .simulate(&power_map, &material_map, 50)
+        .expect("Thermal sim failed");
     assert!(res.max_temp > 25.0);
     assert_eq!(res.grid_width, 32);
     assert_eq!(res.grid_height, 32);
@@ -95,7 +99,9 @@ fn test_cpu_congestion_map() {
         },
     ];
 
-    let result = generator.compute_congestion(&tracks).expect("Congestion mapping failed");
+    let result = generator
+        .compute_congestion(&tracks)
+        .expect("Congestion mapping failed");
     assert!(result.max_density >= 2); // intersection at (2, 1) has both tracks
 }
 

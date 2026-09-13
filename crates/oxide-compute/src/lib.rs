@@ -1,19 +1,19 @@
 pub mod backend;
+pub mod congestion;
 pub mod cpu_backend;
 pub mod drc;
-pub mod thermal;
-pub mod congestion;
 pub mod signal;
+pub mod thermal;
 pub mod wgpu_backend;
 
 pub use backend::{
     BackendPreference, BackendType, BufferId, ComputeBackend, ComputeError, PipelineId,
 };
+pub use congestion::{CongestionMapGenerator, CongestionParams, CongestionResult, GpuTrack};
 pub use cpu_backend::CpuBackend;
 pub use drc::{DrcParams, GpuBBox, GpuDrcChecker, GpuViolation};
-pub use thermal::{ThermalParams, ThermalResult, ThermalSimulator};
-pub use congestion::{CongestionMapGenerator, CongestionParams, CongestionResult, GpuTrack};
 pub use signal::{FdtdParams, FdtdSimulator, FieldCell};
+pub use thermal::{ThermalParams, ThermalResult, ThermalSimulator};
 pub use wgpu_backend::WgpuBackend;
 
 /// Factory function to select and initialize the best available compute backend
@@ -21,7 +21,10 @@ pub fn create_backend(preference: BackendPreference) -> Box<dyn ComputeBackend> 
     match preference {
         BackendPreference::Auto => {
             if let Ok(wgpu_backend) = WgpuBackend::new() {
-                log::info!("Initialized WGPU GPU compute backend: {}", wgpu_backend.name());
+                log::info!(
+                    "Initialized WGPU GPU compute backend: {}",
+                    wgpu_backend.name()
+                );
                 return Box::new(wgpu_backend);
             }
             log::info!("Falling back to Rayon CPU compute backend");

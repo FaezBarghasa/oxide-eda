@@ -103,9 +103,9 @@ impl FdtdSimulator {
         };
         let params_buf = self.backend.allocate_buffer(&[params])?;
 
-        let wg_x = (self.grid_x + 3) / 4;
-        let wg_y = (self.grid_y + 3) / 4;
-        let wg_z = (self.grid_z + 3) / 4;
+        let wg_x = self.grid_x.div_ceil(4);
+        let wg_y = self.grid_y.div_ceil(4);
+        let wg_z = self.grid_z.div_ceil(4);
 
         for _ in 0..steps {
             self.backend.dispatch(
