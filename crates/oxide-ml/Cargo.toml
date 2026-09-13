@@ -1,0 +1,24 @@
+[package]
+name = "oxide-ml"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+tract-onnx = "0.21"
+tract-pulse = "0.21"
+ndarray = "0.15"
+
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+log = "0.4"
+
+oxide-types = { workspace = true }
+oxide-rules = { workspace = true }
+oxide-physics = { workspace = true }
+
+[lints]
+workspace = true
