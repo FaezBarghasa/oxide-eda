@@ -1,4 +1,4 @@
-use oxide_types::coord::Point2D;
+use crate::geom::Point2D;
 
 #[derive(Debug, Clone)]
 pub struct ViaPrediction {
@@ -47,7 +47,7 @@ impl ViaPlanner {
         }
 
         ViaPrediction {
-            should_place: current_pos.distance_to(Point2D::origin()) > 0.0,
+            should_place: current_pos.distance_to(Point2D::ZERO) > 0.0,
             confidence: 0.6,
             target_layer,
         }

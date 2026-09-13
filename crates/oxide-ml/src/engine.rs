@@ -38,9 +38,13 @@ impl InferenceEngine {
     }
 
     /// Run inference with input tensors
-    pub fn run(&self, inputs: TVec<Tensor>) -> Result<TVec<Tensor>, MlError> {
-        self.plan
-            .run(inputs)
-            .map_err(|e| MlError::InferenceFailed(e.to_string()))
+    pub fn run(&self, inputs: TVec<Tensor>) -> Result<TVec<Arc<Tensor>>, MlError> {
+        let tvalues: TVec<TValue> = inputs.into_iter().map(TValue::from).collect();
+        let results = self
+            .plan
+            .run(tvalues)
+            .map_err(|e| MlError::InferenceFailed(e.to_string()))?;
+
+        Ok(results.into_iter().map(|tv| tv.into_arc_tensor()).collect())
     }
 }

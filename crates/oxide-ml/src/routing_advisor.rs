@@ -1,7 +1,8 @@
 use std::collections::HashMap;
-use oxide_types::coord::Point2D;
+use tract_onnx::prelude::TVec;
 
 use crate::engine::InferenceEngine;
+use crate::geom::Point2D;
 use crate::schema::{RoutingAction, RoutingAdvisorInputConfig, RoutingAdvisorOutput};
 use crate::tensors::BoardTensorBuilder;
 
@@ -49,26 +50,24 @@ impl RoutingAdvisor {
                 obstacles,
             );
 
-            let shape: Vec<usize> = tensor_data.shape().to_vec();
-            if let Ok(raw_slice) = tensor_data.as_slice() {
-                if let Ok(tract_tensor) = tract_onnx::prelude::Tensor::from_slice(&shape, raw_slice) {
-                    if let Ok(results) = engine.run(tract_onnx::prelude::tvec!(tract_tensor)) {
-                        if let Some(first) = results.first() {
-                            if let Ok(view) = first.to_array_view::<f32>() {
-                                if view.len() >= 11 {
-                                    let mut action_scores = [0.0f32; 10];
-                                    for (i, v) in view.iter().take(10).enumerate() {
-                                        action_scores[i] = *v;
-                                    }
-                                    let confidence = view[10];
-                                    let out = RoutingAdvisorOutput {
-                                        action_scores,
-                                        confidence,
-                                    };
-                                    self.cache.insert(key, out.clone());
-                                    return out;
-                                }
+            let tract_tensor: tract_onnx::prelude::Tensor = tensor_data.into();
+            let mut inputs: TVec<tract_onnx::prelude::Tensor> = TVec::new();
+            inputs.push(tract_tensor);
+            if let Ok(results) = engine.run(inputs) {
+                if let Some(first) = results.first() {
+                    if let Ok(view) = first.to_array_view::<f32>() {
+                        if view.len() >= 11 {
+                            let mut action_scores = [0.0f32; 10];
+                            for (i, v) in view.iter().take(10).enumerate() {
+                                action_scores[i] = *v;
                             }
+                            let confidence = view[10];
+                            let out = RoutingAdvisorOutput {
+                                action_scores,
+                                confidence,
+                            };
+                            self.cache.insert(key, out.clone());
+                            return out;
                         }
                     }
                 }
@@ -83,7 +82,7 @@ impl RoutingAdvisor {
         let dir_y = dy / dist;
 
         let mut logits = [0.0f32; 10];
-        for i in 0..8 {
+        for (i, logit) in logits.iter_mut().enumerate().take(8) {
             let action = match i {
                 0 => RoutingAction::MoveNorth,
                 1 => RoutingAction::MoveNorthEast,
@@ -97,7 +96,7 @@ impl RoutingAdvisor {
             let (ax, ay, _) = action.delta();
             let act_dist = ((ax * ax + ay * ay) as f32).sqrt();
             let dot = (dir_x * (ax as f32) + dir_y * (ay as f32)) / act_dist;
-            logits[i] = dot * 2.0;
+            *logit = dot * 2.0;
         }
 
         // Layer changes: slight penalty unless blocked or layer misalignment

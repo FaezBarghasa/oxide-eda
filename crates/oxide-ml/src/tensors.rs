@@ -1,6 +1,6 @@
 use ndarray::{Array, ArrayD, IxDyn};
-use oxide_types::coord::Point2D;
 
+use crate::geom::Point2D;
 use crate::schema::{CellFeature, RoutingAdvisorInputConfig};
 
 /// Extracts local board window features and constructs ndarray input tensors

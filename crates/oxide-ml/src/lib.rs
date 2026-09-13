@@ -1,5 +1,6 @@
 pub mod embed;
 pub mod engine;
+pub mod geom;
 pub mod placement;
 pub mod routing_advisor;
 pub mod schema;
@@ -8,6 +9,7 @@ pub mod via_planner;
 
 pub use embed::{MlError, ModelKind};
 pub use engine::InferenceEngine;
+pub use geom::Point2D;
 pub use placement::{PlacementAdvisor, PlacementSuggestion};
 pub use routing_advisor::RoutingAdvisor;
 pub use schema::{CellFeature, RoutingAction, RoutingAdvisorInputConfig, RoutingAdvisorOutput};

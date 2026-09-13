@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use oxide_types::coord::Point2D;
+use crate::geom::Point2D;
 
 #[derive(Debug, Clone)]
 pub struct PlacementSuggestion {
@@ -55,7 +55,7 @@ impl PlacementAdvisor {
                 current_positions
                     .get(&comp_id)
                     .copied()
-                    .unwrap_or_else(Point2D::origin)
+                    .unwrap_or(Point2D::ZERO)
             };
 
             suggestions.push(PlacementSuggestion {
