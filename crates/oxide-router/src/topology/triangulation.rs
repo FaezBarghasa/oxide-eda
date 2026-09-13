@@ -2,8 +2,6 @@
 
 use uuid::Uuid;
 
-use oxide_physics::Microns;
-
 use super::Triangle;
 use crate::geometry::Point2D;
 
@@ -14,16 +12,16 @@ pub fn bowyer_watson_delaunay(vertices: &[Point2D]) -> Vec<Triangle> {
     }
 
     // 1. Determine bounding box for super-triangle
-    let mut min_x = vertices[0].x.0;
-    let mut min_y = vertices[0].y.0;
-    let mut max_x = vertices[0].x.0;
-    let mut max_y = vertices[0].y.0;
+    let mut min_x = vertices[0].x;
+    let mut min_y = vertices[0].y;
+    let mut max_x = vertices[0].x;
+    let mut max_y = vertices[0].y;
 
     for v in vertices.iter().skip(1) {
-        min_x = min_x.min(v.x.0);
-        min_y = min_y.min(v.y.0);
-        max_x = max_x.max(v.x.0);
-        max_y = max_y.max(v.y.0);
+        min_x = min_x.min(v.x);
+        min_y = min_y.min(v.y);
+        max_x = max_x.max(v.x);
+        max_y = max_y.max(v.y);
     }
 
     let dx = (max_x - min_x) as f64;
@@ -34,16 +32,13 @@ pub fn bowyer_watson_delaunay(vertices: &[Point2D]) -> Vec<Triangle> {
 
     // Super-triangle vertices encompassing all input points
     let p1 = Point2D::new(
-        Microns((mid_x - 20.0 * delta_max) as i64),
-        Microns((mid_y - delta_max) as i64),
+        (mid_x - 20.0 * delta_max) as i64,
+        (mid_y - delta_max) as i64,
     );
-    let p2 = Point2D::new(
-        Microns(mid_x as i64),
-        Microns((mid_y + 20.0 * delta_max) as i64),
-    );
+    let p2 = Point2D::new(mid_x as i64, (mid_y + 20.0 * delta_max) as i64);
     let p3 = Point2D::new(
-        Microns((mid_x + 20.0 * delta_max) as i64),
-        Microns((mid_y - delta_max) as i64),
+        (mid_x + 20.0 * delta_max) as i64,
+        (mid_y - delta_max) as i64,
     );
 
     let super_triangle = [p1, p2, p3];
@@ -91,9 +86,7 @@ pub fn bowyer_watson_delaunay(vertices: &[Point2D]) -> Vec<Triangle> {
     }
 
     // 3. Remove triangles containing vertices of the super-triangle
-    triangles.retain(|tri| {
-        !tri.iter().any(|v| super_triangle.contains(v))
-    });
+    triangles.retain(|tri| !tri.iter().any(|v| super_triangle.contains(v)));
 
     triangles
         .into_iter()
@@ -108,26 +101,21 @@ pub fn bowyer_watson_delaunay(vertices: &[Point2D]) -> Vec<Triangle> {
 
 /// Test if point is inside circumcircle of triangle.
 fn in_circumcircle(point: &Point2D, triangle: &[Point2D; 3]) -> bool {
-    let ax = (triangle[0].x.0 - point.x.0) as f64;
-    let ay = (triangle[0].y.0 - point.y.0) as f64;
-    let bx = (triangle[1].x.0 - point.x.0) as f64;
-    let by = (triangle[1].y.0 - point.y.0) as f64;
-    let cx = (triangle[2].x.0 - point.x.0) as f64;
-    let cy = (triangle[2].y.0 - point.y.0) as f64;
+    let ax = (triangle[0].x - point.x) as f64;
+    let ay = (triangle[0].y - point.y) as f64;
+    let bx = (triangle[1].x - point.x) as f64;
+    let by = (triangle[1].y - point.y) as f64;
+    let cx = (triangle[2].x - point.x) as f64;
+    let cy = (triangle[2].y - point.y) as f64;
 
-    let det = (ax * ax + ay * ay) * (bx * cy - cx * by)
-        - (bx * bx + by * by) * (ax * cy - cx * ay)
+    let det = (ax * ax + ay * ay) * (bx * cy - cx * by) - (bx * bx + by * by) * (ax * cy - cx * ay)
         + (cx * cx + cy * cy) * (ax * by - bx * ay);
 
     // Orientation check (counter-clockwise)
-    let ccw = (triangle[1].x.0 - triangle[0].x.0) as f64 * (triangle[2].y.0 - triangle[0].y.0) as f64
-        - (triangle[1].y.0 - triangle[0].y.0) as f64 * (triangle[2].x.0 - triangle[0].x.0) as f64;
+    let ccw = (triangle[1].x - triangle[0].x) as f64 * (triangle[2].y - triangle[0].y) as f64
+        - (triangle[1].y - triangle[0].y) as f64 * (triangle[2].x - triangle[0].x) as f64;
 
-    if ccw > 0.0 {
-        det > 0.0
-    } else {
-        det < 0.0
-    }
+    if ccw > 0.0 { det > 0.0 } else { det < 0.0 }
 }
 
 fn has_edge(tri: &[Point2D; 3], edge: [Point2D; 2]) -> bool {

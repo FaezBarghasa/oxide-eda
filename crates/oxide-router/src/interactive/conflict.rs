@@ -1,10 +1,9 @@
 //! Conflict resolution modes and push-and-shove physics.
 
 use oxide_physics::Microns;
-use uuid::Uuid;
 
-use crate::geometry::rtree::{NetId, ObjectId, SpatialIndex, SpatialObject};
 use crate::geometry::Point2D;
+use crate::geometry::rtree::{ObjectId, SpatialObject};
 
 /// Result of pushing an obstacle away from an advancing trace.
 #[derive(Debug, Clone, PartialEq)]
@@ -26,17 +25,16 @@ pub fn calculate_push(
     let (dx, dy) = trace_start.direction_to(trace_end);
     let (perp_x, perp_y) = (-dy, dx);
 
-    // Vector from trace_start to obs_center
-    let vx = (obs_center.x.0 - trace_start.x.0) as f64;
-    let vy = (obs_center.y.0 - trace_start.y.0) as f64;
+    let vx = (obs_center.x - trace_start.x) as f64;
+    let vy = (obs_center.y - trace_start.y) as f64;
     let dot_perp = vx * perp_x + vy * perp_y;
 
     let sign = if dot_perp >= 0.0 { 1.0 } else { -1.0 };
-    let push_amount = required_clearance + Microns(100);
+    let push_amount = required_clearance + 100;
 
     let new_pos = Point2D::new(
-        obs_center.x + Microns((perp_x * push_amount.0 as f64 * sign).round() as i64),
-        obs_center.y + Microns((perp_y * push_amount.0 as f64 * sign).round() as i64),
+        obs_center.x + (perp_x * push_amount as f64 * sign).round() as i64,
+        obs_center.y + (perp_y * push_amount as f64 * sign).round() as i64,
     );
 
     Some(PushResult {

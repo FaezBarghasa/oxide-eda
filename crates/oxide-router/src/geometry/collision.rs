@@ -94,8 +94,5 @@ fn orientation(p: Point2D, q: Point2D, r: Point2D) -> i32 {
 }
 
 fn on_segment(p: Point2D, q: Point2D, r: Point2D) -> bool {
-    q.x <= p.x.max(r.x)
-        && q.x >= p.x.min(r.x)
-        && q.y <= p.y.max(r.y)
-        && q.y >= p.y.min(r.y)
+    q.x <= p.x.max(r.x) && q.x >= p.x.min(r.x) && q.y <= p.y.max(r.y) && q.y >= p.y.min(r.y)
 }

@@ -3,8 +3,8 @@
 use oxide_physics::Microns;
 
 use super::RoutingMode;
-use crate::geometry::rtree::NetId;
 use crate::geometry::Point2D;
+use crate::geometry::rtree::NetId;
 use crate::{LayerId, RouteSegment, ViaPlacement};
 
 /// Active state while user is dragging or clicking to lay down a trace.

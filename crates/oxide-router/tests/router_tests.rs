@@ -3,17 +3,16 @@
 use std::sync::Arc;
 use uuid::Uuid;
 
-use oxide_physics::Microns;
 use oxide_rules::ConstraintManager;
-use oxide_types::pcb::{Pad, PadShape, PadType, PcbBoard, Segment, Via};
+use oxide_types::pcb::{PcbBoard, Segment};
 use oxide_types::schematic::Point;
 
 use oxide_router::geometry::{BoundingBox, Point2D};
 use oxide_router::interactive::InteractiveRouter;
 use oxide_router::topology::TopologicalAutorouter;
 use oxide_router::{
-    NetId, RouteSegment, RoutingEngine, RoutingMode, RoutingPath, RoutingResult, RoutingWorkflow,
-    SegmentType, SpatialIndex, SpatialObject, SpatialObjectType,
+    RouteSegment, RoutingMode, RoutingPath, RoutingResult, RoutingWorkflow, SegmentType,
+    SpatialIndex, SpatialObjectType,
 };
 
 fn mock_board() -> PcbBoard {
@@ -59,10 +58,7 @@ fn test_spatial_index_queries() {
 
     assert!(index.count() >= 1);
 
-    let query_box = BoundingBox::new(
-        Point2D::from_mm(14.0, 9.0),
-        Point2D::from_mm(16.0, 21.0),
-    );
+    let query_box = BoundingBox::new(Point2D::from_mm(14.0, 9.0), Point2D::from_mm(16.0, 21.0));
     let results = index.query_bbox(&query_box);
     assert_eq!(results.len(), 1);
     assert_eq!(results[0].object_type, SpatialObjectType::Track);
@@ -80,7 +76,8 @@ fn test_spatial_index_queries() {
 fn test_interactive_astar_routing() {
     let board = mock_board();
     let rules = Arc::new(ConstraintManager::standard_default());
-    let mut router = InteractiveRouter::new(Arc::clone(&rules), Arc::new(SpatialIndex::build(&board)));
+    let mut router =
+        InteractiveRouter::new(Arc::clone(&rules), Arc::new(SpatialIndex::build(&board)));
 
     let start = Point2D::from_mm(10.0, 15.0);
     let target = Point2D::from_mm(20.0, 15.0);
@@ -90,7 +87,7 @@ fn test_interactive_astar_routing() {
         RoutingResult::Success(path) => {
             assert_eq!(path.net_id, 1);
             assert!(!path.segments.is_empty());
-            assert!(path.total_length > Microns(9_000));
+            assert!(path.total_length > 9_000);
         }
         _ => panic!("Expected successful route"),
     }
@@ -100,7 +97,8 @@ fn test_interactive_astar_routing() {
 fn test_differential_pair_and_meander() {
     let board = mock_board();
     let rules = Arc::new(ConstraintManager::standard_default());
-    let mut router = InteractiveRouter::new(Arc::clone(&rules), Arc::new(SpatialIndex::build(&board)));
+    let mut router =
+        InteractiveRouter::new(Arc::clone(&rules), Arc::new(SpatialIndex::build(&board)));
     router.mode = RoutingMode::DifferentialPair;
 
     let start = Point2D::from_mm(10.0, 10.0);
@@ -113,14 +111,7 @@ fn test_differential_pair_and_meander() {
     assert!(segments.len() >= 2);
 
     // Test meander generator
-    let meander = router.generate_meander(
-        start,
-        target,
-        Microns(5000),
-        2,
-        0,
-        Microns(200),
-    );
+    let meander = router.generate_meander(start, target, 5000, 2, 0, 200);
     assert!(meander.len() > 2);
 }
 
@@ -134,7 +125,13 @@ fn test_topological_triangulation_and_autoroute() {
     autorouter
         .build_topological_map(&board)
         .expect("Build topological map");
-    assert!(!autorouter.topological_map.triangulation.triangles.is_empty());
+    assert!(
+        !autorouter
+            .topological_map
+            .triangulation
+            .triangles
+            .is_empty()
+    );
 
     let mut mutable_board = board.clone();
     let results = autorouter.route_board(&mut mutable_board, &[1, 2]);
@@ -153,7 +150,7 @@ fn test_optimization_glossing_and_loop_removal() {
             RouteSegment {
                 start_point: Point2D::from_mm(0.0, 0.0),
                 end_point: Point2D::from_mm(5.0, 0.0),
-                width: Microns(200),
+                width: 200,
                 layer: 0,
                 net_id: 1,
                 segment_type: SegmentType::Straight,
@@ -161,14 +158,14 @@ fn test_optimization_glossing_and_loop_removal() {
             RouteSegment {
                 start_point: Point2D::from_mm(5.0, 0.0),
                 end_point: Point2D::from_mm(10.0, 0.0),
-                width: Microns(200),
+                width: 200,
                 layer: 0,
                 net_id: 1,
                 segment_type: SegmentType::Straight,
             },
         ],
         vias: Vec::new(),
-        total_length: Microns(10_000),
+        total_length: 10_000,
         layer_transitions: Vec::new(),
     };
 
@@ -190,5 +187,5 @@ fn test_end_to_end_routing_workflow() {
     assert_eq!(result.total_nets, 3);
     assert_eq!(result.routed_nets, 3);
     assert_eq!(result.failed_nets, 0);
-    assert!(result.total_length > Microns(0));
+    assert!(result.total_length > 0);
 }

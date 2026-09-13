@@ -19,7 +19,11 @@ impl RetraceOptimizer {
     }
 
     /// Retrace an existing route with current spatial index and clearance rules.
-    pub fn retrace_route(&self, route: &RoutingPath, spatial_index: &SpatialIndex) -> RoutingResult {
+    pub fn retrace_route(
+        &self,
+        route: &RoutingPath,
+        spatial_index: &SpatialIndex,
+    ) -> RoutingResult {
         let start = match route.segments.first() {
             Some(s) => s.start_point,
             None => return RoutingResult::Success(route.clone()),

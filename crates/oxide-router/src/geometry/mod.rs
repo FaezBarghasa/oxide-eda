@@ -104,10 +104,7 @@ impl BoundingBox {
     }
 
     pub fn center(&self) -> Point2D {
-        Point2D::new(
-            (self.min.x + self.max.x) / 2,
-            (self.min.y + self.max.y) / 2,
-        )
+        Point2D::new((self.min.x + self.max.x) / 2, (self.min.y + self.max.y) / 2)
     }
 
     pub fn width(&self) -> Microns {
@@ -157,7 +154,7 @@ impl BoundingBox {
         } else if dy == 0 {
             dx
         } else {
-            (((dx * dx + dy * dy) as f64).sqrt().round() as i64)
+            ((dx * dx + dy * dy) as f64).sqrt().round() as i64
         }
     }
 

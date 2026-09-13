@@ -6,9 +6,9 @@ use oxide_physics::Microns;
 use oxide_rules::ConstraintManager;
 use oxide_types::pcb::PcbBoard;
 
-use crate::geometry::rtree::{NetId, SpatialIndex};
 use crate::geometry::Point2D;
-use crate::{RoutingEngine, RoutingError, RoutingPath, RoutingResult};
+use crate::geometry::rtree::NetId;
+use crate::{RoutingEngine, RoutingResult};
 
 /// End-to-end execution result of a complete board routing workflow.
 #[derive(Debug, Clone)]
@@ -42,10 +42,16 @@ impl RoutingWorkflow {
     /// Execute all routing phases: Preparation, Global Topological Routing, Detailed Routing, Optimization.
     pub fn execute(&mut self) -> WorkflowResult {
         // Phase 1: Pre-routing setup & topological map construction
-        let _ = self.engine.topology_engine.build_topological_map(&self.board);
+        let _ = self
+            .engine
+            .topology_engine
+            .build_topological_map(&self.board);
 
         // Phase 2: Global topological routing
-        let global_results = self.engine.topology_engine.route_board(&mut self.board, &self.nets);
+        let global_results = self
+            .engine
+            .topology_engine
+            .route_board(&mut self.board, &self.nets);
         self.results = global_results;
 
         // Phase 3: Detailed interactive fallback for unrouted or failed nets
@@ -54,8 +60,8 @@ impl RoutingWorkflow {
                 let net_id = self.nets[i];
                 let fallback = self.engine.interactive_engine.route_net(
                     net_id,
-                    Point2D::new(Microns(10_000), Microns(10_000)),
-                    Point2D::new(Microns(20_000), Microns(20_000)),
+                    Point2D::new(10_000, 10_000),
+                    Point2D::new(20_000, 20_000),
                 );
                 *res = fallback;
             }
@@ -65,7 +71,10 @@ impl RoutingWorkflow {
         for res in &mut self.results {
             if let RoutingResult::Success(path) = res {
                 self.engine.optimization_engine.glossing.gloss_path(path);
-                self.engine.optimization_engine.loop_removal.remove_loops(path);
+                self.engine
+                    .optimization_engine
+                    .loop_removal
+                    .remove_loops(path);
             }
         }
 

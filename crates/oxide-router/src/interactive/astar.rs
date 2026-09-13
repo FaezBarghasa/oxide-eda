@@ -8,7 +8,7 @@ use oxide_physics::Microns;
 use crate::geometry::rtree::{NetId, SpatialIndex};
 use crate::geometry::{BoundingBox, Point2D};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 struct GridCoord {
     x: i64,
     y: i64,
@@ -28,12 +28,12 @@ pub fn find_astar_path(
 
     let grid_step = 250i64; // 250 µm resolution (0.25mm)
     let start_coord = GridCoord {
-        x: (start.x.0 / grid_step),
-        y: (start.y.0 / grid_step),
+        x: (start.x / grid_step),
+        y: (start.y / grid_step),
     };
     let target_coord = GridCoord {
-        x: (target.x.0 / grid_step),
-        y: (target.y.0 / grid_step),
+        x: (target.x / grid_step),
+        y: (target.y / grid_step),
     };
 
     let mut open_set = BinaryHeap::new();
@@ -81,11 +81,8 @@ pub fn find_astar_path(
             }
 
             // Check collision with spatial index
-            let pt = Point2D::new(
-                Microns(neighbor.x * grid_step),
-                Microns(neighbor.y * grid_step),
-            );
-            let half_w = Microns(width.0 / 2 + 100);
+            let pt = Point2D::new(neighbor.x * grid_step, neighbor.y * grid_step);
+            let half_w = width / 2 + 100;
             let check_bbox = BoundingBox::from_center_radius(pt, half_w);
             let collisions = spatial_index.check_collision(&check_bbox, &[net_id]);
 
@@ -111,10 +108,7 @@ pub fn find_astar_path(
     let mut curr = target_coord;
 
     while let Some(&prev) = came_from.get(&curr) {
-        let pt = Point2D::new(
-            Microns(prev.x * grid_step),
-            Microns(prev.y * grid_step),
-        );
+        let pt = Point2D::new(prev.x * grid_step, prev.y * grid_step);
         path.push(pt);
         curr = prev;
     }
@@ -129,7 +123,6 @@ pub fn find_astar_path(
 fn heuristic(a: GridCoord, b: GridCoord) -> i64 {
     let dx = (a.x - b.x).abs();
     let dy = (a.y - b.y).abs();
-    // Diagonal distance * 1000
     let min = dx.min(dy);
     let max = dx.max(dy);
     min * 1414 + (max - min) * 1000
@@ -149,7 +142,6 @@ fn simplify_path(points: &[Point2D]) -> Vec<Point2D> {
         let (dx1, dy1) = p0.direction_to(p1);
         let (dx2, dy2) = p1.direction_to(p2);
 
-        // If directions differ, keep waypoint
         if (dx1 - dx2).abs() > 1e-4 || (dy1 - dy2).abs() > 1e-4 {
             result.push(p1);
         }

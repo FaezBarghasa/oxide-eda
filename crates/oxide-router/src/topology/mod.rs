@@ -1,7 +1,7 @@
 //! Situs-style topological autorouter with Delaunay triangulation and channel capacity planning.
 
 use std::cmp::Reverse;
-use std::collections::{BinaryHeap, HashMap, HashSet};
+use std::collections::{BinaryHeap, HashMap};
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -11,7 +11,7 @@ use oxide_types::pcb::PcbBoard;
 
 use crate::geometry::rtree::{NetId, ObjectId, SpatialIndex};
 use crate::geometry::{BoundingBox, Point2D};
-use crate::{LayerId, LayerTransition, RouteSegment, RoutingError, RoutingPath, RoutingResult, SegmentType, ViaPlacement};
+use crate::{LayerId, RouteSegment, RoutingError, RoutingPath, RoutingResult, SegmentType};
 
 pub mod triangulation;
 
@@ -155,7 +155,7 @@ impl TopologicalAutorouter {
         // 1. Components
         for fp in &board.footprints {
             let center = Point2D::from_mm(fp.position.x, fp.position.y);
-            let bbox = BoundingBox::from_center_radius(center, Microns(3000));
+            let bbox = BoundingBox::from_center_radius(center, 3000);
             obstacles.push(Obstacle {
                 id: fp.uuid,
                 bbox,
@@ -200,10 +200,10 @@ impl TopologicalAutorouter {
 
         // Add board boundary corners if empty
         if vertices.is_empty() {
-            vertices.push(Point2D::new(Microns(0), Microns(0)));
-            vertices.push(Point2D::new(Microns(100_000), Microns(0)));
-            vertices.push(Point2D::new(Microns(100_000), Microns(100_000)));
-            vertices.push(Point2D::new(Microns(0), Microns(100_000)));
+            vertices.push(Point2D::new(0, 0));
+            vertices.push(Point2D::new(100_000, 0));
+            vertices.push(Point2D::new(100_000, 100_000));
+            vertices.push(Point2D::new(0, 100_000));
         }
 
         let triangles = triangulation::bowyer_watson_delaunay(&vertices);
@@ -233,7 +233,7 @@ impl TopologicalAutorouter {
             });
         }
 
-        let max_connect_dist = Microns(25_000); // 25mm
+        let max_connect_dist = 25_000; // 25mm
 
         for i in 0..nodes.len() {
             for j in (i + 1)..nodes.len() {
@@ -276,11 +276,11 @@ impl TopologicalAutorouter {
 
                 if let (Some(fo), Some(to)) = (from_obs, to_obs) {
                     let dist = fo.bbox.distance_to(&to.bbox);
-                    let min_width = Microns(150);
-                    let min_clearance = Microns(150);
+                    let min_width = 150;
+                    let min_clearance = 150;
                     let pitch = min_width + min_clearance;
-                    let capacity = if pitch.0 > 0 {
-                        (dist.0 / pitch.0).max(1) as usize
+                    let capacity = if pitch > 0 {
+                        (dist / pitch).max(1) as usize
                     } else {
                         1
                     };
@@ -314,15 +314,14 @@ impl TopologicalAutorouter {
 
     /// Route a single net
     pub fn route_single_net(&self, net_id: NetId) -> RoutingResult {
-        // Find channels and synthesize detailed straight segments
         if self.topological_map.adjacency_graph.nodes.len() < 2 {
             // Baseline direct route
-            let start = Point2D::new(Microns(10_000), Microns(10_000));
-            let end = Point2D::new(Microns(20_000), Microns(20_000));
+            let start = Point2D::new(10_000, 10_000);
+            let end = Point2D::new(20_000, 20_000);
             let segment = RouteSegment {
                 start_point: start,
                 end_point: end,
-                width: Microns(200),
+                width: 200,
                 layer: 0,
                 net_id,
                 segment_type: SegmentType::Straight,
@@ -337,11 +336,22 @@ impl TopologicalAutorouter {
         }
 
         let start_pos = self.topological_map.adjacency_graph.nodes[0].position;
-        let end_pos = self.topological_map.adjacency_graph.nodes.last().unwrap().position;
+        let end_pos = self
+            .topological_map
+            .adjacency_graph
+            .nodes
+            .last()
+            .unwrap()
+            .position;
 
         let path = self.plan_path_nodes(
             self.topological_map.adjacency_graph.nodes[0].id,
-            self.topological_map.adjacency_graph.nodes.last().unwrap().id,
+            self.topological_map
+                .adjacency_graph
+                .nodes
+                .last()
+                .unwrap()
+                .id,
         );
 
         let mut segments = Vec::new();
@@ -349,7 +359,7 @@ impl TopologicalAutorouter {
             segments.push(RouteSegment {
                 start_point: path[i],
                 end_point: path[i + 1],
-                width: Microns(200),
+                width: 200,
                 layer: 0,
                 net_id,
                 segment_type: SegmentType::Straight,
@@ -360,7 +370,7 @@ impl TopologicalAutorouter {
             segments.push(RouteSegment {
                 start_point: start_pos,
                 end_point: end_pos,
-                width: Microns(200),
+                width: 200,
                 layer: 0,
                 net_id,
                 segment_type: SegmentType::Straight,
@@ -411,7 +421,7 @@ impl TopologicalAutorouter {
                         (e.from == current && e.to == neighbor_id)
                             || (e.to == current && e.from == neighbor_id)
                     }) {
-                        let tentative_g = current_g + edge.distance.0;
+                        let tentative_g = current_g + edge.distance;
                         if tentative_g < *g_score.get(&neighbor_id).unwrap_or(&i64::MAX) {
                             came_from.insert(neighbor_id, current);
                             g_score.insert(neighbor_id, tentative_g);

@@ -136,7 +136,9 @@ impl SpatialIndex {
         let bbox = BoundingBox::from_center_radius(center, radius);
         self.objects
             .iter()
-            .filter(|obj| obj.bbox.intersects(&bbox) && obj.bbox.center().distance_to(center) <= radius)
+            .filter(|obj| {
+                obj.bbox.intersects(&bbox) && obj.bbox.center().distance_to(center) <= radius
+            })
             .collect()
     }
 

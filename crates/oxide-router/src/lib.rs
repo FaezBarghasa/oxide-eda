@@ -2,7 +2,6 @@
 //! and High-Speed Optimization.
 
 use std::sync::Arc;
-use uuid::Uuid;
 
 use oxide_physics::Microns;
 use oxide_rules::ConstraintManager;
@@ -36,8 +35,10 @@ pub struct RoutingEngine {
 impl RoutingEngine {
     pub fn new(rules: Arc<ConstraintManager>, board: &PcbBoard) -> Self {
         let spatial_index = Arc::new(SpatialIndex::build(board));
-        let topology_engine = TopologicalAutorouter::new(Arc::clone(&rules), Arc::clone(&spatial_index));
-        let interactive_engine = InteractiveRouter::new(Arc::clone(&rules), Arc::clone(&spatial_index));
+        let topology_engine =
+            TopologicalAutorouter::new(Arc::clone(&rules), Arc::clone(&spatial_index));
+        let interactive_engine =
+            InteractiveRouter::new(Arc::clone(&rules), Arc::clone(&spatial_index));
         let optimization_engine = OptimizationEngine::new(Arc::clone(&rules));
 
         Self {
@@ -75,7 +76,11 @@ pub enum RoutingError {
     #[error("Layer constraint violation on net {net:?} for layer {layer:?}")]
     LayerConstraintViolation { net: NetId, layer: LayerId },
     #[error("Impedance mismatch on net {net:?} - actual {actual:.2} Ω, target {target:.2} Ω")]
-    ImpedanceViolation { net: NetId, actual: f64, target: f64 },
+    ImpedanceViolation {
+        net: NetId,
+        actual: f64,
+        target: f64,
+    },
     #[error("Routing congestion exceeded in region ({region:?}) with density {density:.2}")]
     CongestionExceeded { region: BoundingBox, density: f64 },
 }

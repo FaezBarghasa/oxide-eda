@@ -2,14 +2,8 @@
 //! Glossing, Retrace, Length Tuning, and Loop Removal.
 
 use std::sync::Arc;
-use uuid::Uuid;
 
-use oxide_physics::Microns;
 use oxide_rules::ConstraintManager;
-
-use crate::geometry::rtree::NetId;
-use crate::geometry::Point2D;
-use crate::{LayerId, RouteSegment, RoutingPath, RoutingResult, SegmentType};
 
 pub mod active_route;
 pub mod glossing;

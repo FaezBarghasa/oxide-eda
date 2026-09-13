@@ -5,7 +5,7 @@ use std::sync::Arc;
 use oxide_physics::Microns;
 use oxide_rules::ConstraintManager;
 
-use crate::{RouteSegment, RoutingPath};
+use crate::RoutingPath;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct LoopRemovalResult {

@@ -5,7 +5,7 @@ use std::sync::Arc;
 use oxide_physics::Microns;
 use oxide_rules::ConstraintManager;
 
-use crate::{RouteSegment, RoutingPath, SegmentType};
+use crate::{RouteSegment, RoutingPath};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct GlossingResult {
@@ -55,7 +55,9 @@ impl GlossingOptimizer {
 
         while i < segments.len().saturating_sub(1) {
             let (dx1, dy1) = segments[i].start_point.direction_to(segments[i].end_point);
-            let (dx2, dy2) = segments[i + 1].start_point.direction_to(segments[i + 1].end_point);
+            let (dx2, dy2) = segments[i + 1]
+                .start_point
+                .direction_to(segments[i + 1].end_point);
 
             if (dx1 - dx2).abs() < 1e-4 && (dy1 - dy2).abs() < 1e-4 {
                 // Merge segments[i] and segments[i + 1]

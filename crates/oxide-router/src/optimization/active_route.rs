@@ -6,8 +6,8 @@ use uuid::Uuid;
 use oxide_physics::Microns;
 use oxide_rules::ConstraintManager;
 
-use crate::geometry::rtree::NetId;
 use crate::geometry::Point2D;
+use crate::geometry::rtree::NetId;
 use crate::{LayerId, RouteSegment, RoutingPath, RoutingResult, SegmentType};
 
 pub type RouteGuideId = Uuid;
@@ -41,14 +41,14 @@ impl ActiveRouteOptimizer {
             return results;
         }
 
-        let track_width = Microns(200);
-        let clearance = Microns(150);
+        let track_width = 200;
+        let clearance = 150;
         let pitch = track_width + clearance;
-        let total_bundle_width = pitch.0 * nets.len().saturating_sub(1) as i64;
+        let total_bundle_width = pitch * nets.len().saturating_sub(1) as i64;
         let start_offset = -total_bundle_width / 2;
 
         for (i, &net_id) in nets.iter().enumerate() {
-            let offset_microns = Microns(start_offset + i as i64 * pitch.0);
+            let offset_microns = start_offset + i as i64 * pitch;
             let mut segments = Vec::new();
 
             for seg_idx in 0..guide.path.len().saturating_sub(1) {
@@ -58,12 +58,12 @@ impl ActiveRouteOptimizer {
                 let (perp_x, perp_y) = (-dy, dx);
 
                 let start_pt = Point2D::new(
-                    p1.x + Microns((perp_x * offset_microns.0 as f64).round() as i64),
-                    p1.y + Microns((perp_y * offset_microns.0 as f64).round() as i64),
+                    p1.x + (perp_x * offset_microns as f64).round() as i64,
+                    p1.y + (perp_y * offset_microns as f64).round() as i64,
                 );
                 let end_pt = Point2D::new(
-                    p2.x + Microns((perp_x * offset_microns.0 as f64).round() as i64),
-                    p2.y + Microns((perp_y * offset_microns.0 as f64).round() as i64),
+                    p2.x + (perp_x * offset_microns as f64).round() as i64,
+                    p2.y + (perp_y * offset_microns as f64).round() as i64,
                 );
 
                 segments.push(RouteSegment {

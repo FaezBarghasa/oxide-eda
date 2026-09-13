@@ -5,8 +5,6 @@ use std::sync::Arc;
 use oxide_physics::Microns;
 use oxide_rules::ConstraintManager;
 
-use crate::geometry::rtree::NetId;
-use crate::interactive::InteractiveRouter;
 use crate::{RouteSegment, RoutingPath};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -46,29 +44,25 @@ impl LengthTuningOptimizer {
         TuningResult {
             positive_length: pos_path.total_length,
             negative_length: neg_path.total_length,
-            length_difference: if pos_path.total_length > neg_path.total_length {
-                pos_path.total_length - neg_path.total_length
-            } else {
-                neg_path.total_length - pos_path.total_length
-            },
+            length_difference: (pos_path.total_length - neg_path.total_length).abs(),
         }
     }
 
-    fn add_meander(&self, path: &mut RoutingPath, extra: Microns) {
+    fn add_meander(&self, path: &mut RoutingPath, _extra: Microns) {
         if path.segments.is_empty() {
             return;
         }
 
         let last_seg = path.segments.pop().unwrap();
-        let amplitude = Microns(400); // 400µm
+        let amplitude = 400; // 400µm
         let (dx, dy) = last_seg.start_point.direction_to(last_seg.end_point);
         let (perp_x, perp_y) = (-dy, dx);
 
         // Simple accordion insert
         let p_mid = last_seg.start_point;
         let p_out = crate::geometry::Point2D::new(
-            p_mid.x + Microns((perp_x * amplitude.0 as f64).round() as i64),
-            p_mid.y + Microns((perp_y * amplitude.0 as f64).round() as i64),
+            p_mid.x + (perp_x * amplitude as f64).round() as i64,
+            p_mid.y + (perp_y * amplitude as f64).round() as i64,
         );
 
         path.segments.push(RouteSegment {

@@ -1,19 +1,14 @@
 //! Interactive routing engine with weighted A* pathfinding, Push-and-Shove,
 //! Walk-Around, Hug-and-Push, Differential Pair, and Length Tuning modes.
 
-use std::cmp::Reverse;
-use std::collections::{BinaryHeap, HashMap, HashSet};
 use std::sync::Arc;
 
 use oxide_physics::Microns;
 use oxide_rules::ConstraintManager;
 
-use crate::geometry::rtree::{NetId, SpatialIndex, SpatialObject, SpatialObjectType};
-use crate::geometry::{BoundingBox, Point2D};
-use crate::{
-    LayerId, LayerTransition, RouteSegment, RoutingError, RoutingPath, RoutingResult, SegmentType,
-    ViaPlacement,
-};
+use crate::geometry::Point2D;
+use crate::geometry::rtree::{NetId, SpatialIndex};
+use crate::{LayerId, RouteSegment, RoutingError, RoutingPath, RoutingResult, SegmentType};
 
 pub mod astar;
 pub mod conflict;
@@ -85,13 +80,27 @@ impl InteractiveRouter {
         };
 
         match mode {
-            RoutingMode::IgnoreObstacles => self.direct_route(current_pos, target, current_net, current_layer, width),
-            RoutingMode::StopAtFirstObstacle => self.stop_at_obstacle_route(current_pos, target, current_net, current_layer, width),
-            RoutingMode::WalkAround => self.walk_around_route(current_pos, target, current_net, current_layer, width),
-            RoutingMode::PushAndShove => self.push_and_shove_route(current_pos, target, current_net, current_layer, width),
-            RoutingMode::HugAndPush => self.hug_and_push_route(current_pos, target, current_net, current_layer, width),
-            RoutingMode::DifferentialPair => self.differential_pair_route(current_pos, target, current_net, current_layer, width),
-            RoutingMode::LengthTuning => self.length_tuning_route(current_pos, target, current_net, current_layer, width),
+            RoutingMode::IgnoreObstacles => {
+                self.direct_route(current_pos, target, current_net, current_layer, width)
+            }
+            RoutingMode::StopAtFirstObstacle => {
+                self.stop_at_obstacle_route(current_pos, target, current_net, current_layer, width)
+            }
+            RoutingMode::WalkAround => {
+                self.walk_around_route(current_pos, target, current_net, current_layer, width)
+            }
+            RoutingMode::PushAndShove => {
+                self.push_and_shove_route(current_pos, target, current_net, current_layer, width)
+            }
+            RoutingMode::HugAndPush => {
+                self.hug_and_push_route(current_pos, target, current_net, current_layer, width)
+            }
+            RoutingMode::DifferentialPair => {
+                self.differential_pair_route(current_pos, target, current_net, current_layer, width)
+            }
+            RoutingMode::LengthTuning => {
+                self.length_tuning_route(current_pos, target, current_net, current_layer, width)
+            }
         }
     }
 
@@ -185,7 +194,6 @@ impl InteractiveRouter {
         layer: LayerId,
         width: Microns,
     ) -> Vec<RouteSegment> {
-        // Direct A* path; pushable obstacles are pushed outward along normal
         let path = astar::find_astar_path(&self.spatial_index, start, end, net_id, width);
         let mut segments = Vec::new();
 
@@ -222,7 +230,7 @@ impl InteractiveRouter {
         layer: LayerId,
         width: Microns,
     ) -> Vec<RouteSegment> {
-        let gap = Microns(150); // 150µm diff pair gap
+        let gap = 150; // 150µm diff pair gap
         let centerline = astar::find_astar_path(&self.spatial_index, start, end, net_id, width);
         let mut segments = Vec::new();
 
@@ -230,9 +238,8 @@ impl InteractiveRouter {
             let p1 = centerline[i];
             let p2 = centerline[i + 1];
             let (dx, dy) = p1.direction_to(p2);
-            // Perpendicular vector (-dy, dx)
-            let perp_x = Microns((-dy * ((gap.0 + width.0) as f64 / 2.0)).round() as i64);
-            let perp_y = Microns((dx * ((gap.0 + width.0) as f64 / 2.0)).round() as i64);
+            let perp_x = (-dy * ((gap + width) as f64 / 2.0)).round() as i64;
+            let perp_y = (dx * ((gap + width) as f64 / 2.0)).round() as i64;
 
             // Positive track
             segments.push(RouteSegment {
@@ -267,7 +274,7 @@ impl InteractiveRouter {
         width: Microns,
     ) -> Vec<RouteSegment> {
         let direct_dist = start.distance_to(end);
-        let target_len = direct_dist + Microns(4000); // 4mm extra meander
+        let target_len = direct_dist + 4000; // 4mm extra meander
         self.generate_meander(start, end, target_len - direct_dist, net_id, layer, width)
     }
 
@@ -285,27 +292,27 @@ impl InteractiveRouter {
         let (dx, dy) = start.direction_to(end);
         let (perp_x, perp_y) = (-dy, dx);
 
-        let amplitude = Microns(800); // 800µm amplitude
-        let step = Microns(600); // 600µm wavelength
+        let amplitude = 800; // 800µm amplitude
+        let step = 600; // 600µm wavelength
 
         let mut current = start;
         let mut remaining = extra_length;
         let mut flip = true;
 
-        while current.distance_to(end) > step && remaining > Microns(0) {
+        while current.distance_to(end) > step && remaining > 0 {
             let next_base = Point2D::new(
-                Point2D::new(current.x, current.y).x + Microns((dx * step.0 as f64).round() as i64),
-                Point2D::new(current.x, current.y).y + Microns((dy * step.0 as f64).round() as i64),
+                current.x + (dx * step as f64).round() as i64,
+                current.y + (dy * step as f64).round() as i64,
             );
 
             let offset_sign = if flip { 1.0 } else { -1.0 };
             let peak1 = Point2D::new(
-                current.x + Microns((perp_x * amplitude.0 as f64 * offset_sign).round() as i64),
-                current.y + Microns((perp_y * amplitude.0 as f64 * offset_sign).round() as i64),
+                current.x + (perp_x * amplitude as f64 * offset_sign).round() as i64,
+                current.y + (perp_y * amplitude as f64 * offset_sign).round() as i64,
             );
             let peak2 = Point2D::new(
-                next_base.x + Microns((perp_x * amplitude.0 as f64 * offset_sign).round() as i64),
-                next_base.y + Microns((perp_y * amplitude.0 as f64 * offset_sign).round() as i64),
+                next_base.x + (perp_x * amplitude as f64 * offset_sign).round() as i64,
+                next_base.y + (perp_y * amplitude as f64 * offset_sign).round() as i64,
             );
 
             segments.push(RouteSegment {
@@ -352,6 +359,6 @@ impl InteractiveRouter {
     }
 
     fn get_track_width_for_net(&self, _net_id: NetId) -> Microns {
-        Microns(200) // Default 200 µm
+        200 // Default 200 µm
     }
 }
