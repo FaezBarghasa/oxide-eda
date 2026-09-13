@@ -211,14 +211,73 @@ pub enum HelpMenuCommand {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum KeyCode {
-    A, B, C, D, E, F, G, H, I, J, K, L, M,
-    N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
-    Num0, Num1, Num2, Num3, Num4, Num5, Num6, Num7, Num8, Num9,
-    F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
-    Space, Enter, Escape, Tab, Backspace, Delete,
-    Up, Down, Left, Right,
-    Home, End, PageUp, PageDown,
-    Asterisk, Plus, Minus, Slash, Backslash,
+    A,
+    B,
+    C,
+    D,
+    E,
+    F,
+    G,
+    H,
+    I,
+    J,
+    K,
+    L,
+    M,
+    N,
+    O,
+    P,
+    Q,
+    R,
+    S,
+    T,
+    U,
+    V,
+    W,
+    X,
+    Y,
+    Z,
+    Num0,
+    Num1,
+    Num2,
+    Num3,
+    Num4,
+    Num5,
+    Num6,
+    Num7,
+    Num8,
+    Num9,
+    F1,
+    F2,
+    F3,
+    F4,
+    F5,
+    F6,
+    F7,
+    F8,
+    F9,
+    F10,
+    F11,
+    F12,
+    Space,
+    Enter,
+    Escape,
+    Tab,
+    Backspace,
+    Delete,
+    Up,
+    Down,
+    Left,
+    Right,
+    Home,
+    End,
+    PageUp,
+    PageDown,
+    Asterisk,
+    Plus,
+    Minus,
+    Slash,
+    Backslash,
 }
 
 /// Modifier keys (Ctrl/Cmd, Shift, Alt).
@@ -231,11 +290,36 @@ pub struct Modifiers {
 }
 
 impl Modifiers {
-    pub const NONE: Self = Self { ctrl: false, shift: false, alt: false, meta: false };
-    pub const CTRL: Self = Self { ctrl: true, shift: false, alt: false, meta: false };
-    pub const SHIFT: Self = Self { ctrl: false, shift: true, alt: false, meta: false };
-    pub const ALT: Self = Self { ctrl: false, shift: false, alt: true, meta: false };
-    pub const CTRL_SHIFT: Self = Self { ctrl: true, shift: true, alt: false, meta: false };
+    pub const NONE: Self = Self {
+        ctrl: false,
+        shift: false,
+        alt: false,
+        meta: false,
+    };
+    pub const CTRL: Self = Self {
+        ctrl: true,
+        shift: false,
+        alt: false,
+        meta: false,
+    };
+    pub const SHIFT: Self = Self {
+        ctrl: false,
+        shift: true,
+        alt: false,
+        meta: false,
+    };
+    pub const ALT: Self = Self {
+        ctrl: false,
+        shift: false,
+        alt: true,
+        meta: false,
+    };
+    pub const CTRL_SHIFT: Self = Self {
+        ctrl: true,
+        shift: true,
+        alt: false,
+        meta: false,
+    };
 }
 
 /// Complete key binding representation.
@@ -250,7 +334,11 @@ pub struct KeyBinding {
 
 impl KeyBinding {
     pub fn new(key: KeyCode, modifiers: Modifiers, context: EditorContext) -> Self {
-        Self { key, modifiers, context }
+        Self {
+            key,
+            modifiers,
+            context,
+        }
     }
 
     pub fn global(key: KeyCode, modifiers: Modifiers) -> Self {
