@@ -169,6 +169,11 @@ oxide/
 │   ├── oxide-engine/         # Command / patch / undo engine for schematic edits
 │   ├── oxide-net/            # Authoritative netlist + connectivity contract
 │   ├── oxide-erc/            # ERC rule engine (+ oxide-erc-dsl)
+│   ├── oxide-rules/          # Design rules & constraint validation engine
+│   ├── oxide-physics/        # Layer stackup, transmission lines, material physics
+│   ├── oxide-router/         # Interactive routing & topological autorouter (A*, Situs, Glossing)
+│   ├── oxide-compute/        # GPU-accelerated compute (wgpu WGSL & CPU Rayon for DRC, Thermal, FDTD, Congestion)
+│   ├── oxide-ai/             # Signal AI copilot & LLM integration layer
 │   ├── oxide-sketch/         # Apache-clean Newton-LM constraint solver + sketch schema
 │   ├── oxide-bake/           # Sketch → footprint bake (pad / silk / courtyard / mask / …)
 │   ├── oxide-output/         # PDF / netlist / BOM export pipeline (+ oxide-bom)

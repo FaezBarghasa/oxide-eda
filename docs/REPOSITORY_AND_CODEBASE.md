@@ -126,6 +126,11 @@ oxide/
 │   ├── oxide-engine/              # command / patch / undo engine
 │   ├── oxide-net/                 # authoritative netlist + connectivity
 │   ├── oxide-erc/                 # ERC rule engine (+ oxide-erc-dsl)
+│   ├── oxide-rules/               # Design rules & constraint validation engine
+│   ├── oxide-physics/             # Layer stackup, transmission lines, material physics
+│   ├── oxide-router/              # Interactive routing & topological autorouter (A*, Situs, Glossing)
+│   ├── oxide-compute/             # GPU-accelerated compute (wgpu WGSL & CPU Rayon for DRC, Thermal, FDTD, Congestion)
+│   ├── oxide-ai/                  # Signal AI copilot & LLM integration layer
 │   ├── oxide-sketch/              # Newton-LM constraint solver + sketch schema
 │   ├── oxide-bake/                # sketch → footprint bake pipeline
 │   ├── oxide-output/              # PDF / netlist / BOM export (+ oxide-bom)
@@ -233,6 +238,28 @@ Responsibilities:
 - writing in-memory structures back to disk with minimal output churn and
   round-trip stability
 - preserving unknown/forward-compatible nodes at the parse boundary
+
+### 5.6. `oxide-compute`
+
+The GPU-accelerated compute engine.
+
+Responsibilities:
+- `wgpu` compute shader pipelines (WGSL) for parallel DRC, 2D FDM thermal simulation, 3D FDTD electromagnetic solver, and routing congestion mapping
+- CPU fallback compute backend via `rayon` parallel iterators
+- Uniform buffer and storage buffer synchronization
+
+### 5.7. `oxide-router`
+
+Interactive routing and autorouting algorithms.
+
+Responsibilities:
+- Weighted A* interactive push-and-shove routing
+- Situs-style topological autorouter with triangulation & topological map
+- Optimization passes: river routing, glossing, loop removal, length/delay tuning
+
+### 5.8. `oxide-rules` & `oxide-physics`
+
+Design rules, stackup geometry, and electromagnetic physics calculations.
 
 > **Pre-v0.9 history:** earlier revisions of this document listed
 > `kicad-parser` and `kicad-writer` as Sections 5.5 and 5.6. Both crates
