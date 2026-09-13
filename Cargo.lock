@@ -4094,6 +4094,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxide-compute"
+version = "0.15.0"
+dependencies = [
+ "bytemuck",
+ "log",
+ "oxide-physics",
+ "oxide-rules",
+ "oxide-types",
+ "pollster",
+ "rayon",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "wgpu",
+]
+
+[[package]]
 name = "oxide-engine"
 version = "0.15.0"
 dependencies = [

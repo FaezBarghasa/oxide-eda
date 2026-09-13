@@ -22,6 +22,7 @@ members = [
     "crates/oxide-rules",
     "crates/oxide-router",
     "crates/oxide-ai",
+    "crates/oxide-compute",
 ]
 # A bare `cargo build` / `cargo test` at the root only builds the daily-
 # driver crates. The library server and the chrome-catalog dev sandbox are
@@ -46,6 +47,7 @@ default-members = [
     "crates/oxide-rules",
     "crates/oxide-router",
     "crates/oxide-ai",
+    "crates/oxide-compute",
 ]
 
 [workspace.package]
@@ -111,6 +113,7 @@ oxide-physics = { path = "crates/oxide-physics" }
 oxide-rules = { path = "crates/oxide-rules" }
 oxide-router = { path = "crates/oxide-router" }
 oxide-ai = { path = "crates/oxide-ai" }
+oxide-compute = { path = "crates/oxide-compute" }
 
 # Library subsystem (v0.9 plan, restored at v0.11)
 chrono = { version = "0.4", features = ["serde"] }
