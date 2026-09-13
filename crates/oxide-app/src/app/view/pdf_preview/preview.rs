@@ -97,10 +97,7 @@ impl Oxide {
             text("Pages").size(11).color(text_muted),
             mode_button(
                 "All",
-                matches!(
-                    preview.pdf_options.page_range,
-                    oxide_output::PageRange::All
-                ),
+                matches!(preview.pdf_options.page_range, oxide_output::PageRange::All),
                 Message::PrintPreview(PrintPreviewMsg::SetPageRangeAll),
             ),
             mode_button(
@@ -142,10 +139,7 @@ impl Oxide {
             iced::widget::Space::new().height(0).into()
         };
 
-        let fit_to_page = matches!(
-            preview.pdf_options.scale,
-            oxide_output::PdfScale::FitToPage
-        );
+        let fit_to_page = matches!(preview.pdf_options.scale, oxide_output::PdfScale::FitToPage);
         let toggles_row = row![
             text("Output").size(11).color(text_muted),
             row![

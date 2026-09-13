@@ -353,11 +353,7 @@ fn junction_is_honoured(point: oxide_types::schematic::Point, document: &Schemat
         .wires
         .iter()
         .filter(|w| {
-            oxide_net::point_on_segment(
-                k,
-                oxide_net::pt_key(&w.start),
-                oxide_net::pt_key(&w.end),
-            )
+            oxide_net::point_on_segment(k, oxide_net::pt_key(&w.start), oxide_net::pt_key(&w.end))
         })
         .count()
         >= 2

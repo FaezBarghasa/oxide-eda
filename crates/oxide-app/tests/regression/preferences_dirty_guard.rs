@@ -5,7 +5,7 @@
 //! `preferences_has_unsaved_changes` and
 //! `handle_preferences_close_requested` / `WindowMsg::WindowCloseRequested`.
 
-use oxide_app::app::{Message, PreferencesMsg, Oxide, WindowMsg};
+use oxide_app::app::{Message, Oxide, PreferencesMsg, WindowMsg};
 use oxide_app::preferences::PrefMsg;
 use oxide_types::theme::{CustomThemeFile, ThemeId, canvas_colors, theme_tokens};
 

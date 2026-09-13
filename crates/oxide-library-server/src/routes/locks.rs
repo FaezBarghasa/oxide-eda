@@ -14,9 +14,9 @@ use axum::{
     response::IntoResponse,
     routing::post,
 };
-use serde::{Deserialize, Serialize};
 use oxide_library::adapter::FieldSet;
 use oxide_library::identity::RowId;
+use serde::{Deserialize, Serialize};
 
 use crate::db::AppState;
 use crate::locks::LockErrorKind;

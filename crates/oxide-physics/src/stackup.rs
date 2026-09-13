@@ -3,9 +3,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::material::MaterialProperties;
-use crate::units::{
-    COPPER_1OZ_MICRONS, COPPER_2OZ_MICRONS, COPPER_HALF_OZ_MICRONS, Microns,
-};
+use crate::units::{COPPER_1OZ_MICRONS, COPPER_2OZ_MICRONS, COPPER_HALF_OZ_MICRONS, Microns};
 
 /// Type and functional role of a layer in the physical PCB stackup.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -189,7 +187,13 @@ impl LayerStackup {
         self.layers
             .iter()
             .enumerate()
-            .filter_map(|(idx, l)| if l.layer_type.is_copper() { Some(idx) } else { None })
+            .filter_map(|(idx, l)| {
+                if l.layer_type.is_copper() {
+                    Some(idx)
+                } else {
+                    None
+                }
+            })
             .collect()
     }
 
@@ -269,11 +273,7 @@ impl LayerStackup {
     }
 
     /// Get the effective relative permittivity (Dk) of the dielectric between two layers.
-    pub fn get_effective_er_between(
-        &self,
-        layer_a_idx: usize,
-        layer_b_idx: usize,
-    ) -> Option<f64> {
+    pub fn get_effective_er_between(&self, layer_a_idx: usize, layer_b_idx: usize) -> Option<f64> {
         if layer_a_idx >= self.layers.len() || layer_b_idx >= self.layers.len() {
             return None;
         }

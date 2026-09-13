@@ -79,10 +79,7 @@ pub(super) fn constrain_segments(
     start: oxide_types::schematic::Point,
     end: oxide_types::schematic::Point,
     mode: DrawMode,
-) -> Vec<(
-    oxide_types::schematic::Point,
-    oxide_types::schematic::Point,
-)> {
+) -> Vec<(oxide_types::schematic::Point, oxide_types::schematic::Point)> {
     use oxide_types::schematic::Point;
 
     let dx = end.x - start.x;

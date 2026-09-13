@@ -6,10 +6,10 @@ pub mod material;
 pub mod stackup;
 pub mod units;
 
-pub use hdi::{check_hdi_rules, HdiError, ViaDefinition, ViaType};
+pub use hdi::{HdiError, ViaDefinition, ViaType, check_hdi_rules};
 pub use impedance::ImpedanceCalculator;
 pub use material::MaterialProperties;
 pub use stackup::{CopperWeight, LayerDefinition, LayerStackup, LayerType};
 pub use units::{
-    microns_to_mils, microns_to_mm, mils_to_microns, mm_to_microns, Microns, Nanometers,
+    Microns, Nanometers, microns_to_mils, microns_to_mm, mils_to_microns, mm_to_microns,
 };

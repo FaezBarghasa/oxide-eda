@@ -4,7 +4,6 @@
 //! This module was written without reference to GPL-licensed software.
 //! Sources: IPC-2612-1, IEEE 315, IEC 60617, wgpu/WGSL public docs.
 
-use serde::Deserialize;
 use oxide_gfx::debug_pass::{
     CompositeStage, run_arc_smoke_pass, run_grid_overlay_text_composite_smoke_pass,
     run_grid_smoke_pass, run_line_circle_smoke_pass, run_polygon_smoke_pass,
@@ -19,6 +18,7 @@ use oxide_gfx::scene::{
     DirtyFlags, Scene, SceneUploadTarget, TextUploadParams, UploadCounters, UploadCulling,
     ViewportAabbMm, apply_dirty_uploads, apply_dirty_uploads_with_culling,
 };
+use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 struct GoldenBaseline {

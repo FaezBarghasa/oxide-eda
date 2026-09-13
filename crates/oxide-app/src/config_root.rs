@@ -48,9 +48,7 @@ pub(crate) fn is_test_redirect_active() -> bool {
 /// in #440.
 pub fn config_root() -> Option<PathBuf> {
     if is_test_redirect_active() {
-        return Some(
-            std::env::temp_dir().join(format!("oxide-test-prefs-{}", std::process::id())),
-        );
+        return Some(std::env::temp_dir().join(format!("oxide-test-prefs-{}", std::process::id())));
     }
     dirs::config_dir().map(|dir| config_root_for_dir(&dir))
 }

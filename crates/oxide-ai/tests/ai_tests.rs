@@ -1,19 +1,26 @@
 use oxide_ai::{
-    generate_circuit_generation_prompt, validate_and_enrich, CircuitIntent, ComponentRequest,
-    Distributor, StandardCatalogService, ValidationError,
+    CircuitIntent, ComponentRequest, Distributor, StandardCatalogService, ValidationError,
+    generate_circuit_generation_prompt, validate_and_enrich,
 };
 
 #[test]
 fn test_json_intent_serialization() {
-    let mut intent = CircuitIntent::new(
-        "Create an ESP32-S3 circuit with USB-C and a TP4056 LiPo charger",
-    );
+    let mut intent =
+        CircuitIntent::new("Create an ESP32-S3 circuit with USB-C and a TP4056 LiPo charger");
     intent.add_component(ComponentRequest::new("ESP32-S3 Microcontroller", "U"));
     intent.add_component(ComponentRequest::new("TP4056 LiPo Charger", "U"));
     intent.add_component(ComponentRequest::new("USB-C Receptacle", "J"));
 
-    intent.add_connection("VBUS", ("USB-C Receptacle", "VBUS"), ("TP4056 LiPo Charger", "VIN"));
-    intent.add_connection("GND", ("USB-C Receptacle", "GND"), ("TP4056 LiPo Charger", "GND"));
+    intent.add_connection(
+        "VBUS",
+        ("USB-C Receptacle", "VBUS"),
+        ("TP4056 LiPo Charger", "VIN"),
+    );
+    intent.add_connection(
+        "GND",
+        ("USB-C Receptacle", "GND"),
+        ("TP4056 LiPo Charger", "GND"),
+    );
 
     // Serialize to JSON and parse back
     let json_str = serde_json::to_string_pretty(&intent).expect("Serialization failed");

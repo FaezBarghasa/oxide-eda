@@ -37,11 +37,7 @@ pub(super) fn content_appearance<'a>(v: PrefsView<'a>) -> Element<'a, PrefMsg> {
 
     // Built-in theme data: (id, display name, description)
     let builtins: &[(ThemeId, &str, &str)] = &[
-        (
-            ThemeId::Oxide,
-            "Oxide",
-            "Default Oxide schematic palette",
-        ),
+        (ThemeId::Oxide, "Oxide", "Default Oxide schematic palette"),
         (
             ThemeId::Alplab,
             "Alp Lab",

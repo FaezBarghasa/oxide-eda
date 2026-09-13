@@ -39,9 +39,9 @@ impl Oxide {
                 .unwrap_or("A4");
             let page_size = PageSize::from_standard_str(paper_str);
             let orientation = PageSize::default_orientation_for_standard(paper_str);
-            let palette = oxide_output::SchematicPalette::from(
-                &oxide_types::theme::canvas_colors(self.ui_state.theme_id),
-            );
+            let palette = oxide_output::SchematicPalette::from(&oxide_types::theme::canvas_colors(
+                self.ui_state.theme_id,
+            ));
             PdfOptions {
                 page_size,
                 orientation,

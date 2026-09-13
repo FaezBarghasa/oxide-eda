@@ -15,7 +15,7 @@
 //! prefs path guarded by another module's `Mutex`, and the regression
 //! tests are one binary with no lock shared across modules.
 
-use oxide_app::app::{Message, PreferencesMsg, Oxide, UiMsg};
+use oxide_app::app::{Message, Oxide, PreferencesMsg, UiMsg};
 use oxide_app::preferences::PrefMsg;
 use oxide_app::render_config::GridStyle;
 

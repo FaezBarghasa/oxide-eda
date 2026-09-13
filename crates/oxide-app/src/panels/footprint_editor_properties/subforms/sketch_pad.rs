@@ -44,8 +44,9 @@ pub(in crate::panels::footprint_editor_properties) fn render_sketch_pad_subform<
         "Electrical Type",
         oxide_sketch::attr::ElectricalType::ALL,
         p.electrical_type,
-        move |v: oxide_sketch::attr::ElectricalType| {
-            PanelMsg::FpEditorSetSketchPadElectricalType { id, value: v }
+        move |v: oxide_sketch::attr::ElectricalType| PanelMsg::FpEditorSetSketchPadElectricalType {
+            id,
+            value: v,
         },
         muted,
     ));

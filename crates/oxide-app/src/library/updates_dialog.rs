@@ -166,8 +166,7 @@ impl LibraryUpdatesState {
     /// by `ref_des` and applies the `bump_kind.default_checked()`
     /// rule to each entry's checkbox.
     pub fn new(schematic_path: PathBuf, mut entries: Vec<LibraryUpdateEntry>) -> Self {
-        entries
-            .sort_by(|a, b| oxide_types::designator::compare_references(&a.ref_des, &b.ref_des));
+        entries.sort_by(|a, b| oxide_types::designator::compare_references(&a.ref_des, &b.ref_des));
         for entry in &mut entries {
             entry.selected = entry.bump_kind.default_checked();
         }

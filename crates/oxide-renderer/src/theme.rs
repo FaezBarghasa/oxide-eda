@@ -4,9 +4,9 @@
 //! This module was written without reference to GPL-licensed software.
 //! Sources: IPC-2612-1, IEEE 315, IEC 60617, wgpu/WGSL public docs.
 
-use serde::Deserialize;
 use oxide_gfx::style::ColorSlot;
 use oxide_types::theme::{CanvasColors, Color, ThemeId, canvas_colors};
+use serde::Deserialize;
 use std::sync::OnceLock;
 
 #[derive(Clone, Debug, PartialEq)]

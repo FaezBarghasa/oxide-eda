@@ -114,9 +114,7 @@ pub fn bake_v_scores(
     Ok(())
 }
 
-fn map_side(
-    s: oxide_sketch::attr::VScoreSide,
-) -> oxide_library::primitive::footprint::VScoreSide {
+fn map_side(s: oxide_sketch::attr::VScoreSide) -> oxide_library::primitive::footprint::VScoreSide {
     use oxide_library::primitive::footprint::VScoreSide as Lib;
     use oxide_sketch::attr::VScoreSide as Sk;
     match s {

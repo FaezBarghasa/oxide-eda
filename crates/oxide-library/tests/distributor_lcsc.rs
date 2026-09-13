@@ -4,9 +4,9 @@
 
 use std::future::Future;
 
-use serde_json::json;
 use oxide_library::distributor::{DistributorAdapter, DistributorSource};
 use oxide_library::distributors::lcsc::LcscAdapter;
+use serde_json::json;
 use wiremock::matchers::{method, path, query_param};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 

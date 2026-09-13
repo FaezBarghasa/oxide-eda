@@ -84,7 +84,7 @@ impl HighSpeedRule {
         Self {
             net_class: net_class.into(),
             impedance_target,
-            length_tolerance: 50,     // 50 µm (~2 mil)
+            length_tolerance: 50,      // 50 µm (~2 mil)
             max_uncoupled_length: 500, // 500 µm (~20 mil)
         }
     }

@@ -20,9 +20,9 @@
 
 use std::future::Future;
 
-use serde_json::json;
 use oxide_library::distributor::DistributorAdapter;
 use oxide_library::distributors::mouser::MouserAdapter;
+use serde_json::json;
 use wiremock::matchers::{header, method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 

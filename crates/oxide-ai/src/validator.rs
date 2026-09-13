@@ -34,27 +34,27 @@ impl StandardCatalogService {
     pub fn new() -> Self {
         let mut svc = Self { parts: Vec::new() };
         // Seed common maker and professional ICs
-        svc.register("ESP32-S3", "ESP32-S3-WROOM-1-N8R8", Distributor::Lcsc, 14200);
+        svc.register(
+            "ESP32-S3",
+            "ESP32-S3-WROOM-1-N8R8",
+            Distributor::Lcsc,
+            14200,
+        );
         svc.register("TP4056", "TP4056-42-ESOP8", Distributor::Lcsc, 85000);
         svc.register("BMP280", "BMP280", Distributor::DigiKey, 4300);
         svc.register("USB-C", "TYPE-C-16PIN-SMD", Distributor::Lcsc, 120000);
-        svc.register("AMS1117-3.3", "AMS1117-3.3V-SOT-223", Distributor::Lcsc, 250000);
+        svc.register(
+            "AMS1117-3.3",
+            "AMS1117-3.3V-SOT-223",
+            Distributor::Lcsc,
+            250000,
+        );
         svc
     }
 
-    pub fn register(
-        &mut self,
-        keyword: &str,
-        mpn: &str,
-        distributor: Distributor,
-        stock: u64,
-    ) {
-        self.parts.push((
-            keyword.to_lowercase(),
-            mpn.to_string(),
-            distributor,
-            stock,
-        ));
+    pub fn register(&mut self, keyword: &str, mpn: &str, distributor: Distributor, stock: u64) {
+        self.parts
+            .push((keyword.to_lowercase(), mpn.to_string(), distributor, stock));
     }
 }
 

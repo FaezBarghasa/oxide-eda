@@ -4,7 +4,9 @@ use serde::{Deserialize, Serialize};
 
 use oxide_physics::Microns;
 
-use crate::rules::{ClearanceRule, DesignRule, HighSpeedRule, ViaStyleRule, WidthRule};
+use crate::rules::{
+    ClearanceRule, DesignRule, HighSpeedRule, PolygonConnectRule, ViaStyleRule, WidthRule,
+};
 use crate::scope::RuleScope;
 use crate::violation::RuleViolation;
 
@@ -104,6 +106,7 @@ impl ConstraintManager {
     }
 
     /// Validate that a routed trace width conforms to the hierarchical width rule.
+    #[allow(clippy::result_large_err)]
     pub fn validate_trace_width(
         &self,
         net: &str,
@@ -111,20 +114,21 @@ impl ConstraintManager {
         room: Option<&str>,
         actual_width: Microns,
     ) -> Result<(), RuleViolation> {
-        if let Some(rule) = self.resolve_width_rule(net, net_class, room) {
-            if actual_width < rule.min_width {
-                return Err(RuleViolation::width_too_small(
-                    net,
-                    rule.scope.clone(),
-                    rule.min_width,
-                    actual_width,
-                ));
-            }
+        if let Some(rule) = self.resolve_width_rule(net, net_class, room)
+            && actual_width < rule.min_width
+        {
+            return Err(RuleViolation::width_too_small(
+                net,
+                rule.scope.clone(),
+                rule.min_width,
+                actual_width,
+            ));
         }
         Ok(())
     }
 
     /// Validate electrical clearance distance between two nets or objects.
+    #[allow(clippy::result_large_err)]
     pub fn validate_clearance(
         &self,
         net_a: &str,
@@ -163,4 +167,95 @@ impl ConstraintManager {
 
         Ok(())
     }
+
+    /// Resolve the most specific [`ViaStyleRule`] for a given net, net class, and room.
+    pub fn resolve_via_style_rule(
+        &self,
+        net: &str,
+        net_class: Option<&str>,
+        room: Option<&str>,
+    ) -> Option<&ViaStyleRule> {
+        let mut candidates: Vec<&ViaStyleRule> = self
+            .rules
+            .iter()
+            .filter_map(|r| match r {
+                DesignRule::ViaStyle(v) if v.scope.matches(net, net_class, room) => Some(v),
+                _ => None,
+            })
+            .collect();
+
+        candidates.sort_by_key(|v| std::cmp::Reverse(v.scope.specificity()));
+        candidates.first().copied()
+    }
+
+    /// Resolve the most specific [`PolygonConnectRule`] for a given net, net class, and room.
+    pub fn resolve_polygon_connect_rule(
+        &self,
+        net: &str,
+        net_class: Option<&str>,
+        room: Option<&str>,
+    ) -> Option<&PolygonConnectRule> {
+        let mut candidates: Vec<&PolygonConnectRule> = self
+            .rules
+            .iter()
+            .filter_map(|r| match r {
+                DesignRule::PolygonConnect(p) if p.scope.matches(net, net_class, room) => Some(p),
+                _ => None,
+            })
+            .collect();
+
+        candidates.sort_by_key(|p| std::cmp::Reverse(p.scope.specificity()));
+        candidates.first().copied()
+    }
+
+    /// Parse constraints from a TOML configuration string.
+    pub fn from_toml_str(toml_content: &str) -> Result<Self, toml::de::Error> {
+        let config: RuleConfigFile = toml::from_str(toml_content)?;
+        Ok(Self {
+            rules: config.rules,
+        })
+    }
+
+    /// Serialize constraints to a formatted TOML string.
+    pub fn to_toml_string(&self) -> Result<String, toml::ser::Error> {
+        let config = RuleConfigFile {
+            version: default_version(),
+            profile_name: Some("Oxide-Rules-Export".to_string()),
+            rules: self.rules.clone(),
+        };
+        toml::to_string_pretty(&config)
+    }
+
+    /// Load constraints from a `rules.toml` file on disk.
+    pub fn from_file<P: AsRef<std::path::Path>>(
+        path: P,
+    ) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
+        let content = std::fs::read_to_string(path)?;
+        let cm = Self::from_toml_str(&content)?;
+        Ok(cm)
+    }
+
+    /// Save constraints to a `rules.toml` file on disk.
+    pub fn save_to_file<P: AsRef<std::path::Path>>(
+        &self,
+        path: P,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        let content = self.to_toml_string()?;
+        std::fs::write(path, content)?;
+        Ok(())
+    }
+}
+
+/// Top-level schema for `rules.toml` configuration files.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct RuleConfigFile {
+    #[serde(default = "default_version")]
+    pub version: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub profile_name: Option<String>,
+    pub rules: Vec<DesignRule>,
+}
+
+fn default_version() -> String {
+    "1.0".to_string()
 }

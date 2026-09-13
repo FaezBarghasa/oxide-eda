@@ -13,8 +13,8 @@ use axum::{
     response::IntoResponse,
     routing::get,
 };
-use serde::Deserialize;
 use oxide_library::primitive::Symbol;
+use serde::Deserialize;
 use uuid::Uuid;
 
 use crate::db::{AppState, PrimitiveSummary};

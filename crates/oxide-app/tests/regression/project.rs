@@ -1,9 +1,9 @@
 //! Project/document lifecycle: modals, git pipeline, exit guard, open-gating.
 
 use oxide_app::app::{
-    ContextMenuMsg, EditMsg, FileMsg, LoadedProject, Message, ProjectCloseChoice, ProjectMsg,
-    ProjectTreeAction, RemoveChoice, RemoveDialogState, RemoveMsg, RenameDialogState, RenameMsg,
-    Oxide, WindowMsg,
+    ContextMenuMsg, EditMsg, FileMsg, LoadedProject, Message, Oxide, ProjectCloseChoice,
+    ProjectMsg, ProjectTreeAction, RemoveChoice, RemoveDialogState, RemoveMsg, RenameDialogState,
+    RenameMsg, WindowMsg,
 };
 use oxide_types::project::{ProjectData, SheetEntry};
 
@@ -1017,8 +1017,8 @@ fn dismissing_the_card_clears_it() {
 /// made active, so `EditMsg::Cut` routes to
 /// `handle_selection_cut_requested` against real engine state.
 /// Returns the app plus both element UUIDs.
-fn fixture_schematic_with_symbol_and_child_sheet()
--> (oxide_app::app::Oxide, uuid::Uuid, uuid::Uuid) {
+fn fixture_schematic_with_symbol_and_child_sheet() -> (oxide_app::app::Oxide, uuid::Uuid, uuid::Uuid)
+{
     use oxide_types::schematic::{ChildSheet, FillType, Point, SchematicSheet, Symbol};
     use std::collections::HashMap;
 

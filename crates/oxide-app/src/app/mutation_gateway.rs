@@ -370,8 +370,7 @@ mod tests {
     /// answer "what sheets does this project consist of" the same way.
     fn app_with_a_child_only_on_disk() -> (Oxide, std::path::PathBuf) {
         use crate::app::handlers::menu::export::tests as fx;
-        let dir =
-            std::env::temp_dir().join(format!("oxide-gateway-disk-{}", uuid::Uuid::new_v4()));
+        let dir = std::env::temp_dir().join(format!("oxide-gateway-disk-{}", uuid::Uuid::new_v4()));
         std::fs::create_dir_all(&dir).expect("tempdir");
         let child = oxide_types::format::SnxSchematic::new(fx::sheet_with_net(
             "R_DISK",

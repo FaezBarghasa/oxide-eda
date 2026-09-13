@@ -12,7 +12,7 @@ pub mod rules;
 pub mod scope;
 pub mod violation;
 
-pub use manager::ConstraintManager;
+pub use manager::{ConstraintManager, RuleConfigFile};
 pub use oxide_physics::Microns;
 pub use rules::{
     ClearanceRule, DesignRule, HighSpeedRule, ObjectType, PolygonConnectRule, ViaStyleRule,

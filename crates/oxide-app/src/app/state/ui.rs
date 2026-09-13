@@ -284,8 +284,7 @@ pub struct UiState {
     /// (`finish_schematic_mutation`). `None` means "recompute before next use".
     pub project_netlist: Option<oxide_net::ProjectNetlist>,
     /// Per-rule severity override — if empty, the rule's default is used.
-    pub erc_severity_override:
-        std::collections::HashMap<oxide_erc::RuleKind, oxide_erc::Severity>,
+    pub erc_severity_override: std::collections::HashMap<oxide_erc::RuleKind, oxide_erc::Severity>,
     /// Net-color overrides keyed by net-label text. Superseded by the
     /// per-wire `wire_color_overrides` map below which the Active-Bar
     /// net-colour flood populates; kept here so a future net-name

@@ -60,12 +60,8 @@ impl ImpedanceCalculator {
         er: f64,
         coating_er: f64,
     ) -> f64 {
-        let base_z0 = Self::calculate_microstrip(
-            trace_width,
-            dielectric_height,
-            copper_thickness,
-            er,
-        );
+        let base_z0 =
+            Self::calculate_microstrip(trace_width, dielectric_height, copper_thickness, er);
         let h = dielectric_height as f64;
         let h1 = coating_height as f64;
 
@@ -215,10 +211,20 @@ impl ImpedanceCalculator {
             || copper_indices.last() == Some(&signal_layer_idx);
 
         if is_outer {
-            Some(Self::calculate_microstrip(trace_width, dielectric_h, copper_t, er))
+            Some(Self::calculate_microstrip(
+                trace_width,
+                dielectric_h,
+                copper_t,
+                er,
+            ))
         } else {
             // For inner layers, total dielectric plane separation is approx 2 * h
-            Some(Self::calculate_stripline(trace_width, dielectric_h * 2, copper_t, er))
+            Some(Self::calculate_stripline(
+                trace_width,
+                dielectric_h * 2,
+                copper_t,
+                er,
+            ))
         }
     }
 }

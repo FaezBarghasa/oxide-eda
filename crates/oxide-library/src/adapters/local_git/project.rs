@@ -344,9 +344,7 @@ impl LocalGitProjectAdapter {
         );
         text.push_str("# manual edits will be lost. Hand-edit only if you're not planning to\n");
         text.push_str("# re-run the modal.\n\n");
-        text.push_str(
-            "# Native Oxide formats are line-based UTF-8 — keep LF endings everywhere\n",
-        );
+        text.push_str("# Native Oxide formats are line-based UTF-8 — keep LF endings everywhere\n");
         text.push_str("# so cross-platform collaborators don't churn the diff with CRLF flips.\n");
         for ext in [
             "snxsch", "snxpcb", "snxprj", "snxmat", "snxnet", "snxbom", "snxout", "snxsym",

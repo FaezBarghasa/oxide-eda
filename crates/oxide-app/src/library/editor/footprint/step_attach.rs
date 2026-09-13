@@ -12,10 +12,10 @@ use std::path::Path;
 
 use iced::widget::{Space, button, column, container, row, text};
 use iced::{Border, Element, Length, Theme};
-use sha2::{Digest, Sha256};
 use oxide_library::{Footprint, StepAttachment};
 use oxide_types::theme::ThemeTokens;
 use oxide_widgets::theme_ext;
+use sha2::{Digest, Sha256};
 
 use crate::library::messages::{EditorMsg, LibraryMessage};
 use crate::library::state::EditorAddress;

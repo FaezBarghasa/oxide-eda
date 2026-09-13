@@ -19,10 +19,10 @@
 //! pointing at the embedded TTF bytes so the exported PDFs render in the
 //! intended Roboto/Iosevka typeface.
 
-use pdf_writer::{Finish, Name, Pdf, Rect, Ref};
 use oxide_types::markup::{
     ExpressionEvalContext, RichSegment, evaluate_expressions, parse_oxide_markup,
 };
+use pdf_writer::{Finish, Name, Pdf, Rect, Ref};
 use thiserror::Error;
 
 use crate::expression::{ExpressionTables, build_expression_tables, sheet_cell_value};

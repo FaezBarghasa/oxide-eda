@@ -18,7 +18,7 @@
 //! and `handle_reset_duplicate_designators` on the active engine.
 
 use oxide_app::app::{
-    AnnotateMsg, Message, MoveSelectionMsg, ParameterManagerMsg, Oxide, WindowMsg,
+    AnnotateMsg, Message, MoveSelectionMsg, Oxide, ParameterManagerMsg, WindowMsg,
 };
 use oxide_app::menu_bar::MenuMessage;
 use oxide_types::schematic::{Point, SchematicSheet, SelectedItem, SelectedKind, Symbol};

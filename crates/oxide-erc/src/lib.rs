@@ -16,8 +16,8 @@
 //!
 //! ERC reads from `oxide_types::SchematicSheet` directly.
 
-use serde::{Deserialize, Serialize};
 use oxide_types::schematic::{Point, SchematicSheet, SelectedItem, SelectedKind};
+use serde::{Deserialize, Serialize};
 
 pub mod context;
 pub mod diagnostic;

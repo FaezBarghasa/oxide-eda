@@ -676,8 +676,8 @@ fn point_in_polygon(point: (f64, f64), polygon: &[(f64, f64)]) -> bool {
 fn stroke_px_at_zoom(base_width_px_at_100: f32, scale: f32) -> f32 {
     let zoom_factor = (scale / oxide_types::schematic::SCHEMATIC_ZOOM_100_SCALE).max(0.0);
     let scaled = base_width_px_at_100 * zoom_factor;
-    let max_stroke = base_width_px_at_100
-        * oxide_types::schematic::SCHEMATIC_RENDER_STROKE_MAX_SCALE_MULTIPLIER;
+    let max_stroke =
+        base_width_px_at_100 * oxide_types::schematic::SCHEMATIC_RENDER_STROKE_MAX_SCALE_MULTIPLIER;
     scaled.clamp(
         oxide_types::schematic::SCHEMATIC_RENDER_MIN_STROKE_PX,
         max_stroke,

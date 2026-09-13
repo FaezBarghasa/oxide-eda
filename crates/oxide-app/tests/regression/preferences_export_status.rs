@@ -12,7 +12,7 @@
 //! tests drive the completion messages the async task now emits, which
 //! is where the reporting lives.
 
-use oxide_app::app::{Message, PreferencesMsg, Oxide};
+use oxide_app::app::{Message, Oxide, PreferencesMsg};
 use oxide_app::preferences::PrefMsg;
 use std::path::PathBuf;
 

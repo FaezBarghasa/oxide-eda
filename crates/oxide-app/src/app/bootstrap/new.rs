@@ -243,8 +243,7 @@ impl Oxide {
                 tab_dragging: None,
                 main_window_id: None,
                 windows: std::collections::HashMap::new(),
-                passive_calculator: oxide_widgets::passive_calculator::CalculatorControl::default(
-                ),
+                passive_calculator: oxide_widgets::passive_calculator::CalculatorControl::default(),
                 passive_calculator_open: false,
                 move_selection: crate::app::state::MoveSelectionState::default(),
                 net_color_palette_open: false,

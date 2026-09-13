@@ -211,10 +211,7 @@ fn temp_prefs_path() -> (TempDir, PathBuf) {
 fn prefs_theme_round_trip_through_json() {
     let (_tmp, path) = temp_prefs_path();
     // Default when missing.
-    assert_eq!(
-        oxide_app::fonts::read_theme_pref_at(&path),
-        ThemeId::Oxide
-    );
+    assert_eq!(oxide_app::fonts::read_theme_pref_at(&path), ThemeId::Oxide);
 
     // Each builtin theme survives a write→read cycle.
     for &theme in ThemeId::BUILTINS {
@@ -294,10 +291,7 @@ fn prefs_writes_dont_clobber_neighboring_keys() {
     // Write a different key — neighbouring values must survive.
     oxide_app::fonts::write_snap_enabled_pref_at(&path, false);
 
-    assert_eq!(
-        oxide_app::fonts::read_theme_pref_at(&path),
-        ThemeId::Oxide
-    );
+    assert_eq!(oxide_app::fonts::read_theme_pref_at(&path), ThemeId::Oxide);
     assert_eq!(oxide_app::fonts::read_unit_pref_at(&path), Unit::Mil);
     assert!(!oxide_app::fonts::read_grid_visible_pref_at(&path));
     assert!(!oxide_app::fonts::read_snap_enabled_pref_at(&path));
@@ -310,10 +304,7 @@ fn prefs_garbage_json_falls_back_to_defaults() {
     fs::write(&path, b"{ broken json content").unwrap();
 
     // Each read returns its default rather than panicking on parse error.
-    assert_eq!(
-        oxide_app::fonts::read_theme_pref_at(&path),
-        ThemeId::Oxide
-    );
+    assert_eq!(oxide_app::fonts::read_theme_pref_at(&path), ThemeId::Oxide);
     assert_eq!(oxide_app::fonts::read_unit_pref_at(&path), Unit::Mm);
     assert!(oxide_app::fonts::read_grid_visible_pref_at(&path));
     assert!(oxide_app::fonts::read_snap_enabled_pref_at(&path));
@@ -458,10 +449,7 @@ fn prefs_cross_pref_independence() {
     oxide_app::fonts::write_snap_enabled_pref_at(&path, false);
 
     // Read everything back — none should have been clobbered.
-    assert_eq!(
-        oxide_app::fonts::read_theme_pref_at(&path),
-        ThemeId::Oxide
-    );
+    assert_eq!(oxide_app::fonts::read_theme_pref_at(&path), ThemeId::Oxide);
     assert!((oxide_app::fonts::read_grid_size_mm_pref_at(&path).unwrap() - 2.54).abs() < 1e-5);
     assert_eq!(oxide_app::fonts::read_unit_pref_at(&path), Unit::Mil);
     assert!(!oxide_app::fonts::read_grid_visible_pref_at(&path));

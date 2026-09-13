@@ -1,6 +1,6 @@
 use oxide_physics::{
-    check_hdi_rules, HdiError, ImpedanceCalculator, LayerStackup, MaterialProperties, ViaDefinition,
-    ViaType,
+    HdiError, ImpedanceCalculator, LayerStackup, MaterialProperties, ViaDefinition, ViaType,
+    check_hdi_rules,
 };
 
 #[test]

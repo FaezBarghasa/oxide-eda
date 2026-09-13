@@ -10,5 +10,5 @@ pub mod validator;
 pub use intent::{CircuitIntent, ComponentRequest, ConnectionIntent, Distributor};
 pub use prompt::generate_circuit_generation_prompt;
 pub use validator::{
-    validate_and_enrich, PartLookupService, StandardCatalogService, ValidationError,
+    PartLookupService, StandardCatalogService, ValidationError, validate_and_enrich,
 };

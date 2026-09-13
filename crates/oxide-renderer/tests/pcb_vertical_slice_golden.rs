@@ -1,12 +1,12 @@
 //! Deterministic fixture and golden checks for Milestone B vertical slice 01.
 
-use serde::Deserialize;
 use oxide_gfx::scene::{DirtyFlags, Scene};
 use oxide_renderer::pcb::{DrcMarkerInput, PcbRenderer, PcbSnapshot, RatsnestInput};
 use oxide_renderer::schematic::ViewRenderer;
 use oxide_renderer::theme::ResolvedTheme;
 use oxide_types::pcb::PcbBoard;
 use oxide_types::violation::Severity;
+use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 struct PcbVerticalSliceGolden {

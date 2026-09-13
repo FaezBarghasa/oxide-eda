@@ -49,10 +49,10 @@ pub(super) fn commit_measurement(state: &mut ComponentPreviewState, name: String
     if let Some(buf) = state.params_edit_buf.get(&name).cloned()
         && let Ok(value) = buf.trim().parse::<f64>()
     {
-        state.row.parameters.insert(
-            name,
-            oxide_library::ParamValue::Measurement { value, unit },
-        );
+        state
+            .row
+            .parameters
+            .insert(name, oxide_library::ParamValue::Measurement { value, unit });
         state.dirty = true;
     }
 }

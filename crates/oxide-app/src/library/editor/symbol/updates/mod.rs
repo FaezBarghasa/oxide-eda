@@ -118,11 +118,7 @@ pub(super) fn close_pickers(editor: &mut SymEditor) {
 }
 
 /// Push a graphic onto the symbol, recording an undo snapshot first.
-fn push_graphic(
-    editor: &mut SymEditor,
-    kind: oxide_library::SymbolGraphicKind,
-    stroke_width: f64,
-) {
+fn push_graphic(editor: &mut SymEditor, kind: oxide_library::SymbolGraphicKind, stroke_width: f64) {
     push_undo(editor);
     // Phase C2: new shapes scope to the active unit so they only draw
     // on that sub-part, mirroring the render/hit-test visibility filter.

@@ -428,8 +428,7 @@ pub(super) fn build_renderer_snapshot(
                 position: [label.position.x as f32, label.position.y as f32],
                 size_mm: label
                     .font_size
-                    .max(oxide_types::schematic::SCHEMATIC_TEXT_MM)
-                    as f32,
+                    .max(oxide_types::schematic::SCHEMATIC_TEXT_MM) as f32,
                 color: to_rgba(color),
                 bold: false,
                 italic: false,
@@ -443,8 +442,7 @@ pub(super) fn build_renderer_snapshot(
                 position: [label.position.x as f32, label.position.y as f32],
                 size_mm: label
                     .font_size
-                    .max(oxide_types::schematic::SCHEMATIC_TEXT_MM)
-                    as f32,
+                    .max(oxide_types::schematic::SCHEMATIC_TEXT_MM) as f32,
                 color: to_rgba(color),
                 bold: false,
                 italic: false,

@@ -68,14 +68,18 @@ impl ViaDefinition {
 /// Violations resulting from invalid via geometry or impossible layer spans.
 #[derive(Debug, Clone, PartialEq, Error)]
 pub enum HdiError {
-    #[error("Via layer index out of bounds: start layer {start} or end layer {end} exceeds stackup size {total_layers}")]
+    #[error(
+        "Via layer index out of bounds: start layer {start} or end layer {end} exceeds stackup size {total_layers}"
+    )]
     LayerOutOfBounds {
         start: usize,
         end: usize,
         total_layers: usize,
     },
 
-    #[error("Via must start and end on conductive copper layers: start {start} (type {start_type:?}), end {end} (type {end_type:?})")]
+    #[error(
+        "Via must start and end on conductive copper layers: start {start} (type {start_type:?}), end {end} (type {end_type:?})"
+    )]
     NonCopperEndpoint {
         start: usize,
         end: usize,
@@ -86,7 +90,9 @@ pub enum HdiError {
     #[error("Via start layer {start} and end layer {end} must be different")]
     ZeroLengthSpan { start: usize, end: usize },
 
-    #[error("Blind via must start or end on an outer copper layer (L{outer_first} or L{outer_last}), but spans L{start}-L{end}")]
+    #[error(
+        "Blind via must start or end on an outer copper layer (L{outer_first} or L{outer_last}), but spans L{start}-L{end}"
+    )]
     BlindViaNotOnOuterSurface {
         start: usize,
         end: usize,
@@ -94,7 +100,9 @@ pub enum HdiError {
         outer_last: usize,
     },
 
-    #[error("Buried via must NOT touch outer surface layers (L{outer_first} or L{outer_last}), but spans L{start}-L{end}")]
+    #[error(
+        "Buried via must NOT touch outer surface layers (L{outer_first} or L{outer_last}), but spans L{start}-L{end}"
+    )]
     BuriedViaTouchesOuterSurface {
         start: usize,
         end: usize,
@@ -102,14 +110,18 @@ pub enum HdiError {
         outer_last: usize,
     },
 
-    #[error("Microvia aspect ratio (depth/diameter = {depth_microns}µm/{diameter_microns}µm = {aspect_ratio:.2}) exceeds maximum manufacturable limit (1.0)")]
+    #[error(
+        "Microvia aspect ratio (depth/diameter = {depth_microns}µm/{diameter_microns}µm = {aspect_ratio:.2}) exceeds maximum manufacturable limit (1.0)"
+    )]
     MicroviaAspectRatioExceeded {
         depth_microns: Microns,
         diameter_microns: Microns,
         aspect_ratio: f64,
     },
 
-    #[error("Laser microvia spans {span} copper layers; standard microvias can only span 1 layer (adjacent layers) or 2 (skip-via)")]
+    #[error(
+        "Laser microvia spans {span} copper layers; standard microvias can only span 1 layer (adjacent layers) or 2 (skip-via)"
+    )]
     MicroviaSpanTooLarge { span: usize },
 }
 

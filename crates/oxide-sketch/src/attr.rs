@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use oxide_types::layer::OxideLayer;
+use serde::{Deserialize, Serialize};
 
 use crate::id::SketchEntityId;
 

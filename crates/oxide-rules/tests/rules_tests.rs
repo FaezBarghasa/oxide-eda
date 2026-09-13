@@ -10,11 +10,17 @@ fn test_trace_width_violation_0_10mm_violates_0_15mm_min_rule() {
 
     // 2. Validate a valid 0.20mm (200 µm) trace -> PASS
     let valid_result = cm.validate_trace_width("NET_SIG1", None, None, 200);
-    assert!(valid_result.is_ok(), "200µm trace should satisfy 150µm min rule");
+    assert!(
+        valid_result.is_ok(),
+        "200µm trace should satisfy 150µm min rule"
+    );
 
     // 3. Validate a 0.10mm (100 µm) trace -> FAIL with exact violation details
     let invalid_result = cm.validate_trace_width("NET_SIG1", None, None, 100);
-    assert!(invalid_result.is_err(), "100µm trace must violate 150µm min rule");
+    assert!(
+        invalid_result.is_err(),
+        "100µm trace must violate 150µm min rule"
+    );
 
     let violation = invalid_result.unwrap_err();
     assert_eq!(violation.violation_type, RuleViolationType::WidthTooSmall);
@@ -85,7 +91,10 @@ fn test_hierarchical_net_specific_override() {
     assert_eq!(err.actual_value, "0.600mm");
 
     // 1200 µm passes VBUS
-    assert!(cm.validate_trace_width("VBUS", Some("Power"), None, 1200).is_ok());
+    assert!(
+        cm.validate_trace_width("VBUS", Some("Power"), None, 1200)
+            .is_ok()
+    );
 }
 
 #[test]
@@ -99,14 +108,16 @@ fn test_clearance_matrix_evaluation() {
     )));
 
     // Normal signal to signal at 200 µm distance -> PASS (> 150 µm global)
-    assert!(cm
-        .validate_clearance("SIG_A", None, "SIG_B", None, None, 200)
-        .is_ok());
+    assert!(
+        cm.validate_clearance("SIG_A", None, "SIG_B", None, None, 200)
+            .is_ok()
+    );
 
     // Normal signal to signal at 100 µm distance -> FAIL (< 150 µm global)
-    assert!(cm
-        .validate_clearance("SIG_A", None, "SIG_B", None, None, 100)
-        .is_err());
+    assert!(
+        cm.validate_clearance("SIG_A", None, "SIG_B", None, None, 100)
+            .is_err()
+    );
 
     // HV net to GND at 1000 µm (1.0mm) -> FAIL (< 2000 µm HV rule)
     let hv_res = cm.validate_clearance("MAINS_L", Some("HV_Mains"), "GND", None, None, 1000);
@@ -129,4 +140,123 @@ fn test_high_speed_differential_rule_lookup() {
         .expect("USB90 rule should exist");
     assert_eq!(rule.impedance_target, 90.0);
     assert_eq!(rule.length_tolerance, 50); // 50 µm
+}
+
+#[test]
+fn test_toml_schema_deserialization_and_evaluation() {
+    let toml_doc = r#"
+version = "1.0"
+profile_name = "IPC-2221-Class2-4Layer-Standard"
+
+[[rules]]
+rule_type = "clearance"
+scope = { type = "global" }
+min_distance = 150
+object_types = ["track", "via", "pad", "polygon"]
+
+[[rules]]
+rule_type = "clearance"
+scope = { type = "net_class", name = "POWER_48V" }
+min_distance = 800
+object_types = ["track", "via", "pad", "polygon", "hole"]
+
+[[rules]]
+rule_type = "width"
+scope = { type = "global" }
+min_width = 150
+preferred_width = 200
+max_width = 500
+
+[[rules]]
+rule_type = "width"
+scope = { type = "net_class", name = "POWER_RAILS" }
+min_width = 500
+preferred_width = 1000
+max_width = 3000
+
+[[rules]]
+rule_type = "high_speed"
+net_class = "DIFF_USB2_90R"
+impedance_target = 90.0
+length_tolerance = 50
+max_uncoupled_length = 500
+
+[[rules]]
+rule_type = "via_style"
+scope = { type = "global" }
+min_drill = 300
+min_diameter = 600
+preferred_drill = 300
+preferred_diameter = 600
+
+[[rules]]
+rule_type = "polygon_connect"
+scope = { type = "global" }
+direct_connect = false
+spoke_count = 4
+min_spoke_width = 250
+air_gap = 200
+"#;
+
+    let cm = ConstraintManager::from_toml_str(toml_doc).expect("Failed to parse TOML");
+    assert_eq!(cm.rules.len(), 7);
+
+    // Test clearance validation
+    assert!(
+        cm.validate_clearance("SIG1", None, "SIG2", None, None, 180)
+            .is_ok()
+    );
+    assert!(
+        cm.validate_clearance("SIG1", None, "SIG2", None, None, 120)
+            .is_err()
+    );
+    assert!(
+        cm.validate_clearance("V_IN", Some("POWER_48V"), "GND", None, None, 500)
+            .is_err()
+    );
+    assert!(
+        cm.validate_clearance("V_IN", Some("POWER_48V"), "GND", None, None, 900)
+            .is_ok()
+    );
+
+    // Test width validation
+    assert!(cm.validate_trace_width("SIG1", None, None, 200).is_ok());
+    assert!(
+        cm.validate_trace_width("+12V", Some("POWER_RAILS"), None, 400)
+            .is_err()
+    );
+    assert!(
+        cm.validate_trace_width("+12V", Some("POWER_RAILS"), None, 600)
+            .is_ok()
+    );
+
+    // Test high speed rule resolution
+    let hs = cm
+        .resolve_high_speed_rule("DIFF_USB2_90R")
+        .expect("DIFF_USB2_90R rule should exist");
+    assert_eq!(hs.impedance_target, 90.0);
+
+    // Test via style and polygon connect resolution
+    let via = cm
+        .resolve_via_style_rule("NET1", None, None)
+        .expect("Via rule should exist");
+    assert_eq!(via.min_drill, 300);
+
+    let poly = cm
+        .resolve_polygon_connect_rule("GND", None, None)
+        .expect("Poly connect rule should exist");
+    assert_eq!(poly.spoke_count, 4);
+}
+
+#[test]
+fn test_toml_roundtrip_serialization() {
+    let cm = ConstraintManager::standard_default();
+    let toml_str = cm.to_toml_string().expect("Failed to serialize to TOML");
+    assert!(toml_str.contains("rule_type = \"width\""));
+    assert!(toml_str.contains("rule_type = \"clearance\""));
+    assert!(toml_str.contains("rule_type = \"via_style\""));
+
+    let deserialized =
+        ConstraintManager::from_toml_str(&toml_str).expect("Failed to deserialize from TOML");
+    assert_eq!(deserialized.rules.len(), cm.rules.len());
 }

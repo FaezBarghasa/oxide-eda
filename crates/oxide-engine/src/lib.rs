@@ -21,9 +21,9 @@ pub use command::{
 };
 pub use error::EngineError;
 use history::HistoryEntry;
+use oxide_types::schematic::SchematicSheet;
 pub use patch::{CommandResult, DocumentPatch, PatchPair, SemanticPatch};
 pub use selection::{ClipboardSelection, SelectionAnchor, SelectionDetails, partition_cuttable};
-use oxide_types::schematic::SchematicSheet;
 
 const JUNCTION_TOLERANCE_MM: f64 = 0.01;
 

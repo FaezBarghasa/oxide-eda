@@ -2,13 +2,13 @@
 
 use std::sync::Arc;
 
-use regex::Regex;
 use oxide_erc::engine::EvalFn;
 use oxide_erc::{
     AnalysisScope, Applicability, Diagnostic, ErcContext, RuleDefinition, RuleId, RuleKind,
     RuleTarget, Severity,
 };
 use oxide_types::schematic::{PinDirection, Point, SelectedItem, SelectedKind};
+use regex::Regex;
 
 use crate::ast::*;
 use crate::error::DslError;

@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, HashMap};
 
-use serde::{Deserialize, Serialize};
 use oxide_types::designator::compare_references;
+use serde::{Deserialize, Serialize};
 
 /// Input context for BOM generation.
 #[derive(Debug, Clone)]

@@ -11,8 +11,8 @@ use axum::{
     response::IntoResponse,
     routing::get,
 };
-use serde::Deserialize;
 use oxide_library::primitive::Footprint;
+use serde::Deserialize;
 use uuid::Uuid;
 
 use crate::db::{AppState, PrimitiveSummary};

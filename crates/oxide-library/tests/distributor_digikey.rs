@@ -11,10 +11,10 @@
 
 use std::future::Future;
 
-use serde_json::json;
 use oxide_library::distributor::{DistributorAdapter, DistributorSource};
 use oxide_library::distributors::digikey::{DigiKeyAdapter, DigiKeyAuth};
 use oxide_library::distributors::keyring::KeyringStore;
+use serde_json::json;
 use wiremock::matchers::{header, method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 

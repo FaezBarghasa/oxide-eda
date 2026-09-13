@@ -18,8 +18,8 @@
 
 use std::path::PathBuf;
 
-use serde::{Deserialize, Serialize};
 use oxide_library::DistributorSource;
+use serde::{Deserialize, Serialize};
 
 /// File name for the distributors config — kept as a constant so the
 /// install path tests can pin it.

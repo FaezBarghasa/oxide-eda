@@ -1,0 +1,144 @@
+# ==============================================================================
+# Oxide EDA — Project Design Rules & Constraints Specification (rules.toml)
+# All physical dimensions are in micrometers (µm) unless specified.
+# Specificity Hierarchy: Net (4) > NetClass (3) > Room (2) > Global (1)
+# ==============================================================================
+
+version = "1.0"
+profile_name = "IPC-2221-Class2-4Layer-Standard"
+
+# ------------------------------------------------------------------------------
+# 1. ELECTRICAL CLEARANCE RULES
+# ------------------------------------------------------------------------------
+
+# Global default copper clearance (150 µm / ~6 mil)
+[[rules]]
+rule_type = "clearance"
+scope = { type = "global" }
+min_distance = 150
+object_types = ["track", "via", "pad", "polygon"]
+
+# High-voltage clearance rule for 48V power distribution
+[[rules]]
+rule_type = "clearance"
+scope = { type = "net_class", name = "POWER_48V" }
+min_distance = 800
+object_types = ["track", "via", "pad", "polygon", "hole"]
+
+# Fine-pitch BGA escape room clearance
+[[rules]]
+rule_type = "clearance"
+scope = { type = "room", name = "U1_BGA_BREAKOUT" }
+min_distance = 100
+object_types = ["track", "pad", "via"]
+
+# Critical isolation for HV-to-GND Net clearance
+[[rules]]
+rule_type = "clearance"
+scope = { type = "net", name = "AC_LINE" }
+min_distance = 2500
+object_types = ["track", "via", "pad", "polygon", "board_outline"]
+
+
+# ------------------------------------------------------------------------------
+# 2. ROUTING WIDTH RULES (Min, Preferred, Max)
+# ------------------------------------------------------------------------------
+
+# Global default signal width (150 µm min, 200 µm pref, 500 µm max)
+[[rules]]
+rule_type = "width"
+scope = { type = "global" }
+min_width = 150
+preferred_width = 200
+max_width = 500
+
+# High-current power rails (e.g. +5V, +3V3, GND)
+[[rules]]
+rule_type = "width"
+scope = { type = "net_class", name = "POWER_RAILS" }
+min_width = 500
+preferred_width = 1000
+max_width = 3000
+
+# BGA fanout neck-down traces
+[[rules]]
+rule_type = "width"
+scope = { type = "room", name = "U1_BGA_BREAKOUT" }
+min_width = 100
+preferred_width = 100
+max_width = 150
+
+
+# ------------------------------------------------------------------------------
+# 3. HIGH-SPEED, IMPEDANCE & DIFFERENTIAL PAIRS
+# ------------------------------------------------------------------------------
+
+# USB 2.0 90Ω Differential Pair
+[[rules]]
+rule_type = "high_speed"
+net_class = "DIFF_USB2_90R"
+impedance_target = 90.0           # Ohms
+length_tolerance = 50             # 50 µm (~2 mil skew tolerance)
+max_uncoupled_length = 500        # 500 µm (~20 mil max uncoupled at connector)
+
+# PCIe Gen3 / Gen4 85Ω Differential Pair
+[[rules]]
+rule_type = "high_speed"
+net_class = "PCIE_DIFF_85R"
+impedance_target = 85.0
+length_tolerance = 25             # 25 µm (~1 mil)
+max_uncoupled_length = 250
+
+# Single-ended 50Ω RF / Fast Clock (e.g. QSPI, SDIO, RF Trace)
+[[rules]]
+rule_type = "high_speed"
+net_class = "FAST_CLK_50R"
+impedance_target = 50.0
+length_tolerance = 100
+max_uncoupled_length = 1000
+
+
+# ------------------------------------------------------------------------------
+# 4. VIA STYLES (Drill, Pad Diameter)
+# ------------------------------------------------------------------------------
+
+# Standard Through-Hole Via (0.3mm / 300 µm drill, 0.6mm / 600 µm pad)
+[[rules]]
+rule_type = "via_style"
+scope = { type = "global" }
+min_drill = 300
+min_diameter = 600
+preferred_drill = 300
+preferred_diameter = 600
+
+# High-Density Interconnect (HDI) Microvias in BGA area (0.1mm drill, 0.25mm pad)
+[[rules]]
+rule_type = "via_style"
+scope = { type = "room", name = "U1_BGA_BREAKOUT" }
+min_drill = 100
+min_diameter = 250
+preferred_drill = 100
+preferred_diameter = 250
+
+
+# ------------------------------------------------------------------------------
+# 5. POLYGON COPPER POUR CONNECTIONS
+# ------------------------------------------------------------------------------
+
+# Global thermal relief connection for ground/power pours
+[[rules]]
+rule_type = "polygon_connect"
+scope = { type = "global" }
+direct_connect = false
+spoke_count = 4
+min_spoke_width = 250             # 250 µm spoke width
+air_gap = 200                     # 200 µm isolation gap
+
+# Solid direct connect for high-power low-inductance decoupling zones
+[[rules]]
+rule_type = "polygon_connect"
+scope = { type = "net", name = "GND_PLANE" }
+direct_connect = true
+spoke_count = 0
+min_spoke_width = 0
+air_gap = 200

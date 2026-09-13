@@ -18,7 +18,7 @@
 //! `multisheet_style` and `grid_style`. Closing that gap needs a lock
 //! shared across modules first.
 
-use oxide_app::app::{Message, PreferencesMsg, Oxide};
+use oxide_app::app::{Message, Oxide, PreferencesMsg};
 use oxide_app::preferences::PrefMsg;
 use oxide_app::render_config::{GridStyle, PinSelectionMode};
 

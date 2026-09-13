@@ -105,8 +105,7 @@ impl SchematicCanvas<'_> {
                 (cursor_world.x as f64, cursor_world.y as f64)
             };
             let mut preview_label = ghost.clone();
-            preview_label.position =
-                oxide_types::schematic::Point::new(snap_world.0, snap_world.1);
+            preview_label.position = oxide_types::schematic::Point::new(snap_world.0, snap_world.1);
             let ghost_transform = crate::schematic_runtime::ScreenTransform {
                 offset_x: cam.offset.x,
                 offset_y: cam.offset.y,

@@ -34,7 +34,7 @@
 
 use std::sync::Mutex;
 
-use oxide_app::app::{Message, PreferencesMsg, Oxide};
+use oxide_app::app::{Message, Oxide, PreferencesMsg};
 use oxide_app::preferences::PrefMsg;
 
 fn inner(msg: PrefMsg) -> Message {

@@ -249,9 +249,7 @@ impl Oxide {
                         sheet_path: path.clone(),
                         severity: match v.severity {
                             oxide_erc::Severity::Error => crate::panels::ErcSeverityLite::Error,
-                            oxide_erc::Severity::Warning => {
-                                crate::panels::ErcSeverityLite::Warning
-                            }
+                            oxide_erc::Severity::Warning => crate::panels::ErcSeverityLite::Warning,
                             _ => crate::panels::ErcSeverityLite::Info,
                         },
                         rule_label: v.rule.label(),
@@ -387,8 +385,7 @@ impl Oxide {
             ));
             return;
         };
-        let Ok(sheet) = oxide_types::format::SnxSchematic::parse(&text).map(|snx| snx.sheet)
-        else {
+        let Ok(sheet) = oxide_types::format::SnxSchematic::parse(&text).map(|snx| snx.sheet) else {
             crate::diagnostics::log_info(format!(
                 "ERC navigation: failed to parse sheet {}",
                 path.display()

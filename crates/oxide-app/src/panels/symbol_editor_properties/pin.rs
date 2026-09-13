@@ -128,10 +128,7 @@ pub(super) fn view_pin_selection<'a>(
         ("Input", oxide_library::PinDirection::Input),
         ("I/O", oxide_library::PinDirection::Bidirectional),
         ("Output", oxide_library::PinDirection::Output),
-        (
-            "Open Collector",
-            oxide_library::PinDirection::OpenCollector,
-        ),
+        ("Open Collector", oxide_library::PinDirection::OpenCollector),
         ("Passive", oxide_library::PinDirection::Passive),
         ("HiZ", oxide_library::PinDirection::Tristate),
         ("Open Emitter", oxide_library::PinDirection::OpenEmitter),
