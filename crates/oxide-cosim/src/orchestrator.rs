@@ -1,10 +1,9 @@
 //! Hybrid Continuous-Discrete Co-Simulation Orchestrator.
 
-use std::collections::HashMap;
-use oxide_mcu::pin_bridge::{LogicLevel, PinBridge, PinFunction};
+use oxide_mcu::pin_bridge::{PinBridge, PinFunction};
 use oxide_mcu::uart::VirtualUart;
 use oxide_proto::ethernet::VirtualEthernetBus;
-use oxide_proto::mqtt::{EmbeddedMqttBroker, MqttMessage, QosLevel};
+use oxide_proto::mqtt::EmbeddedMqttBroker;
 use oxide_types::sim::WaveformDataset;
 
 use crate::session::{CoSimStats, CoSimStatus};
