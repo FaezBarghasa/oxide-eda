@@ -4,8 +4,9 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// Digital Pin Logic Level.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub enum LogicLevel {
+    #[default]
     Low,
     High,
     HighImpedance,
@@ -37,14 +38,31 @@ pub enum PinFunction {
     AdcInput { channel: u8 },
     DacOutput { channel: u8 },
     PwmOutput { channel: u8 },
+    PwmComplementary { channel: u8 },
+    TimerBreak { channel: u8 },
+    ComparatorInput { channel: u8 },
+    ComparatorOutput { channel: u8 },
     UartTx,
     UartRx,
+    UartCts,
+    UartRts,
+    UartDe,
     SpiMosi,
     SpiMiso,
     SpiSck,
     SpiCs,
     I2cSda,
     I2cScl,
+    CanTx,
+    CanRx,
+    UsbDp,
+    UsbDm,
+    EthernetTxEn,
+    EthernetTxData,
+    EthernetRxData,
+    EthernetRxDv,
+    EthernetMdc,
+    EthernetMdio,
 }
 
 /// State of a single virtual MCU pin.
@@ -71,7 +89,7 @@ impl VirtualPinState {
     }
 }
 
-/// Pin Bridge managing synchronization between QEMU virtual peripherals and SPICE schematic nets.
+/// Pin Bridge managing synchronization between virtual MCU peripherals and SPICE schematic nets.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct PinBridge {
     pub vdd_voltage: f64,
@@ -116,5 +134,12 @@ impl PinBridge {
         let pin = self.pins.get(pin_name)?;
         let frac = (pin.analog_voltage / self.vdd_voltage).clamp(0.0, 1.0);
         Some((frac * 4095.0).round() as u16)
+    }
+
+    /// Converts analog voltage into 16-bit ADC raw integer count (0..65535).
+    pub fn read_adc_raw_16bit(&self, pin_name: &str) -> Option<u16> {
+        let pin = self.pins.get(pin_name)?;
+        let frac = (pin.analog_voltage / self.vdd_voltage).clamp(0.0, 1.0);
+        Some((frac * 65535.0).round() as u16)
     }
 }
