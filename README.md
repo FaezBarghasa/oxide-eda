@@ -173,6 +173,7 @@ oxide/
 │   ├── oxide-physics/        # Layer stackup, transmission lines, material physics
 │   ├── oxide-router/         # Interactive routing & topological autorouter (A*, Situs, Glossing)
 │   ├── oxide-compute/        # GPU-accelerated compute (wgpu WGSL & CPU Rayon for DRC, Thermal, FDTD, Congestion)
+│   ├── oxide-ml/             # Embedded pure-Rust ONNX inference engine (tract-onnx, learned routing heuristics)
 │   ├── oxide-ai/             # Signal AI copilot & LLM integration layer
 │   ├── oxide-sketch/         # Apache-clean Newton-LM constraint solver + sketch schema
 │   ├── oxide-bake/           # Sketch → footprint bake (pad / silk / courtyard / mask / …)

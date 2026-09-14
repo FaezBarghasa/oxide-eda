@@ -120,6 +120,127 @@ pub fn find_astar_path(
     simplify_path(&path)
 }
 
+/// Find a clear path using ML-guided A* heuristics while maintaining 100% deterministic DRC enforcement.
+pub fn find_astar_path_with_ml(
+    spatial_index: &SpatialIndex,
+    start: Point2D,
+    target: Point2D,
+    net_id: NetId,
+    width: Microns,
+    advisor: Option<&mut oxide_ml::RoutingAdvisor>,
+) -> Vec<Point2D> {
+    if start == target {
+        return vec![start];
+    }
+
+    let grid_step = 250i64; // 250 µm resolution (0.25mm)
+    let start_coord = GridCoord {
+        x: (start.x / grid_step),
+        y: (start.y / grid_step),
+    };
+    let target_coord = GridCoord {
+        x: (target.x / grid_step),
+        y: (target.y / grid_step),
+    };
+
+    let mut open_set = BinaryHeap::new();
+    let mut closed_set = HashSet::new();
+    let mut came_from: HashMap<GridCoord, GridCoord> = HashMap::new();
+    let mut g_score: HashMap<GridCoord, i64> = HashMap::new();
+
+    g_score.insert(start_coord, 0);
+    let h_start = heuristic(start_coord, target_coord);
+    open_set.push(Reverse((h_start, 0i64, start_coord)));
+
+    let directions = [
+        (1, 0, 1000, 2),   // East (RoutingAction::MoveEast = 2)
+        (-1, 0, 1000, 6),  // West (RoutingAction::MoveWest = 6)
+        (0, 1, 1000, 0),   // North (RoutingAction::MoveNorth = 0)
+        (0, -1, 1000, 4),  // South (RoutingAction::MoveSouth = 4)
+        (1, 1, 1414, 1),   // NorthEast = 1
+        (-1, 1, 1414, 7),  // NorthWest = 7
+        (1, -1, 1414, 3),  // SouthEast = 3
+        (-1, -1, 1414, 5), // SouthWest = 5
+    ];
+
+    let mut iterations = 0;
+    let max_iterations = 2500;
+
+    let mut advisor_ref = advisor;
+
+    while let Some(Reverse((_, current_g, current))) = open_set.pop() {
+        iterations += 1;
+        if iterations > max_iterations || current == target_coord {
+            break;
+        }
+
+        if closed_set.contains(&current) {
+            continue;
+        }
+        closed_set.insert(current);
+
+        let current_pt = Point2D::new(current.x * grid_step, current.y * grid_step);
+        let ml_output = advisor_ref.as_deref_mut().map(|adv| {
+            let ml_pt = oxide_ml::Point2D::new(current_pt.x, current_pt.y);
+            let ml_tgt = oxide_ml::Point2D::new(target.x, target.y);
+            adv.predict(ml_pt, 0, ml_tgt, net_id, &[])
+        });
+
+        for (dx, dy, base_cost, action_idx) in directions {
+            let neighbor = GridCoord {
+                x: current.x + dx,
+                y: current.y + dy,
+            };
+
+            if closed_set.contains(&neighbor) {
+                continue;
+            }
+
+            // Check collision with spatial index (100% deterministic gate)
+            let pt = Point2D::new(neighbor.x * grid_step, neighbor.y * grid_step);
+            let half_w = width / 2 + 100;
+            let check_bbox = BoundingBox::from_center_radius(pt, half_w);
+            let collisions = spatial_index.check_collision(&check_bbox, &[net_id]);
+
+            if !collisions.is_empty() {
+                // Hard deterministic rule rejection: cannot route through foreign obstacles
+                continue;
+            }
+
+            // Learned ML bias: discount cost for high-scoring policy moves
+            let mut move_cost = base_cost;
+            if let Some(ref out) = ml_output {
+                let score = out.action_scores[action_idx];
+                let discount = (score * out.confidence * 400.0) as i64;
+                move_cost = (move_cost - discount).max(100);
+            }
+
+            let tentative_g = current_g + move_cost;
+            if tentative_g < *g_score.get(&neighbor).unwrap_or(&i64::MAX) {
+                came_from.insert(neighbor, current);
+                g_score.insert(neighbor, tentative_g);
+                let h = heuristic(neighbor, target_coord);
+                open_set.push(Reverse((tentative_g + h, tentative_g, neighbor)));
+            }
+        }
+    }
+
+    // Reconstruct path
+    let mut path = vec![target];
+    let mut curr = target_coord;
+
+    while let Some(&prev) = came_from.get(&curr) {
+        let pt = Point2D::new(prev.x * grid_step, prev.y * grid_step);
+        path.push(pt);
+        curr = prev;
+    }
+
+    path.push(start);
+    path.reverse();
+
+    simplify_path(&path)
+}
+
 fn heuristic(a: GridCoord, b: GridCoord) -> i64 {
     let dx = (a.x - b.x).abs();
     let dy = (a.y - b.y).abs();

@@ -50,7 +50,7 @@ impl RoutingAdvisor {
                 obstacles,
             );
 
-            let tract_tensor: tract_onnx::prelude::Tensor = tensor_data.into();
+            let tract_tensor = tract_onnx::prelude::Tensor::from(tensor_data);
             let mut inputs: TVec<tract_onnx::prelude::Tensor> = TVec::new();
             inputs.push(tract_tensor);
             if let Ok(results) = engine.run(inputs) {

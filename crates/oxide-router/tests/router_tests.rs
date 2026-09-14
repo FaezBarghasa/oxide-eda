@@ -189,3 +189,28 @@ fn test_end_to_end_routing_workflow() {
     assert_eq!(result.failed_nets, 0);
     assert!(result.total_length > 0);
 }
+
+#[test]
+fn test_ml_guided_astar_routing() {
+    let board = mock_board();
+    let spatial = SpatialIndex::build(&board);
+    let start = Point2D::from_mm(10.0, 15.0);
+    let target = Point2D::from_mm(20.0, 15.0);
+
+    let ml_engine = oxide_ml::MlEngine::new(oxide_ml::MlConfig::default());
+    let mut advisor = ml_engine.create_routing_advisor(4);
+
+    let path = oxide_router::interactive::astar::find_astar_path_with_ml(
+        &spatial,
+        start,
+        target,
+        1,
+        200,
+        Some(&mut advisor),
+    );
+
+    assert!(path.len() >= 2);
+    assert_eq!(path[0], start);
+    assert_eq!(*path.last().unwrap(), target);
+}
+

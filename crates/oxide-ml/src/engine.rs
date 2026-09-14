@@ -2,9 +2,12 @@ use tract_onnx::prelude::*;
 
 use crate::embed::{MlError, ModelKind};
 
+pub type TractTypedPlan =
+    SimplePlan<TypedFact, Box<dyn TypedOp>, Graph<TypedFact, Box<dyn TypedOp>>>;
+
 /// Wrapper around a runnable tract ONNX model plan
 pub struct InferenceEngine {
-    plan: SimplePlan<TypedFact, Box<dyn TypedOp>, Graph<TypedFact, Box<dyn TypedOp>>>,
+    plan: TractTypedPlan,
     kind: ModelKind,
 }
 

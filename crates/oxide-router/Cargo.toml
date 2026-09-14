@@ -10,6 +10,7 @@ license.workspace = true
 oxide-types = { path = "../oxide-types" }
 oxide-physics = { path = "../oxide-physics" }
 oxide-rules = { path = "../oxide-rules" }
+oxide-ml = { path = "../oxide-ml" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }

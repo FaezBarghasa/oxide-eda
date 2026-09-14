@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use oxide_ml::{
-    BoardTensorBuilder, MlConfig, MlEngine, PlacementAdvisor, Point2D, RoutingAction,
-    RoutingAdvisorInputConfig, ViaPlanner,
+    BoardTensorBuilder, MlConfig, MlEngine, Point2D, RoutingAction, RoutingAdvisorInputConfig,
 };
 
 #[test]

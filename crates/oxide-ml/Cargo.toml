@@ -9,7 +9,7 @@ repository.workspace = true
 [dependencies]
 tract-onnx = "0.21"
 tract-pulse = "0.21"
-ndarray = "0.15"
+ndarray = "0.16"
 
 serde.workspace = true
 serde_json.workspace = true
