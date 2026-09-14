@@ -53,7 +53,7 @@ default-members = [
 ]
 
 [workspace.package]
-version = "0.15.0"
+version = "0.16.0"
 edition = "2024"
 # MSRV tracks the pinned toolchain (`rust-toolchain.toml` channel). We build,
 # test, and support exactly one toolchain — the pinned stable — so the declared
@@ -138,7 +138,7 @@ oxide-ml = { path = "crates/oxide-ml" }
 
 # Library subsystem (v0.9 plan, restored at v0.11)
 chrono = { version = "0.4", features = ["serde"] }
-sha2 = "0.10"
+sha2 = "0.11.0"
 
 # Library subsystem — Phase 1 (adapters: local-git, database server, distributor APIs, search, AI-stub)
 git2 = { version = "0.21.0", default-features = false, features = [
