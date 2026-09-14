@@ -25,6 +25,7 @@ pub enum SimKind {
     Spice3,
     Ngspice,
     LtSpice,
+    PSpice,
     VerilogA,
 }
 
@@ -253,6 +254,79 @@ impl SimFile {
     }
 }
 
+/// Parse a PSpice library text payload containing one or more `.SUBCKT` blocks or `.MODEL` statements.
+/// Returns a list of extracted [`SimModel`] instances with kind set to [`SimKind::PSpice`].
+pub fn parse_pspice_library(source: &str) -> Vec<SimModel> {
+    let mut models = Vec::new();
+    let mut current_subckt_name: Option<String> = None;
+    let mut current_pins: Vec<String> = Vec::new();
+    let mut current_body_lines: Vec<String> = Vec::new();
+
+    for line in source.lines() {
+        let trimmed = line.trim();
+        let upper = trimmed.to_ascii_uppercase();
+
+        if upper.starts_with(".SUBCKT") {
+            if let Some(name) = current_subckt_name.take() {
+                let mut node_map = BTreeMap::new();
+                for (idx, pin) in current_pins.iter().enumerate() {
+                    node_map.insert((idx + 1).to_string(), pin.clone());
+                }
+                let mut m = SimModel::empty(name, SimKind::PSpice);
+                m.body = current_body_lines.join("\n");
+                m.default_node_map = node_map;
+                models.push(m);
+                current_body_lines.clear();
+                current_pins.clear();
+            }
+
+            let tokens: Vec<&str> = trimmed.split_whitespace().collect();
+            if tokens.len() >= 2 {
+                current_subckt_name = Some(tokens[1].to_string());
+                current_pins = tokens[2..].iter().map(|s| s.to_string()).collect();
+            }
+            current_body_lines.push(line.to_string());
+        } else if upper.starts_with(".ENDS") {
+            current_body_lines.push(line.to_string());
+            if let Some(name) = current_subckt_name.take() {
+                let mut node_map = BTreeMap::new();
+                for (idx, pin) in current_pins.iter().enumerate() {
+                    node_map.insert((idx + 1).to_string(), pin.clone());
+                }
+                let mut m = SimModel::empty(name, SimKind::PSpice);
+                m.body = current_body_lines.join("\n");
+                m.default_node_map = node_map;
+                models.push(m);
+                current_body_lines.clear();
+                current_pins.clear();
+            }
+        } else if current_subckt_name.is_some() {
+            current_body_lines.push(line.to_string());
+        } else if upper.starts_with(".MODEL") {
+            let tokens: Vec<&str> = trimmed.split_whitespace().collect();
+            if tokens.len() >= 2 {
+                let name = tokens[1].trim_matches('(').to_string();
+                let mut m = SimModel::empty(name, SimKind::PSpice);
+                m.body = line.to_string();
+                models.push(m);
+            }
+        }
+    }
+
+    if let Some(name) = current_subckt_name.take() {
+        let mut node_map = BTreeMap::new();
+        for (idx, pin) in current_pins.iter().enumerate() {
+            node_map.insert((idx + 1).to_string(), pin.clone());
+        }
+        let mut m = SimModel::empty(name, SimKind::PSpice);
+        m.body = current_body_lines.join("\n");
+        m.default_node_map = node_map;
+        models.push(m);
+    }
+
+    models
+}
+
 /// Error variants raised by [`SimFile`] parsers + serialisers.
 #[derive(Debug, thiserror::Error)]
 pub enum SimFileError {
@@ -305,12 +379,36 @@ mod tests {
             SimKind::Spice3,
             SimKind::Ngspice,
             SimKind::LtSpice,
+            SimKind::PSpice,
             SimKind::VerilogA,
         ] {
             let json = serde_json::to_string(&k).unwrap();
             let back: SimKind = serde_json::from_str(&json).unwrap();
             assert_eq!(k, back);
         }
+    }
+
+    #[test]
+    fn parse_pspice_library_subckt_and_model() {
+        let src = r#"
+* PSpice Model Library Example
+.SUBCKT OPA340 INP INN VCC VEE OUT
+* TI OPA340 Op-Amp Model
+R1 INP INN 10MEG
+E1 OUT 0 INP INN 100000
+.ENDS OPA340
+
+.MODEL 1N4148 D(Is=2.52n Rs=.568 N=1.752 Cjo=4p M=.4 tt=20n)
+"#;
+        let models = parse_pspice_library(src);
+        assert_eq!(models.len(), 2);
+        assert_eq!(models[0].name, "OPA340");
+        assert_eq!(models[0].kind, SimKind::PSpice);
+        assert_eq!(models[0].default_node_map.get("1").unwrap(), "INP");
+        assert_eq!(models[0].default_node_map.get("5").unwrap(), "OUT");
+
+        assert_eq!(models[1].name, "1N4148");
+        assert_eq!(models[1].kind, SimKind::PSpice);
     }
 
     #[test]

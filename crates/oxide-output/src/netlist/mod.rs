@@ -16,6 +16,9 @@ use std::fmt::Write as _;
 
 use thiserror::Error;
 
+pub mod pspice;
+pub use pspice::{PSpiceNetlistError, PSpiceNetlistExporter, PSpiceNetlistOptions, PSpiceNetlistOutput};
+
 use crate::{ExportContext, Exporter};
 
 pub struct NetlistExporter;

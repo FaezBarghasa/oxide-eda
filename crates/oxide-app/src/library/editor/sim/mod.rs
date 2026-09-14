@@ -25,10 +25,11 @@ use oxide_widgets::theme_ext;
 use super::super::messages::{EditorMsg, LibraryMessage};
 use super::super::state::{ComponentPreviewState, EditorAddress};
 
-const SIM_KIND_OPTS: [SimKind; 4] = [
+const SIM_KIND_OPTS: [SimKind; 5] = [
     SimKind::Spice3,
     SimKind::Ngspice,
     SimKind::LtSpice,
+    SimKind::PSpice,
     SimKind::VerilogA,
 ];
 
@@ -47,6 +48,7 @@ impl std::fmt::Display for SimKindPick {
             SimKind::Spice3 => "Spice3",
             SimKind::Ngspice => "Ngspice",
             SimKind::LtSpice => "LtSpice",
+            SimKind::PSpice => "PSpice",
             SimKind::VerilogA => "Verilog-A",
             other => return write!(f, "{other:?}"),
         };

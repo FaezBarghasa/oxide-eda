@@ -10,6 +10,7 @@ repository.workspace = true
 [dependencies]
 oxide-bom = { path = "../oxide-bom" }
 oxide-types = { path = "../oxide-types" }
+oxide-sim = { path = "../oxide-sim" }
 thiserror = { workspace = true }
 serde = { workspace = true }
 pdf-writer = { workspace = true }

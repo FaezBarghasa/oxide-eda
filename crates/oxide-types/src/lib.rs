@@ -12,6 +12,7 @@ pub mod project;
 pub mod property;
 pub mod rotation2d;
 pub mod schematic;
+pub mod sim;
 pub mod theme;
 pub mod violation;
 

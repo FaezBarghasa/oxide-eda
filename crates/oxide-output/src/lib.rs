@@ -24,7 +24,10 @@ pub use bom::{
     BomOptions, BomOutput, BomRow, BomRule, BomRuleOptions, BomTable, BomValidationIssue,
     BomValidationReport, rollup,
 };
-pub use netlist::{NetlistExporter, NetlistOptions, NetlistOutput};
+pub use netlist::{
+    NetlistExporter, NetlistOptions, NetlistOutput, PSpiceNetlistError, PSpiceNetlistExporter,
+    PSpiceNetlistOptions, PSpiceNetlistOutput,
+};
 pub use pdf::{
     ColourMode, Margins, Orientation, PageRange, PageSize, PdfExporter, PdfOptions, PdfOutput,
     PdfScale, SchematicPalette,

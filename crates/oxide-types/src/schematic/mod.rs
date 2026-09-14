@@ -717,6 +717,41 @@ fn default_unit() -> u32 {
     1
 }
 
+impl Symbol {
+    pub fn empty() -> Self {
+        Self {
+            uuid: Uuid::now_v7(),
+            lib_id: String::new(),
+            reference: String::new(),
+            value: String::new(),
+            footprint: String::new(),
+            datasheet: String::new(),
+            position: Point::default(),
+            rotation: 0.0,
+            mirror_x: false,
+            mirror_y: false,
+            unit: 1,
+            is_power: false,
+            ref_text: None,
+            val_text: None,
+            fields_autoplaced: false,
+            fields_user_placed: false,
+            dnp: false,
+            in_bom: true,
+            on_board: true,
+            exclude_from_sim: false,
+            locked: false,
+            fields: HashMap::new(),
+            custom_properties: Vec::new(),
+            pin_uuids: HashMap::new(),
+            instances: Vec::new(),
+            library_id: None,
+            row_id: None,
+            library_version: String::new(),
+        }
+    }
+}
+
 // ---------------------------------------------------------------------------
 // Wiring primitives
 mod sheet;
