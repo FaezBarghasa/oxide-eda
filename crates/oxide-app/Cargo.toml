@@ -40,6 +40,11 @@ oxide-library = { workspace = true, features = [
 ] }
 oxide-sketch = { workspace = true }
 oxide-bake = { workspace = true }
+oxide-physics = { workspace = true }
+oxide-rules = { workspace = true }
+oxide-router = { workspace = true }
+oxide-ai = { workspace = true }
+oxide-ml = { workspace = true }
 # `log` feature: oxide-app installs a `log`-based logger (OxideLogger) but
 # no tracing subscriber, and several crates (notably oxide-library) report
 # non-fatal errors via tracing::warn!. Without this feature those records
@@ -50,7 +55,7 @@ tracing = { workspace = true, features = ["log"] }
 chrono = { workspace = true }
 rfd = { workspace = true }
 sha2 = { workspace = true }
-fontdb = "0.23"
+fontdb = "0.24.0"
 log = "0.4"
 image = { version = "0.25", default-features = false, features = ["png"] }
 # UI-WS7 — Distributor APIs flows
@@ -63,7 +68,7 @@ image = { version = "0.25", default-features = false, features = ["png"] }
 # exchange + Mouser test flow on a worker thread.
 webbrowser = "1"
 tiny_http = "0.12"
-dirs = "5"
+dirs = "7.0.0"
 toml = { workspace = true }
 tokio = { workspace = true }
 # `fonts::production_temp_fallback_path()`'s no-config-dir fallback

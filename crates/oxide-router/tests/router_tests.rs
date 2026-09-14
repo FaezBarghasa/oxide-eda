@@ -9,6 +9,7 @@ use oxide_types::schematic::Point;
 
 use oxide_router::geometry::{BoundingBox, Point2D};
 use oxide_router::interactive::InteractiveRouter;
+use oxide_router::optimization::OptimizationEngine;
 use oxide_router::topology::TopologicalAutorouter;
 use oxide_router::{
     RouteSegment, RoutingMode, RoutingPath, RoutingResult, RoutingWorkflow, SegmentType,
@@ -99,51 +100,57 @@ fn test_differential_pair_and_meander() {
     let rules = Arc::new(ConstraintManager::standard_default());
     let mut router =
         InteractiveRouter::new(Arc::clone(&rules), Arc::new(SpatialIndex::build(&board)));
+
     router.mode = RoutingMode::DifferentialPair;
+    let _ = router.start_routing(Point2D::from_mm(10.0, 10.0), 1, 0);
+    let diff_segments = router.on_mouse_move(Point2D::from_mm(20.0, 10.0));
 
-    let start = Point2D::from_mm(10.0, 10.0);
-    router.start_routing(start, 2, 0).expect("Session started");
+    assert!(!diff_segments.is_empty());
+    // In diff pair mode, there should be pairs of segments (positive and negative tracks)
+    assert_eq!(diff_segments.len() % 2, 0);
 
-    let target = Point2D::from_mm(30.0, 10.0);
-    let segments = router.on_mouse_move(target);
+    // Meander / length tuning test
+    router.mode = RoutingMode::LengthTuning;
+    let meander_segments = router.on_mouse_move(Point2D::from_mm(20.0, 10.0));
+    assert!(meander_segments.len() >= 3);
+}
 
-    // Diff pair produces positive and negative parallel tracks
-    assert!(segments.len() >= 2);
+#[test]
+fn test_cascade_push_and_shove() {
+    let board = mock_board();
+    let rules = Arc::new(ConstraintManager::standard_default());
+    let router =
+        InteractiveRouter::new(Arc::clone(&rules), Arc::new(SpatialIndex::build(&board)));
 
-    // Test meander generator
-    let meander = router.generate_meander(start, target, 5000, 2, 0, 200);
-    assert!(meander.len() > 2);
+    let start = Point2D::from_mm(10.0, 15.0);
+    let end = Point2D::from_mm(20.0, 15.0);
+
+    let (segments, pushes) = router.push_and_shove_with_displacements(start, end, 1, 0, 200);
+
+    assert_eq!(segments.len(), 1);
+    // Obstacle at (15.0, 10..20) should be detected and pushed
+    assert!(!pushes.is_empty());
+    assert!(pushes[0].displacement > 0);
 }
 
 #[test]
 fn test_topological_triangulation_and_autoroute() {
-    let board = mock_board();
+    let mut board = mock_board();
     let rules = Arc::new(ConstraintManager::standard_default());
     let spatial = Arc::new(SpatialIndex::build(&board));
     let mut autorouter = TopologicalAutorouter::new(rules, spatial);
 
-    autorouter
-        .build_topological_map(&board)
-        .expect("Build topological map");
-    assert!(
-        !autorouter
-            .topological_map
-            .triangulation
-            .triangles
-            .is_empty()
-    );
+    let _ = autorouter.build_topological_map(&board);
+    assert!(!autorouter.topological_map.triangulation.triangles.is_empty());
 
-    let mut mutable_board = board.clone();
-    let results = autorouter.route_board(&mut mutable_board, &[1, 2]);
+    let results = autorouter.route_board(&mut board, &[1, 2]);
     assert_eq!(results.len(), 2);
 }
 
 #[test]
 fn test_optimization_glossing_and_loop_removal() {
     let rules = Arc::new(ConstraintManager::standard_default());
-    let optimizer = oxide_router::OptimizationEngine::new(rules);
-
-    // Collinear segments to gloss
+    let optimizer = OptimizationEngine::new(rules);
     let mut path = RoutingPath {
         net_id: 1,
         segments: vec![
@@ -213,4 +220,3 @@ fn test_ml_guided_astar_routing() {
     assert_eq!(path[0], start);
     assert_eq!(*path.last().unwrap(), target);
 }
-

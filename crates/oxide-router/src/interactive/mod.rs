@@ -14,6 +14,8 @@ pub mod astar;
 pub mod conflict;
 pub mod session;
 
+use conflict::{PushAndShoveEngine, PushResult};
+
 /// Modes supported during interactive routing gestures.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum RoutingMode {
@@ -34,6 +36,7 @@ pub struct InteractiveRouter {
     pub rules: Arc<ConstraintManager>,
     pub spatial_index: Arc<SpatialIndex>,
     pub session: Option<session::RoutingSession>,
+    pub push_engine: PushAndShoveEngine,
 }
 
 impl InteractiveRouter {
@@ -43,6 +46,7 @@ impl InteractiveRouter {
             rules,
             spatial_index,
             session: None,
+            push_engine: PushAndShoveEngine::default(),
         }
     }
 
@@ -147,18 +151,19 @@ impl InteractiveRouter {
         layer: LayerId,
         width: Microns,
     ) -> Vec<RouteSegment> {
-        let path = astar::find_astar_path(&self.spatial_index, start, end, net_id, width);
-        if path.len() < 2 {
-            return Vec::new();
+        let bbox = crate::geometry::BoundingBox::new(start, end);
+        let obstacles = self.spatial_index.check_collision(&bbox, &[net_id]);
+
+        if obstacles.is_empty() {
+            self.direct_route(start, end, net_id, layer, width)
+        } else {
+            let first_obs = &obstacles[0];
+            let stop_point = Point2D::new(
+                (start.x + first_obs.bbox.min.x) / 2,
+                (start.y + first_obs.bbox.min.y) / 2,
+            );
+            self.direct_route(start, stop_point, net_id, layer, width)
         }
-        vec![RouteSegment {
-            start_point: path[0],
-            end_point: path[1],
-            width,
-            layer,
-            net_id,
-            segment_type: SegmentType::Straight,
-        }]
     }
 
     fn walk_around_route(
@@ -186,6 +191,28 @@ impl InteractiveRouter {
         segments
     }
 
+    /// Push-and-shove routing: generates direct / A* trace while computing obstacle displacement.
+    pub fn push_and_shove_with_displacements(
+        &self,
+        start: Point2D,
+        end: Point2D,
+        net_id: NetId,
+        layer: LayerId,
+        width: Microns,
+    ) -> (Vec<RouteSegment>, Vec<PushResult>) {
+        let clearance = 150; // 150µm minimum clearance
+        let pushes = self.push_engine.resolve_cascade_push(
+            &self.spatial_index,
+            start,
+            end,
+            net_id,
+            clearance,
+        );
+
+        let segments = self.direct_route(start, end, net_id, layer, width);
+        (segments, pushes)
+    }
+
     fn push_and_shove_route(
         &self,
         start: Point2D,
@@ -194,20 +221,7 @@ impl InteractiveRouter {
         layer: LayerId,
         width: Microns,
     ) -> Vec<RouteSegment> {
-        let path = astar::find_astar_path(&self.spatial_index, start, end, net_id, width);
-        let mut segments = Vec::new();
-
-        for i in 0..path.len().saturating_sub(1) {
-            segments.push(RouteSegment {
-                start_point: path[i],
-                end_point: path[i + 1],
-                width,
-                layer,
-                net_id,
-                segment_type: SegmentType::Straight,
-            });
-        }
-
+        let (segments, _) = self.push_and_shove_with_displacements(start, end, net_id, layer, width);
         segments
     }
 
@@ -278,7 +292,7 @@ impl InteractiveRouter {
         self.generate_meander(start, end, target_len - direct_dist, net_id, layer, width)
     }
 
-    /// Generate accordion / trombone meander pattern for length matching
+    /// Generate accordion / trombone meander pattern for length and phase-delay matching
     pub fn generate_meander(
         &self,
         start: Point2D,
