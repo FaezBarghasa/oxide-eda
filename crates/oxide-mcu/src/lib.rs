@@ -218,4 +218,88 @@ mod tests {
         let pin = bridge.pins.get("PC13").unwrap();
         assert_eq!(pin.analog_voltage, 3.3);
     }
+
+    #[test]
+    fn test_external_memory_suite() {
+        // 1. I2C EEPROM 24LC256
+        let mut eeprom_i2c = I2cEeprom::new_24lc256(0x50);
+        // Write address 0x0100 and bytes [0xDE, 0xAD, 0xBE, 0xEF]
+        let write_payload = vec![0x01, 0x00, 0xDE, 0xAD, 0xBE, 0xEF];
+        assert!(eeprom_i2c.handle_i2c_write(&write_payload));
+        // Set read address back to 0x0100
+        eeprom_i2c.handle_i2c_write(&[0x01, 0x00]);
+        let read_back = eeprom_i2c.handle_i2c_read(4);
+        assert_eq!(read_back, vec![0xDE, 0xAD, 0xBE, 0xEF]);
+
+        // 2. SPI EEPROM 25LC256
+        let mut eeprom_spi = SpiEeprom::new_25lc256();
+        // WREN
+        eeprom_spi.transfer_byte(0x06);
+        eeprom_spi.chip_deselect();
+        // Write to address 0x0020
+        eeprom_spi.transfer_byte(0x02);
+        eeprom_spi.transfer_byte(0x00);
+        eeprom_spi.transfer_byte(0x20);
+        eeprom_spi.transfer_byte(0x42);
+        eeprom_spi.chip_deselect();
+        // Read from address 0x0020
+        eeprom_spi.transfer_byte(0x03);
+        eeprom_spi.transfer_byte(0x00);
+        eeprom_spi.transfer_byte(0x20);
+        let byte_read = eeprom_spi.transfer_byte(0x00);
+        assert_eq!(byte_read, 0x42);
+        eeprom_spi.chip_deselect();
+
+        // 3. SPI Flash W25Q64
+        let mut flash = SpiFlash::new_w25q64();
+        // Read JEDEC ID (0x9F)
+        flash.transfer_byte(0x9F);
+        let mfg_id = flash.transfer_byte(0x00);
+        assert_eq!(mfg_id, 0xEF); // Winbond
+        flash.chip_deselect();
+
+        // WREN & Page Program
+        flash.transfer_byte(0x06);
+        flash.chip_deselect();
+        flash.transfer_byte(0x02);
+        flash.transfer_byte(0x00);
+        flash.transfer_byte(0x10);
+        flash.transfer_byte(0x00);
+        flash.transfer_byte(0x5A);
+        flash.chip_deselect();
+
+        // Normal Read (0x03)
+        flash.transfer_byte(0x03);
+        flash.transfer_byte(0x00);
+        flash.transfer_byte(0x10);
+        flash.transfer_byte(0x00);
+        let flash_val = flash.transfer_byte(0x00);
+        assert_eq!(flash_val, 0x5A);
+        flash.chip_deselect();
+
+        // 4. SPI PSRAM APS6404L
+        let mut psram = SpiRam::new_aps6404();
+        // Write 0x88 at address 0x00_04_00
+        psram.transfer_byte(0x02);
+        psram.transfer_byte(0x00);
+        psram.transfer_byte(0x04);
+        psram.transfer_byte(0x00);
+        psram.transfer_byte(0x88);
+        psram.chip_deselect();
+        // Read from address 0x00_04_00
+        psram.transfer_byte(0x03);
+        psram.transfer_byte(0x00);
+        psram.transfer_byte(0x04);
+        psram.transfer_byte(0x00);
+        let psram_val = psram.transfer_byte(0x00);
+        assert_eq!(psram_val, 0x88);
+        psram.chip_deselect();
+
+        // 5. Parallel SRAM (16-bit)
+        let mut sram = ParallelSram::new_16bit("IS62WV51216", 0x6000_0000, 1024 * 1024);
+        assert!(sram.write_u32(0x6000_0010, 0x1234_5678));
+        assert_eq!(sram.read_u32(0x6000_0010), Some(0x1234_5678));
+        assert_eq!(sram.read_u16(0x6000_0010), Some(0x5678));
+        assert_eq!(sram.read_u8(0x6000_0012), Some(0x34));
+    }
 }
