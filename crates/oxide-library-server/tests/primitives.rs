@@ -37,20 +37,17 @@ async fn fresh_state() -> AppState {
     state
 }
 
-fn build_test_app(
-    state: AppState,
-) -> impl actix_web::dev::Service<
-    actix_http::Request,
-    Response = actix_web::dev::ServiceResponse<actix_web::body::BoxBody>,
-    Error = actix_web::Error,
-> {
-    test::init_service(
-        App::new()
-            .app_data(web::Data::new(state))
-            .wrap(default_cors())
-            .wrap(BearerAuth::new(Some(TEST_BEARER.to_string())))
-            .configure(configure_protected),
-    )
+macro_rules! test_app {
+    ($state:expr) => {
+        test::init_service(
+            App::new()
+                .app_data(web::Data::new($state))
+                .wrap(default_cors())
+                .wrap(BearerAuth::new(Some(TEST_BEARER.to_string())))
+                .configure(configure_protected),
+        )
+        .await
+    };
 }
 
 #[tokio::test]
@@ -72,7 +69,7 @@ async fn primitives_migration_creates_tables() {
 #[actix_web::test]
 async fn post_then_get_symbol_round_trip() {
     let state = fresh_state().await;
-    let app = build_test_app(state).await;
+    let app = test_app!(state);
 
     let library_id = Uuid::now_v7();
     let mut sym = Symbol::empty("OPAMP-DUAL-8");
@@ -113,7 +110,7 @@ async fn post_then_get_symbol_round_trip() {
 #[actix_web::test]
 async fn list_symbols_filters_by_library_id() {
     let state = fresh_state().await;
-    let app = build_test_app(state).await;
+    let app = test_app!(state);
 
     let lib_a = Uuid::now_v7();
     let lib_b = Uuid::now_v7();
@@ -160,7 +157,7 @@ async fn list_symbols_filters_by_library_id() {
 #[actix_web::test]
 async fn post_then_get_footprint_round_trip() {
     let state = fresh_state().await;
-    let app = build_test_app(state).await;
+    let app = test_app!(state);
 
     let library_id = Uuid::now_v7();
     let mut fp = Footprint::empty("SOIC-8");
@@ -194,7 +191,7 @@ async fn post_then_get_footprint_round_trip() {
 #[actix_web::test]
 async fn post_then_get_sim_round_trip() {
     let state = fresh_state().await;
-    let app = build_test_app(state).await;
+    let app = test_app!(state);
 
     let library_id = Uuid::now_v7();
     let mut sm = SimModel::empty("LM358", SimKind::Spice3);
@@ -230,7 +227,7 @@ async fn post_then_get_sim_round_trip() {
 #[actix_web::test]
 async fn get_symbol_404_when_unknown() {
     let state = fresh_state().await;
-    let app = build_test_app(state).await;
+    let app = test_app!(state);
 
     let library_id = Uuid::now_v7();
     let unknown = Uuid::now_v7();
@@ -246,7 +243,7 @@ async fn get_symbol_404_when_unknown() {
 #[actix_web::test]
 async fn get_symbol_400_without_library_id() {
     let state = fresh_state().await;
-    let app = build_test_app(state).await;
+    let app = test_app!(state);
 
     let unknown = Uuid::now_v7();
     let req = TestRequest::get()

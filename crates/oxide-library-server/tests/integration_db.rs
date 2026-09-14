@@ -72,7 +72,7 @@ fn bearer_header() -> String {
     format!("Bearer {TEST_BEARER}")
 }
 
-fn build_test_app(
+async fn build_test_app(
     state: AppState,
 ) -> impl actix_web::dev::Service<
     actix_http::Request,
@@ -86,6 +86,7 @@ fn build_test_app(
             .wrap(BearerAuth::new(Some(TEST_BEARER.to_string())))
             .configure(configure_protected),
     )
+    .await
 }
 
 #[tokio::test]
