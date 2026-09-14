@@ -12,12 +12,14 @@ pub mod firmware;
 pub mod peripheral;
 pub mod pin_bridge;
 pub mod qemu;
+pub mod storage;
 pub mod uart;
 
 pub use arch::{ArchClass, CoreProfile, McuVendor, MemoryModel};
 pub use firmware::{ArmArch, ArmCore, FirmwareError, FirmwareImage, McuFamily, McuTarget, MemorySegment};
 pub use pin_bridge::{LogicLevel, PinBridge, PinFunction, VirtualPinState};
 pub use qemu::{QemuConfig, QemuError, QemuInstance};
+pub use storage::{I2cEeprom, ParallelSram, SpiEeprom, SpiFlash, SpiRam};
 pub use uart::VirtualUart;
 
 #[cfg(test)]
