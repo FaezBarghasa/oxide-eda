@@ -353,6 +353,8 @@ impl Oxide {
                     footprint_editor: None,
                     history: crate::panels::history::HistoryPanelState::default(),
                     waveform_state: crate::panels::waveform::WaveformPanelState::default(),
+                    telecom_state: crate::panels::telecom::TelecomPanelState::default(),
+                    mcu_console_state: crate::panels::mcu_console::McuConsolePanelState::default(),
                 },
                 history: crate::panels::history::HistoryPanelState::default(),
                 standard_lib_dir,

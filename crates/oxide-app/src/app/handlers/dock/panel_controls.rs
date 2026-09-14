@@ -411,6 +411,110 @@ impl Oxide {
             crate::panels::PanelMsg::DiscardAiProposal => {
                 self.refresh_panel_ctx();
             }
+            crate::panels::PanelMsg::RunSimulation => {
+                // Synthesize sample transient dataset if empty
+                if self.document_state.panel_ctx.waveform_state.dataset.is_none() {
+                    let mut time_vals = Vec::new();
+                    let mut v_in = Vec::new();
+                    let mut v_out = Vec::new();
+                    for i in 0..1000 {
+                        let t = i as f64 * 1e-6; // 1us steps
+                        time_vals.push(t);
+                        v_in.push(5.0 * (2.0 * std::f64::consts::PI * 1000.0 * t).sin());
+                        v_out.push(4.5 * (2.0 * std::f64::consts::PI * 1000.0 * t - 0.2).sin());
+                    }
+                    let ds = oxide_types::sim::WaveformDataset {
+                        title: "Transient Analysis (.TRAN)".to_string(),
+                        x_trace: oxide_types::sim::WaveformTrace {
+                            name: "time".to_string(),
+                            unit: oxide_types::sim::TraceUnit::Seconds,
+                            values: time_vals,
+                        },
+                        traces: vec![
+                            oxide_types::sim::WaveformTrace {
+                                name: "V(IN)".to_string(),
+                                unit: oxide_types::sim::TraceUnit::Volts,
+                                values: v_in,
+                            },
+                            oxide_types::sim::WaveformTrace {
+                                name: "V(OUT)".to_string(),
+                                unit: oxide_types::sim::TraceUnit::Volts,
+                                values: v_out,
+                            },
+                        ],
+                    };
+                    self.document_state.panel_ctx.waveform_state.dataset = Some(ds);
+                    self.document_state.panel_ctx.waveform_state.status_message = "Transient complete (1000 pts)".to_string();
+                }
+                self.refresh_panel_ctx();
+            }
+            crate::panels::PanelMsg::ClearWaveforms => {
+                self.document_state.panel_ctx.waveform_state.dataset = None;
+                self.document_state.panel_ctx.waveform_state.status_message = "Cleared".to_string();
+                self.refresh_panel_ctx();
+            }
+            crate::panels::PanelMsg::ToggleWaveformTrace(name) => {
+                if let Some(pos) = self.document_state.panel_ctx.waveform_state.selected_traces.iter().position(|t| t == name) {
+                    self.document_state.panel_ctx.waveform_state.selected_traces.remove(pos);
+                } else {
+                    self.document_state.panel_ctx.waveform_state.selected_traces.push(name.clone());
+                }
+                self.refresh_panel_ctx();
+            }
+            crate::panels::PanelMsg::SetTelecomTab(tab) => {
+                self.document_state.panel_ctx.telecom_state.active_tab = *tab;
+                self.refresh_panel_ctx();
+            }
+            crate::panels::PanelMsg::RunRfSimulation => {
+                let s2p = oxide_rf::s_param::Network2Port::from_pi_attenuator(100.0, 50.0);
+                let eye = oxide_rf::eye_diagram::EyeDiagram::from_prbs(&[1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1], 1e9, 10e9);
+                let cons = oxide_rf::constellation::ConstellationDiagram::simulate(
+                    oxide_rf::modulation::ModulationScheme::Qam16,
+                    500,
+                    25.0,
+                );
+                self.document_state.panel_ctx.telecom_state.s_params = Some(s2p);
+                self.document_state.panel_ctx.telecom_state.eye_diagram = Some(eye);
+                self.document_state.panel_ctx.telecom_state.constellation = Some(cons);
+                self.refresh_panel_ctx();
+            }
+            crate::panels::PanelMsg::SetMcuConsoleTab(tab) => {
+                self.document_state.panel_ctx.mcu_console_state.active_tab = *tab;
+                self.refresh_panel_ctx();
+            }
+            crate::panels::PanelMsg::RunCoSimulation => {
+                self.document_state.panel_ctx.mcu_console_state.is_qemu_running = true;
+                self.document_state.panel_ctx.mcu_console_state.gdb_port = 1234;
+                self.document_state.panel_ctx.mcu_console_state.uart_output.push("[Oxide CoSim] Starting QEMU arm-system cortex-m4 target...".to_string());
+                self.document_state.panel_ctx.mcu_console_state.uart_output.push("[Oxide CoSim] GDB Stub listening on TCP :1234".to_string());
+                self.document_state.panel_ctx.mcu_console_state.uart_output.push("[Oxide CoSim] Synchronizing Pin Bridge (GPIO + ADC)...".to_string());
+                self.document_state.panel_ctx.mcu_console_state.uart_output.push("Firmware booted: FreeRTOS v10.4.3 on STM32F407".to_string());
+                self.document_state.panel_ctx.mcu_console_state.mqtt_messages.push((
+                    "telemetry/sensor1".to_string(),
+                    r#"{"temp_c": 24.5, "pressure_hpa": 1013.25}"#.to_string(),
+                ));
+                self.document_state.panel_ctx.mcu_console_state.eth_packet_count = 12;
+                self.document_state.panel_ctx.mcu_console_state.wifi_rssi_dbm = -58.2;
+                self.document_state.panel_ctx.mcu_console_state.ble_connected = true;
+                self.refresh_panel_ctx();
+            }
+            crate::panels::PanelMsg::StopCoSimulation => {
+                self.document_state.panel_ctx.mcu_console_state.is_qemu_running = false;
+                self.document_state.panel_ctx.mcu_console_state.uart_output.push("[Oxide CoSim] QEMU target terminated.".to_string());
+                self.refresh_panel_ctx();
+            }
+            crate::panels::PanelMsg::SetUartInputBuffer(buf) => {
+                self.document_state.panel_ctx.mcu_console_state.uart_input_buffer = buf.clone();
+                self.refresh_panel_ctx();
+            }
+            crate::panels::PanelMsg::SubmitUartInput => {
+                let cmd = std::mem::take(&mut self.document_state.panel_ctx.mcu_console_state.uart_input_buffer);
+                if !cmd.is_empty() {
+                    self.document_state.panel_ctx.mcu_console_state.uart_output.push(format!("> {}", cmd));
+                    self.document_state.panel_ctx.mcu_console_state.uart_output.push(format!("[ACK] Command '{}' received", cmd));
+                }
+                self.refresh_panel_ctx();
+            }
             _ => return None,
         }
 

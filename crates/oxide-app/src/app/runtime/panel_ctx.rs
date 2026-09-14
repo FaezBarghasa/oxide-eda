@@ -508,6 +508,8 @@ impl Oxide {
             footprint_editor: build_footprint_editor_panel_ctx(self),
             history: self.document_state.history.clone(),
             waveform_state: self.document_state.panel_ctx.waveform_state.clone(),
+            telecom_state: self.document_state.panel_ctx.telecom_state.clone(),
+            mcu_console_state: self.document_state.panel_ctx.mcu_console_state.clone(),
         };
         self.document_state.panel_ctx.project_tree =
             crate::panels::build_project_tree(&self.document_state.panel_ctx);

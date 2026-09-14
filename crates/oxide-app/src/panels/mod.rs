@@ -37,6 +37,8 @@ mod layer_stack;
 mod copilot;
 mod ai_diff;
 pub mod waveform;
+pub mod telecom;
+pub mod mcu_console;
 
 use element_properties::{
     view_child_sheet_properties, view_drawing_properties, view_selected_element_properties,
@@ -140,6 +142,10 @@ pub enum PanelKind {
     AiDiff,
     /// Mixed-signal SPICE/PSpice Waveform Viewer panel.
     Waveform,
+    /// Telecommunications & RF analysis panel.
+    Telecom,
+    /// MCU & Protocol co-simulation console panel.
+    McuConsole,
 }
 
 /// All available panel kinds for the panel list button.
@@ -160,6 +166,8 @@ pub const ALL_PANELS: &[PanelKind] = &[
     PanelKind::Copilot,
     PanelKind::AiDiff,
     PanelKind::Waveform,
+    PanelKind::Telecom,
+    PanelKind::McuConsole,
     PanelKind::BomStudio,
     PanelKind::Favorites,
     PanelKind::Snippets,
@@ -193,6 +201,8 @@ impl PanelKind {
                 | PanelKind::Copilot
                 | PanelKind::AiDiff
                 | PanelKind::Waveform
+                | PanelKind::Telecom
+                | PanelKind::McuConsole
         )
     }
 
@@ -216,6 +226,8 @@ impl PanelKind {
             PanelKind::Copilot => "AI Copilot",
             PanelKind::AiDiff => "AI Diff Review",
             PanelKind::Waveform => "Waveforms",
+            PanelKind::Telecom => "RF & Telecom",
+            PanelKind::McuConsole => "MCU Console",
             PanelKind::NetClasses => "Net Classes",
             PanelKind::Variants => "Variants",
             PanelKind::SchFilter => "SCH Filter",
@@ -239,12 +251,18 @@ pub type CollapsedSections = std::collections::HashSet<String>;
 
 /// Render a panel's content.
 pub fn view_panel<'a>(kind: PanelKind, ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
-    // Components has its own split scrollables — don't wrap again
+    // Panels that manage their own root scrollable
     if kind == PanelKind::Components {
         return view_components(ctx);
     }
     if kind == PanelKind::Waveform {
         return waveform::view_waveform(ctx);
+    }
+    if kind == PanelKind::Telecom {
+        return telecom::view_telecom(ctx);
+    }
+    if kind == PanelKind::McuConsole {
+        return mcu_console::view_mcu_console(ctx);
     }
 
     let content = match kind {
@@ -261,6 +279,8 @@ pub fn view_panel<'a>(kind: PanelKind, ctx: &'a PanelContext) -> Element<'a, Pan
         PanelKind::Copilot => copilot::view_copilot(ctx),
         PanelKind::AiDiff => ai_diff::view_ai_diff(ctx),
         PanelKind::Waveform => return waveform::view_waveform(ctx),
+        PanelKind::Telecom => return telecom::view_telecom(ctx),
+        PanelKind::McuConsole => return mcu_console::view_mcu_console(ctx),
         PanelKind::NetClasses => view_stub("Net Classes", "Define net classes and rules", ctx),
         PanelKind::Variants => view_stub("Variants", "Design variant management", ctx),
         PanelKind::OutputJobs => view_stub("Output Jobs", "Manufacturing output config", ctx),
@@ -285,3 +305,4 @@ pub fn view_panel<'a>(kind: PanelKind, ctx: &'a PanelContext) -> Element<'a, Pan
 
     scrollable(content).width(Length::Fill).into()
 }
+
