@@ -32,6 +32,10 @@ mod properties;
 mod status;
 mod symbol_context;
 mod widgets;
+mod drc;
+mod layer_stack;
+mod copilot;
+mod ai_diff;
 
 use element_properties::{
     view_child_sheet_properties, view_drawing_properties, view_selected_element_properties,
@@ -129,6 +133,10 @@ pub enum PanelKind {
     /// follows the active tab and shows the file's last 50 commits
     /// via `oxide_widgets::history_pane`.
     History,
+    /// AI Copilot panel for ProtoFlow circuit generation and real-part validation.
+    Copilot,
+    /// Visual Diff Review panel for reviewing AI-suggested circuit changes.
+    AiDiff,
 }
 
 /// All available panel kinds for the panel list button.
@@ -145,10 +153,12 @@ pub const ALL_PANELS: &[PanelKind] = &[
     PanelKind::Messages,
     PanelKind::Signal,
     PanelKind::Drc,
+    PanelKind::LayerStack,
+    PanelKind::Copilot,
+    PanelKind::AiDiff,
     PanelKind::BomStudio,
     PanelKind::Favorites,
     PanelKind::Snippets,
-    PanelKind::LayerStack,
     PanelKind::NetClasses,
     PanelKind::Variants,
     PanelKind::OutputJobs,
@@ -176,6 +186,8 @@ impl PanelKind {
                 | PanelKind::Snippets
                 | PanelKind::Variants
                 | PanelKind::OutputJobs
+                | PanelKind::Copilot
+                | PanelKind::AiDiff
         )
     }
 
@@ -196,6 +208,8 @@ impl PanelKind {
             PanelKind::Signal => "Signal",
             PanelKind::Drc => "DRC",
             PanelKind::LayerStack => "Layer Stack",
+            PanelKind::Copilot => "AI Copilot",
+            PanelKind::AiDiff => "AI Diff Review",
             PanelKind::NetClasses => "Net Classes",
             PanelKind::Variants => "Variants",
             PanelKind::SchFilter => "SCH Filter",
@@ -233,8 +247,10 @@ pub fn view_panel<'a>(kind: PanelKind, ctx: &'a PanelContext) -> Element<'a, Pan
         PanelKind::Erc => view_erc(ctx),
         PanelKind::Messages => view_messages(ctx),
         PanelKind::Signal => view_stub("Signal AI", "Pro feature — AI design review", ctx),
-        PanelKind::Drc => view_stub("DRC", "Run DRC to check PCB design rules", ctx),
-        PanelKind::LayerStack => view_stub("Layer Stack", "PCB mode only", ctx),
+        PanelKind::Drc => drc::view_drc(ctx),
+        PanelKind::LayerStack => layer_stack::view_layer_stack(ctx),
+        PanelKind::Copilot => copilot::view_copilot(ctx),
+        PanelKind::AiDiff => ai_diff::view_ai_diff(ctx),
         PanelKind::NetClasses => view_stub("Net Classes", "Define net classes and rules", ctx),
         PanelKind::Variants => view_stub("Variants", "Design variant management", ctx),
         PanelKind::OutputJobs => view_stub("Output Jobs", "Manufacturing output config", ctx),

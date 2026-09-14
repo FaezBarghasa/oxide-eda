@@ -387,6 +387,30 @@ impl Oxide {
             crate::panels::PanelMsg::SelectCustomFilterTab(idx) => {
                 self.handle_select_custom_filter_tab(*idx);
             }
+            crate::panels::PanelMsg::RunDrc => {
+                self.refresh_panel_ctx();
+            }
+            crate::panels::PanelMsg::ClearDrc => {
+                self.refresh_panel_ctx();
+            }
+            crate::panels::PanelMsg::RecalculateStackupImpedance => {
+                self.refresh_panel_ctx();
+            }
+            crate::panels::PanelMsg::ClearCopilotChat => {
+                self.refresh_panel_ctx();
+            }
+            crate::panels::PanelMsg::SetCopilotPromptInput(prompt) => {
+                self.document_state.panel_ctx.component_filter = prompt.clone();
+            }
+            crate::panels::PanelMsg::SubmitCopilotPrompt => {
+                self.refresh_panel_ctx();
+            }
+            crate::panels::PanelMsg::AcceptAiProposal => {
+                self.refresh_panel_ctx();
+            }
+            crate::panels::PanelMsg::DiscardAiProposal => {
+                self.refresh_panel_ctx();
+            }
             _ => return None,
         }
 

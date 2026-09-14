@@ -961,6 +961,22 @@ pub enum PanelMsg {
     SetCustomPaperHeight(f32),
     /// Page Options: choose sheet background colour.
     SetSheetColor(SheetColor),
+    /// Run Altium-grade DRC rules
+    RunDrc,
+    /// Clear DRC violation results
+    ClearDrc,
+    /// Recalculate multilayer stackup impedance
+    RecalculateStackupImpedance,
+    /// Clear AI Copilot chat history
+    ClearCopilotChat,
+    /// Set text in Copilot prompt input box
+    SetCopilotPromptInput(String),
+    /// Submit Copilot prompt for circuit intent generation
+    SubmitCopilotPrompt,
+    /// Accept and commit AI circuit proposal
+    AcceptAiProposal,
+    /// Discard AI proposal
+    DiscardAiProposal,
     /// No-op placeholder for unimplemented UI controls.
     Noop,
 }

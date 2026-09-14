@@ -67,17 +67,35 @@ repository = "https://github.com/alplabai/signex"
 
 [workspace.dependencies]
 # UI framework
-iced = { version = "0.14", features = ["wgpu", "canvas", "advanced", "svg", "image", "tokio"] }
-iced_aw = { version = "0.13", default-features = false, features = [
-    "tabs", "tab_bar", "card", "context_menu", "number_input",
-    "color_picker", "menu", "drop_down", "selection_list",
-    "wrap", "spinner", "sidebar", "labeled_frame", "badge",
+iced = { version = "0.14", features = [
+    "wgpu",
+    "canvas",
+    "advanced",
+    "svg",
+    "image",
+    "tokio",
+] }
+iced_aw = { version = "0.14.0", default-features = false, features = [
+    "tabs",
+    "tab_bar",
+    "card",
+    "context_menu",
+    "number_input",
+    "color_picker",
+    "menu",
+    "drop_down",
+    "selection_list",
+    "wrap",
+    "spinner",
+    "sidebar",
+    "labeled_frame",
+    "badge",
 ] }
 
 # Serialization
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-toml = "0.8"
+toml = "1.1.6+spec-1.1.0"
 
 # Identity
 uuid = { version = "1.23.1", features = ["v4", "v7", "serde"] }
@@ -90,13 +108,13 @@ anyhow = "1"
 rfd = "0.17.2"
 
 # DSL parser
-chumsky = "0.12"
+chumsky = "0.13.0"
 regex = "1"
 
 # Output generation
-pdf-writer = "0.14"
-rust_xlsxwriter = "0.77"
-tiny-skia = "0.11"
+pdf-writer = "0.15.0"
+rust_xlsxwriter = "0.99.1"
+tiny-skia = "0.12.0"
 ttf-parser = "0.25"
 
 # Internal crates
@@ -123,24 +141,43 @@ chrono = { version = "0.4", features = ["serde"] }
 sha2 = "0.10"
 
 # Library subsystem — Phase 1 (adapters: local-git, database server, distributor APIs, search, AI-stub)
-git2 = { version = "0.19", default-features = false, features = ["vendored-libgit2"] }
-keyring = "3"
-tantivy = "0.22"
+git2 = { version = "0.21.0", default-features = false, features = [
+    "vendored-libgit2",
+] }
+keyring = "4.2.0"
+tantivy = "0.26.2"
 # NOTE: oauth2 is declared directly in oxide-library (it needs
 # default-features = false + the reqwest-blocking feature set, which cannot
 # be expressed by inheriting a workspace entry). No crate inherits an
 # `oauth2.workspace = true`, so a root entry here would be dead weight that
 # could silently drift from the real one — intentionally omitted.
-reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
-axum = { version = "0.7", features = ["ws"] }
+reqwest = { version = "0.13.5", default-features = false, features = [
+    "json",
+    "rustls-tls",
+] }
+axum = { version = "0.8.9", features = ["ws"] }
 tokio = { version = "1", features = ["full"] }
-sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio-rustls", "postgres", "sqlite", "macros", "chrono", "uuid", "migrate"] }
-pdf-extract = "0.7"
-tower-http = { version = "0.6", features = ["cors", "trace", "auth", "validate-request", "limit"] }
+sqlx = { version = "0.9.0", default-features = false, features = [
+    "runtime-tokio-rustls",
+    "postgres",
+    "sqlite",
+    "macros",
+    "chrono",
+    "uuid",
+    "migrate",
+] }
+pdf-extract = "0.12.0"
+tower-http = { version = "0.7.1", features = [
+    "cors",
+    "trace",
+    "auth",
+    "validate-request",
+    "limit",
+] }
 # Per-IP rate limiting for the library server (HI-2). Closes the DoS surface
 # on `/locks` (unbounded acquire) + mutating routes. `governor` is the
 # underlying token-bucket impl.
-tower_governor = "0.4"
+tower_governor = "0.8.0"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
