@@ -83,6 +83,14 @@ pub use templates::{ParamKind, ParamSlot, ParameterTemplate, TemplateRegistry, T
 pub use where_used::{UseSite, WhereUsedIndex};
 
 #[cfg(feature = "local-git")]
+pub mod dependency;
+#[cfg(feature = "local-git")]
+pub use dependency::{
+    DependencyError, GitDependencyManager, GitInstaller, GitResolver, LockfileManager, MountReport,
+    VerificationReport,
+};
+
+#[cfg(feature = "local-git")]
 pub use adapters::local_git::LocalGitAdapter;
 
 /// Project-level "Enable Version Control" helper. Runs

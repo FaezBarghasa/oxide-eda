@@ -24,6 +24,7 @@ use oxide_library::component::ComponentRow;
 use oxide_library::identity::RowId;
 use oxide_library::primitive::{Footprint, SimModel, Symbol};
 use sqlx::Row;
+use sqlx::query::AssertSqlSafe;
 use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode, SqlitePoolOptions};
 use uuid::Uuid;
 

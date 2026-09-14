@@ -112,6 +112,10 @@ pub struct ProjectData {
     /// about Oxide libraries) load with an empty list.
     #[serde(default)]
     pub libraries: Vec<LibraryEntry>,
+    /// Version-controlled dependencies (Libraries, Footprints, Components)
+    /// managed by the Git2-based dependency manager.
+    #[serde(default)]
+    pub dependencies: Vec<ProjectDependency>,
     /// v0.22 — opt-in local Git versioning for this project's design
     /// files (`.snxsch`, `.snxpcb`, `.snxprj`, `.snxmat`,
     /// `.snxnet`, `.snxbom`, `.snxout`). Defaults to `false`; users
@@ -125,6 +129,103 @@ pub struct ProjectData {
     /// pattern as `LibrarySpec.enable_git` for `.snxlib` files.
     #[serde(default)]
     pub enable_git: bool,
+}
+
+// ---------------------------------------------------------------------------
+// EDA Project Dependencies (Git2-based version & dependency management)
+// ---------------------------------------------------------------------------
+
+/// The kind of EDA dependency being tracked.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum DependencyKind {
+    /// Full component library (`*.snxlib` package).
+    Library,
+    /// Dedicated footprint library or package (`*.snxfpt`).
+    Footprint,
+    /// Schematic component/symbol package (`*.snxsym`).
+    Component,
+}
+
+/// Target Git reference or constraint for resolving a dependency.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum GitReference {
+    /// Exact Git tag name (e.g. `v1.2.0`).
+    Tag(String),
+    /// Branch name (e.g. `main` or `trunk`).
+    Branch(String),
+    /// Specific commit SHA/rev (e.g. `4a9f...`).
+    Rev(String),
+    /// Semantic version requirement (e.g. `^1.2.0` or `>=2.0.0`).
+    Semver(String),
+}
+
+/// Git repository source specification.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct GitSource {
+    /// Git URL (`https://...`, `git@...`) or local path (`file://...` / `/path/...`).
+    pub url: String,
+    /// Target reference or version constraint.
+    pub reference: GitReference,
+}
+
+/// A versioned dependency declared in `.snxprj`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ProjectDependency {
+    /// Package/dependency identifier name.
+    pub name: String,
+    /// Type of EDA dependency (Library, Footprint, Component).
+    pub kind: DependencyKind,
+    /// Git repository source.
+    pub source: GitSource,
+    /// Optional subpath inside the repository (for monorepos).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub subpath: Option<PathBuf>,
+    /// Whether this dependency is currently active/enabled.
+    #[serde(default = "default_true")]
+    pub enabled: bool,
+}
+
+fn default_true() -> bool {
+    true
+}
+
+/// A locked, exact resolution record stored in `project.lock`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct LockedDependency {
+    pub name: String,
+    pub kind: DependencyKind,
+    pub url: String,
+    /// Exact resolved 40-character hex commit OID.
+    pub commit_oid: String,
+    /// Exact tree hash for integrity verification.
+    pub tree_oid: String,
+    /// Resolved semver string if resolved from a tag/semver rule.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub resolved_version: Option<String>,
+    /// Project-relative installation path (e.g. `.oxide/deps/<name>`).
+    pub install_path: PathBuf,
+    /// UTC timestamp when this dependency was resolved and locked.
+    pub locked_at: String,
+}
+
+/// Deterministic lockfile format (`project.lock`) for reproducible EDA designs.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ProjectLockfile {
+    /// Lockfile schema version (currently 1).
+    pub version: u32,
+    /// Map of dependency name to exact locked state.
+    pub dependencies: std::collections::BTreeMap<String, LockedDependency>,
+}
+
+impl Default for ProjectLockfile {
+    fn default() -> Self {
+        Self {
+            version: 1,
+            dependencies: std::collections::BTreeMap::new(),
+        }
+    }
 }
 
 impl ProjectData {
@@ -250,6 +351,7 @@ mod tests {
             variant_definitions: vec![],
             active_variant: None,
             libraries: vec![],
+            dependencies: vec![],
             enable_git: false,
         };
         let local = LibraryEntry {
@@ -274,6 +376,7 @@ mod tests {
             variant_definitions: vec![],
             active_variant: None,
             libraries: vec![],
+            dependencies: vec![],
             enable_git: false,
         };
         let shared = LibraryEntry {
@@ -285,6 +388,42 @@ mod tests {
             project.resolve_library_path(&shared),
             PathBuf::from("/var/oxide/Power.snxlib")
         );
+    }
+
+    #[test]
+    fn project_dependencies_and_lockfile_round_trip() {
+        let dep = ProjectDependency {
+            name: "connectors".to_string(),
+            kind: DependencyKind::Library,
+            source: GitSource {
+                url: "https://github.com/oxide/connectors.git".to_string(),
+                reference: GitReference::Semver("^1.0.0".to_string()),
+            },
+            subpath: None,
+            enabled: true,
+        };
+        let mut lockfile = ProjectLockfile::default();
+        lockfile.dependencies.insert(
+            "connectors".to_string(),
+            LockedDependency {
+                name: "connectors".to_string(),
+                kind: DependencyKind::Library,
+                url: "https://github.com/oxide/connectors.git".to_string(),
+                commit_oid: "4a9f8b2c1d3e5f6a7b8c9d0e1f2a3b4c5d6e7f8a".to_string(),
+                tree_oid: "8b2c1d3e5f6a7b8c9d0e1f2a3b4c5d6e7f8a4a9f".to_string(),
+                resolved_version: Some("1.0.2".to_string()),
+                install_path: PathBuf::from(".oxide/deps/connectors"),
+                locked_at: "2026-09-14T12:00:00Z".to_string(),
+            },
+        );
+
+        let dep_json = serde_json::to_string(&dep).expect("serialize dep");
+        let dep_back: ProjectDependency = serde_json::from_str(&dep_json).expect("deserialize dep");
+        assert_eq!(dep, dep_back);
+
+        let lock_json = serde_json::to_string(&lockfile).expect("serialize lockfile");
+        let lock_back: ProjectLockfile = serde_json::from_str(&lock_json).expect("deserialize lockfile");
+        assert_eq!(lockfile, lock_back);
     }
 }
 
@@ -411,6 +550,7 @@ pub fn parse_project(path: &Path) -> Result<ProjectData, ProjectError> {
         variant_definitions: Vec::new(),
         active_variant: None,
         libraries: Vec::new(),
+        dependencies: Vec::new(),
         enable_git: false,
     })
 }

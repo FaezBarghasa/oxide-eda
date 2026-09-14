@@ -18,6 +18,7 @@ thiserror = { workspace = true }
 anyhow = { workspace = true }
 url = { version = "2", features = ["serde"] }
 csv = "1.3"
+semver = { workspace = true }
 
 # Atomic-write helper used by adapters (HI-6).
 oxide-types = { workspace = true }
@@ -38,7 +39,7 @@ walkdir = { version = "2", optional = true }
 
 # Database adapter (WS-B) + community distributor adapters (WS-C) — both use
 # the same `reqwest` blocking client. Adding `blocking` to the workspace
-# default features (json + rustls-tls).
+# default features (json + rustls).
 reqwest = { workspace = true, features = ["blocking"], optional = true }
 
 # Distributor adapters (WS-C).
