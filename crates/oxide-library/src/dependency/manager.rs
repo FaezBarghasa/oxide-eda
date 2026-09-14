@@ -4,7 +4,7 @@ use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
 use oxide_types::project::{
-    DependencyKind, LibraryEntry, LibraryEntryKind, LockedDependency, ProjectData,
+    DependencyKind, LibraryEntry, LibraryEntryKind, ProjectData,
     ProjectDependency, ProjectLockfile,
 };
 
@@ -53,6 +53,10 @@ impl GitDependencyManager {
             installer: GitInstaller::new(),
             lockfile_mgr: LockfileManager::new(),
         }
+    }
+
+    pub fn lockfile_manager(&self) -> &LockfileManager {
+        &self.lockfile_mgr
     }
 
     /// Resolve and update all dependencies declared in `project_data`,
