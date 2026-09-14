@@ -7,9 +7,9 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-tract-onnx = "0.21"
-tract-pulse = "0.21"
-ndarray = "0.16"
+tract-onnx = "0.23.7"
+tract-pulse = "0.23.7"
+ndarray = "0.17.2"
 
 serde.workspace = true
 serde_json.workspace = true

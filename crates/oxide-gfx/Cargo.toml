@@ -7,11 +7,11 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-wgpu = "=27.0.1"
-glam = "0.32.1"
+wgpu = "30.0.1"
+glam = "0.33.7"
 bytemuck = { version = "1", features = ["derive"] }
 cryoglyph = "0.1.0"
-rstar = "0.12"
+rstar = "0.13.0"
 bitflags = "2"
 log = "0.4"
 # Concave-safe polygon fill: the authoritative ear-clip triangulator (see
@@ -20,7 +20,7 @@ log = "0.4"
 oxide-sketch = { workspace = true }
 
 [dev-dependencies]
-pollster = "0.4"
+pollster = "1.0.1"
 serde.workspace = true
 serde_json.workspace = true
 
