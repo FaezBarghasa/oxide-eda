@@ -36,6 +36,7 @@ mod drc;
 mod layer_stack;
 mod copilot;
 mod ai_diff;
+pub mod waveform;
 
 use element_properties::{
     view_child_sheet_properties, view_drawing_properties, view_selected_element_properties,
@@ -137,6 +138,8 @@ pub enum PanelKind {
     Copilot,
     /// Visual Diff Review panel for reviewing AI-suggested circuit changes.
     AiDiff,
+    /// Mixed-signal SPICE/PSpice Waveform Viewer panel.
+    Waveform,
 }
 
 /// All available panel kinds for the panel list button.
@@ -156,6 +159,7 @@ pub const ALL_PANELS: &[PanelKind] = &[
     PanelKind::LayerStack,
     PanelKind::Copilot,
     PanelKind::AiDiff,
+    PanelKind::Waveform,
     PanelKind::BomStudio,
     PanelKind::Favorites,
     PanelKind::Snippets,
@@ -188,6 +192,7 @@ impl PanelKind {
                 | PanelKind::OutputJobs
                 | PanelKind::Copilot
                 | PanelKind::AiDiff
+                | PanelKind::Waveform
         )
     }
 
@@ -210,6 +215,7 @@ impl PanelKind {
             PanelKind::LayerStack => "Layer Stack",
             PanelKind::Copilot => "AI Copilot",
             PanelKind::AiDiff => "AI Diff Review",
+            PanelKind::Waveform => "Waveforms",
             PanelKind::NetClasses => "Net Classes",
             PanelKind::Variants => "Variants",
             PanelKind::SchFilter => "SCH Filter",
@@ -237,6 +243,9 @@ pub fn view_panel<'a>(kind: PanelKind, ctx: &'a PanelContext) -> Element<'a, Pan
     if kind == PanelKind::Components {
         return view_components(ctx);
     }
+    if kind == PanelKind::Waveform {
+        return waveform::view_waveform(ctx);
+    }
 
     let content = match kind {
         PanelKind::Components => return view_components(ctx),
@@ -251,6 +260,7 @@ pub fn view_panel<'a>(kind: PanelKind, ctx: &'a PanelContext) -> Element<'a, Pan
         PanelKind::LayerStack => layer_stack::view_layer_stack(ctx),
         PanelKind::Copilot => copilot::view_copilot(ctx),
         PanelKind::AiDiff => ai_diff::view_ai_diff(ctx),
+        PanelKind::Waveform => return waveform::view_waveform(ctx),
         PanelKind::NetClasses => view_stub("Net Classes", "Define net classes and rules", ctx),
         PanelKind::Variants => view_stub("Variants", "Design variant management", ctx),
         PanelKind::OutputJobs => view_stub("Output Jobs", "Manufacturing output config", ctx),

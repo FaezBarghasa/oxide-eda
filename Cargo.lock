@@ -5841,6 +5841,7 @@ dependencies = [
  "oxide-renderer",
  "oxide-router",
  "oxide-rules",
+ "oxide-sim",
  "oxide-sketch",
  "oxide-types",
  "oxide-widgets",

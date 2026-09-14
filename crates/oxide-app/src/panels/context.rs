@@ -184,4 +184,6 @@ pub struct PanelContext {
     /// each refresh; the panel reads it directly without holding a
     /// borrow into the document state.
     pub history: history::HistoryPanelState,
+    /// Simulation waveform viewer state for the bottom-dock Waveform panel.
+    pub waveform_state: super::waveform::WaveformPanelState,
 }

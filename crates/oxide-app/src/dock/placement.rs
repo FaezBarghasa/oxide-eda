@@ -24,7 +24,7 @@ impl PanelPosition {
             | PanelKind::Components
             | PanelKind::Library
             | PanelKind::Signal => PanelPosition::Left,
-            PanelKind::Erc => PanelPosition::Bottom,
+            PanelKind::Erc | PanelKind::Waveform => PanelPosition::Bottom,
             PanelKind::Navigator
             | PanelKind::Properties
             | PanelKind::Messages
