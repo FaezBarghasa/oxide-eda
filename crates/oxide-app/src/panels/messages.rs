@@ -985,6 +985,20 @@ pub enum PanelMsg {
     ClearWaveforms,
     /// Toggle visibility of a waveform trace
     ToggleWaveformTrace(String),
+    /// Set sub-tab on the Telecom & RF panel
+    SetTelecomTab(super::telecom::TelecomTab),
+    /// Run RF and Telecommunication simulation (F10)
+    RunRfSimulation,
+    /// Set sub-tab on the MCU & Protocol console panel
+    SetMcuConsoleTab(super::mcu_console::McuConsoleTab),
+    /// Start QEMU MCU and Multi-Domain Co-Simulation
+    RunCoSimulation,
+    /// Stop QEMU MCU Co-Simulation
+    StopCoSimulation,
+    /// Update UART user input buffer
+    SetUartInputBuffer(String),
+    /// Submit input string to Virtual MCU UART
+    SubmitUartInput,
     /// No-op placeholder for unimplemented UI controls.
     Noop,
 }

@@ -186,4 +186,9 @@ pub struct PanelContext {
     pub history: history::HistoryPanelState,
     /// Simulation waveform viewer state for the bottom-dock Waveform panel.
     pub waveform_state: super::waveform::WaveformPanelState,
+    /// Telecommunications & RF analysis panel state.
+    pub telecom_state: super::telecom::TelecomPanelState,
+    /// MCU & Protocol co-simulation console state.
+    pub mcu_console_state: super::mcu_console::McuConsolePanelState,
 }
+
