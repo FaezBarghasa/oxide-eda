@@ -17,6 +17,7 @@ pub mod uart;
 
 pub use arch::{ArchClass, CoreProfile, McuVendor, MemoryModel};
 pub use firmware::{ArmArch, ArmCore, FirmwareError, FirmwareImage, McuFamily, McuTarget, MemorySegment};
+pub use peripheral::{DisplaySimulator, DisplayType, TouchEvent, TouchType};
 pub use pin_bridge::{LogicLevel, PinBridge, PinFunction, VirtualPinState};
 pub use qemu::{QemuConfig, QemuError, QemuInstance};
 pub use storage::{I2cEeprom, ParallelSram, SpiEeprom, SpiFlash, SpiRam};
@@ -301,5 +302,33 @@ mod tests {
         assert_eq!(sram.read_u32(0x6000_0010), Some(0x1234_5678));
         assert_eq!(sram.read_u16(0x6000_0010), Some(0x5678));
         assert_eq!(sram.read_u8(0x6000_0012), Some(0x34));
+    }
+
+    #[test]
+    fn test_display_and_touch_simulation() {
+        // 1. OLED Display
+        let mut oled = DisplaySimulator::new_ssd1306_oled_128x64();
+        oled.set_pixel(10, 20, 255, 255, 255, 255);
+        assert_eq!(oled.get_pixel(10, 20), Some((255, 255, 255, 255)));
+
+        // 2. ILI9341 TFT Display with Resistive Touch
+        let mut tft = DisplaySimulator::new_ili9341_tft_touch_240x320();
+        tft.clear(0, 0, 255); // Blue background
+        assert_eq!(tft.get_pixel(100, 100), Some((0, 0, 255, 255)));
+
+        // Inject Touch Interaction
+        tft.inject_touch(120, 160, true);
+        let touch = tft.active_touch.unwrap();
+        assert_eq!(touch.x, 120);
+        assert_eq!(touch.y, 160);
+        assert!(touch.pressed);
+
+        tft.release_touch();
+        assert!(tft.active_touch.is_none());
+
+        // 3. HD44780 Character LCD
+        let lcd = DisplaySimulator::new_hd44780_lcd_16x2();
+        assert_eq!(lcd.width, 160);
+        assert_eq!(lcd.height, 32);
     }
 }

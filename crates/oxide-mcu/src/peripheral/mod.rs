@@ -20,6 +20,7 @@
 //! - [`crc::CrcPeripheral`]: Hardware CRC-32/16/8 computation engine
 //! - [`rng::RngPeripheral`]: Hardware True / Pseudo Random Number Generator
 
+pub mod display;
 pub mod nvic;
 pub mod systick;
 pub mod gpio;
@@ -39,6 +40,7 @@ pub mod rtc;
 pub mod crc;
 pub mod rng;
 
+pub use display::{DisplaySimulator, DisplayType, TouchEvent, TouchType};
 pub use nvic::Nvic;
 pub use systick::SysTick;
 pub use gpio::{GpioMode, GpioPinState, GpioPort, GpioPull, GpioSpeed, GpioType};

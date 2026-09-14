@@ -18,6 +18,19 @@ Each release section is authored **before** the `vX.Y.Z` tag is created, so the 
 
 ## [Unreleased]
 
+### Added — Universal MCU, External Storage & FPGA Co-Simulation Engine (`oxide-mcu`, `oxide-cosim`)
+
+- **Virtual Display & Touchscreen Simulation (`oxide-mcu::peripheral::display`)** — Full emulation models for Character LCDs (HD44780 16x2/20x4), Monochrome OLED/LCDs (SSD1306 128x64/128x32, ST7565, PCD8544), Color TFT LCD Controllers (ILI9341 240x320, ST7789 240x240, GC9A01 Round Display, SSD1963 800x480), LED Matrix / 7-Segment displays (MAX7219 8x8, TM1637 4-digit), and Touchscreen Controllers (XPT2046 SPI Resistive Touch, FT6236 / GT911 I2C Capacitive Multi-touch). Compatible with `embedded-graphics` framebuffers.
+- **Multi-Vendor MCU Architecture Profiles (`oxide-mcu::arch`)** — Support for 15+ processor core profiles across **Espressif** (ESP32 Xtensa LX6/LX7 & RISC-V), **Microchip / Atmel** (AVR 8-bit ATmega/ATtiny, PIC 8/16/32-bit MIPS), **RISC-V** (WCH CH32V, SiFive FE310, RP2350 Hazard3), **STMicroelectronics** (STM32 Cortex-M series), **NXP** (S32K, LPC, i.MX RT 600MHz), and **Texas Instruments** (MSP430 16-bit RISC, C2000 32-bit DSP/MCU).
+- **Harvard vs Von Neumann Memory Architectures** — Independent 16-bit program flash and 8-bit SRAM/EEPROM address space modeling for AVR 8-bit & PIC 8/16-bit (`MemoryModel::HarvardSplit`) alongside unified 32-bit address spaces (`MemoryModel::VonNeumann32`).
+- **External Non-Volatile & Volatile Memories (`oxide-mcu::storage`)** — Complete emulation models for:
+  - **I2C EEPROM (`I2cEeprom`)**: Microchip 24LCxx series (`24LC04` through `24LC1025`) with page buffer writes and sequential stream reads.
+  - **SPI EEPROM (`SpiEeprom`)**: Microchip 25LCxx series (`25LC256`) with Write Enable Latch (`WREN`/`WRDI`) and Status Register (`RDSR`).
+  - **SPI & Quad-SPI NOR Flash (`SpiFlash`)**: Winbond W25Qxx & Macronix MX25xx (`W25Q64`, `W25Q128`) with Quad Fast Read (`0xEB`), Sector Erase 4KB (`0x20`), Block Erase 64KB (`0xD8`), Chip Erase, Page Program (`0x02`), JEDEC ID (`0x9F`), and SFDP discovery tables.
+  - **SPI & Quad-SPI PSRAM (`SpiRam`)**: APMemory / ISSI PSRAM (`APS6404L`, `APS3204L`) with continuous high-throughput burst streaming.
+  - **Parallel SRAM (`ParallelSram`)**: Asynchronous 16-bit FMC/FSMC bus controller with Byte High/Low Enable (`BHE`/`BLE`) and atomic 8/16/32-bit accesses.
+- **FPGA Digital Logic Co-Simulation Bridge (`oxide-cosim::fpga_bridge`)** — Cycle-accurate HDL simulator bridge (`FpgaBridge`) with real-time FPGA clock cycle stepping synchronized with analog SPICE timesteps, digital pin vector states (`Zero`, `One`, `HighZ`, `Undefined`), and memory-mapped AXI4-Lite / Wishbone bus registers.
+
 ### Added — PCB GPU shader render (experimental, default-off)
 
 - **GPU scene render path** — the PCB editor canvas can render traces, pads, vias, and zones through the `oxide_gfx` wgpu pipelines via iced's `shader` widget instead of CPU `canvas::Frame` tessellation. Gated behind `feature_flags::PCB_GPU_RENDER` (default `false`) plus a Preferences toggle; the CPU path stays the default until GPU visual parity is confirmed on hardware.
