@@ -507,6 +507,7 @@ impl Oxide {
             symbol_editor: build_symbol_editor_panel_ctx(self),
             footprint_editor: build_footprint_editor_panel_ctx(self),
             history: self.document_state.history.clone(),
+            waveform_state: self.document_state.panel_ctx.waveform_state.clone(),
         };
         self.document_state.panel_ctx.project_tree =
             crate::panels::build_project_tree(&self.document_state.panel_ctx);

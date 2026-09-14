@@ -4,7 +4,7 @@
 use iced::mouse;
 use iced::widget::canvas::{self, Cursor, Geometry, Path, Program, Stroke};
 use iced::{Color, Point, Rectangle, Renderer, Size, Theme};
-use oxide_types::sim::{Scale, WaveformDataset, WaveformTrace};
+use oxide_types::sim::{WaveformDataset, WaveformTrace};
 use oxide_types::theme::ThemeTokens;
 
 /// Canvas program for rendering interactive simulation waveforms.
@@ -110,7 +110,7 @@ impl<'a, Message> Program<Message, Theme, Renderer> for WaveformCanvas<'a> {
         }
 
         let dataset = match self.dataset {
-            Some(ds) if !ds.x_data.is_empty() => ds,
+            Some(ds) if !ds.x_trace.values.is_empty() => ds,
             _ => {
                 // Empty state label
                 frame.fill_text(canvas::Text {
@@ -127,8 +127,8 @@ impl<'a, Message> Program<Message, Theme, Renderer> for WaveformCanvas<'a> {
         };
 
         // Determine X range
-        let x_min = dataset.x_data.first().copied().unwrap_or(0.0);
-        let x_max = dataset.x_data.last().copied().unwrap_or(1.0);
+        let x_min = dataset.x_trace.values.first().copied().unwrap_or(0.0);
+        let x_max = dataset.x_trace.values.last().copied().unwrap_or(1.0);
         let x_span = if (x_max - x_min).abs() > 1e-15 {
             x_max - x_min
         } else {
@@ -177,7 +177,7 @@ impl<'a, Message> Program<Message, Theme, Renderer> for WaveformCanvas<'a> {
         // Render traces
         for (idx, trace) in active_traces.iter().enumerate() {
             let color = TRACE_COLORS[idx % TRACE_COLORS.len()];
-            let n_pts = dataset.x_data.len().min(trace.values.len());
+            let n_pts = dataset.x_trace.values.len().min(trace.values.len());
             if n_pts < 2 {
                 continue;
             }
@@ -186,7 +186,7 @@ impl<'a, Message> Program<Message, Theme, Renderer> for WaveformCanvas<'a> {
             let mut started = false;
 
             for i in 0..n_pts {
-                let x_val = dataset.x_data[i];
+                let x_val = dataset.x_trace.values[i];
                 let y_val = trace.values[i];
 
                 if y_val.is_nan() || y_val.is_infinite() {
@@ -216,13 +216,14 @@ impl<'a, Message> Program<Message, Theme, Renderer> for WaveformCanvas<'a> {
 
         // 3. Render Axis Labels
         let axis_label_color = Color::from_rgba(0.7, 0.75, 0.8, 1.0);
+        let x_unit_suffix = dataset.x_trace.unit.suffix();
 
         // X Axis labels (bottom)
         for i in 0..=grid_divisions_x {
             let frac = i as f64 / grid_divisions_x as f64;
             let val = x_min + frac * x_span;
             let x = plot_rect.x + (frac as f32) * plot_rect.width;
-            let label = format_axis_value(val, &dataset.x_unit);
+            let label = format_axis_value(val, x_unit_suffix);
 
             frame.fill_text(canvas::Text {
                 content: label,
@@ -268,7 +269,7 @@ impl<'a, Message> Program<Message, Theme, Renderer> for WaveformCanvas<'a> {
                         .with_width(1.0),
                 );
                 frame.fill_text(canvas::Text {
-                    content: format!("A: {}", format_axis_value(ca, &dataset.x_unit)),
+                    content: format!("A: {}", format_axis_value(ca, x_unit_suffix)),
                     position: Point::new(px + 4.0, plot_rect.y + 4.0),
                     color: Color::from_rgb(0.9, 0.4, 0.1),
                     size: iced::Pixels(9.0),
@@ -291,7 +292,7 @@ impl<'a, Message> Program<Message, Theme, Renderer> for WaveformCanvas<'a> {
                         .with_width(1.0),
                 );
                 frame.fill_text(canvas::Text {
-                    content: format!("B: {}", format_axis_value(cb, &dataset.x_unit)),
+                    content: format!("B: {}", format_axis_value(cb, x_unit_suffix)),
                     position: Point::new(px + 4.0, plot_rect.y + 16.0),
                     color: Color::from_rgb(0.1, 0.7, 0.9),
                     size: iced::Pixels(9.0),

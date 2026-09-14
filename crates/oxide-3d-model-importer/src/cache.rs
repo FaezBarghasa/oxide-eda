@@ -30,7 +30,8 @@ pub fn cache_path(
 
     let mut hasher = Sha256::new();
     hasher.update(key.as_bytes());
-    let hash = format!("{:x}", hasher.finalize());
+    let result = hasher.finalize();
+    let hash: String = result.iter().map(|b| format!("{:02x}", b)).collect();
 
     Ok(cache_dir.join(format!("{hash}.glb")))
 }

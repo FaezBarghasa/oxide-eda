@@ -352,6 +352,7 @@ impl Oxide {
                     symbol_editor: None,
                     footprint_editor: None,
                     history: crate::panels::history::HistoryPanelState::default(),
+                    waveform_state: crate::panels::waveform::WaveformPanelState::default(),
                 },
                 history: crate::panels::history::HistoryPanelState::default(),
                 standard_lib_dir,
