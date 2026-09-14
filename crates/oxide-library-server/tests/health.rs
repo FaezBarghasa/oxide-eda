@@ -1,6 +1,6 @@
 use actix_web::http::StatusCode;
 use actix_web::test::{self, TestRequest};
-use actix_web::{App, web};
+use actix_web::App;
 use oxide_library_server::configure_liveness;
 
 #[actix_web::test]

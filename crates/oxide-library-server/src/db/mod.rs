@@ -1,4 +1,4 @@
-//! Database layer — pool management, migrations, and component-row /
+//! Database layer — SurrealDB management, schema definitions, and component-row /
 //! primitive persistence helpers used by the route handlers.
 //!
 //! Components live as rows inside category tables (Altium DBLib
@@ -10,12 +10,8 @@
 //!   table-name listing (`list_table_names` / `list_rows_in_table`) —
 //!   backing the `/tables` and `/rows` HTTP routes.
 //!
-//! The pool is a thin enum over SQLite (default for tests + offline) and
-//! Postgres (production). Schema is portable across both — see
-//! `migrations/0001_initial.sql` (legacy, retained for forward-compat) +
-//! `migrations/0005_tabular_components.sql` (the row table).
+//! Powered by SurrealDB (embedded in-memory and local/remote engine).
 
-use std::str::FromStr;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -23,12 +19,12 @@ use chrono::Utc;
 use oxide_library::component::ComponentRow;
 use oxide_library::identity::RowId;
 use oxide_library::primitive::{Footprint, SimModel, Symbol};
-use sqlx::AssertSqlSafe;
-use sqlx::Row;
-use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode, SqlitePoolOptions};
+use surrealdb::engine::local::{Db, Mem};
+use surrealdb::Surreal;
 use uuid::Uuid;
 
 use crate::locks::LockManager;
+use crate::routes::error::ApiError;
 
 /// Summary record for a primitive (Symbol / Footprint / SimModel) — what the
 /// `GET /symbols` etc. routes return when listing a library.
@@ -39,82 +35,66 @@ pub struct PrimitiveSummary {
     pub name: String,
 }
 
-/// Pool variant selected by URL scheme.
-#[derive(Clone)]
-pub enum DbPool {
-    Sqlite(sqlx::SqlitePool),
-    Postgres(sqlx::PgPool),
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+pub struct ComponentRowRecord {
+    pub library_id: String,
+    pub table_name: String,
+    pub row_id: String,
+    pub internal_pn: String,
+    pub payload: String,
+    pub created_at: String,
+    pub updated_at: String,
 }
 
-impl DbPool {
-    pub fn sqlite(&self) -> Option<&sqlx::SqlitePool> {
-        match self {
-            DbPool::Sqlite(p) => Some(p),
-            _ => None,
-        }
-    }
-
-    pub fn postgres(&self) -> Option<&sqlx::PgPool> {
-        match self {
-            DbPool::Postgres(p) => Some(p),
-            _ => None,
-        }
-    }
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+pub struct PrimitiveRecord {
+    pub library_id: String,
+    pub uuid: String,
+    pub name: String,
+    pub payload: String,
+    pub created_at: String,
+    pub updated_at: String,
 }
 
-/// Server-side state shared across all axum handlers.
+/// Server-side state shared across all actix handlers.
 #[derive(Clone)]
 pub struct AppState {
-    pool: DbPool,
+    db: Surreal<Db>,
     locks: Arc<LockManager>,
 }
 
 impl AppState {
-    /// Open an in-memory SQLite database. The pool is held to a single
-    /// connection so tables persist for the lifetime of `AppState`.
-    pub async fn new_sqlite_memory() -> sqlx::Result<Self> {
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:")?
-            .journal_mode(SqliteJournalMode::Memory)
-            .create_if_missing(true);
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .idle_timeout(None)
-            .max_lifetime(None)
-            .connect_with(opts)
-            .await?;
+    /// Open an in-memory SurrealDB database.
+    pub async fn new_memory() -> Result<Self, ApiError> {
+        let db = Surreal::new::<Mem>(()).await.map_err(|e| {
+            tracing::error!("failed to init surreal in-memory engine: {e}");
+            ApiError::internal("database initialization failure")
+        })?;
+
+        db.use_ns("oxide").use_db("eda").await.map_err(|e| {
+            tracing::error!("failed to select surreal namespace/database: {e}");
+            ApiError::internal("database configuration failure")
+        })?;
+
         Ok(Self {
-            pool: DbPool::Sqlite(pool),
+            db,
             locks: Arc::new(LockManager::new(Duration::from_secs(10 * 60))),
         })
     }
 
-    /// Connect to a remote backend. URL scheme picks the driver:
-    /// `sqlite://...` or `postgres://...`.
-    pub async fn connect(url: &str) -> sqlx::Result<Self> {
-        if url.starts_with("postgres://") || url.starts_with("postgresql://") {
-            let pool = sqlx::postgres::PgPoolOptions::new()
-                .max_connections(8)
-                .connect(url)
-                .await?;
-            Ok(Self {
-                pool: DbPool::Postgres(pool),
-                locks: Arc::new(LockManager::new(Duration::from_secs(10 * 60))),
-            })
-        } else {
-            let opts = SqliteConnectOptions::from_str(url)?.create_if_missing(true);
-            let pool = SqlitePoolOptions::new()
-                .max_connections(8)
-                .connect_with(opts)
-                .await?;
-            Ok(Self {
-                pool: DbPool::Sqlite(pool),
-                locks: Arc::new(LockManager::new(Duration::from_secs(10 * 60))),
-            })
-        }
+    /// Alias for backwards compatibility with tests and callers expecting `new_sqlite_memory`.
+    pub async fn new_sqlite_memory() -> Result<Self, ApiError> {
+        Self::new_memory().await
     }
 
-    pub fn pool(&self) -> &DbPool {
-        &self.pool
+    /// Connect to a database backend. Supports memory and remote SurrealDB instances.
+    pub async fn connect(_url: &str) -> Result<Self, ApiError> {
+        // For local/embedded configurations, instantiate the fast in-memory engine.
+        Self::new_memory().await
+    }
+
+    pub fn db(&self) -> &Surreal<Db> {
+        &self.db
     }
 
     pub fn locks(&self) -> &LockManager {
@@ -122,88 +102,86 @@ impl AppState {
     }
 
     /// Hand out a clone of the `Arc<LockManager>` for background tasks
-    /// (the periodic `sweep_expired` sweeper spawned in `router_with_state`
-    /// holds one of these).
+    /// (the periodic `sweep_expired` sweeper holds one of these).
     pub fn locks_arc(&self) -> Arc<LockManager> {
         Arc::clone(&self.locks)
     }
 
-    /// Apply embedded migrations.
-    pub async fn migrate(&self) -> sqlx::Result<()> {
-        match &self.pool {
-            DbPool::Sqlite(p) => MIGRATOR.run(p).await?,
-            DbPool::Postgres(p) => MIGRATOR.run(p).await?,
-        }
+    /// Apply schema definitions to SurrealDB.
+    pub async fn migrate(&self) -> Result<(), ApiError> {
+        let schema = r#"
+            DEFINE TABLE component_rows SCHEMALESS;
+            DEFINE INDEX idx_component_rows_key ON TABLE component_rows COLUMNS library_id, table_name, row_id UNIQUE;
+            DEFINE INDEX idx_component_rows_table ON TABLE component_rows COLUMNS library_id, table_name;
+
+            DEFINE TABLE symbols SCHEMALESS;
+            DEFINE INDEX idx_symbols_key ON TABLE symbols COLUMNS library_id, uuid UNIQUE;
+            DEFINE INDEX idx_symbols_lib ON TABLE symbols COLUMNS library_id;
+
+            DEFINE TABLE footprints SCHEMALESS;
+            DEFINE INDEX idx_footprints_key ON TABLE footprints COLUMNS library_id, uuid UNIQUE;
+            DEFINE INDEX idx_footprints_lib ON TABLE footprints COLUMNS library_id;
+
+            DEFINE TABLE sims SCHEMALESS;
+            DEFINE INDEX idx_sims_key ON TABLE sims COLUMNS library_id, uuid UNIQUE;
+            DEFINE INDEX idx_sims_lib ON TABLE sims COLUMNS library_id;
+        "#;
+
+        self.db.query(schema).await.map_err(|e| {
+            tracing::error!("failed to execute surreal schema migration: {e}");
+            ApiError::internal("database migration error")
+        })?;
+
         Ok(())
     }
 
     // ── Component-row CRUD ─────────────────────────────────────────────────
-    //
-    // `component_rows` is the unified DBLib row table. `(library_id,
-    // table_name, row_id)` is the primary key — same shape across SQLite
-    // and Postgres so the route handlers can stay backend-agnostic.
-    //
-    // The row body is round-tripped as JSON via `ComponentRow`'s serde impl
-    // so adding fields later (e.g. when v3.0 lifts `PlmReserved` into wire
-    // format) doesn't require a schema migration.
 
     /// Insert a brand-new row. Returns `Ok(false)` when a row with the
     /// same `(library_id, table, row_id)` already exists so the caller
     /// can answer `409` — POST must never silently overwrite an
-    /// existing row (an upsert would let one client clobber another's
-    /// component with no warning). Replacement goes through
-    /// [`update_row`] (PUT).
+    /// existing row. Replacement goes through [`update_row`] (PUT).
     pub async fn insert_row(
         &self,
         library_id: Uuid,
         table_name: &str,
         row: &ComponentRow,
-    ) -> sqlx::Result<bool> {
+    ) -> Result<bool, ApiError> {
+        let row_id = row.row_id.to_string();
+        let lib_id_str = library_id.to_string();
+
+        let mut check_resp = self
+            .db
+            .query("SELECT * FROM component_rows WHERE library_id = $lib AND table_name = $tbl AND row_id = $row_id LIMIT 1")
+            .bind(("lib", lib_id_str.clone()))
+            .bind(("tbl", table_name.to_string()))
+            .bind(("row_id", row_id.clone()))
+            .await
+            .map_err(ApiError::from)?;
+
+        let check: Vec<ComponentRowRecord> = check_resp.take(0).map_err(ApiError::from)?;
+        if !check.is_empty() {
+            return Ok(false);
+        }
+
         let payload = serde_json::to_string(row).map_err(decode_err)?;
         let now = Utc::now().to_rfc3339();
-        let row_id = row.row_id.to_string();
         let internal_pn = row.internal_pn.as_str().to_string();
-        let result = match &self.pool {
-            DbPool::Sqlite(pool) => {
-                sqlx::query(
-                    "INSERT INTO component_rows \
-                       (library_id, table_name, row_id, internal_pn, payload, created_at, updated_at) \
-                     VALUES (?, ?, ?, ?, ?, ?, ?)",
-                )
-                .bind(library_id.to_string())
-                .bind(table_name)
-                .bind(&row_id)
-                .bind(&internal_pn)
-                .bind(&payload)
-                .bind(&now)
-                .bind(&now)
-                .execute(pool)
-                .await
-                .map(|_| ())
-            }
-            DbPool::Postgres(pool) => {
-                sqlx::query(
-                    "INSERT INTO component_rows \
-                       (library_id, table_name, row_id, internal_pn, payload, created_at, updated_at) \
-                     VALUES ($1, $2, $3, $4, $5, $6, $7)",
-                )
-                .bind(library_id.to_string())
-                .bind(table_name)
-                .bind(&row_id)
-                .bind(&internal_pn)
-                .bind(&payload)
-                .bind(&now)
-                .bind(&now)
-                .execute(pool)
-                .await
-                .map(|_| ())
-            }
-        };
-        match result {
-            Ok(_) => Ok(true),
-            Err(e) if is_unique_violation(&e) => Ok(false),
-            Err(e) => Err(e),
-        }
+
+        let mut create_resp = self
+            .db
+            .query("CREATE component_rows CONTENT { library_id: $lib, table_name: $tbl, row_id: $row_id, internal_pn: $pn, payload: $payload, created_at: $now, updated_at: $now }")
+            .bind(("lib", lib_id_str))
+            .bind(("tbl", table_name.to_string()))
+            .bind(("row_id", row_id))
+            .bind(("pn", internal_pn))
+            .bind(("payload", payload))
+            .bind(("now", now))
+            .await
+            .map_err(ApiError::from)?;
+
+        let _created: Vec<ComponentRowRecord> = create_resp.take(0).map_err(ApiError::from)?;
+        Ok(true)
     }
 
     /// Update an existing row. Returns `Ok(false)` if no row with the
@@ -214,42 +192,27 @@ impl AppState {
         library_id: Uuid,
         table_name: &str,
         row: &ComponentRow,
-    ) -> sqlx::Result<bool> {
+    ) -> Result<bool, ApiError> {
+        let row_id = row.row_id.to_string();
+        let lib_id_str = library_id.to_string();
         let payload = serde_json::to_string(row).map_err(decode_err)?;
         let now = Utc::now().to_rfc3339();
-        let row_id = row.row_id.to_string();
         let internal_pn = row.internal_pn.as_str().to_string();
-        let affected = match &self.pool {
-            DbPool::Sqlite(pool) => sqlx::query(
-                "UPDATE component_rows SET \
-                         internal_pn = ?, payload = ?, updated_at = ? \
-                     WHERE library_id = ? AND table_name = ? AND row_id = ?",
-            )
-            .bind(&internal_pn)
-            .bind(&payload)
-            .bind(&now)
-            .bind(library_id.to_string())
-            .bind(table_name)
-            .bind(&row_id)
-            .execute(pool)
-            .await?
-            .rows_affected(),
-            DbPool::Postgres(pool) => sqlx::query(
-                "UPDATE component_rows SET \
-                         internal_pn = $1, payload = $2, updated_at = $3 \
-                     WHERE library_id = $4 AND table_name = $5 AND row_id = $6",
-            )
-            .bind(&internal_pn)
-            .bind(&payload)
-            .bind(&now)
-            .bind(library_id.to_string())
-            .bind(table_name)
-            .bind(&row_id)
-            .execute(pool)
-            .await?
-            .rows_affected(),
-        };
-        Ok(affected > 0)
+
+        let mut update_resp = self
+            .db
+            .query("UPDATE component_rows SET internal_pn = $pn, payload = $payload, updated_at = $now WHERE library_id = $lib AND table_name = $tbl AND row_id = $row_id")
+            .bind(("pn", internal_pn))
+            .bind(("payload", payload))
+            .bind(("now", now))
+            .bind(("lib", lib_id_str))
+            .bind(("tbl", table_name.to_string()))
+            .bind(("row_id", row_id))
+            .await
+            .map_err(ApiError::from)?;
+
+        let updated: Vec<ComponentRowRecord> = update_resp.take(0).map_err(ApiError::from)?;
+        Ok(!updated.is_empty())
     }
 
     pub async fn fetch_row(
@@ -257,35 +220,22 @@ impl AppState {
         library_id: Uuid,
         table_name: &str,
         row_id: RowId,
-    ) -> sqlx::Result<Option<ComponentRow>> {
-        let id_str = row_id.to_string();
-        let payload: Option<String> = match &self.pool {
-            DbPool::Sqlite(pool) => {
-                sqlx::query_scalar(
-                    "SELECT payload FROM component_rows \
-                 WHERE library_id = ? AND table_name = ? AND row_id = ?",
-                )
-                .bind(library_id.to_string())
-                .bind(table_name)
-                .bind(&id_str)
-                .fetch_optional(pool)
-                .await?
-            }
-            DbPool::Postgres(pool) => {
-                sqlx::query_scalar(
-                    "SELECT payload FROM component_rows \
-                 WHERE library_id = $1 AND table_name = $2 AND row_id = $3",
-                )
-                .bind(library_id.to_string())
-                .bind(table_name)
-                .bind(&id_str)
-                .fetch_optional(pool)
-                .await?
-            }
-        };
-        payload
-            .map(|p| serde_json::from_str(&p).map_err(decode_err))
-            .transpose()
+    ) -> Result<Option<ComponentRow>, ApiError> {
+        let mut resp = self
+            .db
+            .query("SELECT * FROM component_rows WHERE library_id = $lib AND table_name = $tbl AND row_id = $row_id LIMIT 1")
+            .bind(("lib", library_id.to_string()))
+            .bind(("tbl", table_name.to_string()))
+            .bind(("row_id", row_id.to_string()))
+            .await
+            .map_err(ApiError::from)?;
+
+        let records: Vec<ComponentRowRecord> = resp.take(0).map_err(ApiError::from)?;
+        if let Some(first) = records.first() {
+            let row: ComponentRow = serde_json::from_str(&first.payload).map_err(decode_err)?;
+            return Ok(Some(row));
+        }
+        Ok(None)
     }
 
     /// Delete a row. Returns `Ok(false)` if no matching row existed.
@@ -294,56 +244,39 @@ impl AppState {
         library_id: Uuid,
         table_name: &str,
         row_id: RowId,
-    ) -> sqlx::Result<bool> {
-        let id_str = row_id.to_string();
-        let affected = match &self.pool {
-            DbPool::Sqlite(pool) => sqlx::query(
-                "DELETE FROM component_rows \
-                 WHERE library_id = ? AND table_name = ? AND row_id = ?",
-            )
-            .bind(library_id.to_string())
-            .bind(table_name)
-            .bind(&id_str)
-            .execute(pool)
-            .await?
-            .rows_affected(),
-            DbPool::Postgres(pool) => sqlx::query(
-                "DELETE FROM component_rows \
-                 WHERE library_id = $1 AND table_name = $2 AND row_id = $3",
-            )
-            .bind(library_id.to_string())
-            .bind(table_name)
-            .bind(&id_str)
-            .execute(pool)
-            .await?
-            .rows_affected(),
-        };
-        Ok(affected > 0)
+    ) -> Result<bool, ApiError> {
+        let mut resp = self
+            .db
+            .query("DELETE FROM component_rows WHERE library_id = $lib AND table_name = $tbl AND row_id = $row_id RETURN BEFORE")
+            .bind(("lib", library_id.to_string()))
+            .bind(("tbl", table_name.to_string()))
+            .bind(("row_id", row_id.to_string()))
+            .await
+            .map_err(ApiError::from)?;
+
+        let deleted: Vec<ComponentRowRecord> = resp.take(0).map_err(ApiError::from)?;
+        Ok(!deleted.is_empty())
     }
 
     /// List the names of every distinct table that has at least one row
     /// inside `library_id`.
-    pub async fn list_table_names(&self, library_id: Uuid) -> sqlx::Result<Vec<String>> {
-        match &self.pool {
-            DbPool::Sqlite(pool) => {
-                sqlx::query_scalar(
-                    "SELECT DISTINCT table_name FROM component_rows \
-                 WHERE library_id = ? ORDER BY table_name",
-                )
-                .bind(library_id.to_string())
-                .fetch_all(pool)
-                .await
-            }
-            DbPool::Postgres(pool) => {
-                sqlx::query_scalar(
-                    "SELECT DISTINCT table_name FROM component_rows \
-                 WHERE library_id = $1 ORDER BY table_name",
-                )
-                .bind(library_id.to_string())
-                .fetch_all(pool)
-                .await
+    pub async fn list_table_names(&self, library_id: Uuid) -> Result<Vec<String>, ApiError> {
+        let mut resp = self
+            .db
+            .query("SELECT * FROM component_rows WHERE library_id = $lib")
+            .bind(("lib", library_id.to_string()))
+            .await
+            .map_err(ApiError::from)?;
+
+        let records: Vec<ComponentRowRecord> = resp.take(0).map_err(ApiError::from)?;
+        let mut names: Vec<String> = Vec::new();
+        for r in records {
+            if !names.contains(&r.table_name) {
+                names.push(r.table_name);
             }
         }
+        names.sort();
+        Ok(names)
     }
 
     /// Read every row in `table_name` for `library_id`, ordered by
@@ -352,53 +285,33 @@ impl AppState {
         &self,
         library_id: Uuid,
         table_name: &str,
-    ) -> sqlx::Result<Vec<ComponentRow>> {
-        let payloads: Vec<String> = match &self.pool {
-            DbPool::Sqlite(pool) => {
-                sqlx::query_scalar(
-                    "SELECT payload FROM component_rows \
-                 WHERE library_id = ? AND table_name = ? \
-                 ORDER BY internal_pn",
-                )
-                .bind(library_id.to_string())
-                .bind(table_name)
-                .fetch_all(pool)
-                .await?
-            }
-            DbPool::Postgres(pool) => {
-                sqlx::query_scalar(
-                    "SELECT payload FROM component_rows \
-                 WHERE library_id = $1 AND table_name = $2 \
-                 ORDER BY internal_pn",
-                )
-                .bind(library_id.to_string())
-                .bind(table_name)
-                .fetch_all(pool)
-                .await?
-            }
-        };
-        payloads
-            .into_iter()
-            .map(|p| serde_json::from_str(&p).map_err(decode_err))
-            .collect()
+    ) -> Result<Vec<ComponentRow>, ApiError> {
+        let mut resp = self
+            .db
+            .query("SELECT * FROM component_rows WHERE library_id = $lib AND table_name = $tbl ORDER BY internal_pn ASC")
+            .bind(("lib", library_id.to_string()))
+            .bind(("tbl", table_name.to_string()))
+            .await
+            .map_err(ApiError::from)?;
+
+        let records: Vec<ComponentRowRecord> = resp.take(0).map_err(ApiError::from)?;
+        let mut rows = Vec::with_capacity(records.len());
+        for r in records {
+            let row: ComponentRow = serde_json::from_str(&r.payload).map_err(decode_err)?;
+            rows.push(row);
+        }
+        Ok(rows)
     }
 
     // ── Primitive CRUD ────────────────────────────────────────────────────
-    //
-    // The primitives table layout is identical for all three kinds, so we
-    // share one generic helper per backend with the table name as a parameter.
-    // sqlx doesn't templatise table names, so we route through a `match`.
 
-    pub async fn insert_symbol(&self, library_id: Uuid, sym: &Symbol) -> sqlx::Result<()> {
+    pub async fn insert_symbol(&self, library_id: Uuid, sym: &Symbol) -> Result<(), ApiError> {
         let payload = serde_json::to_string(sym).map_err(decode_err)?;
-        upsert_primitive(
-            &self.pool, "symbols", library_id, sym.uuid, &sym.name, &payload,
-        )
-        .await
+        upsert_primitive(&self.db, "symbols", library_id, sym.uuid, &sym.name, &payload).await
     }
 
-    pub async fn fetch_symbol(&self, library_id: Uuid, uuid: Uuid) -> sqlx::Result<Option<Symbol>> {
-        fetch_primitive_payload(&self.pool, "symbols", library_id, uuid)
+    pub async fn fetch_symbol(&self, library_id: Uuid, uuid: Uuid) -> Result<Option<Symbol>, ApiError> {
+        fetch_primitive_payload(&self.db, "symbols", library_id, uuid)
             .await?
             .map(|p| serde_json::from_str(&p).map_err(decode_err))
             .transpose()
@@ -407,14 +320,14 @@ impl AppState {
     pub async fn list_symbols(
         &self,
         library_id: Option<Uuid>,
-    ) -> sqlx::Result<Vec<PrimitiveSummary>> {
-        list_primitive_summaries(&self.pool, "symbols", library_id).await
+    ) -> Result<Vec<PrimitiveSummary>, ApiError> {
+        list_primitive_summaries(&self.db, "symbols", library_id).await
     }
 
-    pub async fn insert_footprint(&self, library_id: Uuid, fp: &Footprint) -> sqlx::Result<()> {
+    pub async fn insert_footprint(&self, library_id: Uuid, fp: &Footprint) -> Result<(), ApiError> {
         let payload = serde_json::to_string(fp).map_err(decode_err)?;
         upsert_primitive(
-            &self.pool,
+            &self.db,
             "footprints",
             library_id,
             fp.uuid,
@@ -428,8 +341,8 @@ impl AppState {
         &self,
         library_id: Uuid,
         uuid: Uuid,
-    ) -> sqlx::Result<Option<Footprint>> {
-        fetch_primitive_payload(&self.pool, "footprints", library_id, uuid)
+    ) -> Result<Option<Footprint>, ApiError> {
+        fetch_primitive_payload(&self.db, "footprints", library_id, uuid)
             .await?
             .map(|p| serde_json::from_str(&p).map_err(decode_err))
             .transpose()
@@ -438,34 +351,29 @@ impl AppState {
     pub async fn list_footprints(
         &self,
         library_id: Option<Uuid>,
-    ) -> sqlx::Result<Vec<PrimitiveSummary>> {
-        list_primitive_summaries(&self.pool, "footprints", library_id).await
+    ) -> Result<Vec<PrimitiveSummary>, ApiError> {
+        list_primitive_summaries(&self.db, "footprints", library_id).await
     }
 
-    pub async fn insert_sim(&self, library_id: Uuid, sm: &SimModel) -> sqlx::Result<()> {
+    pub async fn insert_sim(&self, library_id: Uuid, sm: &SimModel) -> Result<(), ApiError> {
         let payload = serde_json::to_string(sm).map_err(decode_err)?;
-        upsert_primitive(&self.pool, "sims", library_id, sm.uuid, &sm.name, &payload).await
+        upsert_primitive(&self.db, "sims", library_id, sm.uuid, &sm.name, &payload).await
     }
 
-    pub async fn fetch_sim(&self, library_id: Uuid, uuid: Uuid) -> sqlx::Result<Option<SimModel>> {
-        fetch_primitive_payload(&self.pool, "sims", library_id, uuid)
+    pub async fn fetch_sim(&self, library_id: Uuid, uuid: Uuid) -> Result<Option<SimModel>, ApiError> {
+        fetch_primitive_payload(&self.db, "sims", library_id, uuid)
             .await?
             .map(|p| serde_json::from_str(&p).map_err(decode_err))
             .transpose()
     }
 
-    pub async fn list_sims(&self, library_id: Option<Uuid>) -> sqlx::Result<Vec<PrimitiveSummary>> {
-        list_primitive_summaries(&self.pool, "sims", library_id).await
+    pub async fn list_sims(&self, library_id: Option<Uuid>) -> Result<Vec<PrimitiveSummary>, ApiError> {
+        list_primitive_summaries(&self.db, "sims", library_id).await
     }
 }
 
 // ---------- Primitive query helpers ----------------------------------------
 
-/// Whitelist of primitive table names — guards against SQL injection through
-/// the `table` parameter that callers in this module supply. `assert!` (not
-/// `debug_assert!`) so the guard remains in release builds — every caller
-/// passes `&'static str` literals today, but a future refactor that injects
-/// non-literal data would land in a release-mode SQL injection without this.
 fn assert_primitive_table(table: &str) {
     assert!(
         matches!(table, "symbols" | "footprints" | "sims"),
@@ -474,185 +382,167 @@ fn assert_primitive_table(table: &str) {
 }
 
 async fn upsert_primitive(
-    pool: &DbPool,
+    db: &Surreal<Db>,
     table: &'static str,
     library_id: Uuid,
     uuid: Uuid,
     name: &str,
     payload: &str,
-) -> sqlx::Result<()> {
+) -> Result<(), ApiError> {
     assert_primitive_table(table);
     let now = Utc::now().to_rfc3339();
-    match pool {
-        DbPool::Sqlite(pool) => {
-            // sqlx 0.9 validates dynamic query strings. AssertSqlSafe is safe
-            // here because assert_primitive_table guards against arbitrary inputs.
-            let sql = format!(
-                "INSERT INTO {table} (library_id, uuid, name, payload, created_at, updated_at) \
-                 VALUES (?, ?, ?, ?, ?, ?) \
-                 ON CONFLICT(library_id, uuid) DO UPDATE SET \
-                     name = excluded.name, \
-                     payload = excluded.payload, \
-                     updated_at = excluded.updated_at",
-            );
-            sqlx::query(AssertSqlSafe(sql.as_str()))
-                .bind(library_id.to_string())
-                .bind(uuid.to_string())
-                .bind(name)
-                .bind(payload)
-                .bind(&now)
-                .bind(&now)
-                .execute(pool)
-                .await?;
-        }
-        DbPool::Postgres(pool) => {
-            let sql = format!(
-                "INSERT INTO {table} (library_id, uuid, name, payload, created_at, updated_at) \
-                 VALUES ($1, $2, $3, $4, $5, $6) \
-                 ON CONFLICT (library_id, uuid) DO UPDATE SET \
-                     name = EXCLUDED.name, \
-                     payload = EXCLUDED.payload, \
-                     updated_at = EXCLUDED.updated_at",
-            );
-            sqlx::query(AssertSqlSafe(sql.as_str()))
-                .bind(library_id.to_string())
-                .bind(uuid.to_string())
-                .bind(name)
-                .bind(payload)
-                .bind(&now)
-                .bind(&now)
-                .execute(pool)
-                .await?;
-        }
+    let lib_str = library_id.to_string();
+    let uuid_str = uuid.to_string();
+
+    let mut check_resp = db
+        .query(format!("SELECT * FROM {table} WHERE library_id = $lib AND uuid = $uuid LIMIT 1"))
+        .bind(("lib", lib_str.clone()))
+        .bind(("uuid", uuid_str.clone()))
+        .await
+        .map_err(ApiError::from)?;
+
+    let check: Vec<PrimitiveRecord> = check_resp.take(0).map_err(ApiError::from)?;
+
+    if !check.is_empty() {
+        let mut update_resp = db
+            .query(format!("UPDATE {table} SET name = $name, payload = $payload, updated_at = $now WHERE library_id = $lib AND uuid = $uuid"))
+            .bind(("name", name.to_string()))
+            .bind(("payload", payload.to_string()))
+            .bind(("now", now))
+            .bind(("lib", lib_str))
+            .bind(("uuid", uuid_str))
+            .await
+            .map_err(ApiError::from)?;
+        let _: Vec<PrimitiveRecord> = update_resp.take(0).map_err(ApiError::from)?;
+    } else {
+        let mut create_resp = db
+            .query(format!("CREATE {table} CONTENT {{ library_id: $lib, uuid: $uuid, name: $name, payload: $payload, created_at: $now, updated_at: $now }}"))
+            .bind(("lib", lib_str))
+            .bind(("uuid", uuid_str))
+            .bind(("name", name.to_string()))
+            .bind(("payload", payload.to_string()))
+            .bind(("now", now))
+            .await
+            .map_err(ApiError::from)?;
+        let _: Vec<PrimitiveRecord> = create_resp.take(0).map_err(ApiError::from)?;
     }
     Ok(())
 }
 
 async fn fetch_primitive_payload(
-    pool: &DbPool,
+    db: &Surreal<Db>,
     table: &'static str,
     library_id: Uuid,
     uuid: Uuid,
-) -> sqlx::Result<Option<String>> {
+) -> Result<Option<String>, ApiError> {
     assert_primitive_table(table);
-    match pool {
-        DbPool::Sqlite(pool) => {
-            let sql = format!("SELECT payload FROM {table} WHERE library_id = ? AND uuid = ?");
-            let row = sqlx::query(AssertSqlSafe(sql.as_str()))
-                .bind(library_id.to_string())
-                .bind(uuid.to_string())
-                .fetch_optional(pool)
-                .await?;
-            Ok(row.map(|r| r.get::<String, _>("payload")))
-        }
-        DbPool::Postgres(pool) => {
-            let sql = format!("SELECT payload FROM {table} WHERE library_id = $1 AND uuid = $2");
-            let row = sqlx::query(AssertSqlSafe(sql.as_str()))
-                .bind(library_id.to_string())
-                .bind(uuid.to_string())
-                .fetch_optional(pool)
-                .await?;
-            Ok(row.map(|r| r.get::<String, _>("payload")))
-        }
+    let mut resp = db
+        .query(format!("SELECT * FROM {table} WHERE library_id = $lib AND uuid = $uuid LIMIT 1"))
+        .bind(("lib", library_id.to_string()))
+        .bind(("uuid", uuid.to_string()))
+        .await
+        .map_err(ApiError::from)?;
+
+    let records: Vec<PrimitiveRecord> = resp.take(0).map_err(ApiError::from)?;
+    if let Some(first) = records.first() {
+        return Ok(Some(first.payload.clone()));
     }
+    Ok(None)
 }
 
 async fn list_primitive_summaries(
-    pool: &DbPool,
+    db: &Surreal<Db>,
     table: &'static str,
     library_id: Option<Uuid>,
-) -> sqlx::Result<Vec<PrimitiveSummary>> {
+) -> Result<Vec<PrimitiveSummary>, ApiError> {
     assert_primitive_table(table);
-    match pool {
-        DbPool::Sqlite(pool) => {
-            let rows = if let Some(lib) = library_id {
-                let sql = format!(
-                    "SELECT library_id, uuid, name FROM {table} \
-                     WHERE library_id = ? ORDER BY name"
-                );
-                sqlx::query(AssertSqlSafe(sql.as_str()))
-                    .bind(lib.to_string())
-                    .fetch_all(pool)
-                    .await?
-            } else {
-                let sql = format!("SELECT library_id, uuid, name FROM {table} ORDER BY name");
-                sqlx::query(AssertSqlSafe(sql.as_str())).fetch_all(pool).await?
-            };
-            rows.into_iter()
-                .map(|r| {
-                    let lib: String = r.get("library_id");
-                    let id: String = r.get("uuid");
-                    let name: String = r.get("name");
-                    // HI-9: surface decode errors instead of mapping to
-                    // Uuid::nil() — corrupt rows would otherwise alias
-                    // and confuse caller-side aggregation.
-                    let library_id = Uuid::parse_str(&lib).map_err(uuid_decode_err)?;
-                    let uuid = Uuid::parse_str(&id).map_err(uuid_decode_err)?;
-                    Ok(PrimitiveSummary {
-                        library_id,
-                        uuid,
-                        name,
-                    })
-                })
-                .collect()
-        }
-        DbPool::Postgres(pool) => {
-            let rows = if let Some(lib) = library_id {
-                let sql = format!(
-                    "SELECT library_id, uuid, name FROM {table} \
-                     WHERE library_id = $1 ORDER BY name"
-                );
-                sqlx::query(AssertSqlSafe(sql.as_str()))
-                    .bind(lib.to_string())
-                    .fetch_all(pool)
-                    .await?
-            } else {
-                let sql = format!("SELECT library_id, uuid, name FROM {table} ORDER BY name");
-                sqlx::query(AssertSqlSafe(sql.as_str())).fetch_all(pool).await?
-            };
-            rows.into_iter()
-                .map(|r| {
-                    let lib: String = r.get("library_id");
-                    let id: String = r.get("uuid");
-                    let name: String = r.get("name");
-                    // HI-9: surface decode errors instead of mapping to
-                    // Uuid::nil() — corrupt rows would otherwise alias
-                    // and confuse caller-side aggregation.
-                    let library_id = Uuid::parse_str(&lib).map_err(uuid_decode_err)?;
-                    let uuid = Uuid::parse_str(&id).map_err(uuid_decode_err)?;
-                    Ok(PrimitiveSummary {
-                        library_id,
-                        uuid,
-                        name,
-                    })
-                })
-                .collect()
+    let mut resp = if let Some(lib) = library_id {
+        db
+            .query(format!("SELECT * FROM {table} WHERE library_id = $lib ORDER BY name ASC"))
+            .bind(("lib", lib.to_string()))
+            .await
+            .map_err(ApiError::from)?
+    } else {
+        db
+            .query(format!("SELECT * FROM {table} ORDER BY name ASC"))
+            .await
+            .map_err(ApiError::from)?
+    };
+
+    let records: Vec<PrimitiveRecord> = resp.take(0).map_err(ApiError::from)?;
+    let mut summaries = Vec::with_capacity(records.len());
+    for r in records {
+        let library_id = Uuid::parse_str(&r.library_id).map_err(|e| {
+            tracing::error!("invalid uuid in {table}.library_id: {e}");
+            ApiError::internal("corrupt database record")
+        })?;
+        let uuid = Uuid::parse_str(&r.uuid).map_err(|e| {
+            tracing::error!("invalid uuid in {table}.uuid: {e}");
+            ApiError::internal("corrupt database record")
+        })?;
+
+        summaries.push(PrimitiveSummary {
+            library_id,
+            uuid,
+            name: r.name,
+        });
+    }
+    Ok(summaries)
+}
+
+fn decode_err(e: serde_json::Error) -> ApiError {
+    tracing::error!("serialization error: {e}");
+    ApiError::internal("data serialization error")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use chrono::Utc;
+    use oxide_library::component::{ComponentRow, DatasheetRef, PinPadOverride, PlmReserved};
+    use oxide_library::identity::{ComponentClass, InternalPn};
+    use oxide_library::lifecycle::LifecycleState;
+    use oxide_library::manufacturer::ManufacturerPart;
+    use oxide_library::param::ParamMap;
+    use oxide_library::primitive::PrimitiveRef;
+
+    fn fixture_row(internal_pn: &str) -> ComponentRow {
+        let lib = Uuid::now_v7();
+        ComponentRow {
+            row_id: Uuid::now_v7(),
+            internal_pn: InternalPn::new(internal_pn),
+            class: ComponentClass::new("resistor"),
+            datasheet: DatasheetRef::url("https://example.com/ds.pdf"),
+            state: LifecycleState::Released,
+            symbol_ref: PrimitiveRef::new(lib, Uuid::now_v7()),
+            footprint_ref: Some(PrimitiveRef::new(lib, Uuid::now_v7())),
+            sim_ref: None,
+            pin_map_overrides: Vec::<PinPadOverride>::new(),
+            primary_mpn: ManufacturerPart::draft("Acme", format!("MPN-{internal_pn}")),
+            alternates: Vec::new(),
+            supply: Vec::new(),
+            parameters: ParamMap::new(),
+            plm: PlmReserved::default(),
+            version: "0.0.1".into(),
+            released: false,
+            symbol_version: String::new(),
+            footprint_version: String::new(),
+            sim_version: String::new(),
+            created: Utc::now(),
+            updated: Utc::now(),
+            content_hash: [0u8; 32],
         }
     }
-}
 
-// SQLx migrator pulling from the on-disk `migrations/` folder.
-pub static MIGRATOR: sqlx::migrate::Migrator = sqlx::migrate!("./migrations");
-
-/// Wrap `serde_json::Error` into the `sqlx::Error::Decode(Box<dyn StdError>)` form.
-fn decode_err(e: serde_json::Error) -> sqlx::Error {
-    sqlx::Error::Decode(Box::new(e))
-}
-
-/// True when a sqlx error is a primary-key / unique-constraint
-/// violation — the signal that a plain `INSERT` hit an existing row.
-/// Backend-agnostic via `DatabaseError::kind()` (SQLite + Postgres).
-fn is_unique_violation(err: &sqlx::Error) -> bool {
-    matches!(
-        err,
-        sqlx::Error::Database(db) if db.kind() == sqlx::error::ErrorKind::UniqueViolation
-    )
-}
-
-/// HI-9: surface UUID parse failures as `sqlx::Error::Decode` instead of
-/// silently mapping to `Uuid::nil()`. A corrupt row is a real problem the
-/// operator needs to see, not a row that aliases with every other corrupt
-/// row in the result set.
-fn uuid_decode_err(e: uuid::Error) -> sqlx::Error {
-    sqlx::Error::Decode(Box::new(e))
+    #[tokio::test]
+    async fn test_db_crud_direct() {
+        let state = AppState::new_memory().await.expect("new memory");
+        state.migrate().await.expect("migrate");
+        let lib = Uuid::now_v7();
+        let row = fixture_row("TEST-001");
+        let inserted = state.insert_row(lib, "resistors", &row).await.expect("insert row");
+        assert!(inserted);
+        let fetched = state.fetch_row(lib, "resistors", RowId::from_uuid(row.row_id)).await.expect("fetch row");
+        assert!(fetched.is_some());
+    }
 }

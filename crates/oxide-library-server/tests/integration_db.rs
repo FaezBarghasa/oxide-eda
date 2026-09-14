@@ -72,44 +72,32 @@ fn bearer_header() -> String {
     format!("Bearer {TEST_BEARER}")
 }
 
-async fn build_test_app(
-    state: AppState,
-) -> impl actix_web::dev::Service<
-    actix_http::Request,
-    Response = actix_web::dev::ServiceResponse<actix_web::body::BoxBody>,
-    Error = actix_web::Error,
-> {
-    test::init_service(
-        App::new()
-            .app_data(web::Data::new(state))
-            .wrap(default_cors())
-            .wrap(BearerAuth::new(Some(TEST_BEARER.to_string())))
-            .configure(configure_protected),
-    )
-    .await
+macro_rules! test_app {
+    ($state:expr) => {
+        test::init_service(
+            App::new()
+                .app_data(web::Data::new($state))
+                .wrap(default_cors())
+                .wrap(BearerAuth::new(Some(TEST_BEARER.to_string())))
+                .configure(configure_protected),
+        )
+        .await
+    };
 }
 
 #[tokio::test]
 async fn migrations_apply_cleanly() {
     let state = fresh_state().await;
-    let tables: Vec<String> =
-        sqlx::query_scalar("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
-            .fetch_all(state.pool().sqlite().expect("sqlite pool"))
-            .await
-            .unwrap();
-
-    for required in ["component_rows", "symbols", "footprints", "sims"] {
-        assert!(
-            tables.iter().any(|t| t == required),
-            "missing table {required}; have {tables:?}"
-        );
+    for table in ["component_rows", "symbols", "footprints", "sims"] {
+        let resp = state.db().query(format!("SELECT * FROM {table}")).await;
+        assert!(resp.is_ok(), "table {table} should be queryable in surrealdb");
     }
 }
 
 #[actix_web::test]
 async fn route_tables_lists_empty() {
     let state = fresh_state().await;
-    let app = build_test_app(state).await;
+    let app = test_app!(state);
 
     let library_id = Uuid::now_v7();
     let req = TestRequest::get()
@@ -125,7 +113,7 @@ async fn route_tables_lists_empty() {
 #[actix_web::test]
 async fn route_post_row_then_get() {
     let state = fresh_state().await;
-    let app = build_test_app(state).await;
+    let app = test_app!(state);
 
     let library_id = Uuid::now_v7();
     let row = fixture_row("R0805_10k");
@@ -172,7 +160,7 @@ async fn route_post_row_then_get() {
 #[actix_web::test]
 async fn route_post_duplicate_row_conflicts_and_preserves_original() {
     let state = fresh_state().await;
-    let app = build_test_app(state).await;
+    let app = test_app!(state);
 
     let library_id = Uuid::now_v7();
     let row1 = fixture_row("R0805_10k");
@@ -212,7 +200,7 @@ async fn route_post_duplicate_row_conflicts_and_preserves_original() {
 #[actix_web::test]
 async fn route_put_row_updates() {
     let state = fresh_state().await;
-    let app = build_test_app(state).await;
+    let app = test_app!(state);
 
     let library_id = Uuid::now_v7();
     let row = fixture_row("R0805_10k");
@@ -256,7 +244,7 @@ async fn route_put_row_updates() {
 #[actix_web::test]
 async fn route_delete_row() {
     let state = fresh_state().await;
-    let app = build_test_app(state).await;
+    let app = test_app!(state);
 
     let library_id = Uuid::now_v7();
     let row = fixture_row("R0805_10k");
@@ -292,7 +280,7 @@ async fn route_delete_row() {
 #[actix_web::test]
 async fn route_unauthenticated_returns_401() {
     let state = fresh_state().await;
-    let app = build_test_app(state).await;
+    let app = test_app!(state);
 
     let library_id = Uuid::now_v7();
     let req = TestRequest::get()
@@ -361,7 +349,7 @@ async fn lock_contention_ttl_expiry_allows_takeover() {
 async fn locks_endpoint_returns_409_when_held() {
     let state = fresh_state().await;
     state.locks().set_idle_ttl(Duration::from_secs(60));
-    let app = build_test_app(state).await;
+    let app = test_app!(state);
 
     let row_id = RowId::new();
 

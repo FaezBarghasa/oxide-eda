@@ -166,19 +166,8 @@ actix-cors = "0.7"
 quinn = "0.11"
 h3 = "0.0.8"
 h3-quinn = "0.0.10"
-axum = { version = "0.8.9", features = ["ws"] }
 tokio = { version = "1", features = ["full"] }
-sqlx = { version = "0.9.0", default-features = false, features = [
-    "runtime-tokio",
-    "tls-rustls-ring",
-    "postgres",
-    "sqlite",
-    "macros",
-    "chrono",
-    "uuid",
-    "migrate",
-] }
-surrealdb = "*"
+surrealdb = { version = "3.2.4", features = ["kv-mem"] }
 pdf-extract = "0.12.0"
 tower-http = { version = "0.7.1", features = [
     "cors",

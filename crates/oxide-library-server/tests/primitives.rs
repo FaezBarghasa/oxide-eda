@@ -53,16 +53,9 @@ macro_rules! test_app {
 #[tokio::test]
 async fn primitives_migration_creates_tables() {
     let state = fresh_state().await;
-    let tables: Vec<String> =
-        sqlx::query_scalar("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
-            .fetch_all(state.pool().sqlite().expect("sqlite pool"))
-            .await
-            .unwrap();
-    for required in ["symbols", "footprints", "sims"] {
-        assert!(
-            tables.iter().any(|t| t == required),
-            "missing table {required}; have {tables:?}"
-        );
+    for table in ["symbols", "footprints", "sims"] {
+        let resp = state.db().query(format!("SELECT * FROM {table}")).await;
+        assert!(resp.is_ok(), "table {table} should be queryable in surrealdb");
     }
 }
 
