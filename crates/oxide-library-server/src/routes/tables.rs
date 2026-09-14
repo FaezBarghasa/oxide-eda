@@ -13,11 +13,7 @@
 //! then it stays explicit so the wire contract is symmetric across the
 //! refactor.
 
-use axum::{
-    Json, Router,
-    extract::{Path, Query, State},
-    routing::get,
-};
+use actix_web::{HttpResponse, web};
 use oxide_library::component::ComponentRow;
 use serde::Deserialize;
 use uuid::Uuid;
@@ -25,30 +21,35 @@ use uuid::Uuid;
 use crate::db::AppState;
 use crate::routes::error::ApiError;
 
-pub fn router() -> Router<AppState> {
-    Router::new()
-        .route("/tables", get(list_tables))
-        .route("/tables/:name", get(list_rows_in_table))
+pub fn configure(cfg: &mut web::ServiceConfig) {
+    cfg.service(
+        web::resource("/tables")
+            .route(web::get().to(list_tables)),
+    )
+    .service(
+        web::resource("/tables/{name}")
+            .route(web::get().to(list_rows_in_table)),
+    );
 }
 
 #[derive(Debug, Deserialize)]
-struct LibraryQuery {
-    library_id: Uuid,
+pub struct LibraryQuery {
+    pub library_id: Uuid,
 }
 
 async fn list_tables(
-    State(state): State<AppState>,
-    Query(q): Query<LibraryQuery>,
-) -> Result<Json<Vec<String>>, ApiError> {
+    state: web::Data<AppState>,
+    q: web::Query<LibraryQuery>,
+) -> Result<HttpResponse, ApiError> {
     let names = state.list_table_names(q.library_id).await?;
-    Ok(Json(names))
+    Ok(HttpResponse::Ok().json(names))
 }
 
 async fn list_rows_in_table(
-    State(state): State<AppState>,
-    Path(name): Path<String>,
-    Query(q): Query<LibraryQuery>,
-) -> Result<Json<Vec<ComponentRow>>, ApiError> {
-    let rows = state.list_rows_in_table(q.library_id, &name).await?;
-    Ok(Json(rows))
+    state: web::Data<AppState>,
+    name: web::Path<String>,
+    q: web::Query<LibraryQuery>,
+) -> Result<HttpResponse, ApiError> {
+    let rows: Vec<ComponentRow> = state.list_rows_in_table(q.library_id, &name).await?;
+    Ok(HttpResponse::Ok().json(rows))
 }

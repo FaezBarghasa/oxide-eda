@@ -1,19 +1,6 @@
 //! `/rows/:row_id/locks` — advisory locking over the row tier.
-//!
-//! Locks key off `RowId`. The caller identifies itself with the
-//! `x-oxide-holder` header and the body picks the field-set.
-//!
-//! ```json
-//! { "field_set": "Symbol" }
-//! ```
 
-use axum::{
-    Json, Router,
-    extract::{Path, State},
-    http::{HeaderMap, StatusCode},
-    response::IntoResponse,
-    routing::post,
-};
+use actix_web::{HttpRequest, HttpResponse, web};
 use oxide_library::adapter::FieldSet;
 use oxide_library::identity::RowId;
 use serde::{Deserialize, Serialize};
@@ -22,21 +9,22 @@ use crate::db::AppState;
 use crate::locks::LockErrorKind;
 use crate::routes::error::ApiError;
 
-pub fn router() -> Router<AppState> {
-    Router::new().route(
-        "/rows/:row_id/locks",
-        post(acquire_lock).delete(release_lock),
-    )
+pub fn configure(cfg: &mut web::ServiceConfig) {
+    cfg.service(
+        web::resource("/rows/{row_id}/locks")
+            .route(web::post().to(acquire_lock))
+            .route(web::delete().to(release_lock)),
+    );
 }
 
 #[derive(Debug, Deserialize)]
-struct LockBody {
-    field_set: FieldSetWire,
+pub struct LockBody {
+    pub field_set: FieldSetWire,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 #[serde(rename_all = "PascalCase")]
-enum FieldSetWire {
+pub enum FieldSetWire {
     Symbol,
     Footprint,
     Model3d,
@@ -60,13 +48,11 @@ impl From<FieldSetWire> for FieldSet {
     }
 }
 
-/// Maximum length for the `x-oxide-holder` header. Bounded so a client
-/// can't grow the lock-map keys (which are echoed in error responses) by
-/// supplying megabyte holder strings. (MD-15)
 const MAX_HOLDER_LEN: usize = 256;
 
-fn holder_from(headers: &HeaderMap) -> Result<String, ApiError> {
-    let raw = headers
+fn holder_from(req: &HttpRequest) -> Result<String, ApiError> {
+    let raw = req
+        .headers()
         .get("x-oxide-holder")
         .and_then(|h| h.to_str().ok())
         .ok_or_else(|| ApiError::bad_request("missing x-oxide-holder header"))?;
@@ -78,8 +64,6 @@ fn holder_from(headers: &HeaderMap) -> Result<String, ApiError> {
             "x-oxide-holder exceeds {MAX_HOLDER_LEN}-byte limit"
         )));
     }
-    // Reject control characters — they would corrupt the echoed error
-    // body and tracing output.
     if raw.chars().any(|c| c.is_control()) {
         return Err(ApiError::bad_request(
             "x-oxide-holder contains control characters",
@@ -89,15 +73,15 @@ fn holder_from(headers: &HeaderMap) -> Result<String, ApiError> {
 }
 
 async fn acquire_lock(
-    State(state): State<AppState>,
-    Path(row_id): Path<String>,
-    headers: HeaderMap,
-    Json(body): Json<LockBody>,
-) -> Result<impl IntoResponse, ApiError> {
+    state: web::Data<AppState>,
+    row_id: web::Path<String>,
+    req: HttpRequest,
+    body: web::Json<LockBody>,
+) -> Result<HttpResponse, ApiError> {
     let row_id: RowId = row_id
         .parse()
         .map_err(|e: uuid::Error| ApiError::bad_request(e.to_string()))?;
-    let holder = holder_from(&headers)?;
+    let holder = holder_from(&req)?;
     state
         .locks()
         .try_lock(row_id.as_uuid(), body.field_set.into(), &holder)
@@ -106,19 +90,19 @@ async fn acquire_lock(
             LockErrorKind::UnknownHolder => ApiError::bad_request("unknown holder"),
             LockErrorKind::Internal => ApiError::internal("lock manager internal error"),
         })?;
-    Ok(StatusCode::CREATED)
+    Ok(HttpResponse::Created().finish())
 }
 
 async fn release_lock(
-    State(state): State<AppState>,
-    Path(row_id): Path<String>,
-    headers: HeaderMap,
-    Json(body): Json<LockBody>,
-) -> Result<impl IntoResponse, ApiError> {
+    state: web::Data<AppState>,
+    row_id: web::Path<String>,
+    req: HttpRequest,
+    body: web::Json<LockBody>,
+) -> Result<HttpResponse, ApiError> {
     let row_id: RowId = row_id
         .parse()
         .map_err(|e: uuid::Error| ApiError::bad_request(e.to_string()))?;
-    let holder = holder_from(&headers)?;
+    let holder = holder_from(&req)?;
     state
         .locks()
         .release(row_id.as_uuid(), body.field_set.into(), &holder)
@@ -127,5 +111,5 @@ async fn release_lock(
             LockErrorKind::UnknownHolder => ApiError::bad_request("not lock holder"),
             LockErrorKind::Internal => ApiError::internal("lock manager internal error"),
         })?;
-    Ok(StatusCode::NO_CONTENT)
+    Ok(HttpResponse::NoContent().finish())
 }

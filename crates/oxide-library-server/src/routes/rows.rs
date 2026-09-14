@@ -13,13 +13,7 @@
 //!
 //! `:row_id` is parsed as a [`RowId`] — a UUIDv7 newtype.
 
-use axum::{
-    Json, Router,
-    extract::{Path, Query, State},
-    http::StatusCode,
-    response::IntoResponse,
-    routing::{get, post},
-};
+use actix_web::{HttpResponse, web};
 use oxide_library::component::ComponentRow;
 use oxide_library::identity::RowId;
 use serde::Deserialize;
@@ -28,60 +22,64 @@ use uuid::Uuid;
 use crate::db::AppState;
 use crate::routes::error::ApiError;
 
-pub fn router() -> Router<AppState> {
-    Router::new()
-        .route("/tables/:name/rows", post(create_row))
-        .route(
-            "/tables/:name/rows/:row_id",
-            get(get_row).put(update_row).delete(delete_row),
-        )
+pub fn configure(cfg: &mut web::ServiceConfig) {
+    cfg.service(
+        web::resource("/tables/{name}/rows")
+            .route(web::post().to(create_row)),
+    )
+    .service(
+        web::resource("/tables/{name}/rows/{row_id}")
+            .route(web::get().to(get_row))
+            .route(web::put().to(update_row))
+            .route(web::delete().to(delete_row)),
+    );
 }
 
 #[derive(Debug, Deserialize)]
-struct LibraryQuery {
-    library_id: Uuid,
+pub struct LibraryQuery {
+    pub library_id: Uuid,
 }
 
 async fn create_row(
-    State(state): State<AppState>,
-    Path(name): Path<String>,
-    Query(q): Query<LibraryQuery>,
-    Json(row): Json<ComponentRow>,
-) -> Result<impl IntoResponse, ApiError> {
+    state: web::Data<AppState>,
+    name: web::Path<String>,
+    q: web::Query<LibraryQuery>,
+    row: web::Json<ComponentRow>,
+) -> Result<HttpResponse, ApiError> {
+    let row = row.into_inner();
     let inserted = state.insert_row(q.library_id, &name, &row).await?;
     if !inserted {
-        // POST is create-only; an existing row must not be silently
-        // overwritten. Clients replace via PUT.
         return Err(ApiError::conflict(format!(
             "row {} already exists in table {name}",
             row.row_id
         )));
     }
-    Ok((StatusCode::CREATED, Json(row)))
+    Ok(HttpResponse::Created().json(row))
 }
 
 async fn get_row(
-    State(state): State<AppState>,
-    Path((name, row_id)): Path<(String, String)>,
-    Query(q): Query<LibraryQuery>,
-) -> Result<Json<ComponentRow>, ApiError> {
-    let row_id = parse_row_id(&row_id)?;
-    state
+    state: web::Data<AppState>,
+    path: web::Path<(String, String)>,
+    q: web::Query<LibraryQuery>,
+) -> Result<HttpResponse, ApiError> {
+    let (name, row_id_str) = path.into_inner();
+    let row_id = parse_row_id(&row_id_str)?;
+    let row = state
         .fetch_row(q.library_id, &name, row_id)
         .await?
-        .map(Json)
-        .ok_or_else(|| ApiError::not_found(format!("row {row_id} in table {name}")))
+        .ok_or_else(|| ApiError::not_found(format!("row {row_id} in table {name}")))?;
+    Ok(HttpResponse::Ok().json(row))
 }
 
 async fn update_row(
-    State(state): State<AppState>,
-    Path((name, row_id)): Path<(String, String)>,
-    Query(q): Query<LibraryQuery>,
-    Json(row): Json<ComponentRow>,
-) -> Result<Json<ComponentRow>, ApiError> {
-    let url_row_id = parse_row_id(&row_id)?;
-    // Body row_id must agree with URL row_id — refuse the request rather
-    // than silently overwrite a different row.
+    state: web::Data<AppState>,
+    path: web::Path<(String, String)>,
+    q: web::Query<LibraryQuery>,
+    row: web::Json<ComponentRow>,
+) -> Result<HttpResponse, ApiError> {
+    let (name, row_id_str) = path.into_inner();
+    let url_row_id = parse_row_id(&row_id_str)?;
+    let row = row.into_inner();
     if row.row_id != url_row_id.as_uuid() {
         return Err(ApiError::bad_request(format!(
             "row_id mismatch: url={url_row_id}, body={}",
@@ -94,20 +92,21 @@ async fn update_row(
             "row {url_row_id} in table {name}"
         )));
     }
-    Ok(Json(row))
+    Ok(HttpResponse::Ok().json(row))
 }
 
 async fn delete_row(
-    State(state): State<AppState>,
-    Path((name, row_id)): Path<(String, String)>,
-    Query(q): Query<LibraryQuery>,
-) -> Result<StatusCode, ApiError> {
-    let row_id = parse_row_id(&row_id)?;
+    state: web::Data<AppState>,
+    path: web::Path<(String, String)>,
+    q: web::Query<LibraryQuery>,
+) -> Result<HttpResponse, ApiError> {
+    let (name, row_id_str) = path.into_inner();
+    let row_id = parse_row_id(&row_id_str)?;
     let deleted = state.delete_row(q.library_id, &name, row_id).await?;
     if !deleted {
         return Err(ApiError::not_found(format!("row {row_id} in table {name}")));
     }
-    Ok(StatusCode::NO_CONTENT)
+    Ok(HttpResponse::NoContent().finish())
 }
 
 fn parse_row_id(raw: &str) -> Result<RowId, ApiError> {

@@ -156,6 +156,16 @@ reqwest = { version = "0.13.5", default-features = false, features = [
     "json",
     "rustls",
 ] }
+actix-web = { version = "4", default-features = false, features = [
+    "macros",
+    "compress-brotli",
+    "compress-gzip",
+    "rustls-0_23",
+] }
+actix-cors = "0.7"
+quinn = "0.11"
+h3 = "0.0.8"
+h3-quinn = "0.0.10"
 axum = { version = "0.8.9", features = ["ws"] }
 tokio = { version = "1", features = ["full"] }
 sqlx = { version = "0.9.0", default-features = false, features = [

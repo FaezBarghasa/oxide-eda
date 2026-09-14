@@ -9,10 +9,12 @@ repository.workspace = true
 
 [dependencies]
 oxide-library = { workspace = true }
-axum = { workspace = true }
+actix-web = { workspace = true }
+actix-cors = { workspace = true }
+quinn = { workspace = true, optional = true }
+h3 = { workspace = true, optional = true }
+h3-quinn = { workspace = true, optional = true }
 tokio = { workspace = true }
-tower-http = { workspace = true }
-tower_governor = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 sqlx = { workspace = true }
@@ -22,6 +24,10 @@ thiserror = { workspace = true }
 anyhow = { workspace = true }
 uuid = { workspace = true }
 chrono = { workspace = true }
+
+[features]
+default = []
+http3 = ["dep:quinn", "dep:h3", "dep:h3-quinn"]
 
 [dev-dependencies]
 # Re-import oxide-library with the `database` feature so the in-tree integration
