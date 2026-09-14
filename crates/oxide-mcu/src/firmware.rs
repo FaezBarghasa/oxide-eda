@@ -340,8 +340,8 @@ impl McuTarget {
                 qemu_cpu: "rv32",
                 qemu_machine: "virt",
             },
-            McuTarget::Ch32V203 | McuTarget::Ch32V307 | McuTarget::SiFiveFe310 | McuTarget::Rp2350RiscV => CoreProfile {
-                name: "RISC-V 32-bit Microcontroller".to_string(),
+            McuTarget::Ch32V203 | McuTarget::Ch32V307 => CoreProfile {
+                name: "WCH RISC-V 32-bit Microcontroller".to_string(),
                 arch: ArchClass::RiscV,
                 vendor: McuVendor::Wch,
                 bit_width: 32,
@@ -350,7 +350,31 @@ impl McuTarget {
                 max_frequency_hz: 144_000_000,
                 qemu_executable: "qemu-system-riscv32",
                 qemu_cpu: "rv32",
+                qemu_machine: "virt",
+            },
+            McuTarget::SiFiveFe310 => CoreProfile {
+                name: "SiFive Freedom E310 (RV32IMAC)".to_string(),
+                arch: ArchClass::RiscV,
+                vendor: McuVendor::Generic,
+                bit_width: 32,
+                memory_model: MemoryModel::VonNeumann32,
+                num_cores: 1,
+                max_frequency_hz: 320_000_000,
+                qemu_executable: "qemu-system-riscv32",
+                qemu_cpu: "sifive-e31",
                 qemu_machine: "sifive_e",
+            },
+            McuTarget::Rp2350RiscV => CoreProfile {
+                name: "Raspberry Pi RP2350 (Hazard3 Dual RV32)".to_string(),
+                arch: ArchClass::RiscV,
+                vendor: McuVendor::RaspberryPi,
+                bit_width: 32,
+                memory_model: MemoryModel::VonNeumann32,
+                num_cores: 2,
+                max_frequency_hz: 150_000_000,
+                qemu_executable: "qemu-system-riscv32",
+                qemu_cpu: "rv32",
+                qemu_machine: "virt",
             },
             // Texas Instruments
             McuTarget::Msp430G2553 | McuTarget::Msp430F5529 => CoreProfile {
