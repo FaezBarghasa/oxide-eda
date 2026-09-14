@@ -977,6 +977,14 @@ pub enum PanelMsg {
     AcceptAiProposal,
     /// Discard AI proposal
     DiscardAiProposal,
+    /// Run circuit simulation (F9)
+    RunSimulation,
+    /// Open simulation configuration dialog
+    OpenSimulationSetup,
+    /// Clear loaded waveforms
+    ClearWaveforms,
+    /// Toggle visibility of a waveform trace
+    ToggleWaveformTrace(String),
     /// No-op placeholder for unimplemented UI controls.
     Noop,
 }
