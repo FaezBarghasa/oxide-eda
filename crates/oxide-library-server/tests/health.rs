@@ -1,39 +1,22 @@
-use axum::body::Body;
-use axum::http::{Request, StatusCode};
-use oxide_library_server::router;
-use tower::ServiceExt;
+use actix_web::http::StatusCode;
+use actix_web::test::{self, TestRequest};
+use actix_web::{App, web};
+use oxide_library_server::configure_liveness;
 
-#[tokio::test]
+#[actix_web::test]
 async fn health_returns_ok() {
-    let app = router();
-    let response = app
-        .oneshot(
-            Request::builder()
-                .uri("/health")
-                .body(Body::empty())
-                .unwrap(),
-        )
-        .await
-        .unwrap();
-    assert_eq!(response.status(), StatusCode::OK);
+    let app = test::init_service(App::new().configure(configure_liveness)).await;
+    let req = TestRequest::get().uri("/health").to_request();
+    let resp = test::call_service(&app, req).await;
+    assert_eq!(resp.status(), StatusCode::OK);
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn version_returns_crate_version() {
-    let app = router();
-    let response = app
-        .oneshot(
-            Request::builder()
-                .uri("/version")
-                .body(Body::empty())
-                .unwrap(),
-        )
-        .await
-        .unwrap();
-    assert_eq!(response.status(), StatusCode::OK);
-    let bytes = axum::body::to_bytes(response.into_body(), 1024)
-        .await
-        .unwrap();
-    let body: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+    let app = test::init_service(App::new().configure(configure_liveness)).await;
+    let req = TestRequest::get().uri("/version").to_request();
+    let resp = test::call_service(&app, req).await;
+    assert_eq!(resp.status(), StatusCode::OK);
+    let body: serde_json::Value = test::read_body_json(resp).await;
     assert_eq!(body["name"], "oxide-library-server");
 }

@@ -1,29 +1,24 @@
 //! Integration tests for the primitive routes
 //! (`/symbols` / `/footprints` / `/sims`).
 //!
-//! Each test exercises a `POST` → `GET` round-trip via `tower::ServiceExt`
+//! Each test exercises a `POST` → `GET` round-trip via actix-web test harness
 //! against the in-memory test harness, exactly mirroring the flow that the
 //! `LibraryAdapter` will use in production. Auth is the same fixture bearer
 //! token used by `tests/integration_db.rs`.
 
-use axum::body::Body;
-use axum::http::{Request, StatusCode};
+use actix_web::http::StatusCode;
+use actix_web::test::{self, TestRequest};
+use actix_web::{App, web};
 use oxide_library::primitive::{Footprint, SimKind, SimModel, Symbol};
 use oxide_library_server::db::{AppState, PrimitiveSummary};
-use oxide_library_server::{API_TOKEN_ENV, router_with_state};
-use tower::ServiceExt;
+use oxide_library_server::{
+    API_TOKEN_ENV, BearerAuth, configure_protected, default_cors,
+};
 use uuid::Uuid;
 
-/// Same fixture token used by `tests/integration_db.rs`. Setting this matches
-/// the bearer-token expectation that `router_with_state` installs at
-/// construction time (gating every primitive route).
 const TEST_BEARER: &str = "test-bearer-token";
 
-/// Install the test bearer-token env var. Idempotent — every primitive test
-/// calls this before constructing the router.
 fn ensure_test_token() {
-    // SAFETY: every test sets the same value, so racing writers cannot
-    // disagree. Mirrors the rationale in `integration_db.rs::ensure_test_token`.
     unsafe {
         std::env::set_var(API_TOKEN_ENV, TEST_BEARER);
     }
@@ -42,11 +37,24 @@ async fn fresh_state() -> AppState {
     state
 }
 
+fn build_test_app(
+    state: AppState,
+) -> impl actix_web::dev::Service<
+    actix_http::Request,
+    Response = actix_web::dev::ServiceResponse<actix_web::body::BoxBody>,
+    Error = actix_web::Error,
+> {
+    test::init_service(
+        App::new()
+            .app_data(web::Data::new(state))
+            .wrap(default_cors())
+            .wrap(BearerAuth::new(Some(TEST_BEARER.to_string())))
+            .configure(configure_protected),
+    )
+}
+
 #[tokio::test]
 async fn primitives_migration_creates_tables() {
-    // 004_primitives.sql must land all three primitive tables alongside the
-    // pre-existing component tables. Without this the rest of the suite
-    // returns "no such table".
     let state = fresh_state().await;
     let tables: Vec<String> =
         sqlx::query_scalar("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
@@ -61,14 +69,13 @@ async fn primitives_migration_creates_tables() {
     }
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn post_then_get_symbol_round_trip() {
     let state = fresh_state().await;
-    let app = router_with_state(state);
+    let app = build_test_app(state).await;
 
     let library_id = Uuid::now_v7();
     let mut sym = Symbol::empty("OPAMP-DUAL-8");
-    // Replace the random uuid with a stable one we can assert on by URL.
     sym.uuid = Uuid::now_v7();
 
     let body = serde_json::json!({
@@ -83,46 +90,30 @@ async fn post_then_get_symbol_round_trip() {
         "updated": sym.updated,
     });
 
-    let response = app
-        .clone()
-        .oneshot(
-            Request::builder()
-                .method("POST")
-                .uri("/symbols")
-                .header("content-type", "application/json")
-                .header("authorization", bearer_header())
-                .body(Body::from(serde_json::to_vec(&body).unwrap()))
-                .unwrap(),
-        )
-        .await
-        .unwrap();
-    assert_eq!(response.status(), StatusCode::CREATED);
+    let req = TestRequest::post()
+        .uri("/symbols")
+        .insert_header(("authorization", bearer_header()))
+        .set_json(&body)
+        .to_request();
+    let resp = test::call_service(&app, req).await;
+    assert_eq!(resp.status(), StatusCode::CREATED);
 
-    let response = app
-        .oneshot(
-            Request::builder()
-                .uri(format!("/symbols/{}?library_id={}", sym.uuid, library_id))
-                .header("authorization", bearer_header())
-                .body(Body::empty())
-                .unwrap(),
-        )
-        .await
-        .unwrap();
-    assert_eq!(response.status(), StatusCode::OK);
-    let bytes = axum::body::to_bytes(response.into_body(), 1 << 20)
-        .await
-        .unwrap();
-    let got: Symbol = serde_json::from_slice(&bytes).unwrap();
+    let req = TestRequest::get()
+        .uri(&format!("/symbols/{}?library_id={}", sym.uuid, library_id))
+        .insert_header(("authorization", bearer_header()))
+        .to_request();
+    let resp = test::call_service(&app, req).await;
+    assert_eq!(resp.status(), StatusCode::OK);
+    let got: Symbol = test::read_body_json(resp).await;
     assert_eq!(got.uuid, sym.uuid);
     assert_eq!(got.name, sym.name);
     assert_eq!(got.pins.len(), sym.pins.len());
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn list_symbols_filters_by_library_id() {
-    // Two libraries, two symbols each. `?library_id=` must scope the result.
     let state = fresh_state().await;
-    let app = router_with_state(state);
+    let app = build_test_app(state).await;
 
     let lib_a = Uuid::now_v7();
     let lib_b = Uuid::now_v7();
@@ -146,94 +137,64 @@ async fn list_symbols_filters_by_library_id() {
             "created": sym.created,
             "updated": sym.updated,
         });
-        let r = app
-            .clone()
-            .oneshot(
-                Request::builder()
-                    .method("POST")
-                    .uri("/symbols")
-                    .header("content-type", "application/json")
-                    .header("authorization", bearer_header())
-                    .body(Body::from(serde_json::to_vec(&body).unwrap()))
-                    .unwrap(),
-            )
-            .await
-            .unwrap();
-        assert_eq!(r.status(), StatusCode::CREATED);
+        let req = TestRequest::post()
+            .uri("/symbols")
+            .insert_header(("authorization", bearer_header()))
+            .set_json(&body)
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert_eq!(resp.status(), StatusCode::CREATED);
     }
 
-    let r = app
-        .oneshot(
-            Request::builder()
-                .uri(format!("/symbols?library_id={lib_a}"))
-                .header("authorization", bearer_header())
-                .body(Body::empty())
-                .unwrap(),
-        )
-        .await
-        .unwrap();
-    assert_eq!(r.status(), StatusCode::OK);
-    let bytes = axum::body::to_bytes(r.into_body(), 1 << 20).await.unwrap();
-    let got: Vec<PrimitiveSummary> = serde_json::from_slice(&bytes).unwrap();
+    let req = TestRequest::get()
+        .uri(&format!("/symbols?library_id={lib_a}"))
+        .insert_header(("authorization", bearer_header()))
+        .to_request();
+    let resp = test::call_service(&app, req).await;
+    assert_eq!(resp.status(), StatusCode::OK);
+    let got: Vec<PrimitiveSummary> = test::read_body_json(resp).await;
     assert_eq!(got.len(), 2);
     assert!(got.iter().all(|s| s.library_id == lib_a));
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn post_then_get_footprint_round_trip() {
     let state = fresh_state().await;
-    let app = router_with_state(state);
+    let app = build_test_app(state).await;
 
     let library_id = Uuid::now_v7();
     let mut fp = Footprint::empty("SOIC-8");
     fp.uuid = Uuid::now_v7();
 
-    // Footprint has many serde-default fields — embed it via flatten.
     let mut body = serde_json::to_value(&fp).unwrap();
     body.as_object_mut()
         .unwrap()
         .insert("library_id".into(), serde_json::json!(library_id));
 
-    let response = app
-        .clone()
-        .oneshot(
-            Request::builder()
-                .method("POST")
-                .uri("/footprints")
-                .header("content-type", "application/json")
-                .header("authorization", bearer_header())
-                .body(Body::from(serde_json::to_vec(&body).unwrap()))
-                .unwrap(),
-        )
-        .await
-        .unwrap();
-    assert_eq!(response.status(), StatusCode::CREATED);
+    let req = TestRequest::post()
+        .uri("/footprints")
+        .insert_header(("authorization", bearer_header()))
+        .set_json(&body)
+        .to_request();
+    let resp = test::call_service(&app, req).await;
+    assert_eq!(resp.status(), StatusCode::CREATED);
 
-    let response = app
-        .oneshot(
-            Request::builder()
-                .uri(format!("/footprints/{}?library_id={}", fp.uuid, library_id))
-                .header("authorization", bearer_header())
-                .body(Body::empty())
-                .unwrap(),
-        )
-        .await
-        .unwrap();
-    assert_eq!(response.status(), StatusCode::OK);
-    let bytes = axum::body::to_bytes(response.into_body(), 1 << 20)
-        .await
-        .unwrap();
-    let got: Footprint = serde_json::from_slice(&bytes).unwrap();
+    let req = TestRequest::get()
+        .uri(&format!("/footprints/{}?library_id={}", fp.uuid, library_id))
+        .insert_header(("authorization", bearer_header()))
+        .to_request();
+    let resp = test::call_service(&app, req).await;
+    assert_eq!(resp.status(), StatusCode::OK);
+    let got: Footprint = test::read_body_json(resp).await;
     assert_eq!(got.uuid, fp.uuid);
     assert_eq!(got.name, fp.name);
-    // Body3D defaults round-trip cleanly.
     assert_eq!(got.body_3d, fp.body_3d);
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn post_then_get_sim_round_trip() {
     let state = fresh_state().await;
-    let app = router_with_state(state);
+    let app = build_test_app(state).await;
 
     let library_id = Uuid::now_v7();
     let mut sm = SimModel::empty("LM358", SimKind::Spice3);
@@ -245,82 +206,53 @@ async fn post_then_get_sim_round_trip() {
         .unwrap()
         .insert("library_id".into(), serde_json::json!(library_id));
 
-    let response = app
-        .clone()
-        .oneshot(
-            Request::builder()
-                .method("POST")
-                .uri("/sims")
-                .header("content-type", "application/json")
-                .header("authorization", bearer_header())
-                .body(Body::from(serde_json::to_vec(&body).unwrap()))
-                .unwrap(),
-        )
-        .await
-        .unwrap();
-    assert_eq!(response.status(), StatusCode::CREATED);
+    let req = TestRequest::post()
+        .uri("/sims")
+        .insert_header(("authorization", bearer_header()))
+        .set_json(&body)
+        .to_request();
+    let resp = test::call_service(&app, req).await;
+    assert_eq!(resp.status(), StatusCode::CREATED);
 
-    let response = app
-        .oneshot(
-            Request::builder()
-                .uri(format!("/sims/{}?library_id={}", sm.uuid, library_id))
-                .header("authorization", bearer_header())
-                .body(Body::empty())
-                .unwrap(),
-        )
-        .await
-        .unwrap();
-    assert_eq!(response.status(), StatusCode::OK);
-    let bytes = axum::body::to_bytes(response.into_body(), 1 << 20)
-        .await
-        .unwrap();
-    let got: SimModel = serde_json::from_slice(&bytes).unwrap();
+    let req = TestRequest::get()
+        .uri(&format!("/sims/{}?library_id={}", sm.uuid, library_id))
+        .insert_header(("authorization", bearer_header()))
+        .to_request();
+    let resp = test::call_service(&app, req).await;
+    assert_eq!(resp.status(), StatusCode::OK);
+    let got: SimModel = test::read_body_json(resp).await;
     assert_eq!(got.uuid, sm.uuid);
     assert_eq!(got.name, sm.name);
     assert_eq!(got.body, sm.body);
     assert_eq!(got.kind, sm.kind);
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn get_symbol_404_when_unknown() {
-    // Round-trip the not-found path so future refactors don't regress the
-    // `Option<…>` → 404 conversion.
     let state = fresh_state().await;
-    let app = router_with_state(state);
+    let app = build_test_app(state).await;
 
     let library_id = Uuid::now_v7();
     let unknown = Uuid::now_v7();
 
-    let response = app
-        .oneshot(
-            Request::builder()
-                .uri(format!("/symbols/{unknown}?library_id={library_id}"))
-                .header("authorization", bearer_header())
-                .body(Body::empty())
-                .unwrap(),
-        )
-        .await
-        .unwrap();
-    assert_eq!(response.status(), StatusCode::NOT_FOUND);
+    let req = TestRequest::get()
+        .uri(&format!("/symbols/{unknown}?library_id={library_id}"))
+        .insert_header(("authorization", bearer_header()))
+        .to_request();
+    let resp = test::call_service(&app, req).await;
+    assert_eq!(resp.status(), StatusCode::NOT_FOUND);
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn get_symbol_400_without_library_id() {
-    // The route requires `?library_id=` to disambiguate primitives that share
-    // a uuid across libraries. Missing it is a client bug, surfaced as 400.
     let state = fresh_state().await;
-    let app = router_with_state(state);
+    let app = build_test_app(state).await;
 
     let unknown = Uuid::now_v7();
-    let response = app
-        .oneshot(
-            Request::builder()
-                .uri(format!("/symbols/{unknown}"))
-                .header("authorization", bearer_header())
-                .body(Body::empty())
-                .unwrap(),
-        )
-        .await
-        .unwrap();
-    assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+    let req = TestRequest::get()
+        .uri(&format!("/symbols/{unknown}"))
+        .insert_header(("authorization", bearer_header()))
+        .to_request();
+    let resp = test::call_service(&app, req).await;
+    assert_eq!(resp.status(), StatusCode::BAD_REQUEST);
 }

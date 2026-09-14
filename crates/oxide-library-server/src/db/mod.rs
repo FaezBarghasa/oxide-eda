@@ -23,8 +23,8 @@ use chrono::Utc;
 use oxide_library::component::ComponentRow;
 use oxide_library::identity::RowId;
 use oxide_library::primitive::{Footprint, SimModel, Symbol};
+use sqlx::AssertSqlSafe;
 use sqlx::Row;
-use sqlx::query::AssertSqlSafe;
 use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode, SqlitePoolOptions};
 use uuid::Uuid;
 
@@ -485,8 +485,8 @@ async fn upsert_primitive(
     let now = Utc::now().to_rfc3339();
     match pool {
         DbPool::Sqlite(pool) => {
-            // sqlx 0.8 doesn't templatise identifiers; format!() with the
-            // whitelisted table is safe (see `assert_primitive_table`).
+            // sqlx 0.9 validates dynamic query strings. AssertSqlSafe is safe
+            // here because assert_primitive_table guards against arbitrary inputs.
             let sql = format!(
                 "INSERT INTO {table} (library_id, uuid, name, payload, created_at, updated_at) \
                  VALUES (?, ?, ?, ?, ?, ?) \
@@ -495,7 +495,7 @@ async fn upsert_primitive(
                      payload = excluded.payload, \
                      updated_at = excluded.updated_at",
             );
-            sqlx::query(&sql)
+            sqlx::query(AssertSqlSafe(sql.as_str()))
                 .bind(library_id.to_string())
                 .bind(uuid.to_string())
                 .bind(name)
@@ -514,7 +514,7 @@ async fn upsert_primitive(
                      payload = EXCLUDED.payload, \
                      updated_at = EXCLUDED.updated_at",
             );
-            sqlx::query(&sql)
+            sqlx::query(AssertSqlSafe(sql.as_str()))
                 .bind(library_id.to_string())
                 .bind(uuid.to_string())
                 .bind(name)
@@ -538,7 +538,7 @@ async fn fetch_primitive_payload(
     match pool {
         DbPool::Sqlite(pool) => {
             let sql = format!("SELECT payload FROM {table} WHERE library_id = ? AND uuid = ?");
-            let row = sqlx::query(&sql)
+            let row = sqlx::query(AssertSqlSafe(sql.as_str()))
                 .bind(library_id.to_string())
                 .bind(uuid.to_string())
                 .fetch_optional(pool)
@@ -547,7 +547,7 @@ async fn fetch_primitive_payload(
         }
         DbPool::Postgres(pool) => {
             let sql = format!("SELECT payload FROM {table} WHERE library_id = $1 AND uuid = $2");
-            let row = sqlx::query(&sql)
+            let row = sqlx::query(AssertSqlSafe(sql.as_str()))
                 .bind(library_id.to_string())
                 .bind(uuid.to_string())
                 .fetch_optional(pool)
@@ -570,13 +570,13 @@ async fn list_primitive_summaries(
                     "SELECT library_id, uuid, name FROM {table} \
                      WHERE library_id = ? ORDER BY name"
                 );
-                sqlx::query(&sql)
+                sqlx::query(AssertSqlSafe(sql.as_str()))
                     .bind(lib.to_string())
                     .fetch_all(pool)
                     .await?
             } else {
                 let sql = format!("SELECT library_id, uuid, name FROM {table} ORDER BY name");
-                sqlx::query(&sql).fetch_all(pool).await?
+                sqlx::query(AssertSqlSafe(sql.as_str())).fetch_all(pool).await?
             };
             rows.into_iter()
                 .map(|r| {
@@ -602,13 +602,13 @@ async fn list_primitive_summaries(
                     "SELECT library_id, uuid, name FROM {table} \
                      WHERE library_id = $1 ORDER BY name"
                 );
-                sqlx::query(&sql)
+                sqlx::query(AssertSqlSafe(sql.as_str()))
                     .bind(lib.to_string())
                     .fetch_all(pool)
                     .await?
             } else {
                 let sql = format!("SELECT library_id, uuid, name FROM {table} ORDER BY name");
-                sqlx::query(&sql).fetch_all(pool).await?
+                sqlx::query(AssertSqlSafe(sql.as_str())).fetch_all(pool).await?
             };
             rows.into_iter()
                 .map(|r| {

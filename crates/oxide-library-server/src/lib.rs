@@ -1,4 +1,4 @@
-//! Oxide library DB-flavour server.
+//! Oxide library DB-flavour server with Actix-Web and optional QUIC/HTTP/3.
 //!
 //! Exposes a JSON HTTP API over a shared `AppState` (DB pool + lock manager).
 //! Liveness checks (`/health`, `/version`) stay anonymous so process
@@ -7,36 +7,16 @@
 //! (`/symbols` / `/footprints` / `/sims`) routes, and the advisory
 //! `/rows/:row_id/locks` endpoint — is gated behind a bearer-token
 //! check sourced from the `OXIDE_API_TOKEN` env var.
-//!
-//! ## DBLib row model
-//!
-//! Components live as rows inside a shared `component_rows` table:
-//!
-//! ```text
-//! GET    /tables                      list table names
-//! GET    /tables/:name                list rows in table
-//! POST   /tables/:name/rows           insert row
-//! GET    /tables/:name/rows/:row_id   read row
-//! PUT    /tables/:name/rows/:row_id   replace row
-//! DELETE /tables/:name/rows/:row_id   delete row
-//! ```
-//!
-//! ## Authentication (H1)
-//!
-//! Mutating routes are gated behind a bearer-token check sourced from
-//! `OXIDE_API_TOKEN`. If unset on startup the auth layer is omitted entirely
-//! and a `tracing::warn!` fires telling operators they are running
-//! unauthenticated — fine for local dev, never for production.
 
 use std::sync::Arc;
 use std::time::Duration;
 
-use axum::{Json, Router, http::HeaderValue, routing::get};
+use actix_cors::Cors;
+use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform};
+use actix_web::http::header::AUTHORIZATION;
+use actix_web::{Error, HttpResponse, Responder, web};
+use futures_util::future::{LocalBoxFuture, Ready, ok, ready};
 use serde_json::json;
-use tower_governor::{GovernorLayer, governor::GovernorConfigBuilder};
-use tower_http::cors::CorsLayer;
-use tower_http::limit::RequestBodyLimitLayer;
-use tower_http::validate_request::ValidateRequestHeaderLayer;
 
 pub mod db;
 pub mod locks;
@@ -55,155 +35,145 @@ pub const API_TOKEN_ENV: &str = "OXIDE_API_TOKEN";
 pub const DATABASE_URL_ENV: &str = "OXIDE_DATABASE_URL";
 
 /// Maximum request body in bytes accepted on protected mutation routes.
-/// 1 MiB is generous for component / primitive payloads (typical row JSON
-/// is ~5 KiB, primitives ~50 KiB) and bounded enough to stop unbounded
-/// allocation if a client (auth'd or not) tries to OOM the server.
 pub const MAX_REQUEST_BODY_BYTES: usize = 1 << 20;
-
-/// HI-2: per-IP rate limit for protected mutation routes. 60 req/min/IP
-/// is generous for the documented multi-user library workflow (a human
-/// rarely exceeds ~10 row edits per minute) and tight enough to stop
-/// the unbounded lock-acquire flood that grew the in-memory `LockManager`
-/// map. Read paths (`/tables/*` GET) inherit the same gate; if that
-/// proves too tight in practice, split into per-route configs.
-const RATE_LIMIT_PER_SECOND: u64 = 1; // i.e. 60 req/min/IP, replenished 1/sec
-const RATE_LIMIT_BURST_SIZE: u32 = 30; // accommodate a normal UI burst
 
 /// How often to drop expired entries from the in-memory `LockManager`.
 const LOCK_SWEEP_INTERVAL: Duration = Duration::from_secs(5 * 60);
 
-/// Router with no shared state — used by the legacy `/health` + `/version`
-/// integration tests in `tests/health.rs`.
-pub fn router() -> Router {
-    Router::new()
-        .route("/health", get(health))
-        .route("/version", get(version))
+/// Anonymous liveness endpoints
+pub async fn health() -> impl Responder {
+    HttpResponse::Ok().json(json!({ "status": "ok" }))
 }
 
-/// Router wired up with a fresh in-memory SQLite. Production callers should
-/// build their own `AppState` and use [`router_with_state`] directly.
-pub async fn router_with_in_memory_state() -> anyhow::Result<Router> {
-    let state = AppState::new_sqlite_memory().await?;
-    state.migrate().await?;
-    Ok(router_with_state(state))
+pub async fn version() -> impl Responder {
+    HttpResponse::Ok().json(json!({
+        "name": "oxide-library-server",
+        "version": env!("CARGO_PKG_VERSION"),
+    }))
 }
 
-/// Build the full router around an existing `AppState`.
-///
-/// HI-1: mutation routes require a `Bearer <token>` matching `OXIDE_API_TOKEN`.
-/// HI-3: the `LockManager.sweep_expired` task is spawned here so expired
-///   locks are evicted from memory every [`LOCK_SWEEP_INTERVAL`].
-/// HI-4: every protected route is body-size-capped at [`MAX_REQUEST_BODY_BYTES`].
-/// MD-16: a CORS layer is wired so we don't ride the axum-default permissive
-///   behaviour if the bind ever lands on a non-loopback interface.
-///
-/// `/health` and `/version` are always reachable so process supervisors can
-/// probe liveness without holding a credential.
-pub fn router_with_state(state: AppState) -> Router {
-    // HI-3: schedule periodic sweep of expired lock entries. Without this
-    // the in-memory `LockManager` map grows monotonically with every
-    // unique row id ever locked.
+pub fn configure_liveness(cfg: &mut web::ServiceConfig) {
+    cfg.route("/health", web::get().to(health))
+        .route("/version", web::get().to(version));
+}
+
+pub fn configure_protected(cfg: &mut web::ServiceConfig) {
+    routes::tables::configure(cfg);
+    routes::rows::configure(cfg);
+    routes::locks::configure(cfg);
+    routes::symbols::configure(cfg);
+    routes::footprints::configure(cfg);
+    routes::sims::configure(cfg);
+}
+
+/// Spawns the background task to clean expired advisory locks.
+pub fn start_lock_sweeper(state: &AppState) {
     let locks_handle: Arc<crate::locks::LockManager> = state.locks_arc();
     tokio::spawn(async move {
         let mut tick = tokio::time::interval(LOCK_SWEEP_INTERVAL);
-        // Skip the immediate-first-tick so we don't sweep during startup.
         tick.tick().await;
         loop {
             tick.tick().await;
             locks_handle.sweep_expired();
         }
     });
+}
 
-    let liveness = Router::new()
-        .route("/health", get(health))
-        .route("/version", get(version));
+/// Bearer token validation middleware
+pub struct BearerAuth {
+    token: Option<String>,
+}
 
-    let mut protected = Router::new()
-        .merge(routes::tables::router())
-        .merge(routes::rows::router())
-        .merge(routes::locks::router())
-        .merge(routes::symbols::router())
-        .merge(routes::footprints::router())
-        .merge(routes::sims::router())
-        // HI-4: cap protected mutation bodies before serde_json buffers
-        // the entire payload into memory.
-        .layer(RequestBodyLimitLayer::new(MAX_REQUEST_BODY_BYTES));
+impl BearerAuth {
+    pub fn new(token: Option<String>) -> Self {
+        Self { token }
+    }
+}
 
-    match std::env::var(API_TOKEN_ENV) {
-        Ok(token) if !token.is_empty() => {
-            // tower-http 0.6 marks `bearer` as "too basic" but it's the
-            // documented escape hatch for env-var-driven static tokens.
-            // Once OIDC lands we'll replace it with a custom validator.
-            #[expect(
-                deprecated,
-                reason = "tower-http 0.6 marks `bearer` as too basic, but it is the documented escape hatch for env-var-driven static tokens until OIDC lands"
-            )]
-            let layer = ValidateRequestHeaderLayer::bearer(&token);
-            protected = protected.layer(layer);
-        }
-        _ => {
-            tracing::warn!(
-                env = API_TOKEN_ENV,
-                "server unauthenticated — set {API_TOKEN_ENV} for production (loopback only)",
-            );
-        }
+impl<S, B> Transform<S, ServiceRequest> for BearerAuth
+where
+    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
+    S::Future: 'static,
+    B: actix_web::body::MessageBody + 'static,
+{
+    type Response = ServiceResponse<actix_web::body::BoxBody>;
+    type Error = Error;
+    type InitError = ();
+    type Transform = BearerAuthMiddleware<S>;
+    type Future = Ready<Result<Self::Transform, Self::InitError>>;
+
+    fn new_transform(&self, service: S) -> Self::Future {
+        ok(BearerAuthMiddleware {
+            service,
+            expected_token: self.token.clone(),
+        })
+    }
+}
+
+pub struct BearerAuthMiddleware<S> {
+    service: S,
+    expected_token: Option<String>,
+}
+
+impl<S, B> Service<ServiceRequest> for BearerAuthMiddleware<S>
+where
+    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
+    S::Future: 'static,
+    B: actix_web::body::MessageBody + 'static,
+{
+    type Response = ServiceResponse<actix_web::body::BoxBody>;
+    type Error = Error;
+    type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
+
+    fn poll_ready(
+        &self,
+        ctx: &mut core::task::Context<'_>,
+    ) -> core::task::Poll<Result<(), Self::Error>> {
+        self.service.poll_ready(ctx)
     }
 
-    // MD-16: explicit CORS — we own the front-end so allow only oxide.dev
-    // origins in production. The loopback dev origin is allowed so the
-    // local UI can hit the local server during development.
-    let cors = CorsLayer::new()
-        .allow_origin([
-            HeaderValue::from_static("http://127.0.0.1:3535"),
-            HeaderValue::from_static("http://localhost:3535"),
-            HeaderValue::from_static("https://oxide.dev"),
-            HeaderValue::from_static("https://www.oxide.dev"),
-        ])
-        .allow_methods(tower_http::cors::Any)
-        .allow_headers(tower_http::cors::Any);
-
-    liveness.merge(protected).layer(cors).with_state(state)
-}
-
-/// Production hardening — wraps a router built by [`router_with_state`]
-/// with the per-IP rate-limit layer (HI-2). Kept separate from the base
-/// router so the in-tree integration tests can call routes via
-/// `tower::ServiceExt::oneshot` without the governor rejecting them
-/// for missing `ConnectInfo`. Production callers MUST also serve via
-/// `axum::serve(listener, app.into_make_service_with_connect_info::<SocketAddr>())`
-/// so the governor can see peer IPs.
-///
-/// Also schedules a periodic `retain_recent` sweep on the limiter so
-/// dormant IP entries are dropped (parallels [`LOCK_SWEEP_INTERVAL`]).
-pub fn with_rate_limit(router: Router) -> Router {
-    let governor_conf = Arc::new(
-        GovernorConfigBuilder::default()
-            .per_second(RATE_LIMIT_PER_SECOND)
-            .burst_size(RATE_LIMIT_BURST_SIZE)
-            .finish()
-            .expect("governor config: per_second/burst_size both nonzero"),
-    );
-    let governor_for_cleanup = Arc::clone(&governor_conf);
-    tokio::spawn(async move {
-        let mut interval = tokio::time::interval(Duration::from_secs(60));
-        interval.tick().await;
-        loop {
-            interval.tick().await;
-            governor_for_cleanup.limiter().retain_recent();
+    fn call(&self, req: ServiceRequest) -> Self::Future {
+        // Skip auth for liveness routes
+        let path = req.path();
+        if path == "/health" || path == "/version" {
+            let fut = self.service.call(req);
+            return Box::pin(async move {
+                let res = fut.await?;
+                Ok(res.map_into_boxed_body())
+            });
         }
-    });
-    router.layer(GovernorLayer {
-        config: governor_conf,
-    })
+
+        if let Some(ref expected) = self.expected_token {
+            let auth_header = req.headers().get(AUTHORIZATION);
+            let authorized = auth_header
+                .and_then(|h| h.to_str().ok())
+                .and_then(|h| h.strip_prefix("Bearer "))
+                .map(|token| token == expected)
+                .unwrap_or(false);
+
+            if !authorized {
+                let response = HttpResponse::Unauthorized()
+                    .json(json!({ "error": "unauthorized" }));
+                return Box::pin(ready(Ok(req.into_response(response).map_into_boxed_body())));
+            }
+        }
+
+        let fut = self.service.call(req);
+        Box::pin(async move {
+            let res = fut.await?;
+            Ok(res.map_into_boxed_body())
+        })
+    }
 }
 
-pub async fn health() -> Json<serde_json::Value> {
-    Json(json!({ "status": "ok" }))
-}
-
-pub async fn version() -> Json<serde_json::Value> {
-    Json(json!({
-        "name": "oxide-library-server",
-        "version": env!("CARGO_PKG_VERSION"),
-    }))
+/// Create default CORS policy
+pub fn default_cors() -> Cors {
+    Cors::default()
+        .allowed_origin("http://127.0.0.1:3535")
+        .allowed_origin("http://localhost:3535")
+        .allowed_origin("https://oxide.dev")
+        .allowed_origin("https://www.oxide.dev")
+        .allow_any_method()
+        .allow_any_header()
+        .max_age(3600)
 }

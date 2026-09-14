@@ -6,8 +6,9 @@
 
 use std::time::Duration;
 
-use axum::body::Body;
-use axum::http::{Request, StatusCode};
+use actix_web::http::StatusCode;
+use actix_web::test::{self, TestRequest};
+use actix_web::{App, web};
 use chrono::Utc;
 use oxide_library::adapter::FieldSet;
 use oxide_library::component::{ComponentRow, DatasheetRef, PinPadOverride, PlmReserved};
@@ -17,29 +18,19 @@ use oxide_library::manufacturer::ManufacturerPart;
 use oxide_library::param::ParamMap;
 use oxide_library::primitive::PrimitiveRef;
 use oxide_library_server::db::AppState;
-use oxide_library_server::{API_TOKEN_ENV, router_with_state};
-use tower::ServiceExt;
+use oxide_library_server::{
+    API_TOKEN_ENV, BearerAuth, configure_protected, default_cors,
+};
 use uuid::Uuid;
 
-/// Test-fixture bearer token. H1: every protected route in the test harness
-/// must pass `Authorization: Bearer <TEST_BEARER>`. Set via `OXIDE_API_TOKEN`
-/// on the test process so `router_with_state` picks it up at construction.
 const TEST_BEARER: &str = "test-bearer-token";
 
-/// Install the test bearer-token env var. Called by every test before they
-/// build a router; idempotent and side-effect-safe across parallel tests
-/// because the value never changes.
 fn ensure_test_token() {
-    // SAFETY: `set_var` requires unsynchronised access on Unix; here all
-    // tests set the same constant value, so racing writers cannot disagree.
-    // Once stabilised we can switch to `std::env::set_var` directly.
     unsafe {
         std::env::set_var(API_TOKEN_ENV, TEST_BEARER);
     }
 }
 
-/// Build a fixture row for the `resistors` table — covers the full
-/// `ComponentRow` shape so JSON round-trips exercise every nested type.
 fn fixture_row(internal_pn: &str) -> ComponentRow {
     let lib = Uuid::now_v7();
     ComponentRow {
@@ -77,9 +68,24 @@ async fn fresh_state() -> AppState {
     state
 }
 
-/// Build an `Authorization: Bearer <TEST_BEARER>` header value once.
 fn bearer_header() -> String {
     format!("Bearer {TEST_BEARER}")
+}
+
+fn build_test_app(
+    state: AppState,
+) -> impl actix_web::dev::Service<
+    actix_http::Request,
+    Response = actix_web::dev::ServiceResponse<actix_web::body::BoxBody>,
+    Error = actix_web::Error,
+> {
+    test::init_service(
+        App::new()
+            .app_data(web::Data::new(state))
+            .wrap(default_cors())
+            .wrap(BearerAuth::new(Some(TEST_BEARER.to_string())))
+            .configure(configure_protected),
+    )
 }
 
 #[tokio::test]
@@ -91,8 +97,6 @@ async fn migrations_apply_cleanly() {
             .await
             .unwrap();
 
-    // The row table must exist alongside the primitive tables and
-    // any legacy tables retained for forward-compat.
     for required in ["component_rows", "symbols", "footprints", "sims"] {
         assert!(
             tables.iter().any(|t| t == required),
@@ -101,123 +105,73 @@ async fn migrations_apply_cleanly() {
     }
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn route_tables_lists_empty() {
-    // Fresh library → no rows → `GET /tables` returns `[]`.
     let state = fresh_state().await;
-    let app = router_with_state(state);
+    let app = build_test_app(state).await;
 
     let library_id = Uuid::now_v7();
-    let resp = app
-        .oneshot(
-            Request::builder()
-                .uri(format!("/tables?library_id={library_id}"))
-                .header("authorization", bearer_header())
-                .body(Body::empty())
-                .unwrap(),
-        )
-        .await
-        .unwrap();
+    let req = TestRequest::get()
+        .uri(&format!("/tables?library_id={library_id}"))
+        .insert_header(("authorization", bearer_header()))
+        .to_request();
+    let resp = test::call_service(&app, req).await;
     assert_eq!(resp.status(), StatusCode::OK);
-    let bytes = axum::body::to_bytes(resp.into_body(), 1 << 20)
-        .await
-        .unwrap();
-    let names: Vec<String> = serde_json::from_slice(&bytes).unwrap();
+    let names: Vec<String> = test::read_body_json(resp).await;
     assert!(names.is_empty());
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn route_post_row_then_get() {
-    // POST a row to /tables/resistors/rows, then GET it back via
-    // /tables/resistors/rows/{row_id}.
     let state = fresh_state().await;
-    let app = router_with_state(state);
+    let app = build_test_app(state).await;
 
     let library_id = Uuid::now_v7();
     let row = fixture_row("R0805_10k");
-    let body = serde_json::to_vec(&row).unwrap();
 
-    let resp = app
-        .clone()
-        .oneshot(
-            Request::builder()
-                .method("POST")
-                .uri(format!("/tables/resistors/rows?library_id={library_id}"))
-                .header("content-type", "application/json")
-                .header("authorization", bearer_header())
-                .body(Body::from(body))
-                .unwrap(),
-        )
-        .await
-        .unwrap();
+    let req = TestRequest::post()
+        .uri(&format!("/tables/resistors/rows?library_id={library_id}"))
+        .insert_header(("authorization", bearer_header()))
+        .set_json(&row)
+        .to_request();
+    let resp = test::call_service(&app, req).await;
     assert_eq!(resp.status(), StatusCode::CREATED);
 
-    let resp = app
-        .clone()
-        .oneshot(
-            Request::builder()
-                .uri(format!(
-                    "/tables/resistors/rows/{}?library_id={library_id}",
-                    row.row_id
-                ))
-                .header("authorization", bearer_header())
-                .body(Body::empty())
-                .unwrap(),
-        )
-        .await
-        .unwrap();
+    let req = TestRequest::get()
+        .uri(&format!(
+            "/tables/resistors/rows/{}?library_id={library_id}",
+            row.row_id
+        ))
+        .insert_header(("authorization", bearer_header()))
+        .to_request();
+    let resp = test::call_service(&app, req).await;
     assert_eq!(resp.status(), StatusCode::OK);
-    let bytes = axum::body::to_bytes(resp.into_body(), 1 << 20)
-        .await
-        .unwrap();
-    let got: ComponentRow = serde_json::from_slice(&bytes).unwrap();
+    let got: ComponentRow = test::read_body_json(resp).await;
     assert_eq!(got, row);
 
-    // List endpoint surfaces the inserted row.
-    let resp = app
-        .clone()
-        .oneshot(
-            Request::builder()
-                .uri(format!("/tables/resistors?library_id={library_id}"))
-                .header("authorization", bearer_header())
-                .body(Body::empty())
-                .unwrap(),
-        )
-        .await
-        .unwrap();
+    let req = TestRequest::get()
+        .uri(&format!("/tables/resistors?library_id={library_id}"))
+        .insert_header(("authorization", bearer_header()))
+        .to_request();
+    let resp = test::call_service(&app, req).await;
     assert_eq!(resp.status(), StatusCode::OK);
-    let bytes = axum::body::to_bytes(resp.into_body(), 1 << 20)
-        .await
-        .unwrap();
-    let listed: Vec<ComponentRow> = serde_json::from_slice(&bytes).unwrap();
+    let listed: Vec<ComponentRow> = test::read_body_json(resp).await;
     assert_eq!(listed, vec![row.clone()]);
 
-    // After at least one row exists, /tables surfaces the table name.
-    let resp = app
-        .oneshot(
-            Request::builder()
-                .uri(format!("/tables?library_id={library_id}"))
-                .header("authorization", bearer_header())
-                .body(Body::empty())
-                .unwrap(),
-        )
-        .await
-        .unwrap();
+    let req = TestRequest::get()
+        .uri(&format!("/tables?library_id={library_id}"))
+        .insert_header(("authorization", bearer_header()))
+        .to_request();
+    let resp = test::call_service(&app, req).await;
     assert_eq!(resp.status(), StatusCode::OK);
-    let bytes = axum::body::to_bytes(resp.into_body(), 1 << 20)
-        .await
-        .unwrap();
-    let names: Vec<String> = serde_json::from_slice(&bytes).unwrap();
+    let names: Vec<String> = test::read_body_json(resp).await;
     assert_eq!(names, vec!["resistors".to_string()]);
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn route_post_duplicate_row_conflicts_and_preserves_original() {
-    // POST must be create-only. A second POST with the same row_id must
-    // return 409 and must NOT overwrite the stored row (the old handler
-    // silently upserted, letting one client clobber another's edit).
     let state = fresh_state().await;
-    let app = router_with_state(state);
+    let app = build_test_app(state).await;
 
     let library_id = Uuid::now_v7();
     let row1 = fixture_row("R0805_10k");
@@ -225,201 +179,127 @@ async fn route_post_duplicate_row_conflicts_and_preserves_original() {
     row2.internal_pn = InternalPn::new("R0805_CLOBBER");
     row2.version = "9.9.9".into();
 
-    let post = |body: Vec<u8>| {
-        Request::builder()
-            .method("POST")
-            .uri(format!("/tables/resistors/rows?library_id={library_id}"))
-            .header("content-type", "application/json")
-            .header("authorization", bearer_header())
-            .body(Body::from(body))
-            .unwrap()
-    };
+    let req1 = TestRequest::post()
+        .uri(&format!("/tables/resistors/rows?library_id={library_id}"))
+        .insert_header(("authorization", bearer_header()))
+        .set_json(&row1)
+        .to_request();
+    let resp1 = test::call_service(&app, req1).await;
+    assert_eq!(resp1.status(), StatusCode::CREATED);
 
-    let r1 = app
-        .clone()
-        .oneshot(post(serde_json::to_vec(&row1).unwrap()))
-        .await
-        .unwrap();
-    assert_eq!(r1.status(), StatusCode::CREATED);
+    let req2 = TestRequest::post()
+        .uri(&format!("/tables/resistors/rows?library_id={library_id}"))
+        .insert_header(("authorization", bearer_header()))
+        .set_json(&row2)
+        .to_request();
+    let resp2 = test::call_service(&app, req2).await;
+    assert_eq!(resp2.status(), StatusCode::CONFLICT);
 
-    // Second POST with the same row_id but different content → 409.
-    let r2 = app
-        .clone()
-        .oneshot(post(serde_json::to_vec(&row2).unwrap()))
-        .await
-        .unwrap();
-    assert_eq!(r2.status(), StatusCode::CONFLICT);
-
-    // The stored row is still the original — nothing was clobbered.
-    let resp = app
-        .oneshot(
-            Request::builder()
-                .uri(format!(
-                    "/tables/resistors/rows/{}?library_id={library_id}",
-                    row1.row_id
-                ))
-                .header("authorization", bearer_header())
-                .body(Body::empty())
-                .unwrap(),
-        )
-        .await
-        .unwrap();
+    let req = TestRequest::get()
+        .uri(&format!(
+            "/tables/resistors/rows/{}?library_id={library_id}",
+            row1.row_id
+        ))
+        .insert_header(("authorization", bearer_header()))
+        .to_request();
+    let resp = test::call_service(&app, req).await;
     assert_eq!(resp.status(), StatusCode::OK);
-    let bytes = axum::body::to_bytes(resp.into_body(), 1 << 20)
-        .await
-        .unwrap();
-    let got: ComponentRow = serde_json::from_slice(&bytes).unwrap();
-    assert_eq!(
-        got, row1,
-        "the original row must survive a conflicting POST"
-    );
+    let got: ComponentRow = test::read_body_json(resp).await;
+    assert_eq!(got, row1, "the original row must survive a conflicting POST");
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn route_put_row_updates() {
-    // POST a row, PUT a modified copy back, GET should return the modified
-    // version.
     let state = fresh_state().await;
-    let app = router_with_state(state);
+    let app = build_test_app(state).await;
 
     let library_id = Uuid::now_v7();
     let row = fixture_row("R0805_10k");
     let row_id = row.row_id;
 
-    let resp = app
-        .clone()
-        .oneshot(
-            Request::builder()
-                .method("POST")
-                .uri(format!("/tables/resistors/rows?library_id={library_id}"))
-                .header("content-type", "application/json")
-                .header("authorization", bearer_header())
-                .body(Body::from(serde_json::to_vec(&row).unwrap()))
-                .unwrap(),
-        )
-        .await
-        .unwrap();
+    let req = TestRequest::post()
+        .uri(&format!("/tables/resistors/rows?library_id={library_id}"))
+        .insert_header(("authorization", bearer_header()))
+        .set_json(&row)
+        .to_request();
+    let resp = test::call_service(&app, req).await;
     assert_eq!(resp.status(), StatusCode::CREATED);
 
     let mut updated = row.clone();
     updated.internal_pn = InternalPn::new("R0805_10k_REV2");
     updated.state = LifecycleState::Deprecated;
-    let resp = app
-        .clone()
-        .oneshot(
-            Request::builder()
-                .method("PUT")
-                .uri(format!(
-                    "/tables/resistors/rows/{row_id}?library_id={library_id}"
-                ))
-                .header("content-type", "application/json")
-                .header("authorization", bearer_header())
-                .body(Body::from(serde_json::to_vec(&updated).unwrap()))
-                .unwrap(),
-        )
-        .await
-        .unwrap();
+
+    let req = TestRequest::put()
+        .uri(&format!(
+            "/tables/resistors/rows/{row_id}?library_id={library_id}"
+        ))
+        .insert_header(("authorization", bearer_header()))
+        .set_json(&updated)
+        .to_request();
+    let resp = test::call_service(&app, req).await;
     assert_eq!(resp.status(), StatusCode::OK);
 
-    let resp = app
-        .oneshot(
-            Request::builder()
-                .uri(format!(
-                    "/tables/resistors/rows/{row_id}?library_id={library_id}"
-                ))
-                .header("authorization", bearer_header())
-                .body(Body::empty())
-                .unwrap(),
-        )
-        .await
-        .unwrap();
+    let req = TestRequest::get()
+        .uri(&format!(
+            "/tables/resistors/rows/{row_id}?library_id={library_id}"
+        ))
+        .insert_header(("authorization", bearer_header()))
+        .to_request();
+    let resp = test::call_service(&app, req).await;
     assert_eq!(resp.status(), StatusCode::OK);
-    let bytes = axum::body::to_bytes(resp.into_body(), 1 << 20)
-        .await
-        .unwrap();
-    let got: ComponentRow = serde_json::from_slice(&bytes).unwrap();
+    let got: ComponentRow = test::read_body_json(resp).await;
     assert_eq!(got.internal_pn, InternalPn::new("R0805_10k_REV2"));
     assert_eq!(got.state, LifecycleState::Deprecated);
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn route_delete_row() {
     let state = fresh_state().await;
-    let app = router_with_state(state);
+    let app = build_test_app(state).await;
 
     let library_id = Uuid::now_v7();
     let row = fixture_row("R0805_10k");
     let row_id = row.row_id;
 
-    let resp = app
-        .clone()
-        .oneshot(
-            Request::builder()
-                .method("POST")
-                .uri(format!("/tables/resistors/rows?library_id={library_id}"))
-                .header("content-type", "application/json")
-                .header("authorization", bearer_header())
-                .body(Body::from(serde_json::to_vec(&row).unwrap()))
-                .unwrap(),
-        )
-        .await
-        .unwrap();
+    let req = TestRequest::post()
+        .uri(&format!("/tables/resistors/rows?library_id={library_id}"))
+        .insert_header(("authorization", bearer_header()))
+        .set_json(&row)
+        .to_request();
+    let resp = test::call_service(&app, req).await;
     assert_eq!(resp.status(), StatusCode::CREATED);
 
-    let resp = app
-        .clone()
-        .oneshot(
-            Request::builder()
-                .method("DELETE")
-                .uri(format!(
-                    "/tables/resistors/rows/{row_id}?library_id={library_id}"
-                ))
-                .header("authorization", bearer_header())
-                .body(Body::empty())
-                .unwrap(),
-        )
-        .await
-        .unwrap();
+    let req = TestRequest::delete()
+        .uri(&format!(
+            "/tables/resistors/rows/{row_id}?library_id={library_id}"
+        ))
+        .insert_header(("authorization", bearer_header()))
+        .to_request();
+    let resp = test::call_service(&app, req).await;
     assert_eq!(resp.status(), StatusCode::NO_CONTENT);
 
-    let resp = app
-        .oneshot(
-            Request::builder()
-                .uri(format!(
-                    "/tables/resistors/rows/{row_id}?library_id={library_id}"
-                ))
-                .header("authorization", bearer_header())
-                .body(Body::empty())
-                .unwrap(),
-        )
-        .await
-        .unwrap();
+    let req = TestRequest::get()
+        .uri(&format!(
+            "/tables/resistors/rows/{row_id}?library_id={library_id}"
+        ))
+        .insert_header(("authorization", bearer_header()))
+        .to_request();
+    let resp = test::call_service(&app, req).await;
     assert_eq!(resp.status(), StatusCode::NOT_FOUND);
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn route_unauthenticated_returns_401() {
-    // Hit `/tables` without an Authorization header — the bearer-token
-    // layer rejects with 401 before the handler runs.
     let state = fresh_state().await;
-    let app = router_with_state(state);
+    let app = build_test_app(state).await;
 
     let library_id = Uuid::now_v7();
-    let resp = app
-        .oneshot(
-            Request::builder()
-                .uri(format!("/tables?library_id={library_id}"))
-                .body(Body::empty())
-                .unwrap(),
-        )
-        .await
-        .unwrap();
+    let req = TestRequest::get()
+        .uri(&format!("/tables?library_id={library_id}"))
+        .to_request();
+    let resp = test::call_service(&app, req).await;
     assert_eq!(resp.status(), StatusCode::UNAUTHORIZED);
 }
-
-// Lock tests — kept here because the lock manager keys off
-// `RowId.as_uuid()` and the ergonomics are easiest to exercise from
-// a single integration suite.
 
 #[tokio::test]
 async fn lock_contention_second_attempt_blocks_until_release() {
@@ -476,32 +356,28 @@ async fn lock_contention_ttl_expiry_allows_takeover() {
         .expect("bob takes over after TTL");
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn locks_endpoint_returns_409_when_held() {
     let state = fresh_state().await;
     state.locks().set_idle_ttl(Duration::from_secs(60));
-    let app = router_with_state(state);
+    let app = build_test_app(state).await;
 
     let row_id = RowId::new();
 
-    let mk_req = |holder: &str| {
-        Request::builder()
-            .method("POST")
-            .uri(format!("/rows/{row_id}/locks"))
-            .header("content-type", "application/json")
-            .header("authorization", bearer_header())
-            .header("x-oxide-holder", holder)
-            .body(Body::from(
-                serde_json::to_vec(&serde_json::json!({"field_set": "Symbol"})).unwrap(),
-            ))
-            .unwrap()
+    let mk_req = |holder: &'static str| {
+        TestRequest::post()
+            .uri(&format!("/rows/{row_id}/locks"))
+            .insert_header(("authorization", bearer_header()))
+            .insert_header(("x-oxide-holder", holder))
+            .set_json(&serde_json::json!({"field_set": "Symbol"}))
+            .to_request()
     };
 
-    let r1 = app.clone().oneshot(mk_req("alice")).await.unwrap();
-    assert_eq!(r1.status(), StatusCode::CREATED);
+    let resp1 = test::call_service(&app, mk_req("alice")).await;
+    assert_eq!(resp1.status(), StatusCode::CREATED);
 
-    let r2 = app.oneshot(mk_req("bob")).await.unwrap();
-    assert_eq!(r2.status(), StatusCode::CONFLICT);
+    let resp2 = test::call_service(&app, mk_req("bob")).await;
+    assert_eq!(resp2.status(), StatusCode::CONFLICT);
 }
 
 #[tokio::test]
@@ -509,7 +385,7 @@ async fn locks_endpoint_returns_409_when_held() {
 async fn postgres_migrations_apply_when_env_set() {
     let url = match std::env::var("OXIDE_TEST_PG_URL") {
         Ok(u) => u,
-        Err(_) => return, // Belt-and-braces — `#[ignore]` already skips by default.
+        Err(_) => return,
     };
     let state = AppState::connect(&url).await.expect("pg connect");
     state.migrate().await.expect("pg migrations apply");
