@@ -7,13 +7,15 @@
 //! - [`QemuConfig`] & [`QemuInstance`]: Managed QEMU supervisor and GDB remote debugging stub.
 //! - [`VirtualUart`]: Bi-directional UART serial terminal buffer.
 
+pub mod arch;
 pub mod firmware;
 pub mod peripheral;
 pub mod pin_bridge;
 pub mod qemu;
 pub mod uart;
 
-pub use firmware::{ArmArch, ArmCore, FirmwareError, FirmwareImage, McuFamily, MemorySegment};
+pub use arch::{ArchClass, CoreProfile, McuVendor, MemoryModel};
+pub use firmware::{ArmArch, ArmCore, FirmwareError, FirmwareImage, McuFamily, McuTarget, MemorySegment};
 pub use pin_bridge::{LogicLevel, PinBridge, PinFunction, VirtualPinState};
 pub use qemu::{QemuConfig, QemuError, QemuInstance};
 pub use uart::VirtualUart;
@@ -52,15 +54,73 @@ mod tests {
     }
 
     #[test]
-    fn test_soc_family_presets() {
-        assert_eq!(McuFamily::Stm32F0.core(), ArmCore::CortexM0);
-        assert_eq!(McuFamily::Rp2040.core(), ArmCore::CortexM0Plus);
-        assert_eq!(McuFamily::Stm32F1.core(), ArmCore::CortexM3);
-        assert_eq!(McuFamily::Stm32F4.core(), ArmCore::CortexM4F);
-        assert_eq!(McuFamily::Stm32F7.core(), ArmCore::CortexM7);
-        assert_eq!(McuFamily::Stm32U5.core(), ArmCore::CortexM33);
-        assert_eq!(McuFamily::Rp2350.core(), ArmCore::CortexM33);
-        assert_eq!(McuFamily::Nrf52.core(), ArmCore::CortexM4F);
+    fn test_multi_vendor_mcu_targets() {
+        // 1. Espressif ESP32 (Xtensa & RISC-V)
+        let esp32_prof = McuTarget::Esp32.profile();
+        assert_eq!(esp32_prof.arch, ArchClass::Xtensa);
+        assert_eq!(esp32_prof.vendor, McuVendor::Espressif);
+        assert_eq!(esp32_prof.num_cores, 2);
+        assert_eq!(esp32_prof.qemu_executable, "qemu-system-xtensa");
+
+        let esp32c3_prof = McuTarget::Esp32C3.profile();
+        assert_eq!(esp32c3_prof.arch, ArchClass::RiscV);
+        assert_eq!(esp32c3_prof.vendor, McuVendor::Espressif);
+        assert_eq!(esp32c3_prof.qemu_executable, "qemu-system-riscv32");
+
+        // 2. Microchip / Atmel AVR & PIC
+        let uno_prof = McuTarget::ATmega328P.profile();
+        assert_eq!(uno_prof.arch, ArchClass::Avr8);
+        assert_eq!(uno_prof.vendor, McuVendor::MicrochipAtmel);
+        assert_eq!(uno_prof.bit_width, 8);
+        assert_eq!(uno_prof.qemu_executable, "qemu-system-avr");
+        match uno_prof.memory_model {
+            MemoryModel::HarvardSplit { flash_word_size_bytes, sram_size_bytes, eeprom_size_bytes } => {
+                assert_eq!(flash_word_size_bytes, 32768);
+                assert_eq!(sram_size_bytes, 2048);
+                assert_eq!(eeprom_size_bytes, 1024);
+            },
+            _ => panic!("Expected HarvardSplit memory model for AVR"),
+        }
+
+        let pic_prof = McuTarget::Pic18F4550.profile();
+        assert_eq!(pic_prof.arch, ArchClass::Pic8);
+        assert_eq!(pic_prof.vendor, McuVendor::MicrochipAtmel);
+
+        // 3. RISC-V (WCH & SiFive & RP2350 Hazard3)
+        let ch32_prof = McuTarget::Ch32V003.profile();
+        assert_eq!(ch32_prof.arch, ArchClass::RiscV);
+        assert_eq!(ch32_prof.vendor, McuVendor::Wch);
+        assert_eq!(ch32_prof.qemu_executable, "qemu-system-riscv32");
+
+        let rp2350_rv = McuTarget::Rp2350RiscV.profile();
+        assert_eq!(rp2350_rv.arch, ArchClass::RiscV);
+        assert_eq!(rp2350_rv.vendor, McuVendor::RaspberryPi);
+
+        // 4. STMicroelectronics STM32 (Full Spectrum)
+        let stm32f4_prof = McuTarget::Stm32F4.profile();
+        assert_eq!(stm32f4_prof.arch, ArchClass::Arm);
+        assert_eq!(stm32f4_prof.vendor, McuVendor::StMicroelectronics);
+        assert_eq!(stm32f4_prof.qemu_executable, "qemu-system-arm");
+
+        // 5. NXP Semiconductors
+        let s32k_prof = McuTarget::NxpS32K144.profile();
+        assert_eq!(s32k_prof.arch, ArchClass::Arm);
+        assert_eq!(s32k_prof.vendor, McuVendor::NxpSemiconductors);
+
+        let imx_prof = McuTarget::NxpImxRt1060.profile();
+        assert_eq!(imx_prof.arch, ArchClass::Arm);
+        assert_eq!(imx_prof.max_frequency_hz, 600_000_000);
+
+        // 6. Texas Instruments (MSP430 & C2000)
+        let msp_prof = McuTarget::Msp430G2553.profile();
+        assert_eq!(msp_prof.arch, ArchClass::Msp430);
+        assert_eq!(msp_prof.vendor, McuVendor::TexasInstruments);
+        assert_eq!(msp_prof.bit_width, 16);
+
+        let c2000_prof = McuTarget::C2000Tms320F28379D.profile();
+        assert_eq!(c2000_prof.arch, ArchClass::C2000);
+        assert_eq!(c2000_prof.vendor, McuVendor::TexasInstruments);
+        assert_eq!(c2000_prof.num_cores, 2);
     }
 
     #[test]

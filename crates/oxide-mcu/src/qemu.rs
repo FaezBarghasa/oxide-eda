@@ -29,8 +29,9 @@ pub struct QemuConfig {
 
 impl QemuConfig {
     pub fn new(firmware: FirmwareImage) -> Self {
+        let profile = firmware.target.profile();
         Self {
-            qemu_bin: "qemu-system-arm".to_string(),
+            qemu_bin: profile.qemu_executable.to_string(),
             firmware,
             gdb_port: Some(1234),
             serial_socket_path: None,
@@ -46,13 +47,14 @@ pub struct QemuInstance {
 }
 
 impl QemuInstance {
-    /// Launches the `qemu-system-arm` process in background.
+    /// Launches the architecture-specific QEMU process in background.
     pub fn spawn(config: QemuConfig) -> Result<Self, QemuError> {
+        let profile = config.firmware.target.profile();
         let mut cmd = Command::new(&config.qemu_bin);
 
-        // Machine & CPU args
-        cmd.arg("-M").arg(config.firmware.family.qemu_machine());
-        cmd.arg("-cpu").arg(config.firmware.family.qemu_cpu());
+        // Machine & CPU args derived from universal CoreProfile
+        cmd.arg("-M").arg(profile.qemu_machine);
+        cmd.arg("-cpu").arg(profile.qemu_cpu);
         cmd.arg("-kernel").arg(&config.firmware.path);
         cmd.arg("-nographic");
 
