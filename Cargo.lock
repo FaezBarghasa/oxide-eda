@@ -5902,6 +5902,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxide-cosim"
+version = "0.16.0"
+dependencies = [
+ "anyhow",
+ "oxide-mcu",
+ "oxide-proto",
+ "oxide-rf",
+ "oxide-sim",
+ "oxide-types",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
+]
+
+[[package]]
 name = "oxide-engine"
 version = "0.16.0"
 dependencies = [
@@ -6009,6 +6025,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxide-mcu"
+version = "0.16.0"
+dependencies = [
+ "anyhow",
+ "oxide-types",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
+]
+
+[[package]]
 name = "oxide-ml"
 version = "0.16.0"
 dependencies = [
@@ -6058,6 +6086,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxide-proto"
+version = "0.16.0"
+dependencies = [
+ "anyhow",
+ "oxide-types",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
+]
+
+[[package]]
 name = "oxide-renderer"
 version = "0.16.0"
 dependencies = [
@@ -6068,6 +6108,18 @@ dependencies = [
  "serde",
  "serde_json",
  "tempfile",
+]
+
+[[package]]
+name = "oxide-rf"
+version = "0.16.0"
+dependencies = [
+ "anyhow",
+ "oxide-sim",
+ "oxide-types",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
 ]
 
 [[package]]

@@ -33,7 +33,7 @@ impl EyeDiagramDataset {
     /// Generates 2-UI eye diagram windows from time-domain signal and calculates SI metrics.
     pub fn from_signal(time: &[f64], voltage: &[f64], symbol_rate_baud: f64) -> Self {
         let ui_s = 1.0 / symbol_rate_baud;
-        let window_len_s = 2.0 * ui_s;
+        let _window_len_s = 2.0 * ui_s;
 
         if time.len() < 4 || voltage.len() < 4 || time.len() != voltage.len() {
             return Self {
