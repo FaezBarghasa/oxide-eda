@@ -25,6 +25,7 @@ Nothing else defines what ships in a version.
 | Source | Owns | Does not own |
 |--------|------|--------------|
 | `docs/ROADMAP.md` (this file) | Version numbers, ordering, gates, exit criteria | Feature semantics |
+| `docs/ALTIUM_VS_OXIDE_MASTER_ROADMAP.md` | Deep Altium competitive analysis & 8-phase industrial roadmap | Time-based version gates |
 | `MASTER_PLAN.md` | Scope, principles, product thesis, format stance | Version numbers |
 | `.github/milestones.yml` | The GitHub projection of this file | Anything not listed here |
 | `oxide-internal` → `docs/ROADMAP_DETAIL.md` | Near-term per-version scope decomposition | Gate definitions |

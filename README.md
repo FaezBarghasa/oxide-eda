@@ -246,7 +246,7 @@ cargo clippy --workspace -- -D warnings  # Lint
 | Simulation — SPICE, EM, thermal, simulation wizards | v4.0–v4.1 | |
 | **Oxide 365** — cloud PLM, BOM Studio, ERP bridge | **v5.0** | |
 
-See [docs/ROADMAP.md](docs/ROADMAP.md) for the detailed version plan.
+See [docs/ROADMAP.md](docs/ROADMAP.md) for the detailed version plan, and [docs/ALTIUM_VS_OXIDE_MASTER_ROADMAP.md](docs/ALTIUM_VS_OXIDE_MASTER_ROADMAP.md) for the Altium vs. Oxide competitive analysis and 8-phase industrial dominance roadmap.
 
 ## Documentation
 
