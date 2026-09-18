@@ -187,7 +187,7 @@ fn cull_items<'a, T: Clone>(
 
     let tree = RTree::bulk_load(indexed);
     let mut visible_indices: Vec<usize> = tree
-        .locate_in_envelope_intersecting(viewport)
+        .locate_in_envelope_intersecting(*viewport)
         .map(|entry| entry.index)
         .collect();
 
