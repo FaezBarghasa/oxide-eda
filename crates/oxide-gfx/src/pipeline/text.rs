@@ -95,7 +95,7 @@ fn rect_from_top_left_size(top_left_px: [f32; 2], size_px: [f32; 2]) -> RectPx {
     }
 }
 
-fn rect_intersects_viewport(rect: RectPx, viewport: cryoglyph::TextBounds) -> bool {
+fn rect_intersects_viewport(rect: RectPx, viewport: glyphon::TextBounds) -> bool {
     let viewport_left = viewport.left as f32;
     let viewport_top = viewport.top as f32;
     let viewport_right = viewport.right as f32;
@@ -137,8 +137,8 @@ fn overlap_ratio_by_smaller_area(a: RectPx, b: RectPx) -> f32 {
     rect_overlap_area_px(a, b) / min_area
 }
 
-fn viewport_bounds(viewport_size_px: [u32; 2]) -> cryoglyph::TextBounds {
-    cryoglyph::TextBounds {
+fn viewport_bounds(viewport_size_px: [u32; 2]) -> glyphon::TextBounds {
+    glyphon::TextBounds {
         left: 0,
         top: 0,
         right: viewport_size_px[0] as i32,
@@ -146,7 +146,7 @@ fn viewport_bounds(viewport_size_px: [u32; 2]) -> cryoglyph::TextBounds {
     }
 }
 
-fn measure_text_bounds_px(buffer: &cryoglyph::Buffer) -> [f32; 2] {
+fn measure_text_bounds_px(buffer: &glyphon::Buffer) -> [f32; 2] {
     let mut max_width = 0.0_f32;
     let mut max_bottom = 0.0_f32;
     let mut has_lines = false;
@@ -169,24 +169,24 @@ fn measure_text_bounds_px(buffer: &cryoglyph::Buffer) -> [f32; 2] {
 /// the system served instead of the app's monospace canvas face — different
 /// typeface *and* different advance widths, so anything sized from a glyph
 /// estimate came out wrong too.
-fn attrs_for_item(item: &TextItem, family: &'static str) -> cryoglyph::Attrs<'static> {
-    let mut attrs = cryoglyph::Attrs::new().family(cryoglyph::Family::Name(family));
+fn attrs_for_item(item: &TextItem, family: &'static str) -> glyphon::Attrs<'static> {
+    let mut attrs = glyphon::Attrs::new().family(glyphon::Family::Name(family));
 
     if item.bold {
-        attrs = attrs.weight(cryoglyph::Weight::BOLD);
+        attrs = attrs.weight(glyphon::Weight::BOLD);
     }
 
     if item.italic {
-        attrs = attrs.style(cryoglyph::Style::Italic);
+        attrs = attrs.style(glyphon::Style::Italic);
     }
 
     attrs
 }
 
-fn to_glyphon_color(color: [f32; 4]) -> cryoglyph::Color {
+fn to_glyphon_color(color: [f32; 4]) -> glyphon::Color {
     let map_channel = |channel: f32| -> u8 { (channel.clamp(0.0, 1.0) * 255.0).round() as u8 };
 
-    cryoglyph::Color::rgba(
+    glyphon::Color::rgba(
         map_channel(color[0]),
         map_channel(color[1]),
         map_channel(color[2]),
@@ -199,8 +199,8 @@ struct GlyphonPreparedText {
     left: f32,
     top: f32,
     scale: f32,
-    bounds: cryoglyph::TextBounds,
-    default_color: cryoglyph::Color,
+    bounds: glyphon::TextBounds,
+    default_color: glyphon::Color,
 }
 
 /// Production text path using glyphon atlas, shaping, and cached glyph rendering.
@@ -210,11 +210,11 @@ struct GlyphonPreparedText {
 /// to something else, and its fallback chain for non-Latin content could
 /// diverge from the CPU path's silently.
 pub struct GlyphonTextPipeline {
-    swash_cache: cryoglyph::SwashCache,
-    viewport: cryoglyph::Viewport,
-    atlas: cryoglyph::TextAtlas,
-    text_renderer: cryoglyph::TextRenderer,
-    buffers: Vec<cryoglyph::Buffer>,
+    swash_cache: glyphon::SwashCache,
+    viewport: glyphon::Viewport,
+    atlas: glyphon::TextAtlas,
+    text_renderer: glyphon::TextRenderer,
+    buffers: Vec<glyphon::Buffer>,
     prepared_texts: Vec<GlyphonPreparedText>,
     text_count: u32,
     viewport_size_px: [u32; 2],
@@ -226,11 +226,11 @@ impl GlyphonTextPipeline {
         queue: &wgpu::Queue,
         target_format: wgpu::TextureFormat,
     ) -> Self {
-        let swash_cache = cryoglyph::SwashCache::new();
-        let cache = cryoglyph::Cache::new(device);
-        let viewport = cryoglyph::Viewport::new(device, &cache);
-        let mut atlas = cryoglyph::TextAtlas::new(device, queue, &cache, target_format);
-        let text_renderer = cryoglyph::TextRenderer::new(
+        let swash_cache = glyphon::SwashCache::new();
+        let cache = glyphon::Cache::new(device);
+        let viewport = glyphon::Viewport::new(device, &cache);
+        let mut atlas = glyphon::TextAtlas::new(device, queue, &cache, target_format);
+        let text_renderer = glyphon::TextRenderer::new(
             &mut atlas,
             device,
             wgpu::MultisampleState::default(),
@@ -266,14 +266,14 @@ impl GlyphonTextPipeline {
         &mut self,
         device: &wgpu::Device,
         queue: &wgpu::Queue,
-        font_system: &mut cryoglyph::FontSystem,
+        font_system: &mut glyphon::FontSystem,
         texts: &[TextItem],
         scale_px_per_mm: f32,
         size_policy: TextSizePolicy,
         family: &'static str,
         viewport_size_px: [u32; 2],
         offset_px: [f32; 2],
-    ) -> Result<(), cryoglyph::PrepareError> {
+    ) -> Result<(), glyphon::PrepareError> {
         self.text_count = 0;
         self.viewport_size_px = viewport_size_px;
         self.buffers.clear();
@@ -281,7 +281,7 @@ impl GlyphonTextPipeline {
 
         self.viewport.update(
             queue,
-            cryoglyph::Resolution {
+            glyphon::Resolution {
                 width: viewport_size_px[0],
                 height: viewport_size_px[1],
             },
@@ -297,16 +297,16 @@ impl GlyphonTextPipeline {
 
         for text in texts {
             let font_px = text_size_px(text, scale_px_per_mm, size_policy);
-            let metrics = cryoglyph::Metrics::new(font_px, (font_px * 1.35).max(1.0));
+            let metrics = glyphon::Metrics::new(font_px, (font_px * 1.35).max(1.0));
             let attrs = attrs_for_item(text, family);
-            let mut buffer = cryoglyph::Buffer::new(font_system, metrics);
+            let mut buffer = glyphon::Buffer::new(font_system, metrics);
 
             buffer.set_size(font_system, Some(viewport_width), Some(viewport_height));
             buffer.set_text(
                 font_system,
                 &text.content,
                 &attrs,
-                cryoglyph::Shaping::Advanced,
+                glyphon::Shaping::Advanced,
                 None,
             );
             buffer.shape_until_scroll(font_system, false);
@@ -338,7 +338,7 @@ impl GlyphonTextPipeline {
             self.buffers
                 .iter()
                 .zip(self.prepared_texts.iter())
-                .map(|(buffer, prepared)| cryoglyph::TextArea {
+                .map(|(buffer, prepared)| glyphon::TextArea {
                     buffer,
                     left: prepared.left,
                     top: prepared.top,
@@ -371,7 +371,7 @@ impl GlyphonTextPipeline {
     pub fn draw(
         &self,
         render_pass: &mut wgpu::RenderPass<'_>,
-    ) -> Result<(), cryoglyph::RenderError> {
+    ) -> Result<(), glyphon::RenderError> {
         if self.text_count == 0 {
             return Ok(());
         }
@@ -480,13 +480,13 @@ mod tests {
 
         assert_eq!(
             attrs.family,
-            cryoglyph::Family::Name("Iosevka"),
+            glyphon::Family::Name("Iosevka"),
             "the caller's canvas family must reach the shaper — a hardcoded \
              SansSerif here is what put schematic text in the wrong typeface"
         );
 
-        assert_eq!(attrs.weight, cryoglyph::Weight::BOLD);
-        assert_eq!(attrs.style, cryoglyph::Style::Italic);
+        assert_eq!(attrs.weight, glyphon::Weight::BOLD);
+        assert_eq!(attrs.style, glyphon::Style::Italic);
         assert_eq!(color.r(), 64);
         assert_eq!(color.g(), 128);
         assert_eq!(color.b(), 191);

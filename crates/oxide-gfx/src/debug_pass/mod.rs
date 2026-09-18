@@ -635,7 +635,7 @@ async fn run_text_smoke_pass_with(scale_px_per_mm: f32, texts: &[TextItem]) -> R
     // one. The policy is deliberately wide — these passes verify
     // rasterization, not typography, and a clamp would hide the size under
     // test.
-    let mut font_system = cryoglyph::FontSystem::new();
+    let mut font_system = glyphon::FontSystem::new();
     text_pipeline
         .upload(
             &device,

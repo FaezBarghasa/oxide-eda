@@ -39,7 +39,7 @@ async fn run_text_geometry_composite_smoke_pass_with(
 
     polygon_pipeline.upload(&device, &queue, polygons);
     // Headless: the harness owns its font system — see `debug_pass`.
-    let mut font_system = cryoglyph::FontSystem::new();
+    let mut font_system = glyphon::FontSystem::new();
     text_pipeline
         .upload(
             &device,
@@ -192,7 +192,7 @@ pub(super) async fn run_grid_overlay_text_composite_smoke_pass_with(
     let empty_texts: [TextItem; 0] = [];
     let text_items = if text_enabled { texts } else { &empty_texts };
     // Headless: the harness owns its font system — see `debug_pass`.
-    let mut font_system = cryoglyph::FontSystem::new();
+    let mut font_system = glyphon::FontSystem::new();
     text_pipeline
         .upload(
             &device,
