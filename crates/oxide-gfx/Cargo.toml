@@ -10,7 +10,7 @@ repository.workspace = true
 wgpu = "30.0.1"
 glam = "0.33.7"
 bytemuck = { version = "1", features = ["derive"] }
-cryoglyph = "0.1.0"
+glyphon = "0.12.0"
 rstar = "0.13.0"
 bitflags = "2"
 log = "0.4"
