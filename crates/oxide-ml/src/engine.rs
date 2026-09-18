@@ -3,7 +3,7 @@ use tract_onnx::prelude::*;
 use crate::embed::{MlError, ModelKind};
 
 pub type TractTypedPlan =
-    SimplePlan<TypedFact, Box<dyn TypedOp>, Graph<TypedFact, Box<dyn TypedOp>>>;
+    tract_onnx::tract_core::plan::SimplePlan<TypedFact, Box<dyn TypedOp>, Graph<TypedFact, Box<dyn TypedOp>>>;
 
 /// Wrapper around a runnable tract ONNX model plan
 pub struct InferenceEngine {
@@ -31,7 +31,9 @@ impl InferenceEngine {
             .into_optimized()
             .map_err(|e| MlError::OptimizationFailed(e.to_string()))?;
 
-        let plan = SimplePlan::new(optimized).map_err(|e| MlError::PlanFailed(e.to_string()))?;
+        let plan = optimized
+            .into_runnable()
+            .map_err(|e| MlError::PlanFailed(e.to_string()))?;
 
         Ok(Self { plan, kind })
     }

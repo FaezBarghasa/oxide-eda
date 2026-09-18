@@ -28,7 +28,6 @@ impl WgpuBackend {
             power_preference: wgpu::PowerPreference::HighPerformance,
             compatible_surface: None,
             force_fallback_adapter: false,
-            apply_limit_buckets: true,
         }))
         .map_err(|e| ComputeError::DeviceCreation(format!("Failed to acquire adapter: {e}")))?;
 
@@ -178,9 +177,7 @@ impl ComputeBackend for WgpuBackend {
 
         match receiver.recv() {
             Ok(Ok(())) => {
-                let data = buffer_slice.get_mapped_range().map_err(|e| {
-                    ComputeError::Synchronization(format!("Mapped range error: {e:?}"))
-                })?;
+                let data = buffer_slice.get_mapped_range();
                 out_bytes.copy_from_slice(&data[..out_bytes.len()]);
                 drop(data);
                 staging_buffer.unmap();
