@@ -1,6 +1,7 @@
 //! Altium Designer Schematic Symbol Library (.SchLib) importer.
 
 use std::collections::BTreeMap;
+use chrono::Utc;
 use uuid::Uuid;
 
 use oxide_library::primitive::symbol::{
@@ -65,6 +66,7 @@ pub fn parse_symbols_from_records(records: &[AltiumRecord]) -> Result<Vec<LibSym
                 let desc = rec.get("DESCRIPTION").unwrap_or("").to_string();
                 let designator = rec.get("DESIGNATOR").unwrap_or("U?").to_string();
                 let comment = rec.get("COMMENT").unwrap_or("*").to_string();
+                let now = Utc::now();
 
                 current_symbol = Some(LibSymbol {
                     uuid: Uuid::now_v7(),
@@ -84,7 +86,8 @@ pub fn parse_symbols_from_records(records: &[AltiumRecord]) -> Result<Vec<LibSym
                     version: "0.0.1".to_string(),
                     released: false,
                     part_count: 1,
-                    power_symbol: false,
+                    created: now,
+                    updated: now,
                 });
             }
 
@@ -147,13 +150,10 @@ pub fn parse_symbols_from_records(records: &[AltiumRecord]) -> Result<Vec<LibSym
                     let x2 = rec.get_coord_mm("CORNER.X").unwrap_or(x1 + 10.0);
                     let y2 = rec.get_coord_mm("CORNER.Y").unwrap_or(y1 + 10.0);
 
-                    let top_left = [x1.min(x2), y1.max(y2)];
-                    let size = [(x2 - x1).abs(), (y2 - y1).abs()];
-
                     sym.graphics.push(SymbolGraphic {
                         kind: SymbolGraphicKind::Rectangle {
-                            top_left,
-                            size,
+                            from: [x1, y1],
+                            to: [x2, y2],
                         },
                         stroke_width: 0.15,
                         fill: None,
@@ -178,8 +178,8 @@ pub fn parse_symbols_from_records(records: &[AltiumRecord]) -> Result<Vec<LibSym
                         for w in points.windows(2) {
                             sym.graphics.push(SymbolGraphic {
                                 kind: SymbolGraphicKind::Line {
-                                    start: w[0],
-                                    end: w[1],
+                                    from: w[0],
+                                    to: w[1],
                                 },
                                 stroke_width: 0.15,
                                 fill: None,

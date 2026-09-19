@@ -1,10 +1,7 @@
 //! Altium Designer Footprint Library (.PcbLib) importer.
 
-use std::collections::HashMap;
-use uuid::Uuid;
-
 use oxide_library::primitive::footprint::{
-    ComponentType, Footprint, FpGraphic, FpGraphicKind, LayerId, Pad, PadKind, PadShape, Polygon,
+    ChamferedCorners, Drill, Footprint, FpGraphic, FpGraphicKind, LayerId, Pad, PadKind, PadShape,
 };
 
 use crate::cfb::CfbContainer;
@@ -59,43 +56,8 @@ pub fn parse_footprints_from_records(records: &[AltiumRecord]) -> Result<Vec<Foo
                 .or_else(|| rec.get("NAME"))
                 .unwrap_or("ALT_FP")
                 .to_string();
-            let desc = rec.get("DESCRIPTION").unwrap_or("").to_string();
 
-            current_footprint = Some(Footprint {
-                uuid: Uuid::now_v7(),
-                name,
-                anchor: [0.0, 0.0],
-                pads: Vec::new(),
-                courtyard: Polygon::default(),
-                silk_f: Vec::new(),
-                silk_b: Vec::new(),
-                fab_f: Vec::new(),
-                fab_b: Vec::new(),
-                v_scores: Vec::new(),
-                mask_openings: Vec::new(),
-                mask_excludes: Vec::new(),
-                paste_apertures: Vec::new(),
-                drills: Vec::new(),
-                slots: Vec::new(),
-                bodies3d: Vec::new(),
-                step_model: None,
-                tags: Vec::new(),
-                description: desc,
-                component_type: ComponentType::Standard,
-                color_silkscreen: None,
-                color_fab: None,
-                color_courtyard: None,
-                density_level: None,
-                fiducials: Vec::new(),
-                testpoints: Vec::new(),
-                glue_spots: Vec::new(),
-                lead_spans: Vec::new(),
-                keepouts: Vec::new(),
-                heatsinks: Vec::new(),
-                pours: Vec::new(),
-                edge_clearance_mm: None,
-                assembly_notes: Vec::new(),
-            });
+            current_footprint = Some(Footprint::empty(name));
         } else if record_type.eq_ignore_ascii_case("Pad") || record_type == "Pad" || record_type == "2" {
             if let Some(fp) = current_footprint.as_mut() {
                 let number = rec.get("NAME").or_else(|| rec.get("DESIGNATOR")).unwrap_or("1").to_string();
@@ -114,7 +76,7 @@ pub fn parse_footprints_from_records(records: &[AltiumRecord]) -> Result<Vec<Foo
                     "RoundedRectangle" | "RoundRect" => PadShape::RoundRect { radius_ratio: 0.25 },
                     "Octagonal" => PadShape::Chamfered {
                         chamfer_ratio: 0.25,
-                        corners: oxide_library::primitive::footprint::ChamferedCorners::all(),
+                        corners: ChamferedCorners::all(),
                     },
                     _ => PadShape::Round,
                 };
@@ -135,7 +97,7 @@ pub fn parse_footprints_from_records(records: &[AltiumRecord]) -> Result<Vec<Foo
                 };
 
                 let drill = if is_tht {
-                    Some(oxide_library::primitive::footprint::Drill {
+                    Some(Drill {
                         diameter: hole_size,
                         slot_length: None,
                     })
@@ -152,38 +114,7 @@ pub fn parse_footprints_from_records(records: &[AltiumRecord]) -> Result<Vec<Foo
                     rotation,
                     layers,
                     drill,
-                    solder_mask_margin: None,
-                    paste_margin: None,
-                    pad_template: String::new(),
-                    pad_stack: None,
-                    chamfer: None,
-                    top_feature: None,
-                    bottom_feature: None,
-                    thermal_relief: None,
-                    testpoint: None,
-                    electrical_type: None,
-                    pin_signal_type: None,
-                    trace_attachment: None,
-                    plated: is_tht,
-                    hole_type: None,
-                    hole_wall_plating_thickness_um: None,
-                    counterbore_top: None,
-                    counterbore_bottom: None,
-                    countersink_top: None,
-                    countersink_bottom: None,
-                    edge_connector_bevel: None,
-                    side_wetting_flank: None,
-                    soldering_technology: None,
-                    backdrill: None,
-                    thermal_via_pattern: None,
-                    force_visual_anchor: false,
-                    mask_margin_top: None,
-                    mask_margin_bottom: None,
-                    paste_margin_top: None,
-                    paste_margin_bottom: None,
-                    paste_coverage_top: None,
-                    paste_coverage_bottom: None,
-                    custom_shape_polygon: None,
+                    ..Pad::default()
                 });
             }
         } else if record_type.eq_ignore_ascii_case("Track") || record_type == "Track" {
