@@ -3,11 +3,11 @@ use tract_onnx::prelude::*;
 use crate::embed::{MlError, ModelKind};
 
 pub type TractTypedPlan =
-    tract_onnx::tract_core::plan::SimplePlan<TypedFact, Box<dyn TypedOp>, Graph<TypedFact, Box<dyn TypedOp>>>;
+    tract_onnx::tract_core::plan::SimplePlan<TypedFact, Box<dyn TypedOp>>;
 
 /// Wrapper around a runnable tract ONNX model plan
 pub struct InferenceEngine {
-    plan: TractTypedPlan,
+    plan: Arc<TractTypedPlan>,
     kind: ModelKind,
 }
 
