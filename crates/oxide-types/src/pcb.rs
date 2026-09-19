@@ -374,3 +374,24 @@ pub struct PcbBoard {
     #[serde(default)]
     pub texts: Vec<BoardText>,
 }
+
+impl Default for PcbBoard {
+    fn default() -> Self {
+        Self {
+            uuid: Uuid::new_v4(),
+            version: 1,
+            generator: "Oxide EDA".to_string(),
+            thickness: PCB_DEFAULT_THICKNESS_MM,
+            outline: Vec::new(),
+            layers: Vec::new(),
+            setup: None,
+            nets: Vec::new(),
+            footprints: Vec::new(),
+            segments: Vec::new(),
+            vias: Vec::new(),
+            zones: Vec::new(),
+            graphics: Vec::new(),
+            texts: Vec::new(),
+        }
+    }
+}

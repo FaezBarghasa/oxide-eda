@@ -6110,6 +6110,7 @@ dependencies = [
 name = "oxide-output"
 version = "0.16.0"
 dependencies = [
+ "chrono",
  "oxide-bom",
  "oxide-sim",
  "oxide-types",

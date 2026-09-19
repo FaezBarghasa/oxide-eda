@@ -10,14 +10,23 @@ use std::path::PathBuf;
 use oxide_types::schematic::SchematicSheet;
 use thiserror::Error;
 
+pub mod assembly;
 pub mod bom;
+pub mod drill;
 mod expression;
+pub mod gerber;
 pub mod netlist;
+pub mod outjob;
 pub mod pdf;
 pub mod preview;
 pub mod substitution;
 pub mod svg;
 pub mod template;
+
+pub use assembly::{AssemblyError, AssemblyLayer, PickAndPlaceExporter, PickAndPlaceOptions};
+pub use drill::excellon::{DrillError, DrillHole, DrillHoleType, ExcellonExporter, ExcellonOutput};
+pub use gerber::{GerberError, GerberExporter, GerberLayer, GerberLayerOutput, GerberOptions};
+pub use outjob::{OutJobError, OutputJobConfig, OutputJobRunner, ReleasePackage};
 
 pub use bom::{
     BomColumn, BomError, BomExporter, BomFormat, BomGrouping, BomIssueSeverity, BomMetadata,

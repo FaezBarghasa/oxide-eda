@@ -27,6 +27,7 @@ pub use xlsx::emit as xlsx_emit;
 // Public API
 // ============================================================================
 
+#[derive(Default)]
 pub struct BomExporter;
 
 /// Configuration for BOM export.
