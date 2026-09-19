@@ -5968,6 +5968,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxide-altium-importer"
+version = "0.16.0"
+dependencies = [
+ "byteorder",
+ "flate2",
+ "oxide-library",
+ "oxide-physics",
+ "oxide-types",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror 2.0.18",
+ "uuid",
+]
+
+[[package]]
 name = "oxide-app"
 version = "0.16.0"
 dependencies = [
