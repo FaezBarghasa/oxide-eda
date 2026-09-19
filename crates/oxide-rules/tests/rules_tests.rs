@@ -345,3 +345,65 @@ fn test_net_antenna_and_return_path_validation() {
     assert_eq!(rp_err.location, Some((12.5, 45.0)));
 }
 
+#[test]
+fn test_component_clearance_and_routing_layer_and_phase_skew_validation() {
+    let mut cm = ConstraintManager::standard_default();
+
+    // 1. Component clearance rule (500µm horizontal, 1000µm vertical)
+    cm.add_rule(DesignRule::ComponentClearance(
+        oxide_rules::ComponentClearanceRule {
+            scope: RuleScope::Global,
+            min_horizontal_clearance: 500,
+            min_vertical_clearance: 1000,
+            min_height: None,
+            max_height: None,
+        },
+    ));
+
+    // 2. Routing layer rule for RF class (only Inner1 allowed)
+    cm.add_rule(DesignRule::RoutingLayer(
+        oxide_rules::RoutingLayerRule {
+            scope: RuleScope::NetClass("RF_50R".into()),
+            permitted_layers: vec!["Inner1".to_string()],
+            topology: "shortest".to_string(),
+        },
+    ));
+
+    // 3. Diff pair phase skew rule (25µm intra-pair, 100µm inter-pair)
+    cm.add_rule(DesignRule::DiffPairPhase(
+        oxide_rules::DiffPairPhaseRule {
+            net_class: "DDR4_DQ".to_string(),
+            max_intra_pair_skew: 25,
+            max_inter_pair_skew: 100,
+        },
+    ));
+
+    // Horizontal component clearance: 300µm fails 500µm
+    let comp_err = cm
+        .validate_component_clearance("U1", "C1", None, 300, false)
+        .unwrap_err();
+    assert_eq!(
+        comp_err.violation_type,
+        RuleViolationType::ComponentClearanceViolation
+    );
+
+    // Routing layer: routing RF trace on TopLayer fails (only Inner1 permitted)
+    let layer_err = cm
+        .validate_routing_layer("RF_ANT", Some("RF_50R"), None, "TopLayer")
+        .unwrap_err();
+    assert_eq!(
+        layer_err.violation_type,
+        RuleViolationType::UnpermittedRoutingLayer
+    );
+
+    // Diff pair phase: 40µm intra-pair skew fails 25µm max tolerance
+    let phase_err = cm
+        .validate_diff_pair_phase("DDR4_DQ", "DDR4_DQS0", 40, true)
+        .unwrap_err();
+    assert_eq!(
+        phase_err.violation_type,
+        RuleViolationType::PhaseSkewViolation
+    );
+}
+
+

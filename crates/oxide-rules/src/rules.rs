@@ -154,6 +154,40 @@ pub struct ReturnPathRule {
     pub forbid_split_crossing: bool,
 }
 
+/// 2D/3D Component clearance and spatial collision rules.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ComponentClearanceRule {
+    pub scope: RuleScope,
+    /// Minimum horizontal (X/Y) clearance between component bodies in micrometers.
+    pub min_horizontal_clearance: Microns,
+    /// Minimum vertical (Z) clearance in micrometers.
+    pub min_vertical_clearance: Microns,
+    /// Minimum component height in micrometers.
+    pub min_height: Option<Microns>,
+    /// Maximum component height in micrometers.
+    pub max_height: Option<Microns>,
+}
+
+/// Routing layer permitted stackup and routing topology constraints.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RoutingLayerRule {
+    pub scope: RuleScope,
+    /// Permitted physical layer IDs (e.g. `["TopLayer", "Inner1", "Inner2", "BottomLayer"]`).
+    pub permitted_layers: Vec<String>,
+    /// Routing topology (e.g. "shortest", "daisy_chain", "star", "balanced_tree").
+    pub topology: String,
+}
+
+/// Differential Pair Phase Tuning & Skew Matching (Within-Pair and Bus Skew).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct DiffPairPhaseRule {
+    pub net_class: String,
+    /// Maximum within-pair (intra-pair) phase skew tolerance in micrometers (e.g. 25 µm / 1 mil).
+    pub max_intra_pair_skew: Microns,
+    /// Maximum between-pair (inter-pair) bus delay/length matching skew tolerance in micrometers.
+    pub max_inter_pair_skew: Microns,
+}
+
 /// Top-level unified design rule variant.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "rule_type", rename_all = "snake_case")]
@@ -167,4 +201,8 @@ pub enum DesignRule {
     Silkscreen(SilkscreenRule),
     NetAntenna(NetAntennaRule),
     ReturnPath(ReturnPathRule),
+    ComponentClearance(ComponentClearanceRule),
+    RoutingLayer(RoutingLayerRule),
+    DiffPairPhase(DiffPairPhaseRule),
 }
+

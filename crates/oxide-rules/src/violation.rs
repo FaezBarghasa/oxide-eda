@@ -20,6 +20,9 @@ pub enum RuleViolationType {
     SilkscreenClearanceViolation,
     NetAntennaExceeded,
     ReturnPathSplitCrossing,
+    ComponentClearanceViolation,
+    UnpermittedRoutingLayer,
+    PhaseSkewViolation,
 }
 
 /// Detailed design rule violation report with actionable delta metrics.
@@ -158,6 +161,73 @@ impl RuleViolation {
             actual_value: format!("Split crossing plane '{plane_net}'"),
             location,
             object_ids: vec![net.to_string(), plane_net.to_string()],
+        }
+    }
+
+    pub fn component_clearance_violation(
+        designator_a: &str,
+        designator_b: &str,
+        scope: RuleScope,
+        min_clearance_microns: i64,
+        actual_distance_microns: i64,
+        is_vertical: bool,
+    ) -> Self {
+        let req_mm = min_clearance_microns as f64 / 1000.0;
+        let act_mm = actual_distance_microns as f64 / 1000.0;
+        let dim_str = if is_vertical { "vertical (Z)" } else { "horizontal (X/Y)" };
+        Self {
+            violation_type: RuleViolationType::ComponentClearanceViolation,
+            message: format!(
+                "Component clearance violation between '{designator_a}' and '{designator_b}': {dim_str} distance is {act_mm:.3}mm ({actual_distance_microns}µm), rule requires minimum {req_mm:.3}mm ({min_clearance_microns}µm)"
+            ),
+            scope,
+            required_value: format!("{req_mm:.3}mm"),
+            actual_value: format!("{act_mm:.3}mm"),
+            location: None,
+            object_ids: vec![designator_a.to_string(), designator_b.to_string()],
+        }
+    }
+
+    pub fn unpermitted_routing_layer(
+        net: &str,
+        scope: RuleScope,
+        layer: &str,
+        permitted_layers: &[String],
+    ) -> Self {
+        Self {
+            violation_type: RuleViolationType::UnpermittedRoutingLayer,
+            message: format!(
+                "Routing layer violation on net '{net}': layer '{layer}' is not allowed (permitted: [{}])",
+                permitted_layers.join(", ")
+            ),
+            scope,
+            required_value: permitted_layers.join(", "),
+            actual_value: layer.to_string(),
+            location: None,
+            object_ids: vec![net.to_string()],
+        }
+    }
+
+    pub fn phase_skew_violation(
+        net_class: &str,
+        pair_or_bus: &str,
+        max_skew_microns: i64,
+        actual_skew_microns: i64,
+        is_intra_pair: bool,
+    ) -> Self {
+        let req_mm = max_skew_microns as f64 / 1000.0;
+        let act_mm = actual_skew_microns as f64 / 1000.0;
+        let skew_type = if is_intra_pair { "intra-pair phase" } else { "inter-pair bus" };
+        Self {
+            violation_type: RuleViolationType::PhaseSkewViolation,
+            message: format!(
+                "Differential pair {skew_type} skew violation on '{pair_or_bus}' (class '{net_class}'): skew is {act_mm:.3}mm ({actual_skew_microns}µm), tolerance is ±{req_mm:.3}mm (±{max_skew_microns}µm)"
+            ),
+            scope: RuleScope::NetClass(net_class.to_string()),
+            required_value: format!("±{req_mm:.3}mm"),
+            actual_value: format!("{act_mm:.3}mm"),
+            location: None,
+            object_ids: vec![pair_or_bus.to_string()],
         }
     }
 }

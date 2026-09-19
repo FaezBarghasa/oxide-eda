@@ -5,8 +5,9 @@ use serde::{Deserialize, Serialize};
 use oxide_physics::Microns;
 
 use crate::rules::{
-    ClearanceRule, DesignRule, HighSpeedRule, NetAntennaRule, PolygonConnectRule, ReturnPathRule,
-    SilkscreenRule, SolderMaskRule, ViaStyleRule, WidthRule,
+    ClearanceRule, ComponentClearanceRule, DesignRule, DiffPairPhaseRule, HighSpeedRule,
+    NetAntennaRule, PolygonConnectRule, ReturnPathRule, RoutingLayerRule, SilkscreenRule,
+    SolderMaskRule, ViaStyleRule, WidthRule,
 };
 use crate::scope::RuleScope;
 use crate::violation::RuleViolation;
@@ -382,6 +383,152 @@ impl ConstraintManager {
             return Err(RuleViolation::return_path_split_crossing(
                 net, net_class, plane_net, location,
             ));
+        }
+        Ok(())
+    }
+
+    /// Resolve the most specific [`ComponentClearanceRule`] for a given component/room.
+    pub fn resolve_component_clearance_rule(
+        &self,
+        component_id: &str,
+        room: Option<&str>,
+    ) -> Option<&ComponentClearanceRule> {
+        let mut candidates: Vec<&ComponentClearanceRule> = self
+            .rules
+            .iter()
+            .filter_map(|r| match r {
+                DesignRule::ComponentClearance(c) if c.scope.matches(component_id, None, room) => {
+                    Some(c)
+                }
+                _ => None,
+            })
+            .collect();
+
+        candidates.sort_by_key(|c| std::cmp::Reverse(c.scope.specificity()));
+        candidates.first().copied()
+    }
+
+    /// Resolve the most specific [`RoutingLayerRule`] for a given net, net class, and room.
+    pub fn resolve_routing_layer_rule(
+        &self,
+        net: &str,
+        net_class: Option<&str>,
+        room: Option<&str>,
+    ) -> Option<&RoutingLayerRule> {
+        let mut candidates: Vec<&RoutingLayerRule> = self
+            .rules
+            .iter()
+            .filter_map(|r| match r {
+                DesignRule::RoutingLayer(l) if l.scope.matches(net, net_class, room) => Some(l),
+                _ => None,
+            })
+            .collect();
+
+        candidates.sort_by_key(|l| std::cmp::Reverse(l.scope.specificity()));
+        candidates.first().copied()
+    }
+
+    /// Resolve [`DiffPairPhaseRule`] for a given net class.
+    pub fn resolve_diff_pair_phase_rule(&self, net_class: &str) -> Option<&DiffPairPhaseRule> {
+        self.rules.iter().find_map(|r| match r {
+            DesignRule::DiffPairPhase(dp) if dp.net_class == net_class => Some(dp),
+            _ => None,
+        })
+    }
+
+    /// Validate 3D component horizontal (X/Y) or vertical (Z) clearance.
+    #[allow(clippy::result_large_err)]
+    pub fn validate_component_clearance(
+        &self,
+        designator_a: &str,
+        designator_b: &str,
+        room: Option<&str>,
+        actual_distance: Microns,
+        is_vertical: bool,
+    ) -> Result<(), RuleViolation> {
+        let rule_a = self.resolve_component_clearance_rule(designator_a, room);
+        let rule_b = self.resolve_component_clearance_rule(designator_b, room);
+
+        let required_clearance = match (rule_a, rule_b) {
+            (Some(a), Some(b)) => {
+                let req_a = if is_vertical { a.min_vertical_clearance } else { a.min_horizontal_clearance };
+                let req_b = if is_vertical { b.min_vertical_clearance } else { b.min_horizontal_clearance };
+                if req_a >= req_b {
+                    (req_a, a.scope.clone())
+                } else {
+                    (req_b, b.scope.clone())
+                }
+            }
+            (Some(a), None) => {
+                let req = if is_vertical { a.min_vertical_clearance } else { a.min_horizontal_clearance };
+                (req, a.scope.clone())
+            }
+            (None, Some(b)) => {
+                let req = if is_vertical { b.min_vertical_clearance } else { b.min_horizontal_clearance };
+                (req, b.scope.clone())
+            }
+            (None, None) => return Ok(()),
+        };
+
+        if actual_distance < required_clearance.0 {
+            return Err(RuleViolation::component_clearance_violation(
+                designator_a,
+                designator_b,
+                required_clearance.1,
+                required_clearance.0,
+                actual_distance,
+                is_vertical,
+            ));
+        }
+        Ok(())
+    }
+
+    /// Validate that a routed trace is placed on an authorized copper layer.
+    #[allow(clippy::result_large_err)]
+    pub fn validate_routing_layer(
+        &self,
+        net: &str,
+        net_class: Option<&str>,
+        room: Option<&str>,
+        layer: &str,
+    ) -> Result<(), RuleViolation> {
+        if let Some(rule) = self.resolve_routing_layer_rule(net, net_class, room)
+            && !rule.permitted_layers.iter().any(|l| l == layer)
+        {
+            return Err(RuleViolation::unpermitted_routing_layer(
+                net,
+                rule.scope.clone(),
+                layer,
+                &rule.permitted_layers,
+            ));
+        }
+        Ok(())
+    }
+
+    /// Validate differential pair intra-pair phase skew or inter-pair bus skew.
+    #[allow(clippy::result_large_err)]
+    pub fn validate_diff_pair_phase(
+        &self,
+        net_class: &str,
+        pair_or_bus: &str,
+        actual_skew: Microns,
+        is_intra_pair: bool,
+    ) -> Result<(), RuleViolation> {
+        if let Some(rule) = self.resolve_diff_pair_phase_rule(net_class) {
+            let max_skew = if is_intra_pair {
+                rule.max_intra_pair_skew
+            } else {
+                rule.max_inter_pair_skew
+            };
+            if actual_skew.abs() > max_skew {
+                return Err(RuleViolation::phase_skew_violation(
+                    net_class,
+                    pair_or_bus,
+                    max_skew,
+                    actual_skew,
+                    is_intra_pair,
+                ));
+            }
         }
         Ok(())
     }
