@@ -16,6 +16,10 @@ pub enum RuleViolationType {
     ViaDrillTooSmall,
     ViaDiameterTooSmall,
     HdiViolation,
+    SolderMaskSliverTooSmall,
+    SilkscreenClearanceViolation,
+    NetAntennaExceeded,
+    ReturnPathSplitCrossing,
 }
 
 /// Detailed design rule violation report with actionable delta metrics.
@@ -71,6 +75,89 @@ impl RuleViolation {
             actual_value: format!("{act_mm:.3}mm"),
             location: None,
             object_ids: vec![net_a.to_string(), net_b.to_string()],
+        }
+    }
+
+    pub fn solder_mask_sliver_too_small(
+        object_id: &str,
+        scope: RuleScope,
+        min_sliver_microns: i64,
+        actual_sliver_microns: i64,
+    ) -> Self {
+        let req_mm = min_sliver_microns as f64 / 1000.0;
+        let act_mm = actual_sliver_microns as f64 / 1000.0;
+        Self {
+            violation_type: RuleViolationType::SolderMaskSliverTooSmall,
+            message: format!(
+                "Solder mask sliver violation on '{object_id}': bridge is {act_mm:.3}mm ({actual_sliver_microns}µm), rule requires minimum {req_mm:.3}mm ({min_sliver_microns}µm)"
+            ),
+            scope,
+            required_value: format!("{req_mm:.3}mm"),
+            actual_value: format!("{act_mm:.3}mm"),
+            location: None,
+            object_ids: vec![object_id.to_string()],
+        }
+    }
+
+    pub fn silkscreen_clearance_violation(
+        object_a: &str,
+        object_b: &str,
+        scope: RuleScope,
+        min_clearance_microns: i64,
+        actual_distance_microns: i64,
+    ) -> Self {
+        let req_mm = min_clearance_microns as f64 / 1000.0;
+        let act_mm = actual_distance_microns as f64 / 1000.0;
+        Self {
+            violation_type: RuleViolationType::SilkscreenClearanceViolation,
+            message: format!(
+                "Silkscreen clearance violation between '{object_a}' and '{object_b}': distance is {act_mm:.3}mm ({actual_distance_microns}µm), rule requires minimum {req_mm:.3}mm ({min_clearance_microns}µm)"
+            ),
+            scope,
+            required_value: format!("{req_mm:.3}mm"),
+            actual_value: format!("{act_mm:.3}mm"),
+            location: None,
+            object_ids: vec![object_a.to_string(), object_b.to_string()],
+        }
+    }
+
+    pub fn net_antenna_exceeded(
+        net: &str,
+        scope: RuleScope,
+        max_stub_microns: i64,
+        actual_stub_microns: i64,
+    ) -> Self {
+        let req_mm = max_stub_microns as f64 / 1000.0;
+        let act_mm = actual_stub_microns as f64 / 1000.0;
+        Self {
+            violation_type: RuleViolationType::NetAntennaExceeded,
+            message: format!(
+                "Net antenna (dangling stub) on net '{net}': stub length is {act_mm:.3}mm ({actual_stub_microns}µm), rule allows maximum {req_mm:.3}mm ({max_stub_microns}µm)"
+            ),
+            scope,
+            required_value: format!("{req_mm:.3}mm"),
+            actual_value: format!("{act_mm:.3}mm"),
+            location: None,
+            object_ids: vec![net.to_string()],
+        }
+    }
+
+    pub fn return_path_split_crossing(
+        net: &str,
+        net_class: &str,
+        plane_net: &str,
+        location: Option<(f64, f64)>,
+    ) -> Self {
+        Self {
+            violation_type: RuleViolationType::ReturnPathSplitCrossing,
+            message: format!(
+                "High-speed return path violation on net '{net}' (class '{net_class}'): trace crosses split/gap in reference plane '{plane_net}'"
+            ),
+            scope: RuleScope::NetClass(net_class.to_string()),
+            required_value: "Continuous reference plane".to_string(),
+            actual_value: format!("Split crossing plane '{plane_net}'"),
+            location,
+            object_ids: vec![net.to_string(), plane_net.to_string()],
         }
     }
 }

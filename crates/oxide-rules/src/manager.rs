@@ -5,7 +5,8 @@ use serde::{Deserialize, Serialize};
 use oxide_physics::Microns;
 
 use crate::rules::{
-    ClearanceRule, DesignRule, HighSpeedRule, PolygonConnectRule, ViaStyleRule, WidthRule,
+    ClearanceRule, DesignRule, HighSpeedRule, NetAntennaRule, PolygonConnectRule, ReturnPathRule,
+    SilkscreenRule, SolderMaskRule, ViaStyleRule, WidthRule,
 };
 use crate::scope::RuleScope;
 use crate::violation::RuleViolation;
@@ -30,7 +31,7 @@ impl ConstraintManager {
     }
 
     /// Standard baseline rules for typical 2-layer or 4-layer PCB fabrication
-    /// (0.15mm min trace/space, 0.3mm drill / 0.6mm via pad).
+    /// (0.15mm min trace/space, 0.3mm drill / 0.6mm via pad, 50µm mask expansion, 100µm mask sliver).
     pub fn standard_default() -> Self {
         let mut cm = Self::new();
         // Global 0.15mm (150 µm) minimum trace width, 0.25mm preferred, 2.0mm max
@@ -52,6 +53,24 @@ impl ConstraintManager {
             min_diameter: 600,
             preferred_drill: 300,
             preferred_diameter: 600,
+        }));
+        // Global standard solder mask (50µm expansion, 100µm min sliver)
+        cm.add_rule(DesignRule::SolderMask(SolderMaskRule {
+            scope: RuleScope::Global,
+            expansion: 50,
+            min_sliver: 100,
+        }));
+        // Global standard silkscreen (150µm min clearance to mask, 150µm silk to silk, 150µm line width)
+        cm.add_rule(DesignRule::Silkscreen(SilkscreenRule {
+            scope: RuleScope::Global,
+            min_clearance_to_mask: 150,
+            min_clearance_to_silk: 150,
+            min_line_width: 150,
+        }));
+        // Global net antenna limit (0 stub allowed)
+        cm.add_rule(DesignRule::NetAntenna(NetAntennaRule {
+            scope: RuleScope::Global,
+            max_stub_length: 0,
         }));
         cm
     }
@@ -206,6 +225,165 @@ impl ConstraintManager {
 
         candidates.sort_by_key(|p| std::cmp::Reverse(p.scope.specificity()));
         candidates.first().copied()
+    }
+
+    /// Resolve the most specific [`SolderMaskRule`] for a given net, net class, and room.
+    pub fn resolve_solder_mask_rule(
+        &self,
+        net: &str,
+        net_class: Option<&str>,
+        room: Option<&str>,
+    ) -> Option<&SolderMaskRule> {
+        let mut candidates: Vec<&SolderMaskRule> = self
+            .rules
+            .iter()
+            .filter_map(|r| match r {
+                DesignRule::SolderMask(s) if s.scope.matches(net, net_class, room) => Some(s),
+                _ => None,
+            })
+            .collect();
+
+        candidates.sort_by_key(|s| std::cmp::Reverse(s.scope.specificity()));
+        candidates.first().copied()
+    }
+
+    /// Resolve the most specific [`SilkscreenRule`] for a given net, net class, and room.
+    pub fn resolve_silkscreen_rule(
+        &self,
+        net: &str,
+        net_class: Option<&str>,
+        room: Option<&str>,
+    ) -> Option<&SilkscreenRule> {
+        let mut candidates: Vec<&SilkscreenRule> = self
+            .rules
+            .iter()
+            .filter_map(|r| match r {
+                DesignRule::Silkscreen(s) if s.scope.matches(net, net_class, room) => Some(s),
+                _ => None,
+            })
+            .collect();
+
+        candidates.sort_by_key(|s| std::cmp::Reverse(s.scope.specificity()));
+        candidates.first().copied()
+    }
+
+    /// Resolve the most specific [`NetAntennaRule`] for a given net, net class, and room.
+    pub fn resolve_net_antenna_rule(
+        &self,
+        net: &str,
+        net_class: Option<&str>,
+        room: Option<&str>,
+    ) -> Option<&NetAntennaRule> {
+        let mut candidates: Vec<&NetAntennaRule> = self
+            .rules
+            .iter()
+            .filter_map(|r| match r {
+                DesignRule::NetAntenna(a) if a.scope.matches(net, net_class, room) => Some(a),
+                _ => None,
+            })
+            .collect();
+
+        candidates.sort_by_key(|a| std::cmp::Reverse(a.scope.specificity()));
+        candidates.first().copied()
+    }
+
+    /// Resolve [`ReturnPathRule`] for a given net class.
+    pub fn resolve_return_path_rule(&self, net_class: &str) -> Option<&ReturnPathRule> {
+        self.rules.iter().find_map(|r| match r {
+            DesignRule::ReturnPath(rp) if rp.net_class == net_class => Some(rp),
+            _ => None,
+        })
+    }
+
+    /// Validate that a solder mask bridge/sliver meets the minimum width requirement.
+    #[allow(clippy::result_large_err)]
+    pub fn validate_solder_mask_sliver(
+        &self,
+        object_id: &str,
+        net: &str,
+        net_class: Option<&str>,
+        room: Option<&str>,
+        actual_sliver: Microns,
+    ) -> Result<(), RuleViolation> {
+        if let Some(rule) = self.resolve_solder_mask_rule(net, net_class, room)
+            && actual_sliver < rule.min_sliver
+        {
+            return Err(RuleViolation::solder_mask_sliver_too_small(
+                object_id,
+                rule.scope.clone(),
+                rule.min_sliver,
+                actual_sliver,
+            ));
+        }
+        Ok(())
+    }
+
+    /// Validate silkscreen clearance to solder mask or adjacent silkscreen.
+    #[allow(clippy::result_large_err)]
+    pub fn validate_silkscreen_clearance(
+        &self,
+        object_a: &str,
+        object_b: &str,
+        net: &str,
+        net_class: Option<&str>,
+        room: Option<&str>,
+        actual_distance: Microns,
+    ) -> Result<(), RuleViolation> {
+        if let Some(rule) = self.resolve_silkscreen_rule(net, net_class, room)
+            && actual_distance < rule.min_clearance_to_mask
+        {
+            return Err(RuleViolation::silkscreen_clearance_violation(
+                object_a,
+                object_b,
+                rule.scope.clone(),
+                rule.min_clearance_to_mask,
+                actual_distance,
+            ));
+        }
+        Ok(())
+    }
+
+    /// Validate that a net's dangling trace stub length does not exceed antenna threshold.
+    #[allow(clippy::result_large_err)]
+    pub fn validate_antenna_length(
+        &self,
+        net: &str,
+        net_class: Option<&str>,
+        room: Option<&str>,
+        actual_stub_length: Microns,
+    ) -> Result<(), RuleViolation> {
+        if let Some(rule) = self.resolve_net_antenna_rule(net, net_class, room)
+            && actual_stub_length > rule.max_stub_length
+        {
+            return Err(RuleViolation::net_antenna_exceeded(
+                net,
+                rule.scope.clone(),
+                rule.max_stub_length,
+                actual_stub_length,
+            ));
+        }
+        Ok(())
+    }
+
+    /// Validate unbroken reference return path for high-speed net.
+    #[allow(clippy::result_large_err)]
+    pub fn validate_return_path(
+        &self,
+        net: &str,
+        net_class: &str,
+        plane_net: &str,
+        crosses_split: bool,
+        location: Option<(f64, f64)>,
+    ) -> Result<(), RuleViolation> {
+        if let Some(rule) = self.resolve_return_path_rule(net_class)
+            && rule.forbid_split_crossing
+            && crosses_split
+        {
+            return Err(RuleViolation::return_path_split_crossing(
+                net, net_class, plane_net, location,
+            ));
+        }
+        Ok(())
     }
 
     /// Parse constraints from a TOML configuration string.

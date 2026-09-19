@@ -100,14 +100,58 @@ pub struct ViaStyleRule {
     pub preferred_diameter: Microns,
 }
 
-/// Copper pour polygon connection mode and thermal spoke parameters.
+/// Copper polygon pour / thermal relief connection style rule.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PolygonConnectRule {
     pub scope: RuleScope,
+    /// Whether connected directly (solid copper) or through thermal relief spokes.
     pub direct_connect: bool,
-    pub spoke_count: u8,
+    /// Number of thermal relief spokes (e.g. 2, 4, 8).
+    pub spoke_count: usize,
+    /// Minimum width of each thermal relief spoke in micrometers.
     pub min_spoke_width: Microns,
+    /// Thermal relief air gap distance in micrometers.
     pub air_gap: Microns,
+}
+
+/// Solder mask expansion and minimum sliver (green mask bridge between pads).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SolderMaskRule {
+    pub scope: RuleScope,
+    /// Positive or negative mask expansion from copper edge in micrometers.
+    pub expansion: Microns,
+    /// Minimum solder mask bridge / sliver width (e.g. 100 µm = 0.1 mm) to prevent web breakage.
+    pub min_sliver: Microns,
+}
+
+/// Silkscreen to solder mask and silkscreen to silkscreen clearance rules.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SilkscreenRule {
+    pub scope: RuleScope,
+    /// Minimum clearance from silkscreen text/graphics to exposed copper/solder mask opening.
+    pub min_clearance_to_mask: Microns,
+    /// Minimum clearance between adjacent silkscreen primitives.
+    pub min_clearance_to_silk: Microns,
+    /// Minimum line width for legible silkscreen printing.
+    pub min_line_width: Microns,
+}
+
+/// Net Antenna / Dangling stub rule preventing dead-end open traces that radiate EMI.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct NetAntennaRule {
+    pub scope: RuleScope,
+    /// Maximum allowed dangling stub length in micrometers (typically 0 or < 100 µm for testpoint taps).
+    pub max_stub_length: Microns,
+}
+
+/// High-speed unbroken reference return path rule.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ReturnPathRule {
+    pub net_class: String,
+    /// Maximum allowed distance from high-speed trace to unbroken reference ground/power plane.
+    pub max_plane_distance_microns: Microns,
+    /// Whether crossing a plane split/gap is strictly prohibited.
+    pub forbid_split_crossing: bool,
 }
 
 /// Top-level unified design rule variant.
@@ -119,4 +163,8 @@ pub enum DesignRule {
     HighSpeed(HighSpeedRule),
     ViaStyle(ViaStyleRule),
     PolygonConnect(PolygonConnectRule),
+    SolderMask(SolderMaskRule),
+    Silkscreen(SilkscreenRule),
+    NetAntenna(NetAntennaRule),
+    ReturnPath(ReturnPathRule),
 }

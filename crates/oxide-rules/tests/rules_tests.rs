@@ -255,8 +255,93 @@ fn test_toml_roundtrip_serialization() {
     assert!(toml_str.contains("rule_type = \"width\""));
     assert!(toml_str.contains("rule_type = \"clearance\""));
     assert!(toml_str.contains("rule_type = \"via_style\""));
+    assert!(toml_str.contains("rule_type = \"solder_mask\""));
+    assert!(toml_str.contains("rule_type = \"silkscreen\""));
+    assert!(toml_str.contains("rule_type = \"net_antenna\""));
 
     let deserialized =
         ConstraintManager::from_toml_str(&toml_str).expect("Failed to deserialize from TOML");
     assert_eq!(deserialized.rules.len(), cm.rules.len());
 }
+
+#[test]
+fn test_solder_mask_sliver_validation() {
+    let cm = ConstraintManager::standard_default();
+
+    // 120µm bridge passes 100µm standard min sliver
+    assert!(
+        cm.validate_solder_mask_sliver("PAD_U1_1_TO_2", "NET1", None, None, 120)
+            .is_ok()
+    );
+
+    // 80µm bridge fails 100µm min sliver
+    let err = cm
+        .validate_solder_mask_sliver("PAD_U1_1_TO_2", "NET1", None, None, 80)
+        .unwrap_err();
+    assert_eq!(
+        err.violation_type,
+        RuleViolationType::SolderMaskSliverTooSmall
+    );
+    assert_eq!(err.required_value, "0.100mm");
+    assert_eq!(err.actual_value, "0.080mm");
+}
+
+#[test]
+fn test_silkscreen_clearance_validation() {
+    let cm = ConstraintManager::standard_default();
+
+    // 200µm distance to solder mask opening passes 150µm standard min
+    assert!(
+        cm.validate_silkscreen_clearance("SILK_TEXT_R1", "PAD_R1_1", "NET_R1", None, None, 200)
+            .is_ok()
+    );
+
+    // 100µm distance fails
+    let err = cm
+        .validate_silkscreen_clearance("SILK_TEXT_R1", "PAD_R1_1", "NET_R1", None, None, 100)
+        .unwrap_err();
+    assert_eq!(
+        err.violation_type,
+        RuleViolationType::SilkscreenClearanceViolation
+    );
+    assert_eq!(err.required_value, "0.150mm");
+    assert_eq!(err.actual_value, "0.100mm");
+}
+
+#[test]
+fn test_net_antenna_and_return_path_validation() {
+    let mut cm = ConstraintManager::standard_default();
+    cm.add_rule(DesignRule::ReturnPath(
+        oxide_rules::ReturnPathRule {
+            net_class: "PCIE_GEN4".to_string(),
+            max_plane_distance_microns: 150,
+            forbid_split_crossing: true,
+        },
+    ));
+
+    // Net antenna: 0 stub allowed by standard default, 50µm stub fails
+    let antenna_err = cm
+        .validate_antenna_length("NET_CLK", None, None, 50)
+        .unwrap_err();
+    assert_eq!(
+        antenna_err.violation_type,
+        RuleViolationType::NetAntennaExceeded
+    );
+
+    // Return path: crossing plane split fails
+    let rp_err = cm
+        .validate_return_path(
+            "PCIE_TX0_P",
+            "PCIE_GEN4",
+            "GND_SPLIT",
+            true,
+            Some((12.5, 45.0)),
+        )
+        .unwrap_err();
+    assert_eq!(
+        rp_err.violation_type,
+        RuleViolationType::ReturnPathSplitCrossing
+    );
+    assert_eq!(rp_err.location, Some((12.5, 45.0)));
+}
+
