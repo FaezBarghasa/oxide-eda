@@ -78,10 +78,10 @@ fn test_schdoc_record_conversion_to_schematic_sheet() {
     assert_eq!(sheet.labels.len(), 2);
     let net_label = &sheet.labels[0];
     assert_eq!(net_label.text, "VCC_3V3");
-    assert!(!net_label.is_global);
+    assert_eq!(net_label.label_type, oxide_types::schematic::LabelType::Net);
     let pwr_port = &sheet.labels[1];
     assert_eq!(pwr_port.text, "GND");
-    assert!(pwr_port.is_global);
+    assert_eq!(pwr_port.label_type, oxide_types::schematic::LabelType::Power);
 
     // Bus & Bus Entry
     assert_eq!(sheet.buses.len(), 1);
@@ -90,7 +90,7 @@ fn test_schdoc_record_conversion_to_schematic_sheet() {
     // Child Sheet
     assert_eq!(sheet.child_sheets.len(), 1);
     assert_eq!(sheet.child_sheets[0].name, "PowerSupply");
-    assert_eq!(sheet.child_sheets[0].file_path, "power.SchDoc");
+    assert_eq!(sheet.child_sheets[0].filename, "power.SchDoc");
 }
 
 #[test]

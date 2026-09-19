@@ -5972,6 +5972,7 @@ name = "oxide-altium-importer"
 version = "0.16.0"
 dependencies = [
  "byteorder",
+ "chrono",
  "flate2",
  "oxide-library",
  "oxide-physics",

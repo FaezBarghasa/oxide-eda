@@ -56,8 +56,11 @@ pub fn parse_footprints_from_records(records: &[AltiumRecord]) -> Result<Vec<Foo
                 .or_else(|| rec.get("NAME"))
                 .unwrap_or("ALT_FP")
                 .to_string();
+            let desc = rec.get("DESCRIPTION").unwrap_or("").to_string();
 
-            current_footprint = Some(Footprint::empty(name));
+            let mut fp = Footprint::empty(name);
+            fp.description = desc;
+            current_footprint = Some(fp);
         } else if record_type.eq_ignore_ascii_case("Pad") || record_type == "Pad" || record_type == "2" {
             if let Some(fp) = current_footprint.as_mut() {
                 let number = rec.get("NAME").or_else(|| rec.get("DESIGNATOR")).unwrap_or("1").to_string();

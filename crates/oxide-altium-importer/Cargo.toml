@@ -11,6 +11,7 @@ description = "Cleanroom pure-Rust Altium Designer (.SchDoc, .PcbDoc, .SchLib, .
 oxide-types = { workspace = true }
 oxide-library = { workspace = true }
 oxide-physics = { workspace = true }
+chrono = { workspace = true }
 thiserror.workspace = true
 serde.workspace = true
 serde_json.workspace = true

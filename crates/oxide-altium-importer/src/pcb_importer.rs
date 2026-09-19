@@ -1,12 +1,6 @@
-//! Altium Designer PCB Document (.PcbDoc) importer.
-
-use std::collections::HashMap;
 use uuid::Uuid;
 
-use oxide_types::pcb::{
-    DrillDef, Footprint, FpGraphic, LayerDef, NetDef, Pad, PadNet, PadShape, PadType, PcbBoard,
-    Point, Segment, Via, ViaType, Zone,
-};
+use oxide_types::pcb::{Footprint, LayerDef, NetDef, PcbBoard, Point, Segment, Via, ViaType};
 
 use crate::cfb::CfbContainer;
 use crate::error::AltiumImportError;
