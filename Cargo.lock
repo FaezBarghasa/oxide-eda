@@ -6103,6 +6103,7 @@ name = "oxide-net"
 version = "0.16.0"
 dependencies = [
  "oxide-types",
+ "serde",
  "uuid",
 ]
 

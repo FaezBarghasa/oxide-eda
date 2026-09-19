@@ -14,7 +14,7 @@ use crate::assembly::{AssemblyError, PickAndPlaceExporter, PickAndPlaceOptions};
 use crate::bom::{BomError, BomExporter, BomFormat, BomOptions};
 use crate::drill::excellon::{DrillError, ExcellonExporter};
 use crate::gerber::{GerberError, GerberExporter, GerberOptions};
-use crate::{ExportContext, ExportError};
+use crate::{ExportContext, ExportError, Exporter};
 
 #[derive(Debug, Error)]
 pub enum OutJobError {

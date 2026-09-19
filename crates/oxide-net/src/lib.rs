@@ -20,3 +20,6 @@ mod project;
 pub use project::{
     ProjectGraph, ProjectNetlist, ProjectRoot, SheetKey, StitchIssue, build_project_netlist,
 };
+
+pub mod eco;
+pub use eco::{EcoAction, EcoEngine, EcoReport};

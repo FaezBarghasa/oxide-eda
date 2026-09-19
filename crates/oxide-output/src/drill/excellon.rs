@@ -70,10 +70,10 @@ impl ExcellonExporter {
 
         // 1. Collect from vias
         for via in &board.vias {
-            let drill_nm = (via.drill_mm * 1_000_000.0).round() as i64;
+            let drill_nm = (via.drill * 1_000_000.0).round() as i64;
             holes.push(DrillHole {
-                x_mm: via.center[0],
-                y_mm: via.center[1],
+                x_mm: via.position.x,
+                y_mm: via.position.y,
                 diameter_nm: drill_nm,
                 hole_type: DrillHoleType::PlatedThrough,
             });
@@ -82,16 +82,16 @@ impl ExcellonExporter {
         // 2. Collect from footprint pads
         for fp in &board.footprints {
             for pad in &fp.pads {
-                if let Some(drill_mm) = pad.drill_size_mm {
-                    let drill_nm = (drill_mm[0] * 1_000_000.0).round() as i64;
+                if let Some(drill_def) = &pad.drill {
+                    let drill_nm = (drill_def.diameter * 1_000_000.0).round() as i64;
                     let hole_type = if pad.pad_type == PadType::NpThru {
                         DrillHoleType::NonPlatedThrough
                     } else {
                         DrillHoleType::PlatedThrough
                     };
                     holes.push(DrillHole {
-                        x_mm: pad.center[0],
-                        y_mm: pad.center[1],
+                        x_mm: fp.position.x + pad.position.x,
+                        y_mm: fp.position.y + pad.position.y,
                         diameter_nm: drill_nm,
                         hole_type,
                     });
@@ -202,20 +202,19 @@ impl ExcellonExporter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use oxide_types::pcb::PcbVia;
+    use oxide_types::pcb::{Point, Via, ViaType};
 
     #[test]
     fn test_excellon_export_structure() {
         let mut board = PcbBoard::default();
-        board.vias.push(PcbVia {
-            id: uuid::Uuid::new_v4(),
-            net_id: 1,
-            center: [10.0, 20.0],
-            diameter_mm: 0.6,
-            drill_mm: 0.3,
-            start_layer: 0,
-            end_layer: 1,
-            via_type: oxide_types::pcb::ViaType::Through,
+        board.vias.push(Via {
+            uuid: uuid::Uuid::new_v4(),
+            position: Point { x: 10.0, y: 20.0 },
+            diameter: 0.6,
+            drill: 0.3,
+            layers: vec!["F.Cu".to_string(), "B.Cu".to_string()],
+            net: 1,
+            via_type: ViaType::Through,
         });
 
         let exporter = ExcellonExporter::new();

@@ -7,7 +7,7 @@
 use std::collections::BTreeMap;
 use std::fmt::Write as FmtWrite;
 
-use oxide_types::pcb::{PadShape, PcbBoard};
+use oxide_types::pcb::{PadShape, PadType, PcbBoard};
 use thiserror::Error;
 
 #[derive(Debug, Error)]

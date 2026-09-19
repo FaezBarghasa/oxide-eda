@@ -7,6 +7,7 @@ license.workspace = true
 
 [dependencies]
 oxide-types.workspace = true
+serde.workspace = true
 uuid.workspace = true
 
 # GH #548 — inherit [workspace.lints.rust] (unused_must_use = deny).

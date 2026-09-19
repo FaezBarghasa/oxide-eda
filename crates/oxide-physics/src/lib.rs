@@ -1,11 +1,13 @@
-//! Physical stackup modeling, IPC-2141 impedance calculator, and HDI via verification for Oxide EDA.
-
+pub mod clearance_3d;
 pub mod hdi;
 pub mod impedance;
 pub mod material;
 pub mod stackup;
 pub mod units;
 
+pub use clearance_3d::{
+    Aabb3d, Body3d, ClearanceEngine3d, ClearanceViolation3d, Vec3,
+};
 pub use hdi::{HdiError, ViaDefinition, ViaType, check_hdi_rules};
 pub use impedance::ImpedanceCalculator;
 pub use material::MaterialProperties;
