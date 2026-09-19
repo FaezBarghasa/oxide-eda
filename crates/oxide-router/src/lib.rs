@@ -7,12 +7,16 @@ use oxide_physics::Microns;
 use oxide_rules::ConstraintManager;
 use oxide_types::pcb::{PcbBoard, ViaType};
 
+pub mod copper_pour;
 pub mod geometry;
 pub mod interactive;
 pub mod optimization;
 pub mod topology;
 pub mod workflow;
 
+pub use copper_pour::{
+    CopperPourEngine, CopperZoneConfig, TeardropGenerator, ThermalReliefStyle, ThermalSpoke,
+};
 pub use geometry::rtree::{NetId, ObjectId, SpatialIndex, SpatialObject, SpatialObjectType};
 pub use geometry::{BoundingBox, Point2D};
 pub use interactive::{InteractiveRouter, RoutingMode};

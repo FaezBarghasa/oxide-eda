@@ -141,14 +141,14 @@ impl InteractiveRouter {
         let s = self.session.as_mut()?;
         let via = crate::ViaPlacement {
             position: s.current_position,
-            diameter: diameter_microns,
-            drill: drill_microns,
+            pad_diameter: diameter_microns,
+            drill_size: drill_microns,
             start_layer: s.current_layer,
             end_layer: target_layer,
             net_id: s.current_net,
             via_type: oxide_types::pcb::ViaType::Through,
         };
-        s.commit_via(via);
+        s.commit_via(via.clone());
         Some(via)
     }
 
