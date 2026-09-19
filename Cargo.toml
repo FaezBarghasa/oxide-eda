@@ -30,6 +30,7 @@ members = [
     "crates/oxide-proto",
     "crates/oxide-cosim",
     "crates/oxide-cli",
+    "crates/oxide-altium-importer",
 ]
 # A bare `cargo build` / `cargo test` at the root only builds the daily-
 # driver crates. The library server and the chrome-catalog dev sandbox are
@@ -46,6 +47,7 @@ default-members = [
     "crates/oxide-sketch",
     "crates/oxide-bake",
     "crates/oxide-3d-model-importer",
+    "crates/oxide-altium-importer",
     "crates/oxide-bom",
     "crates/oxide-gfx",
     "crates/oxide-renderer",
@@ -141,6 +143,7 @@ oxide-erc-dsl = { path = "crates/oxide-erc-dsl" }
 oxide-net = { path = "crates/oxide-net" }
 oxide-output = { path = "crates/oxide-output" }
 oxide-3d-model-importer = { path = "crates/oxide-3d-model-importer" }
+oxide-altium-importer = { path = "crates/oxide-altium-importer" }
 oxide-physics = { path = "crates/oxide-physics" }
 oxide-rules = { path = "crates/oxide-rules" }
 oxide-router = { path = "crates/oxide-router" }

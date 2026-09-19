@@ -1,0 +1,26 @@
+[package]
+name = "oxide-altium-importer"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Cleanroom pure-Rust Altium Designer (.SchDoc, .PcbDoc, .SchLib, .PcbLib, .IntLib) importer for Oxide EDA"
+
+[dependencies]
+oxide-types = { workspace = true }
+oxide-library = { workspace = true }
+oxide-physics = { workspace = true }
+thiserror.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+uuid.workspace = true
+flate2 = "1.0"
+byteorder = "1.5"
+
+[dev-dependencies]
+tempfile = "3"
+
+# GH #548 — inherit [workspace.lints.rust] (unused_must_use = deny).
+[lints]
+workspace = true
