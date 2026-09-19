@@ -4,8 +4,8 @@ use std::collections::HashMap;
 use uuid::Uuid;
 
 use oxide_types::schematic::{
-    Bus, BusEntry, ChildSheet, ChildSheetPin, Junction, Label, NoConnect, Point, SchematicSheet,
-    Symbol, TextNote, Wire,
+    Bus, BusEntry, ChildSheet, HAlign, Junction, Label, LabelType, Point, SchematicSheet, Symbol,
+    VAlign, Wire,
 };
 
 use crate::cfb::CfbContainer;
@@ -90,7 +90,6 @@ pub fn parse_schdoc_records(records: &[AltiumRecord]) -> Result<SchematicSheet, 
             34 => {
                 let name = rec.get("NAME").unwrap_or("");
                 let text = rec.get("TEXT").unwrap_or("");
-                let is_hidden = rec.get_bool("ISHIDDEN");
 
                 if let Some(owner_idx) = rec.get_i64("OWNERINDEX") {
                     if let Some(&sym_idx) = component_indices.get(&(owner_idx as usize)) {
@@ -139,7 +138,7 @@ pub fn parse_schdoc_records(records: &[AltiumRecord]) -> Result<SchematicSheet, 
                         uuid: Uuid::now_v7(),
                         start: w[0],
                         end: w[1],
-                        net_name: String::new(),
+                        stroke_width: 0.0,
                     });
                 }
             }
@@ -151,7 +150,8 @@ pub fn parse_schdoc_records(records: &[AltiumRecord]) -> Result<SchematicSheet, 
                 sheet.junctions.push(Junction {
                     uuid: Uuid::now_v7(),
                     position: Point::new(x, y),
-                    user_placed: false,
+                    diameter: 0.0,
+                    minted: false,
                 });
             }
 
@@ -167,12 +167,15 @@ pub fn parse_schdoc_records(records: &[AltiumRecord]) -> Result<SchematicSheet, 
                     text,
                     position: Point::new(x, y),
                     rotation,
-                    is_global: false,
-                    is_hierarchical: false,
+                    label_type: LabelType::Net,
+                    shape: String::new(),
+                    font_size: 0.0,
+                    justify: HAlign::Left,
+                    justify_v: VAlign::Bottom,
                 });
             }
 
-            // RECORD=17: Power Port (mapped to global power net label in Oxide)
+            // RECORD=17: Power Port (mapped to Power label in Oxide)
             17 => {
                 let text = rec.get("TEXT").unwrap_or("GND").to_string();
                 let x = rec.get_coord_mm("LOCATION.X").unwrap_or(0.0);
@@ -184,8 +187,11 @@ pub fn parse_schdoc_records(records: &[AltiumRecord]) -> Result<SchematicSheet, 
                     text,
                     position: Point::new(x, y),
                     rotation,
-                    is_global: true,
-                    is_hierarchical: false,
+                    label_type: LabelType::Power,
+                    shape: String::new(),
+                    font_size: 0.0,
+                    justify: HAlign::Left,
+                    justify_v: VAlign::Bottom,
                 });
             }
 
@@ -205,7 +211,6 @@ pub fn parse_schdoc_records(records: &[AltiumRecord]) -> Result<SchematicSheet, 
                         uuid: Uuid::now_v7(),
                         start: w[0],
                         end: w[1],
-                        name: String::new(),
                     });
                 }
             }
@@ -220,7 +225,7 @@ pub fn parse_schdoc_records(records: &[AltiumRecord]) -> Result<SchematicSheet, 
                 sheet.bus_entries.push(BusEntry {
                     uuid: Uuid::now_v7(),
                     position: Point::new(x, y),
-                    size: Point::new(cx - x, cy - y),
+                    size: (cx - x, cy - y),
                 });
             }
 
@@ -236,10 +241,16 @@ pub fn parse_schdoc_records(records: &[AltiumRecord]) -> Result<SchematicSheet, 
                 sheet.child_sheets.push(ChildSheet {
                     uuid: Uuid::now_v7(),
                     name: sheet_name,
-                    file_path: file_name,
+                    filename: file_name,
                     position: Point::new(x, y),
-                    size: Point::new(xs, ys),
+                    size: (xs, ys),
+                    stroke_width: 0.0,
+                    fill: oxide_types::schematic::FillType::None,
+                    stroke_color: None,
+                    fill_color: None,
+                    fields_autoplaced: false,
                     pins: Vec::new(),
+                    instances: Vec::new(),
                 });
             }
 

@@ -21,7 +21,7 @@ pub fn import_intlib_bytes(bytes: &[u8]) -> Result<ExtractedIntLib, AltiumImport
     let cfb = CfbContainer::parse(bytes)?;
     let mut extracted = ExtractedIntLib::default();
 
-    for (name, stream_bytes) in &cfb.streams {
+    for (_name, stream_bytes) in &cfb.streams {
         if let Ok(records) = parse_record_stream(stream_bytes) {
             // Try parsing as symbol stream
             if let Ok(syms) = parse_symbols_from_records(&records) {

@@ -1,11 +1,11 @@
 //! Altium Designer Schematic Symbol Library (.SchLib) importer.
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use uuid::Uuid;
 
 use oxide_library::primitive::symbol::{
-    ComponentType, GraphicShape, PinDirection, PinOrientation, PinSymbolKind, Symbol as LibSymbol,
-    SymbolGraphic, SymbolPin,
+    ComponentType, PinDirection, PinOrientation, PinSymbolKind, Symbol as LibSymbol,
+    SymbolGraphic, SymbolGraphicKind, SymbolPin,
 };
 
 use crate::cfb::CfbContainer;
@@ -72,15 +72,17 @@ pub fn parse_symbols_from_records(records: &[AltiumRecord]) -> Result<Vec<LibSym
                     anchor: [0.0, 0.0],
                     pins: Vec::new(),
                     graphics: Vec::new(),
-                    schematic_params: HashMap::new(),
+                    schematic_params: BTreeMap::new(),
                     designator,
                     comment,
                     description: desc,
                     component_type: ComponentType::Standard,
                     mirrored: false,
-                    color_fill: None,
-                    show_pin_numbers: true,
-                    show_pin_names: true,
+                    local_fill_color: None,
+                    local_line_color: None,
+                    local_pin_color: None,
+                    version: "0.0.1".to_string(),
+                    released: false,
                     part_count: 1,
                     power_symbol: false,
                 });
@@ -130,8 +132,8 @@ pub fn parse_symbols_from_records(records: &[AltiumRecord]) -> Result<Vec<LibSym
                         inside_edge_symbol: PinSymbolKind::None,
                         outside_edge_symbol: PinSymbolKind::None,
                         outside_symbol: PinSymbolKind::None,
-                        line_width: 0.15,
-                        color: None,
+                        hidden: false,
+                        locked: false,
                         part_number: 0,
                     });
                 }
@@ -149,12 +151,11 @@ pub fn parse_symbols_from_records(records: &[AltiumRecord]) -> Result<Vec<LibSym
                     let size = [(x2 - x1).abs(), (y2 - y1).abs()];
 
                     sym.graphics.push(SymbolGraphic {
-                        shape: GraphicShape::Rectangle {
+                        kind: SymbolGraphicKind::Rectangle {
                             top_left,
                             size,
                         },
                         stroke_width: 0.15,
-                        stroke_color: None,
                         fill: None,
                         part_number: 0,
                     });
@@ -176,12 +177,11 @@ pub fn parse_symbols_from_records(records: &[AltiumRecord]) -> Result<Vec<LibSym
                     if points.len() >= 2 {
                         for w in points.windows(2) {
                             sym.graphics.push(SymbolGraphic {
-                                shape: GraphicShape::Line {
+                                kind: SymbolGraphicKind::Line {
                                     start: w[0],
                                     end: w[1],
                                 },
                                 stroke_width: 0.15,
-                                stroke_color: None,
                                 fill: None,
                                 part_number: 0,
                             });
