@@ -66,8 +66,90 @@ impl InteractiveRouter {
             vias_placed: Vec::new(),
             mode: self.mode,
             track_width,
+            tuning_hud: None,
+            corner_style: session::CornerStyle::default(),
         });
         Ok(())
+    }
+
+    /// Enable interactive length tuning with a target length and optional package delay.
+    pub fn enable_length_tuning(&mut self, target_length_microns: Microns, package_delay_microns: Microns) {
+        if let Some(s) = &mut self.session {
+            s.mode = RoutingMode::LengthTuning;
+            let mut hud = session::InteractiveTuningHudState::new(target_length_microns);
+            hud.package_delay_microns = package_delay_microns;
+            s.tuning_hud = Some(hud);
+        }
+    }
+
+    /// Hotkey '1': Increase meander amplitude by +100µm
+    pub fn hotkey_increase_amplitude(&mut self) {
+        if let Some(s) = &mut self.session {
+            if let Some(hud) = &mut s.tuning_hud {
+                hud.adjust_amplitude(100);
+            }
+        }
+    }
+
+    /// Hotkey '2': Decrease meander amplitude by -100µm
+    pub fn hotkey_decrease_amplitude(&mut self) {
+        if let Some(s) = &mut self.session {
+            if let Some(hud) = &mut s.tuning_hud {
+                hud.adjust_amplitude(-100);
+            }
+        }
+    }
+
+    /// Hotkey '3': Increase meander pitch / wavelength by +100µm
+    pub fn hotkey_increase_pitch(&mut self) {
+        if let Some(s) = &mut self.session {
+            if let Some(hud) = &mut s.tuning_hud {
+                hud.adjust_pitch(100);
+            }
+        }
+    }
+
+    /// Hotkey '4': Decrease meander pitch / wavelength by -100µm
+    pub fn hotkey_decrease_pitch(&mut self) {
+        if let Some(s) = &mut self.session {
+            if let Some(hud) = &mut s.tuning_hud {
+                hud.adjust_pitch(-100);
+            }
+        }
+    }
+
+    /// Hotkey 'Shift+Space': Cycle corner routing style (45° -> 45° arc -> 90° -> Full Arc)
+    pub fn hotkey_cycle_corner_style(&mut self) -> session::CornerStyle {
+        if let Some(s) = &mut self.session {
+            s.corner_style = s.corner_style.next();
+            if let Some(hud) = &mut s.tuning_hud {
+                hud.corner_style = s.corner_style;
+            }
+            s.corner_style
+        } else {
+            session::CornerStyle::default()
+        }
+    }
+
+    /// Hotkey '*': Drop a via at current position and switch active routing layer
+    pub fn hotkey_drop_via_and_switch_layer(
+        &mut self,
+        target_layer: LayerId,
+        diameter_microns: Microns,
+        drill_microns: Microns,
+    ) -> Option<crate::ViaPlacement> {
+        let s = self.session.as_mut()?;
+        let via = crate::ViaPlacement {
+            position: s.current_position,
+            diameter: diameter_microns,
+            drill: drill_microns,
+            start_layer: s.current_layer,
+            end_layer: target_layer,
+            net_id: s.current_net,
+            via_type: oxide_types::pcb::ViaType::Through,
+        };
+        s.commit_via(via);
+        Some(via)
     }
 
     /// Process mouse pointer movement to a target coordinate.
@@ -287,12 +369,29 @@ impl InteractiveRouter {
         layer: LayerId,
         width: Microns,
     ) -> Vec<RouteSegment> {
+        let (amplitude, pitch, target_len, pkg_delay) = if let Some(s) = &self.session {
+            if let Some(hud) = &s.tuning_hud {
+                (
+                    hud.amplitude_microns,
+                    hud.pitch_microns,
+                    hud.target_length_microns,
+                    hud.package_delay_microns,
+                )
+            } else {
+                (800, 600, start.distance_to(end) + 4000, 0)
+            }
+        } else {
+            (800, 600, start.distance_to(end) + 4000, 0)
+        };
+
         let direct_dist = start.distance_to(end);
-        let target_len = direct_dist + 4000; // 4mm extra meander
-        self.generate_meander(start, end, target_len - direct_dist, net_id, layer, width)
+        let needed_trace_length = (target_len - pkg_delay).max(direct_dist);
+        let extra_len = needed_trace_length.saturating_sub(direct_dist);
+
+        self.generate_meander_with_params(start, end, extra_len, net_id, layer, width, amplitude, pitch)
     }
 
-    /// Generate accordion / trombone meander pattern for length and phase-delay matching
+    /// Generate accordion / trombone meander pattern with default params
     pub fn generate_meander(
         &self,
         start: Point2D,
@@ -302,12 +401,27 @@ impl InteractiveRouter {
         layer: LayerId,
         width: Microns,
     ) -> Vec<RouteSegment> {
+        self.generate_meander_with_params(start, end, extra_length, net_id, layer, width, 800, 600)
+    }
+
+    /// Generate accordion / trombone meander pattern for length and phase-delay matching
+    pub fn generate_meander_with_params(
+        &self,
+        start: Point2D,
+        end: Point2D,
+        extra_length: Microns,
+        net_id: NetId,
+        layer: LayerId,
+        width: Microns,
+        amplitude_microns: Microns,
+        pitch_microns: Microns,
+    ) -> Vec<RouteSegment> {
         let mut segments = Vec::new();
         let (dx, dy) = start.direction_to(end);
         let (perp_x, perp_y) = (-dy, dx);
 
-        let amplitude = 800; // 800µm amplitude
-        let step = 600; // 600µm wavelength
+        let amplitude = amplitude_microns.max(100);
+        let step = pitch_microns.max(100);
 
         let mut current = start;
         let mut remaining = extra_length;
@@ -328,6 +442,11 @@ impl InteractiveRouter {
                 next_base.x + (perp_x * amplitude as f64 * offset_sign).round() as i64,
                 next_base.y + (perp_y * amplitude as f64 * offset_sign).round() as i64,
             );
+
+            let seg1_len = current.distance_to(peak1);
+            let seg2_len = peak1.distance_to(peak2);
+            let seg3_len = peak2.distance_to(next_base);
+            let added = (seg1_len + seg2_len + seg3_len).saturating_sub(step);
 
             segments.push(RouteSegment {
                 start_point: current,
@@ -355,19 +474,20 @@ impl InteractiveRouter {
             });
 
             current = next_base;
+            remaining = remaining.saturating_sub(added);
             flip = !flip;
-            remaining = remaining.saturating_sub(amplitude * 2);
         }
 
-        // Final closing segment
-        segments.push(RouteSegment {
-            start_point: current,
-            end_point: end,
-            width,
-            layer,
-            net_id,
-            segment_type: SegmentType::Straight,
-        });
+        if current != end {
+            segments.push(RouteSegment {
+                start_point: current,
+                end_point: end,
+                width,
+                layer,
+                net_id,
+                segment_type: SegmentType::Straight,
+            });
+        }
 
         segments
     }
