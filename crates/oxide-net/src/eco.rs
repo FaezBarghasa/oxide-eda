@@ -274,24 +274,22 @@ mod tests {
     fn test_eco_diff_and_apply() {
         let mut board = PcbBoard::default();
 
-        let netlist = Netlist {
-            nets: vec![
-                Net {
-                    id: NetId(1),
-                    name: "GND".to_string(),
-                    class: None,
-                    wires: vec![],
-                    junctions: vec![],
-                    terminals: vec![
-                        Terminal {
-                            symbol: Uuid::new_v4(),
-                            reference: "R1".to_string(),
-                            pin: "1".to_string(),
-                        },
-                    ],
-                },
-            ],
-        };
+        let netlist = Netlist::from_nets(vec![
+            Net {
+                id: NetId(1),
+                name: "GND".to_string(),
+                class: None,
+                wires: vec![],
+                junctions: vec![],
+                terminals: vec![
+                    Terminal::new(
+                        Uuid::new_v4(),
+                        "R1",
+                        "1",
+                    ),
+                ],
+            },
+        ]);
 
         let sch_components = vec![
             ("R1".to_string(), "10k".to_string(), "R_0603".to_string()),

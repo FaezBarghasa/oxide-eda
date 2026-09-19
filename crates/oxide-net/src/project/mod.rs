@@ -375,7 +375,7 @@ pub fn build_project_netlist(graph: &ProjectGraph) -> ProjectNetlist {
     }
 
     ProjectNetlist {
-        netlist: Netlist { nets },
+        netlist: Netlist::from_nets(nets),
         issues,
     }
 }

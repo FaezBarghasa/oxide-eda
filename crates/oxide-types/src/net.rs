@@ -65,6 +65,17 @@ pub struct Terminal {
     pub internal_delay_ps: f64,
 }
 
+impl Terminal {
+    pub fn new(symbol: Uuid, reference: impl Into<String>, pin: impl Into<String>) -> Self {
+        Self {
+            symbol,
+            reference: reference.into(),
+            pin: pin.into(),
+            internal_delay_ps: 0.0,
+        }
+    }
+}
+
 // Implement Eq manually for Terminal since internal_delay_ps is f64
 impl Eq for Terminal {}
 
@@ -151,6 +162,15 @@ pub struct Netlist {
     pub nets: Vec<Net>,
     #[serde(default)]
     pub xsignals: Vec<XSignal>,
+}
+
+impl Netlist {
+    pub fn from_nets(nets: Vec<Net>) -> Self {
+        Self {
+            nets,
+            xsignals: Vec::new(),
+        }
+    }
 }
 
 impl Eq for Netlist {}

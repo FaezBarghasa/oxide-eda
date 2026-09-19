@@ -23,3 +23,6 @@ pub use project::{
 
 pub mod eco;
 pub use eco::{EcoAction, EcoEngine, EcoReport};
+
+pub mod multichannel;
+pub use multichannel::{ChannelComponent, ChannelInstantiation, MultiChannelEngine};

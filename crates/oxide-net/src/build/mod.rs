@@ -428,11 +428,11 @@ pub(crate) fn collect_terminals(
                 lp.pin.name.clone()
             };
             let root = uf_find(parent, pt_key(&world_pos));
-            net_terms.entry(root).or_default().push(Terminal {
-                symbol: sym.uuid,
-                reference: sym.reference.clone(),
+            net_terms.entry(root).or_default().push(Terminal::new(
+                sym.uuid,
+                sym.reference.clone(),
                 pin,
-            });
+            ));
         }
     }
     net_terms
@@ -587,7 +587,7 @@ pub fn build_netlist(sheet: &SchematicSheet) -> Netlist {
     // meeting a user label of that spelling). Rename the later one.
     dedup_net_names(&mut nets);
 
-    Netlist { nets }
+    Netlist::from_nets(nets)
 }
 
 #[cfg(test)]
