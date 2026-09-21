@@ -169,3 +169,5 @@ status.txt
 
 CLAUDE.md
 /graphify-out
+# Playwright CLI output (may contain credentials)
+.playwright-cli/
