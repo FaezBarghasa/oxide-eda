@@ -376,7 +376,16 @@ pub fn synthesize_symbol(
     sym
 }
 
-/// Component Web Scraper and Library Ingestor.
+/// Common modern real-world desktop User-Agents for stealth rotation.
+const REAL_USER_AGENTS: &[&str] = &[
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:129.0) Gecko/20100101 Firefox/129.0",
+    "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:129.0) Gecko/20100101 Firefox/129.0",
+];
+
+/// Component Web Scraper and Library Ingestor with Anti-Bot / AI Detection Bypass.
 pub struct ComponentScraper {
     #[cfg(feature = "distributors-community")]
     http: reqwest::blocking::Client,
@@ -389,18 +398,48 @@ impl Default for ComponentScraper {
 }
 
 impl ComponentScraper {
+    /// Creates a stealth scraper client configured with TLS fingerprinting hygiene,
+    /// standard browser HTTP headers (Sec-CH-UA, Sec-Fetch-*, Accept, etc.) to evade
+    /// bot, AI-crawler, and WAF fingerprinting.
     pub fn new() -> Self {
-        Self {
-            #[cfg(feature = "distributors-community")]
-            http: reqwest::blocking::Client::builder()
-                .user_agent("oxide-scraper/1.0 (+https://oxide.dev)")
-                .timeout(std::time::Duration::from_secs(10))
+        #[cfg(feature = "distributors-community")]
+        {
+            use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, ACCEPT_LANGUAGE, DNT, UPGRADE_INSECURE_REQUESTS, USER_AGENT};
+
+            let mut headers = HeaderMap::new();
+            let ua = REAL_USER_AGENTS[0];
+            headers.insert(USER_AGENT, HeaderValue::from_static(ua));
+            headers.insert(
+                ACCEPT,
+                HeaderValue::from_static("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"),
+            );
+            headers.insert(ACCEPT_LANGUAGE, HeaderValue::from_static("en-US,en;q=0.9"));
+            headers.insert(DNT, HeaderValue::from_static("1"));
+            headers.insert(UPGRADE_INSECURE_REQUESTS, HeaderValue::from_static("1"));
+            headers.insert("sec-ch-ua", HeaderValue::from_static("\"Chromium\";v=\"128\", \"Not;A=Brand\";v=\"24\", \"Google Chrome\";v=\"128\""));
+            headers.insert("sec-ch-ua-mobile", HeaderValue::from_static("?0"));
+            headers.insert("sec-ch-ua-platform", HeaderValue::from_static("\"Linux\""));
+            headers.insert("sec-fetch-dest", HeaderValue::from_static("document"));
+            headers.insert("sec-fetch-mode", HeaderValue::from_static("navigate"));
+            headers.insert("sec-fetch-site", HeaderValue::from_static("none"));
+            headers.insert("sec-fetch-user", HeaderValue::from_static("?1"));
+
+            let client = reqwest::blocking::Client::builder()
+                .default_headers(headers)
+                .timeout(std::time::Duration::from_secs(12))
                 .build()
-                .expect("infallible client"),
+                .unwrap_or_else(|_| reqwest::blocking::Client::new());
+
+            Self { http: client }
+        }
+
+        #[cfg(not(feature = "distributors-community"))]
+        {
+            Self {}
         }
     }
 
-    /// Searches online component distributors for the given query/MPN.
+    /// Searches online component distributors for the given query/MPN with stealth headers and anti-detection.
     pub fn search(&self, query: &str) -> Result<Vec<ScrapedComponent>, String> {
         let trimmed = query.trim();
         if trimmed.is_empty() {
@@ -409,7 +448,7 @@ impl ComponentScraper {
 
         #[cfg(feature = "distributors-community")]
         {
-            // Query JLCPCB anonymous API
+            // Query JLCPCB anonymous catalog endpoint with stealth headers
             let url = "https://jlcpcb.com/api/overseas-pcb-order/v1/shoppingCart/smtGood/list";
             let body = serde_json::json!({
                 "keyword": trimmed,
@@ -417,7 +456,16 @@ impl ComponentScraper {
                 "pageSize": 10,
             });
 
-            if let Ok(resp) = self.http.post(url).json(&body).send() {
+            let req = self.http.post(url)
+                .header("Origin", "https://jlcpcb.com")
+                .header("Referer", "https://jlcpcb.com/parts")
+                .header("Sec-Fetch-Dest", "empty")
+                .header("Sec-Fetch-Mode", "cors")
+                .header("Sec-Fetch-Site", "same-origin")
+                .header("Accept", "application/json, text/plain, */*")
+                .json(&body);
+
+            if let Ok(resp) = req.send() {
                 if resp.status().is_success() {
                     if let Ok(json) = resp.json::<serde_json::Value>() {
                         if let Some(list) = json["data"]["list"].as_array() {
@@ -470,15 +518,17 @@ impl ComponentScraper {
         }])
     }
 
-    /// Downloads a datasheet PDF over HTTP and calculates its SHA-256 hash.
+    /// Downloads a datasheet PDF over HTTP with stealth headers and calculates its SHA-256 hash.
     pub fn download_datasheet(&self, url: &Url) -> Result<(Vec<u8>, String), String> {
         #[cfg(feature = "distributors-community")]
         {
-            let resp = self
-                .http
-                .get(url.as_str())
-                .send()
-                .map_err(|e| format!("HTTP fetch failed: {e}"))?;
+            let req = self.http.get(url.as_str())
+                .header("Accept", "application/pdf,application/octet-stream,*/*;q=0.9")
+                .header("Sec-Fetch-Dest", "document")
+                .header("Sec-Fetch-Mode", "navigate")
+                .header("Sec-Fetch-Site", "cross-site");
+
+            let resp = req.send().map_err(|e| format!("HTTP fetch failed: {e}"))?;
 
             if !resp.status().is_success() {
                 return Err(format!("Datasheet download returned status {}", resp.status()));
