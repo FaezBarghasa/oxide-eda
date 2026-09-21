@@ -24,12 +24,17 @@ pub mod manifest;
 pub mod manufacturer;
 pub mod param;
 pub mod primitive;
+pub mod scraper;
 pub mod search;
 #[cfg(feature = "search-tantivy")]
 pub mod search_index;
 pub mod tables;
 pub mod templates;
 pub mod where_used;
+
+pub use scraper::{
+    ComponentScraper, PackageType, ScrapedComponent, synthesize_footprint, synthesize_symbol,
+};
 
 pub use adapter::{
     ComponentSummary, FieldSet, HistoryEntry, LibraryAdapter, LibraryError, LibraryQuery,
