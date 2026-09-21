@@ -519,25 +519,30 @@ impl TantivySearchIndex {
         facet: &Facet,
     ) -> Result<Box<dyn Query>, TantivyIndexError> {
         let n = parse_f64(facet)?;
+        let term_bound = |bound: Bound<f64>| -> Bound<Term> {
+            match bound {
+                Bound::Included(val) => Bound::Included(Term::from_field_f64(field, val)),
+                Bound::Excluded(val) => Bound::Excluded(Term::from_field_f64(field, val)),
+                Bound::Unbounded => Bound::Unbounded,
+            }
+        };
+
         match facet.op {
             FacetOp::Eq => {
                 // f64 equality via a single-value [n, n] inclusive range to
                 // avoid bit-pattern comparison surprises with `TermQuery`.
-                Ok(Box::new(RangeQuery::new_f64_bounds(
-                    self.field_name_owned(field),
-                    Bound::Included(n),
-                    Bound::Included(n),
+                Ok(Box::new(RangeQuery::new(
+                    term_bound(Bound::Included(n)),
+                    term_bound(Bound::Included(n)),
                 )))
             }
-            FacetOp::Lt => Ok(Box::new(RangeQuery::new_f64_bounds(
-                self.field_name_owned(field),
-                Bound::Unbounded,
-                Bound::Excluded(n),
+            FacetOp::Lt => Ok(Box::new(RangeQuery::new(
+                term_bound(Bound::Unbounded),
+                term_bound(Bound::Excluded(n)),
             ))),
-            FacetOp::Gt => Ok(Box::new(RangeQuery::new_f64_bounds(
-                self.field_name_owned(field),
-                Bound::Excluded(n),
-                Bound::Unbounded,
+            FacetOp::Gt => Ok(Box::new(RangeQuery::new(
+                term_bound(Bound::Excluded(n)),
+                term_bound(Bound::Unbounded),
             ))),
             FacetOp::Contains => Err(TantivyIndexError::InvalidFacetValue {
                 field: format!("parameters.{key}"),
@@ -648,7 +653,7 @@ impl SearchIndex for TantivySearchIndex {
             }
         };
 
-        let top = match searcher.search(&query, &TopDocs::with_limit(limit)) {
+        let top = match searcher.search(&query, TopDocs::with_limit(limit)) {
             Ok(t) => t,
             Err(e) => {
                 tracing::warn!(

@@ -117,12 +117,9 @@ mod tests {
                 class: None,
                 wires: Vec::new(),
                 junctions: Vec::new(),
-                terminals: vec![Terminal {
-                    symbol: symbol_uuid,
-                    reference: "R1".to_string(),
-                    pin: "1".to_string(),
-                }],
+                terminals: vec![Terminal::new(symbol_uuid, "R1", "1")],
             }],
+            xsignals: Vec::new(),
         };
 
         let lookup = build_pin_net_lookup(Some(&netlist));

@@ -163,18 +163,11 @@ mod tests {
                 wires: Vec::new(),
                 junctions: Vec::new(),
                 terminals: vec![
-                    Terminal {
-                        symbol: Uuid::nil(),
-                        reference: "R1".to_string(),
-                        pin: "1".to_string(),
-                    },
-                    Terminal {
-                        symbol: Uuid::nil(),
-                        reference: "U2".to_string(),
-                        pin: "3".to_string(),
-                    },
+                    Terminal::new(Uuid::nil(), "R1", "1"),
+                    Terminal::new(Uuid::nil(), "U2", "3"),
                 ],
             }],
+            xsignals: Vec::new(),
         };
         let out = NetlistExporter
             .export(&ctx_with(Some(netlist)), &NetlistOptions::default())
@@ -195,12 +188,9 @@ mod tests {
                 class: None,
                 wires: Vec::new(),
                 junctions: Vec::new(),
-                terminals: vec![Terminal {
-                    symbol: Uuid::nil(),
-                    reference: "R1".to_string(),
-                    pin: "1".to_string(),
-                }],
+                terminals: vec![Terminal::new(Uuid::nil(), "R1", "1")],
             }],
+            xsignals: Vec::new(),
         }
     }
 

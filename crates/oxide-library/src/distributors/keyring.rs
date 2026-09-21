@@ -33,11 +33,19 @@ impl From<::keyring::Error> for KeyringError {
 /// service name follows the spec: `oxide-distributor-<provider>` (e.g.
 /// `oxide-distributor-digikey`). The username slot lets callers separate
 /// e.g. an OAuth access token from a refresh token (`"access"`/`"refresh"`).
-#[derive(Debug)]
 pub struct KeyringStore {
     service: String,
     username: String,
     entry: Entry,
+}
+
+impl std::fmt::Debug for KeyringStore {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("KeyringStore")
+            .field("service", &self.service)
+            .field("username", &self.username)
+            .finish()
+    }
 }
 
 impl KeyringStore {
