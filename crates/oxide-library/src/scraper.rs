@@ -12,18 +12,17 @@ use sha2::{Digest, Sha256};
 use url::Url;
 use uuid::Uuid;
 
-use crate::adapter::LibraryError;
-use crate::component::{ComponentRow, DatasheetRef, PinPadOverride, PlmReserved};
-use crate::identity::{ComponentClass, InternalPn, Mpn, RowId};
+use crate::adapter::{LibraryAdapter, LibraryError};
+use crate::component::{ComponentRow, DatasheetRef, PlmReserved};
+use crate::identity::{ComponentClass, InternalPn};
 use crate::lifecycle::LifecycleState;
-use crate::manufacturer::{DistributorListing, ManufacturerPart};
-use crate::param::ParamMap;
+use crate::manufacturer::ManufacturerPart;
+use crate::param::{ParamMap, ParamValue};
 use crate::primitive::footprint::{
-    Body3D, ComponentType, Drill, Footprint, FpGraphic, FpGraphicKind, LayerId, Pad, PadKind,
-    PadShape, Polygon,
+    Footprint, LayerId, Pad, PadKind, PadShape, Polygon,
 };
 use crate::primitive::symbol::{
-    PinDirection, PinOrientation, PinSymbolKind, Symbol, SymbolGraphic, SymbolGraphicKind,
+    PinDirection, PinOrientation, Symbol, SymbolGraphic, SymbolGraphicKind,
     SymbolPin,
 };
 use crate::primitive::PrimitiveRef;
@@ -305,37 +304,28 @@ pub fn synthesize_symbol(
     let pin_count = pins_data.len();
     if pin_count == 2 {
         // 2-pin passive (e.g. Resistor / Capacitor)
-        sym.pins.push(SymbolPin {
-            number: pins_data[0].0.clone(),
-            name: pins_data[0].1.clone(),
-            direction: pins_data[0].2,
-            position: [-5.08, 0.0],
-            length: 2.54,
-            orientation: PinOrientation::Right,
-            symbol_inner: PinSymbolKind::None,
-            symbol_outer: PinSymbolKind::None,
-            hidden: false,
-            locked: false,
-            part_number: 1,
-        });
-        sym.pins.push(SymbolPin {
-            number: pins_data[1].0.clone(),
-            name: pins_data[1].1.clone(),
-            direction: pins_data[1].2,
-            position: [5.08, 0.0],
-            length: 2.54,
-            orientation: PinOrientation::Left,
-            symbol_inner: PinSymbolKind::None,
-            symbol_outer: PinSymbolKind::None,
-            hidden: false,
-            locked: false,
-            part_number: 1,
-        });
+        let mut p1 = SymbolPin::new(&pins_data[0].0, &pins_data[0].1);
+        p1.electrical = pins_data[0].2;
+        p1.position = [-5.08, 0.0];
+        p1.length = 2.54;
+        p1.orientation = PinOrientation::Right;
+        sym.pins.push(p1);
+
+        let mut p2 = SymbolPin::new(&pins_data[1].0, &pins_data[1].1);
+        p2.electrical = pins_data[1].2;
+        p2.position = [5.08, 0.0];
+        p2.length = 2.54;
+        p2.orientation = PinOrientation::Left;
+        sym.pins.push(p2);
+
         sym.graphics.push(SymbolGraphic {
             kind: SymbolGraphicKind::Rectangle {
                 from: [-2.54, -1.27],
                 to: [2.54, 1.27],
             },
+            stroke_width: 0.15,
+            fill: None,
+            part_number: 0,
         });
         return sym;
     }
@@ -351,6 +341,9 @@ pub fn synthesize_symbol(
             from: [-body_width / 2.0, -body_height / 2.0],
             to: [body_width / 2.0, body_height / 2.0],
         },
+        stroke_width: 0.15,
+        fill: None,
+        part_number: 0,
     });
 
     let y_start = -((half as f64 - 1.0) * pin_spacing) / 2.0;
@@ -359,19 +352,12 @@ pub fn synthesize_symbol(
     for i in 0..half {
         let (num, pin_name, dir) = &pins_data[i];
         let y = y_start + (i as f64 * pin_spacing);
-        sym.pins.push(SymbolPin {
-            number: num.clone(),
-            name: pin_name.clone(),
-            direction: *dir,
-            position: [-body_width / 2.0 - 2.54, y],
-            length: 2.54,
-            orientation: PinOrientation::Right,
-            symbol_inner: PinSymbolKind::None,
-            symbol_outer: PinSymbolKind::None,
-            hidden: false,
-            locked: false,
-            part_number: 1,
-        });
+        let mut p = SymbolPin::new(num, pin_name);
+        p.electrical = *dir;
+        p.position = [-body_width / 2.0 - 2.54, y];
+        p.length = 2.54;
+        p.orientation = PinOrientation::Right;
+        sym.pins.push(p);
     }
 
     // Right pins
@@ -379,19 +365,12 @@ pub fn synthesize_symbol(
         let (num, pin_name, dir) = &pins_data[i];
         let idx = i - half;
         let y = y_start + (idx as f64 * pin_spacing);
-        sym.pins.push(SymbolPin {
-            number: num.clone(),
-            name: pin_name.clone(),
-            direction: *dir,
-            position: [body_width / 2.0 + 2.54, y],
-            length: 2.54,
-            orientation: PinOrientation::Left,
-            symbol_inner: PinSymbolKind::None,
-            symbol_outer: PinSymbolKind::None,
-            hidden: false,
-            locked: false,
-            part_number: 1,
-        });
+        let mut p = SymbolPin::new(num, pin_name);
+        p.electrical = *dir;
+        p.position = [body_width / 2.0 + 2.54, y];
+        p.length = 2.54;
+        p.orientation = PinOrientation::Left;
+        sym.pins.push(p);
     }
 
     sym
@@ -512,9 +491,10 @@ impl ComponentScraper {
 
             let mut hasher = Sha256::new();
             hasher.update(&bytes);
-            let hash = format!("{:x}", hasher.finalize());
+            let result = hasher.finalize();
+            let hex = result.iter().map(|b| format!("{b:02x}")).collect::<String>();
 
-            return Ok((bytes, hash));
+            return Ok((bytes, hex));
         }
 
         #[cfg(not(feature = "distributors-community"))]
@@ -596,7 +576,8 @@ impl ComponentScraper {
         let datasheet_ref = if let Some(bytes) = pdf_bytes {
             let mut hasher = Sha256::new();
             hasher.update(bytes);
-            let hash = format!("{:x}", hasher.finalize());
+            let result = hasher.finalize();
+            let hash = result.iter().map(|b| format!("{b:02x}")).collect::<String>();
             let filename = format!("{}_{}.pdf", scraped.mpn, &hash[..8]);
             let _ = self.persist_datasheet(adapter.root(), &filename, bytes);
             DatasheetRef::hash_pinned(hash, filename)
@@ -616,32 +597,29 @@ impl ComponentScraper {
             class: ComponentClass::new(if pin_count == 2 { "Resistors" } else { "Integrated Circuits" }),
             datasheet: datasheet_ref,
             state: LifecycleState::Draft,
-            symbol_ref: Some(PrimitiveRef::new(lib_id, sym_uuid)),
+            symbol_ref: PrimitiveRef::new(lib_id, sym_uuid),
             footprint_ref: Some(PrimitiveRef::new(lib_id, fp_uuid)),
             sim_ref: None,
-            primary_mpn: ManufacturerPart {
-                mpn: Mpn::new(&scraped.mpn),
-                manufacturer: scraped.manufacturer.clone(),
-            },
+            primary_mpn: ManufacturerPart::draft(&scraped.manufacturer, &scraped.mpn),
             alternates: Vec::new(),
             supply: Vec::new(),
             parameters: ParamMap::new(),
             pin_map_overrides: Vec::new(),
             created: now,
             updated: now,
-            content_hash: String::new(),
+            content_hash: [0u8; 32],
             version: "0.0.1".into(),
             released: false,
             symbol_version: "0.0.1".into(),
             footprint_version: "0.0.1".into(),
             sim_version: String::new(),
-            plm_reserved: PlmReserved::default(),
+            plm: PlmReserved::default(),
         };
 
         for (k, v) in &scraped.parameters {
-            row.parameters.insert(k.clone(), v.clone());
+            row.parameters.insert(k.clone(), ParamValue::Text(v.clone()));
         }
-        row.content_hash = crate::hash::hash_row_content(&row);
+        row.content_hash = crate::hash::hash_row_content(&row)?;
 
         // Ensure table exists and insert row
         let tables = adapter.list_tables()?;
