@@ -2,6 +2,7 @@ mod command;
 mod error;
 mod patch;
 
+pub mod room;
 mod annotation;
 mod history;
 mod selection;
@@ -9,6 +10,8 @@ mod sheet;
 mod transform;
 
 mod exec;
+
+pub use room::{Room, RoomCopyOptions, RoomManager};
 
 #[cfg(test)]
 pub(crate) mod test_support;

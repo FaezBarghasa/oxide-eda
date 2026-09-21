@@ -13,6 +13,7 @@ oxide-types = { workspace = true }
 # on the exact rule the netlist will apply to it, instead of hand-rolling a
 # second, more lenient answer (D5.5, issue #402).
 oxide-net = { workspace = true }
+serde = { workspace = true }
 thiserror = { workspace = true }
 anyhow = { workspace = true }
 uuid = { workspace = true }

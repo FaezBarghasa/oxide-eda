@@ -6111,6 +6111,7 @@ dependencies = [
  "anyhow",
  "oxide-net",
  "oxide-types",
+ "serde",
  "thiserror 2.0.18",
  "uuid",
 ]
