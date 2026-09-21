@@ -1,17 +1,17 @@
 {
   "app": "oxide-embed",
   "kind": "project-memory",
-  "project_id": "01a0b7ef-70b9-7365-9b7c-599c3d55523a",
+  "project_id": "01a0c3ff-9811-73da-a33b-0bc988f98957",
   "project_name": "oxide-eda",
   "schema_version": 1,
   "min_supported_schema_version": 1,
   "created_by": {
     "oxide_embed_version": "0.3.0",
-    "timestamp": "2026-09-19T04:31:57.625623912Z"
+    "timestamp": "2026-09-21T12:45:02.865684366Z"
   },
   "updated_by": {
     "oxide_embed_version": "0.3.0",
-    "timestamp": "2026-09-19T04:31:57.626003850Z"
+    "timestamp": "2026-09-21T12:45:02.865700988Z"
   },
   "storage": {
     "engine": "surrealdb",
