@@ -246,6 +246,7 @@ impl RoomManager {
                             layers: src_via.layers.clone(),
                             net: src_via.net,
                             via_type: src_via.via_type,
+                            via_span: src_via.via_span,
                         });
                     }
                 }

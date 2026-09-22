@@ -500,5 +500,6 @@ pub(in crate::format) fn row_to_via(row: PcbViaRow) -> Via {
         layers: split_layers(&row.layers),
         net: row.net,
         via_type: parse_via_type(&row.via_type),
+        via_span: None,
     }
 }

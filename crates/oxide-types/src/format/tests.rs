@@ -490,6 +490,7 @@ fn snxpcb_round_trip_with_data() {
         layers: vec!["TopCopper".into(), "BottomCopper".into()],
         net: 1,
         via_type: ViaType::Through,
+        via_span: None,
     });
 
     board.zones.push(Zone {

@@ -147,6 +147,7 @@ fn parse_vias(records: &[AltiumRecord], board: &mut PcbBoard) {
             layers: vec!["Top Layer".to_string(), "Bottom Layer".to_string()],
             net,
             via_type: ViaType::Through,
+            via_span: None,
         });
     }
 }
@@ -214,6 +215,7 @@ fn parse_all_pcb_records(records: &[AltiumRecord], board: &mut PcbBoard) {
                     layers: vec!["Top Layer".to_string(), "Bottom Layer".to_string()],
                     net,
                     via_type: ViaType::Through,
+                    via_span: None,
                 });
             }
         }
