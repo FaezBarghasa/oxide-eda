@@ -571,9 +571,9 @@ impl TopologicalRouter for InteractiveRouter {
             );
             for p in push_res {
                 deflections.push(PathDeflection {
-                    affected_net: p.obstacle_id.0 as u32,
-                    original_path: vec![p.original_position, p.displaced_position],
-                    displaced_path: vec![p.original_position, p.displaced_position],
+                    affected_net: p.object_id.0 as u32,
+                    original_path: vec![p.original_pos, p.new_pos],
+                    displaced_path: vec![p.original_pos, p.new_pos],
                 });
             }
         }

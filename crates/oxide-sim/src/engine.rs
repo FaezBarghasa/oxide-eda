@@ -125,7 +125,7 @@ impl InProcessMnaSolver {
         }
 
         let mut lu = a.to_vec();
-        let mut x = b.to_vec();
+        let x = b;
         let mut p: Vec<usize> = (0..n).collect();
 
         // LU decomposition with partial pivoting
