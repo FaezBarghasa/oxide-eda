@@ -1,5 +1,13 @@
 //! Waveform mathematical analysis and measurements.
 
+pub mod monte_carlo;
+pub mod smoke;
+pub mod snxwv;
+
+pub use monte_carlo::{DeterministicPrng, MonteCarloEngine, MonteCarloRun, ParameterDistribution, TolerancedParameter};
+pub use smoke::{ComponentLimits, SimulatedStress, SmokeAnalyzer, StressEvaluation};
+pub use snxwv::{DecimationBucket, SnxwvHeader, WaveformDecimator};
+
 use oxide_types::sim::WaveformTrace;
 
 /// Statistical summary of a waveform trace.
