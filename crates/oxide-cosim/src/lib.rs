@@ -4,10 +4,14 @@
 //! and discrete IoT/protocol network models onto a unified simulation timeline.
 
 pub mod fpga_bridge;
+pub mod mixed_signal;
 pub mod orchestrator;
 pub mod session;
 
 pub use fpga_bridge::{DigitalLogicState, FpgaBridge, FpgaPin};
+pub use mixed_signal::{
+    AtoDGateway, DtoAGateway, LockstepSynchronizer, Logic12State, LogicEvent, LogicEventQueue,
+};
 pub use orchestrator::CoSimOrchestrator;
 pub use session::{CoSimStats, CoSimStatus};
 

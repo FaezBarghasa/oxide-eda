@@ -12,6 +12,7 @@ use thiserror::Error;
 
 pub mod assembly;
 pub mod bom;
+pub mod draftsman;
 pub mod drill;
 mod expression;
 pub mod gerber;
@@ -24,6 +25,11 @@ pub mod svg;
 pub mod template;
 
 pub use assembly::{AssemblyError, AssemblyLayer, PickAndPlaceExporter, PickAndPlaceOptions};
+pub use draftsman::{
+    DatumReference, DimensionKind, DraftsmanDocument, DraftsmanSheet, DrawingView, DrillTable,
+    DrillTableRow, FeatureControlFrame, GeometricCharacteristic, HolePlating, MaterialCondition,
+    SheetSize,
+};
 pub use drill::excellon::{DrillError, DrillHole, DrillHoleType, ExcellonExporter, ExcellonOutput};
 pub use gerber::{GerberError, GerberExporter, GerberLayer, GerberLayerOutput, GerberOptions};
 pub use outjob::{OutJobError, OutputJobConfig, OutputJobRunner, ReleasePackage};

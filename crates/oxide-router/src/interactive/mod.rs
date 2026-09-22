@@ -570,8 +570,15 @@ impl TopologicalRouter for InteractiveRouter {
                 clearance_um as Microns,
             );
             for p in push_res {
+                let net_id = self
+                    .spatial_index
+                    .objects
+                    .iter()
+                    .find(|o| o.id == p.object_id)
+                    .and_then(|o| o.net_id)
+                    .unwrap_or(0);
                 deflections.push(PathDeflection {
-                    affected_net: p.object_id.0 as u32,
+                    affected_net: net_id,
                     original_path: vec![p.original_pos, p.new_pos],
                     displaced_path: vec![p.original_pos, p.new_pos],
                 });
