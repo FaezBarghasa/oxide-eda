@@ -95,6 +95,11 @@ fn panel_kind_key(k: crate::panels::PanelKind) -> &'static str {
         SchLibrary => "sch_library",
         FootprintLibrary => "footprint_library",
         History => "history",
+        Copilot => "copilot",
+        AiDiff => "ai_diff",
+        Waveform => "waveform",
+        Telecom => "telecom",
+        McuConsole => "mcu_console",
     }
 }
 
@@ -125,6 +130,11 @@ fn parse_panel_kind(s: &str) -> Option<crate::panels::PanelKind> {
         "sch_library" => SchLibrary,
         "footprint_library" => FootprintLibrary,
         "history" => History,
+        "copilot" => Copilot,
+        "ai_diff" => AiDiff,
+        "waveform" => Waveform,
+        "telecom" => Telecom,
+        "mcu_console" => McuConsole,
         _ => return None,
     })
 }

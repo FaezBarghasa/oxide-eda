@@ -1,10 +1,11 @@
 //! Canvas implementations for RF & Telecom panels (Smith Chart, Eye Diagram, Constellation).
 
-use iced::widget::canvas::{self, Cursor, Geometry, Path, Program, Stroke};
+use iced::mouse::Cursor;
+use iced::widget::canvas::{self, Geometry, Path, Program, Stroke};
 use iced::{Color, Point, Rectangle, Renderer, Size, Theme};
-use oxide_rf::constellation::ConstellationDiagram;
-use oxide_rf::eye_diagram::EyeDiagram;
-use oxide_rf::s_param::Network2Port;
+use oxide_rf::constellation::ConstellationDataset;
+use oxide_rf::eye_diagram::EyeDiagramDataset;
+use oxide_rf::s_param::SParameterDataset;
 use oxide_types::theme::ThemeTokens;
 
 #[derive(Default)]
@@ -17,7 +18,7 @@ pub struct CanvasState {
 // -----------------------------------------------------------------------------
 #[derive(Debug, Clone)]
 pub struct SmithChartCanvas<'a> {
-    pub s_params: Option<&'a Network2Port>,
+    pub s_params: Option<&'a SParameterDataset>,
     pub tokens: &'a ThemeTokens,
 }
 
@@ -84,8 +85,8 @@ impl<'a, Message> Program<Message, Theme, Renderer> for SmithChartCanvas<'a> {
             let mut builder = canvas::path::Builder::new();
             let mut started = false;
 
-            for pt in &net.s11 {
-                let gamma = pt.value;
+            for pt in &net.points {
+                let gamma = pt.s11;
                 let re = gamma.re as f32;
                 let im = gamma.im as f32;
 
@@ -129,7 +130,7 @@ impl<'a, Message> Program<Message, Theme, Renderer> for SmithChartCanvas<'a> {
 // -----------------------------------------------------------------------------
 #[derive(Debug, Clone)]
 pub struct EyeDiagramCanvas<'a> {
-    pub eye_diagram: Option<&'a EyeDiagram>,
+    pub eye_diagram: Option<&'a EyeDiagramDataset>,
     pub tokens: &'a ThemeTokens,
 }
 
@@ -160,14 +161,14 @@ impl<'a, Message> Program<Message, Theme, Renderer> for EyeDiagramCanvas<'a> {
             let trace_color = Color::from_rgba(0.1, 0.9, 0.4, 0.35); // Phosphor persistence green
 
             for trace in &eye.traces {
-                if trace.len() < 2 {
+                if trace.voltage.len() < 2 {
                     continue;
                 }
                 let mut builder = canvas::path::Builder::new();
                 let mut started = false;
 
-                for (idx, &v) in trace.iter().enumerate() {
-                    let frac_x = idx as f32 / (trace.len() - 1) as f32;
+                for (idx, &v) in trace.voltage.iter().enumerate() {
+                    let frac_x = idx as f32 / (trace.voltage.len() - 1) as f32;
                     let px = pad + frac_x * plot_w;
                     // Normalized amplitude between -1.5 and 1.5
                     let norm_v = ((v + 1.5) / 3.0).clamp(0.0, 1.0) as f32;
@@ -210,7 +211,7 @@ impl<'a, Message> Program<Message, Theme, Renderer> for EyeDiagramCanvas<'a> {
 // -----------------------------------------------------------------------------
 #[derive(Debug, Clone)]
 pub struct ConstellationCanvas<'a> {
-    pub constellation: Option<&'a ConstellationDiagram>,
+    pub constellation: Option<&'a ConstellationDataset>,
     pub tokens: &'a ThemeTokens,
 }
 
@@ -260,30 +261,30 @@ impl<'a, Message> Program<Message, Theme, Renderer> for ConstellationCanvas<'a> 
         );
 
         if let Some(cons) = self.constellation {
-            // Render cloud points
-            for pt in &cons.cloud_points {
-                let px = center.x + (pt.i as f32) * scale;
-                let py = center.y - (pt.q as f32) * scale;
+            for pt in &cons.points {
+                // Render cloud points (received)
+                let px = center.x + (pt.received.i as f32) * scale;
+                let py = center.y - (pt.received.q as f32) * scale;
 
                 let dot = Path::circle(Point::new(px, py), 1.5);
                 frame.fill(
                     &dot,
                     Color::from_rgba(0.9, 0.7, 0.1, 0.6),
                 );
-            }
 
-            // Render ideal reference targets
-            for pt in &cons.reference_points {
-                let px = center.x + (pt.i as f32) * scale;
-                let py = center.y - (pt.q as f32) * scale;
+                // Render ideal reference targets
+                if let Some(ideal) = pt.ideal {
+                    let ix = center.x + (ideal.i as f32) * scale;
+                    let iy = center.y - (ideal.q as f32) * scale;
 
-                let target = Path::circle(Point::new(px, py), 4.0);
-                frame.stroke(
-                    &target,
-                    Stroke::default()
-                        .with_color(Color::from_rgb(0.2, 0.8, 1.0))
-                        .with_width(1.5),
-                );
+                    let target = Path::circle(Point::new(ix, iy), 4.0);
+                    frame.stroke(
+                        &target,
+                        Stroke::default()
+                            .with_color(Color::from_rgb(0.2, 0.8, 1.0))
+                            .with_width(1.5),
+                    );
+                }
             }
         } else {
             frame.fill_text(canvas::Text {

@@ -425,23 +425,26 @@ impl Oxide {
                     }
                     let ds = oxide_types::sim::WaveformDataset {
                         title: "Transient Analysis (.TRAN)".to_string(),
+                        analysis_name: "Transient".to_string(),
                         x_trace: oxide_types::sim::WaveformTrace {
                             name: "time".to_string(),
-                            unit: oxide_types::sim::TraceUnit::Seconds,
+                            unit: oxide_types::sim::TraceUnit::TimeSeconds,
                             values: time_vals,
                         },
                         traces: vec![
                             oxide_types::sim::WaveformTrace {
                                 name: "V(IN)".to_string(),
-                                unit: oxide_types::sim::TraceUnit::Volts,
+                                unit: oxide_types::sim::TraceUnit::VoltageVolts,
                                 values: v_in,
                             },
                             oxide_types::sim::WaveformTrace {
                                 name: "V(OUT)".to_string(),
-                                unit: oxide_types::sim::TraceUnit::Volts,
+                                unit: oxide_types::sim::TraceUnit::VoltageVolts,
                                 values: v_out,
                             },
                         ],
+                        operating_point: std::collections::BTreeMap::new(),
+                        log: vec!["Sample transient simulation completed".to_string()],
                     };
                     self.document_state.panel_ctx.waveform_state.dataset = Some(ds);
                     self.document_state.panel_ctx.waveform_state.status_message = "Transient complete (1000 pts)".to_string();
@@ -466,14 +469,44 @@ impl Oxide {
                 self.refresh_panel_ctx();
             }
             crate::panels::PanelMsg::RunRfSimulation => {
-                let s2p = oxide_rf::s_param::Network2Port::from_pi_attenuator(100.0, 50.0);
-                let eye = oxide_rf::eye_diagram::EyeDiagram::from_prbs(&[1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1], 1e9, 10e9);
-                let cons = oxide_rf::constellation::ConstellationDiagram::simulate(
-                    oxide_rf::modulation::ModulationScheme::Qam16,
-                    500,
-                    25.0,
-                );
-                self.document_state.panel_ctx.telecom_state.s_params = Some(s2p);
+                let mut ds = oxide_rf::s_param::SParameterDataset::new(50.0);
+                for i in 1..=100 {
+                    let freq = i as f64 * 1e7; // 10MHz to 1GHz
+                    let s11 = oxide_rf::s_param::Complex64::new(0.05 + 0.02 * (freq / 1e9), -0.05);
+                    let s21 = oxide_rf::s_param::Complex64::new(0.5 - 0.1 * (freq / 1e9), 0.0);
+                    ds.add_point(oxide_rf::s_param::SParameters2Port {
+                        freq_hz: freq,
+                        s11,
+                        s21,
+                        s12: s21,
+                        s22: s11,
+                        z0: 50.0,
+                    });
+                }
+
+                let mut time_vec = Vec::with_capacity(1000);
+                let mut volt_vec = Vec::with_capacity(1000);
+                for i in 0..1000 {
+                    let t = i as f64 * 1e-10;
+                    time_vec.push(t);
+                    let v = (2.0 * std::f64::consts::PI * 1e9 * t).sin() * 1.2
+                        + 0.1 * ((i % 7) as f64 - 3.5);
+                    volt_vec.push(v);
+                }
+                let eye = oxide_rf::eye_diagram::EyeDiagramDataset::from_signal(&time_vec, &volt_vec, 1e9);
+
+                let bits: Vec<bool> = (0..128).map(|i| (i * 7 + 3) % 2 == 0).collect();
+                let ideal_symbols = oxide_rf::modulation::Modulator::modulate_bits(&bits, oxide_rf::modulation::ModulationScheme::Qam16);
+                let channel = oxide_rf::channel::ChannelModel {
+                    snr_db: 25.0,
+                    path_loss_db: 0.0,
+                    phase_offset_deg: 2.0,
+                    frequency_offset_hz: 0.0,
+                };
+                let received_symbols = channel.apply(&ideal_symbols);
+                let cons = oxide_rf::constellation::ConstellationDataset::calculate(&received_symbols, &ideal_symbols);
+
+                self.document_state.panel_ctx.telecom_state.s_params = Some(ds);
                 self.document_state.panel_ctx.telecom_state.eye_diagram = Some(eye);
                 self.document_state.panel_ctx.telecom_state.constellation = Some(cons);
                 self.refresh_panel_ctx();

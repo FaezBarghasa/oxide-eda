@@ -57,7 +57,8 @@ pub(super) fn apply_upload_result(
         use sha2::Digest;
         let mut hasher = sha2::Sha256::new();
         hasher.update(&bytes);
-        let hash = format!("{:x}", hasher.finalize());
+        let hash_bytes = hasher.finalize();
+        let hash = hash_bytes.iter().map(|b| format!("{:02x}", b)).collect::<String>();
         state.row.datasheet = oxide_library::DatasheetRef::hash_pinned(hash, filename);
         state.dirty = true;
     }

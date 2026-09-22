@@ -242,6 +242,23 @@ pub fn modal_card(tokens: &ThemeTokens) -> impl Fn(&Theme) -> container::Style +
     }
 }
 
+/// Panel card / section card container with a subtle background and rounded border
+pub fn panel_card(tokens: &ThemeTokens) -> impl Fn(&Theme) -> container::Style + 'static {
+    let bg = ti(tokens.paper);
+    let text = ti(tokens.text);
+    let border = ti(tokens.border);
+    move |_| container::Style {
+        background: Some(bg.into()),
+        text_color: Some(text),
+        border: Border {
+            width: 1.0,
+            radius: 4.0.into(),
+            color: border,
+        },
+        ..container::Style::default()
+    }
+}
+
 /// Floating panel title bar
 pub fn floating_title_bar(tokens: &ThemeTokens) -> impl Fn(&Theme) -> container::Style + 'static {
     let bg = ti(tokens.paper);

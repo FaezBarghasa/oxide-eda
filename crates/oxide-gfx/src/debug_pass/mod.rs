@@ -11,6 +11,7 @@ use crate::pipeline::grid::{GridLodFactors, GridPipeline, lod_fade_factors};
 use crate::pipeline::line::LinePipeline;
 use crate::pipeline::polygon::PolygonPipeline;
 use crate::pipeline::text::GlyphonTextPipeline;
+use crate::glyphon;
 use crate::primitive::arc::Arc;
 use crate::primitive::circle::Circle;
 use crate::primitive::line::LineSegment;

@@ -46,6 +46,7 @@ oxide-router = { workspace = true }
 oxide-ai = { workspace = true }
 oxide-ml = { workspace = true }
 oxide-sim = { workspace = true }
+oxide-rf = { workspace = true }
 # `log` feature: oxide-app installs a `log`-based logger (OxideLogger) but
 # no tracing subscriber, and several crates (notably oxide-library) report
 # non-fatal errors via tracing::warn!. Without this feature those records

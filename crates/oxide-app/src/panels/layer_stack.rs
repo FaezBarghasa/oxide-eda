@@ -1,9 +1,7 @@
 //! Multilayer Layer Stackup Manager panel implementation for Oxide EDA.
 
-use iced::widget::{Column, Row, Space, button, container, row, scrollable, text};
+use iced::widget::{Column, Space, button, container, row, scrollable, text};
 use iced::{Element, Length};
-use oxide_physics::material::MaterialCatalog;
-use oxide_physics::stackup::{DielectricLayer, LayerDefinition, LayerStackup, MaterialType, SignalLayer};
 use oxide_widgets::theme_ext;
 
 use super::messages::PanelMsg;

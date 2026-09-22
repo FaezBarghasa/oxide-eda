@@ -4,6 +4,8 @@
 //! This module was written without reference to GPL-licensed software.
 //! Sources: IPC-2612-1, IEEE 315, IEC 60617, wgpu/WGSL public docs.
 
+use crate::glyphon;
+
 use crate::primitive::text::{TextHAlign, TextItem, TextSizePolicy, TextVAlign, text_px};
 
 /// Rendered em size in logical pixels, from the one shared sizing rule.

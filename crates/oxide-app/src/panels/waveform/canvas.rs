@@ -1,8 +1,8 @@
 //! Waveform Viewer Panel canvas implementation for Oxide EDA.
 //! Renders analog voltages, digital signals, time/frequency axes, graticule, and dual measurement cursors.
 
-use iced::mouse;
-use iced::widget::canvas::{self, Cursor, Geometry, Path, Program, Stroke};
+use iced::mouse::Cursor;
+use iced::widget::canvas::{self, Geometry, Path, Program, Stroke};
 use iced::{Color, Point, Rectangle, Renderer, Size, Theme};
 use oxide_types::sim::{WaveformDataset, WaveformTrace};
 use oxide_types::theme::ThemeTokens;

@@ -46,6 +46,8 @@ impl PanelPosition {
             | PanelKind::Wiki
             | PanelKind::SchLibrary
             | PanelKind::FootprintLibrary
+            | PanelKind::Copilot
+            | PanelKind::AiDiff
             | PanelKind::History => PanelPosition::Right,
         }
     }

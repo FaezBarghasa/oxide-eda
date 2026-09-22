@@ -3,11 +3,11 @@
 
 pub mod canvas;
 
-use iced::widget::{Column, Row, Space, button, canvas as iced_canvas, container, row, scrollable, text};
+use iced::widget::{Column, Space, button, canvas as iced_canvas, container, row, text};
 use iced::{Element, Length};
-use oxide_rf::constellation::ConstellationDiagram;
-use oxide_rf::eye_diagram::EyeDiagram;
-use oxide_rf::s_param::Network2Port;
+use oxide_rf::constellation::ConstellationDataset;
+use oxide_rf::eye_diagram::EyeDiagramDataset;
+use oxide_rf::s_param::SParameterDataset;
 use oxide_widgets::theme_ext;
 
 use super::context::PanelContext;
@@ -28,9 +28,9 @@ pub enum TelecomTab {
 #[derive(Debug, Clone, Default)]
 pub struct TelecomPanelState {
     pub active_tab: TelecomTab,
-    pub s_params: Option<Network2Port>,
-    pub eye_diagram: Option<EyeDiagram>,
-    pub constellation: Option<ConstellationDiagram>,
+    pub s_params: Option<SParameterDataset>,
+    pub eye_diagram: Option<EyeDiagramDataset>,
+    pub constellation: Option<ConstellationDataset>,
     pub carrier_freq_hz: f64,
     pub data_rate_bps: f64,
     pub modulation_scheme: String,
@@ -106,9 +106,10 @@ pub fn view_telecom<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
     // Metric Summary Bar
     let metric_banner = match state.active_tab {
         TelecomTab::SmithChart => {
-            let pts = state.s_params.as_ref().map(|s| s.frequencies.len()).unwrap_or(0);
+            let pts = state.s_params.as_ref().map(|s| s.points.len()).unwrap_or(0);
+            let z0 = state.s_params.as_ref().map(|s| s.z0).unwrap_or(50.0);
             row![
-                text(format!("Points: {} | Z0: 50.0 Ω", pts))
+                text(format!("Points: {} | Z0: {:.1} Ω", pts, z0))
                     .size(10)
                     .color(theme_ext::text_secondary(&ctx.tokens)),
             ]
@@ -116,15 +117,15 @@ pub fn view_telecom<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
         TelecomTab::EyeDiagram => {
             if let Some(eye) = &state.eye_diagram {
                 row![
-                    text(format!("Eye Height: {:.2} mV", eye.eye_height * 1e3))
+                    text(format!("Eye Height: {:.2} mV", eye.metrics.eye_height * 1e3))
                         .size(10)
                         .color(iced::Color::from_rgb(0.2, 0.8, 0.2)),
                     Space::new().width(12).height(Length::Shrink),
-                    text(format!("Eye Width: {:.2} ps", eye.eye_width * 1e12))
+                    text(format!("Eye Width: {:.2} ps", eye.metrics.eye_width_s * 1e12))
                         .size(10)
                         .color(iced::Color::from_rgb(0.2, 0.6, 1.0)),
                     Space::new().width(12).height(Length::Shrink),
-                    text(format!("Jitter RMS: {:.2} ps (P-P: {:.2} ps)", eye.jitter_rms * 1e12, eye.jitter_pp * 1e12))
+                    text(format!("Jitter RMS: {:.2} ps (P-P: {:.2} ps)", eye.metrics.jitter_rms_s * 1e12, eye.metrics.jitter_p2p_s * 1e12))
                         .size(10)
                         .color(iced::Color::from_rgb(0.9, 0.7, 0.1)),
                 ]
@@ -135,7 +136,7 @@ pub fn view_telecom<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
         TelecomTab::Constellation => {
             if let Some(cons) = &state.constellation {
                 row![
-                    text(format!("Modulation: {}", cons.scheme.name()))
+                    text(format!("Points: {}", cons.points.len()))
                         .size(10)
                         .color(theme_ext::accent(&ctx.tokens)),
                     Space::new().width(12).height(Length::Shrink),
@@ -143,7 +144,7 @@ pub fn view_telecom<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
                         .size(10)
                         .color(iced::Color::from_rgb(0.9, 0.4, 0.1)),
                     Space::new().width(12).height(Length::Shrink),
-                    text(format!("SNR: {:.1} dB", cons.snr_db))
+                    text(format!("SNR Est: {:.1} dB", cons.snr_est_db))
                         .size(10)
                         .color(iced::Color::from_rgb(0.2, 0.8, 0.2)),
                 ]
