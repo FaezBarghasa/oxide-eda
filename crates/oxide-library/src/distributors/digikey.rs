@@ -193,7 +193,7 @@ impl DigiKeyAuth {
                 "CSRF state mismatch — refusing to exchange OAuth code".into(),
             ));
         }
-        let http = build_http_client();
+        let http = build_oauth_client();
         let token = self
             .client
             .exchange_code(AuthorizationCode::new(code.to_string()))
@@ -221,7 +221,7 @@ impl DigiKeyAuth {
                 Err(KeyringError::Backend(m)) => return Err(DigiKeyAuthError::Keyring(m)),
             }
         };
-        let http = build_http_client();
+        let http = build_oauth_client();
         let token = self
             .client
             .exchange_refresh_token(&RefreshToken::new(refresh))
@@ -247,6 +247,14 @@ impl DigiKeyAuth {
         }
         Ok(token.access_token().secret().clone())
     }
+}
+
+fn build_oauth_client() -> oauth2::reqwest::blocking::Client {
+    oauth2::reqwest::blocking::Client::builder()
+        .user_agent("oxide-library/0.9 (+https://oxide.dev)")
+        .redirect(oauth2::reqwest::redirect::Policy::none())
+        .build()
+        .expect("oauth2::reqwest::blocking::Client::build is infallible with default opts")
 }
 
 fn build_http_client() -> reqwest::blocking::Client {

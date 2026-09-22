@@ -653,7 +653,7 @@ impl SearchIndex for TantivySearchIndex {
             }
         };
 
-        let top = match searcher.search(&query, TopDocs::with_limit(limit)) {
+        let top = match searcher.search(&query, &TopDocs::with_limit(limit).order_by_score()) {
             Ok(t) => t,
             Err(e) => {
                 tracing::warn!(
