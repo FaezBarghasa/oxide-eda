@@ -264,6 +264,7 @@ fn project_referencing(dir: &Path, libs: &[PathBuf]) -> ProjectData {
                 library_id: None,
             })
             .collect(),
+        dependencies: Vec::new(),
         enable_git: false,
     }
 }

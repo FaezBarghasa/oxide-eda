@@ -397,6 +397,7 @@ impl GlyphonTextPipeline {
 
 #[cfg(test)]
 mod tests {
+    use crate::glyphon;
     use super::TextSizePolicy;
     use super::{
         alignment_offset_px, anchored_top_left_px, attrs_for_item, normalize_rotation_radians,

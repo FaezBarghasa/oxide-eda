@@ -43,6 +43,7 @@ fn app_focused_on(focused: &str) -> Oxide {
             variant_definitions: Vec::new(),
             active_variant: None,
             libraries: Vec::new(),
+            dependencies: Vec::new(),
             enable_git: false,
         },
         pending_libraries: std::collections::HashMap::new(),

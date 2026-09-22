@@ -337,8 +337,8 @@ mod tests {
                     wires: Vec::new(),
                     junctions: Vec::new(),
                     terminals: vec![
-                        Terminal { symbol: Uuid::nil(), reference: "V1".to_string(), pin: "1".to_string() },
-                        Terminal { symbol: Uuid::nil(), reference: "R1".to_string(), pin: "1".to_string() },
+                        Terminal { symbol: Uuid::nil(), reference: "V1".to_string(), pin: "1".to_string(), internal_delay_ps: 0.0 },
+                        Terminal { symbol: Uuid::nil(), reference: "R1".to_string(), pin: "1".to_string(), internal_delay_ps: 0.0 },
                     ],
                 },
                 Net {
@@ -348,8 +348,8 @@ mod tests {
                     wires: Vec::new(),
                     junctions: Vec::new(),
                     terminals: vec![
-                        Terminal { symbol: Uuid::nil(), reference: "R1".to_string(), pin: "2".to_string() },
-                        Terminal { symbol: Uuid::nil(), reference: "C1".to_string(), pin: "1".to_string() },
+                        Terminal { symbol: Uuid::nil(), reference: "R1".to_string(), pin: "2".to_string(), internal_delay_ps: 0.0 },
+                        Terminal { symbol: Uuid::nil(), reference: "C1".to_string(), pin: "1".to_string(), internal_delay_ps: 0.0 },
                     ],
                 },
                 Net {
@@ -359,11 +359,12 @@ mod tests {
                     wires: Vec::new(),
                     junctions: Vec::new(),
                     terminals: vec![
-                        Terminal { symbol: Uuid::nil(), reference: "V1".to_string(), pin: "2".to_string() },
-                        Terminal { symbol: Uuid::nil(), reference: "C1".to_string(), pin: "2".to_string() },
+                        Terminal { symbol: Uuid::nil(), reference: "V1".to_string(), pin: "2".to_string(), internal_delay_ps: 0.0 },
+                        Terminal { symbol: Uuid::nil(), reference: "C1".to_string(), pin: "2".to_string(), internal_delay_ps: 0.0 },
                     ],
                 },
             ],
+            xsignals: Vec::new(),
         };
 
         let mut sym_v1 = Symbol::empty();

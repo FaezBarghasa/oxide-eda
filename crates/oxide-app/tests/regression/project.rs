@@ -65,6 +65,7 @@ fn fixture_project_with_companions(stem: &str) -> (Oxide, TempDir, PathBuf) {
         variant_definitions: Vec::new(),
         active_variant: None,
         libraries: Vec::new(),
+        dependencies: Vec::new(),
         enable_git: false,
     };
     app.document_state.projects.push(LoadedProject {
@@ -610,6 +611,7 @@ fn loaded_project_data_round_trips_via_write_then_parse() {
         variant_definitions: vec!["Production".into(), "Prototype".into()],
         active_variant: Some("Production".into()),
         libraries: Vec::new(),
+        dependencies: Vec::new(),
         enable_git: false,
     };
 

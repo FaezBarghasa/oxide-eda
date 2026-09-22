@@ -18,6 +18,18 @@ Each release section is authored **before** the `vX.Y.Z` tag is created, so the 
 
 ## [Unreleased]
 
+### Added — Telecommunications, RF & Signal Integrity Engine (`oxide-rf`, `oxide-app`)
+
+- **2-Port S-Parameter Network Analysis (`oxide-rf::s_param`)** — Complete 2-port scattering matrix analysis (`SParameters2Port`, `SParameterDataset`) supporting return loss, insertion loss, VSWR, normalized input impedance, and standard Touchstone v1.1 `.s2p` file export.
+- **Digital & Analog Modulation Synthesizer (`oxide-rf::modulation`)** — Comprehensive baseband symbol mapping across AM, FM, ASK, FSK, BPSK, QPSK, and 16/64/256-QAM schemes with Gray-coded constellations and AWGN channel models.
+- **Eye Diagram Analysis & SI Metrics (`oxide-rf::eye_diagram`)** — 2-UI eye diagram windowing and measurement pipeline calculating eye height, eye width, eye opening ratio, jitter (RMS and peak-to-peak), and signal-to-noise ratio (SNR).
+- **RF & Telecom Interactive Dock Panels (`oxide-app::panels::telecom`)** — Interactive Smith Chart projection, persistence-mode Eye Diagram canvas, and I/Q Constellation scatter plots with real-time EVM and SNR readouts.
+
+### Added — Git2-Based EDA Dependency Manager (`oxide-types::project`)
+
+- **Project Dependency Tracking (`ProjectDependency`, `GitSource`, `GitReference`)** — Declared version-controlled dependencies in `.snxprj` supporting Git tags, branches, specific commit SHAs, and semver constraints.
+- **Reproducible Lockfiles (`ProjectLockfile`, `LockedDependency`)** — Deterministic `project.lock` file storing resolved 40-character commit OIDs, tree hashes, and local installation paths.
+
 ### Added — Universal MCU, External Storage & FPGA Co-Simulation Engine (`oxide-mcu`, `oxide-cosim`)
 
 - **Virtual Display & Touchscreen Simulation (`oxide-mcu::peripheral::display`)** — Full emulation models for Character LCDs (HD44780 16x2/20x4), Monochrome OLED/LCDs (SSD1306 128x64/128x32, ST7565, PCD8544), Color TFT LCD Controllers (ILI9341 240x320, ST7789 240x240, GC9A01 Round Display, SSD1963 800x480), LED Matrix / 7-Segment displays (MAX7219 8x8, TM1637 4-digit), and Touchscreen Controllers (XPT2046 SPI Resistive Touch, FT6236 / GT911 I2C Capacitive Multi-touch). Compatible with `embedded-graphics` framebuffers.
@@ -38,6 +50,8 @@ Each release section is authored **before** the `vX.Y.Z` tag is created, so the 
 
 ### Fixed
 
+- **`wgpu` / `glyphon` Ecosystem Alignment** — Pinned `oxide-gfx` dependencies to `wgpu 27` + `cryoglyph 0.1.0` (matching `iced 0.14.0`), eliminating runtime pipeline panics and library version mismatches while retaining GPU-instanced text rendering.
+- **SurrealDB 3.2.4 Deserialization & Query Unification** — Updated `oxide-library-server` database queries to take `surrealdb::types::Value` explicitly at index `0usize` and convert via `into_json_value()` into strictly typed `ComponentRowRecord` and `PrimitiveRecord` structures, fixing compilation under the SurrealDB 3.2.4 value system.
 - **GPU concave polygon fill** — the polygon pipeline fanned every contour from its first vertex, which is exact only for convex shapes; a concave copper pour/rule-area bridged triangles across the notch and painted copper where the pour had none. `append_fill` now triangulates via `oxide_sketch::ear_clip`, matching the CPU `frame.fill` (lyon) result exactly (pinned by a shoelace-area regression test). Found and fixed a latent bug in `ear_clip` itself while wiring it up: a bridge edge created by clipping one ear could pass exactly through another still-remaining vertex, letting the algorithm approve an invalid ear and collapse the rest of the polygon into a self-intersecting remainder — `is_ear`'s occlusion test now also blocks on a non-corner vertex sitting exactly on the ear's boundary.
 - **GPU overlay z-order** — `gpu_scene()` folded overlay geometry (active-layer zone highlight, selection highlight, DRC markers, ratsnest) into the base `polygons`/`lines`/`circles` buckets, which the GPU draws before other base content — so an overlay meant to sit on top rendered underneath it. Overlays now stay in their own buffers and composite in a dedicated pass strictly after every base bucket, matching the CPU `draw_scene` overlay pass.
 - **GPU dashed lines** — `line.wgsl` declared the per-instance `style` field but never consumed it, so `RATSNEST_STYLE_DASHED` / keepout / DRC-overlay segments rendered solid on the GPU. The fragment shader now derives a dash/gap pattern from `camera.mm_per_px` (reproducing the CPU's literal 8px dash / 5px gap at any zoom) and discards the gap portions.

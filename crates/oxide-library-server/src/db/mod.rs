@@ -159,7 +159,8 @@ impl AppState {
             .await
             .map_err(ApiError::from)?;
 
-        let check: Vec<ComponentRowRecord> = check_resp.take(0).map_err(ApiError::from)?;
+        let check_val: surrealdb::types::Value = check_resp.take(0usize).map_err(ApiError::from)?;
+        let check: Vec<ComponentRowRecord> = serde_json::from_value(check_val.into_json_value()).map_err(decode_err)?;
         if !check.is_empty() {
             return Ok(false);
         }
@@ -180,7 +181,7 @@ impl AppState {
             .await
             .map_err(ApiError::from)?;
 
-        let _created: Vec<ComponentRowRecord> = create_resp.take(0).map_err(ApiError::from)?;
+        let _created: surrealdb::types::Value = create_resp.take(0usize).map_err(ApiError::from)?;
         Ok(true)
     }
 
@@ -211,7 +212,8 @@ impl AppState {
             .await
             .map_err(ApiError::from)?;
 
-        let updated: Vec<ComponentRowRecord> = update_resp.take(0).map_err(ApiError::from)?;
+        let updated_val: surrealdb::types::Value = update_resp.take(0usize).map_err(ApiError::from)?;
+        let updated: Vec<ComponentRowRecord> = serde_json::from_value(updated_val.into_json_value()).map_err(decode_err)?;
         Ok(!updated.is_empty())
     }
 
@@ -230,7 +232,8 @@ impl AppState {
             .await
             .map_err(ApiError::from)?;
 
-        let records: Vec<ComponentRowRecord> = resp.take(0).map_err(ApiError::from)?;
+        let val: surrealdb::types::Value = resp.take(0usize).map_err(ApiError::from)?;
+        let records: Vec<ComponentRowRecord> = serde_json::from_value(val.into_json_value()).map_err(decode_err)?;
         if let Some(first) = records.first() {
             let row: ComponentRow = serde_json::from_str(&first.payload).map_err(decode_err)?;
             return Ok(Some(row));
@@ -254,7 +257,8 @@ impl AppState {
             .await
             .map_err(ApiError::from)?;
 
-        let deleted: Vec<ComponentRowRecord> = resp.take(0).map_err(ApiError::from)?;
+        let val: surrealdb::types::Value = resp.take(0usize).map_err(ApiError::from)?;
+        let deleted: Vec<ComponentRowRecord> = serde_json::from_value(val.into_json_value()).map_err(decode_err)?;
         Ok(!deleted.is_empty())
     }
 
@@ -268,7 +272,8 @@ impl AppState {
             .await
             .map_err(ApiError::from)?;
 
-        let records: Vec<ComponentRowRecord> = resp.take(0).map_err(ApiError::from)?;
+        let val: surrealdb::types::Value = resp.take(0usize).map_err(ApiError::from)?;
+        let records: Vec<ComponentRowRecord> = serde_json::from_value(val.into_json_value()).map_err(decode_err)?;
         let mut names: Vec<String> = Vec::new();
         for r in records {
             if !names.contains(&r.table_name) {
@@ -294,7 +299,8 @@ impl AppState {
             .await
             .map_err(ApiError::from)?;
 
-        let records: Vec<ComponentRowRecord> = resp.take(0).map_err(ApiError::from)?;
+        let val: surrealdb::types::Value = resp.take(0usize).map_err(ApiError::from)?;
+        let records: Vec<ComponentRowRecord> = serde_json::from_value(val.into_json_value()).map_err(decode_err)?;
         let mut rows = Vec::with_capacity(records.len());
         for r in records {
             let row: ComponentRow = serde_json::from_str(&r.payload).map_err(decode_err)?;
@@ -357,26 +363,41 @@ impl AppState {
 
     pub async fn insert_sim(&self, library_id: Uuid, sm: &SimModel) -> Result<(), ApiError> {
         let payload = serde_json::to_string(sm).map_err(decode_err)?;
-        upsert_primitive(&self.db, "sims", library_id, sm.uuid, &sm.name, &payload).await
+        upsert_primitive(
+            &self.db,
+            "sims",
+            library_id,
+            sm.uuid,
+            &sm.name,
+            &payload,
+        )
+        .await
     }
 
-    pub async fn fetch_sim(&self, library_id: Uuid, uuid: Uuid) -> Result<Option<SimModel>, ApiError> {
+    pub async fn fetch_sim(
+        &self,
+        library_id: Uuid,
+        uuid: Uuid,
+    ) -> Result<Option<SimModel>, ApiError> {
         fetch_primitive_payload(&self.db, "sims", library_id, uuid)
             .await?
             .map(|p| serde_json::from_str(&p).map_err(decode_err))
             .transpose()
     }
 
-    pub async fn list_sims(&self, library_id: Option<Uuid>) -> Result<Vec<PrimitiveSummary>, ApiError> {
+    pub async fn list_sims(
+        &self,
+        library_id: Option<Uuid>,
+    ) -> Result<Vec<PrimitiveSummary>, ApiError> {
         list_primitive_summaries(&self.db, "sims", library_id).await
     }
 }
 
 // ---------- Primitive query helpers ----------------------------------------
 
-fn assert_primitive_table(table: &str) {
-    assert!(
-        matches!(table, "symbols" | "footprints" | "sims"),
+fn assert_primitive_table(table: &'static str) {
+    debug_assert!(
+        table == "symbols" || table == "footprints" || table == "sims",
         "primitive table name `{table}` is not whitelisted",
     );
 }
@@ -401,7 +422,8 @@ async fn upsert_primitive(
         .await
         .map_err(ApiError::from)?;
 
-    let check: Vec<PrimitiveRecord> = check_resp.take(0).map_err(ApiError::from)?;
+    let check_val: surrealdb::types::Value = check_resp.take(0usize).map_err(ApiError::from)?;
+    let check: Vec<PrimitiveRecord> = serde_json::from_value(check_val.into_json_value()).map_err(decode_err)?;
 
     if !check.is_empty() {
         let mut update_resp = db
@@ -413,7 +435,7 @@ async fn upsert_primitive(
             .bind(("uuid", uuid_str))
             .await
             .map_err(ApiError::from)?;
-        let _: Vec<PrimitiveRecord> = update_resp.take(0).map_err(ApiError::from)?;
+        let _: surrealdb::types::Value = update_resp.take(0usize).map_err(ApiError::from)?;
     } else {
         let mut create_resp = db
             .query(format!("CREATE {table} CONTENT {{ library_id: $lib, uuid: $uuid, name: $name, payload: $payload, created_at: $now, updated_at: $now }}"))
@@ -424,7 +446,7 @@ async fn upsert_primitive(
             .bind(("now", now))
             .await
             .map_err(ApiError::from)?;
-        let _: Vec<PrimitiveRecord> = create_resp.take(0).map_err(ApiError::from)?;
+        let _: surrealdb::types::Value = create_resp.take(0usize).map_err(ApiError::from)?;
     }
     Ok(())
 }
@@ -443,7 +465,8 @@ async fn fetch_primitive_payload(
         .await
         .map_err(ApiError::from)?;
 
-    let records: Vec<PrimitiveRecord> = resp.take(0).map_err(ApiError::from)?;
+    let val: surrealdb::types::Value = resp.take(0usize).map_err(ApiError::from)?;
+    let records: Vec<PrimitiveRecord> = serde_json::from_value(val.into_json_value()).map_err(decode_err)?;
     if let Some(first) = records.first() {
         return Ok(Some(first.payload.clone()));
     }
@@ -469,7 +492,8 @@ async fn list_primitive_summaries(
             .map_err(ApiError::from)?
     };
 
-    let records: Vec<PrimitiveRecord> = resp.take(0).map_err(ApiError::from)?;
+    let val: surrealdb::types::Value = resp.take(0usize).map_err(ApiError::from)?;
+    let records: Vec<PrimitiveRecord> = serde_json::from_value(val.into_json_value()).map_err(decode_err)?;
     let mut summaries = Vec::with_capacity(records.len());
     for r in records {
         let library_id = Uuid::parse_str(&r.library_id).map_err(|e| {

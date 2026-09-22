@@ -214,6 +214,7 @@ fn write_project(dir: &Path, name: &str, libs: &[PathBuf]) -> PathBuf {
                 library_id: None,
             })
             .collect(),
+        dependencies: Vec::new(),
         enable_git: false,
     };
     oxide_types::project::write_project(&path, &data).expect("write_project");
