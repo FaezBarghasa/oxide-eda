@@ -53,11 +53,16 @@ impl DrillTable {
         // 1. Collect footprint through-hole and mounting pads
         for footprint in &board.footprints {
             for pad in &footprint.pads {
-                if pad.pad_type == PadType::ThroughHole {
-                    if let Some(drill_nm) = pad.drill_diameter {
-                        if drill_nm > 0 {
-                            let plating = HolePlating::Plated;
-                            let key = (drill_nm, plating, "Top-Bottom".to_string());
+                if pad.pad_type == PadType::Thru || pad.pad_type == PadType::NpThru {
+                    if let Some(ref drill_def) = pad.drill {
+                        if drill_def.diameter > 0.0 {
+                            let plating = if pad.pad_type == PadType::NpThru {
+                                HolePlating::NonPlated
+                            } else {
+                                HolePlating::Plated
+                            };
+                            let diam_nm = (drill_def.diameter * 1_000_000.0).round() as i64;
+                            let key = (diam_nm, plating, "Top-Bottom".to_string());
                             *hole_groups.entry(key).or_insert(0) += 1;
                             total_holes += 1;
                         }
@@ -68,14 +73,17 @@ impl DrillTable {
 
         // 2. Collect through-hole, blind, and buried vias
         for via in &board.vias {
-            if via.drill_nm > 0 {
+            if via.drill > 0.0 {
                 let plating = HolePlating::Plated;
                 let layer_pair = if let Some(ref span) = via.via_span {
-                    format!("{}-{}", span.start_layer, span.end_layer)
+                    format!("L{}-L{}", span.start_layer, span.end_layer)
+                } else if via.layers.len() >= 2 {
+                    format!("{}-{}", via.layers[0], via.layers[via.layers.len() - 1])
                 } else {
                     "Top-Bottom".to_string()
                 };
-                let key = (via.drill_nm, plating, layer_pair);
+                let diam_nm = (via.drill * 1_000_000.0).round() as i64;
+                let key = (diam_nm, plating, layer_pair);
                 *hole_groups.entry(key).or_insert(0) += 1;
                 total_holes += 1;
             }
@@ -121,43 +129,63 @@ impl DrillTable {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use oxide_types::pcb::{Footprint, Pad, Point, Via};
+    use oxide_types::pcb::{DrillDef, Footprint, Pad, PadShape, Point, Via};
+    use uuid::Uuid;
 
     #[test]
     fn test_drill_table_synthesis() {
         let mut board = PcbBoard::default();
 
-        // Add 2 identical vias
+        // Add 2 identical vias with 0.3mm drill
         board.vias.push(Via {
-            id: uuid::Uuid::new_v4(),
+            uuid: Uuid::new_v4(),
             position: Point::new(1000, 1000),
-            net_id: None,
-            size_nm: 600_000,
-            drill_nm: 300_000,
+            diameter: 0.6,
+            drill: 0.3,
+            layers: vec!["F.Cu".to_string(), "B.Cu".to_string()],
+            net: 0,
             via_type: oxide_types::pcb::ViaType::Through,
             via_span: None,
         });
         board.vias.push(Via {
-            id: uuid::Uuid::new_v4(),
+            uuid: Uuid::new_v4(),
             position: Point::new(2000, 2000),
-            net_id: None,
-            size_nm: 600_000,
-            drill_nm: 300_000,
+            diameter: 0.6,
+            drill: 0.3,
+            layers: vec!["F.Cu".to_string(), "B.Cu".to_string()],
+            net: 0,
             via_type: oxide_types::pcb::ViaType::Through,
             via_span: None,
         });
 
-        // Add 1 through-hole component with 1.0mm (1_000_000 nm) drill
-        let mut fp = Footprint::default();
+        // Add 1 through-hole component with 1.0mm drill
+        let mut fp = Footprint {
+            uuid: Uuid::new_v4(),
+            reference: "J1".to_string(),
+            value: "CONN".to_string(),
+            footprint_id: "HDR1".to_string(),
+            position: Point::new(0, 0),
+            rotation: 0.0,
+            layer: "F.Cu".to_string(),
+            locked: false,
+            pads: Vec::new(),
+            graphics: Vec::new(),
+            properties: Vec::new(),
+        };
         fp.pads.push(Pad {
+            uuid: Uuid::new_v4(),
             number: "1".to_string(),
-            net_id: None,
+            pad_type: PadType::Thru,
+            shape: PadShape::Circle,
             position: Point::new(5000, 5000),
-            size_nm: Point::new(1_600_000, 1_600_000),
-            pad_type: PadType::ThroughHole,
-            drill_diameter: Some(1_000_000),
-            shape: oxide_types::pcb::PadShape::Circle,
-            layer: oxide_types::pcb::Layer::F_Cu,
+            size: Point::new(1600, 1600),
+            drill: Some(DrillDef {
+                diameter: 1.0,
+                shape: "circle".to_string(),
+            }),
+            layers: vec!["*.Cu".to_string()],
+            net: None,
+            roundrect_ratio: 0.0,
         });
         board.footprints.push(fp);
 
