@@ -84,11 +84,9 @@ impl QueryPredicate {
                     (Some(act), ComparisonOp::Like) => {
                         let pat = value.to_ascii_lowercase();
                         let target = act.to_ascii_lowercase();
-                        if pat.ends_with('*') {
-                            let prefix = &pat[..pat.len() - 1];
+                        if let Some(prefix) = pat.strip_suffix('*') {
                             target.starts_with(prefix)
-                        } else if pat.starts_with('*') {
-                            let suffix = &pat[1..];
+                        } else if let Some(suffix) = pat.strip_prefix('*') {
                             target.ends_with(suffix)
                         } else {
                             target.contains(&pat)

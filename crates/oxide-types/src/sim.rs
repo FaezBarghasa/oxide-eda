@@ -4,17 +4,12 @@ use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 
 /// Type of AC frequency sweep.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub enum AcSweepType {
+    #[default]
     Decade,
     Octave,
     Linear,
-}
-
-impl Default for AcSweepType {
-    fn default() -> Self {
-        Self::Decade
-    }
 }
 
 /// Nested secondary DC sweep source configuration.

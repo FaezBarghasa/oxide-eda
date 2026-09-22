@@ -242,6 +242,7 @@ impl EcoEngine {
                         fp.footprint_id = new_footprint_id.clone();
                     }
                 }
+                #[allow(clippy::collapsible_if)]
                 EcoAction::AssignPadNet {
                     reference,
                     pad_number,

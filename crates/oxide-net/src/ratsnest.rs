@@ -28,6 +28,7 @@ impl RatsnestEngine {
         // 1. Collect all pad positions grouped by assigned Net Number (ignoring Net 0 / unconnected)
         for fp in &board.footprints {
             for pad in &fp.pads {
+                #[allow(clippy::collapsible_if)]
                 if let Some(ref pad_net) = pad.net {
                     if pad_net.number > 0 {
                         // Pad absolute position is Footprint origin + Pad local offset

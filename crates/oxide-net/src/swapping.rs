@@ -56,7 +56,7 @@ impl PinSwappingEngine {
         let mut assignments = Vec::with_capacity(n);
         let mut eco = EcoReport::default();
 
-        for (_i, pin) in pins.iter().enumerate() {
+        for pin in pins {
             let mut best_target_idx = 0;
             let mut best_dist_sq = f64::INFINITY;
 
