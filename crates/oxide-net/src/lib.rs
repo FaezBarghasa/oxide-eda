@@ -27,5 +27,11 @@ pub use eco::{EcoAction, EcoEngine, EcoReport};
 pub mod multichannel;
 pub use multichannel::{ChannelComponent, ChannelInstantiation, MultiChannelEngine};
 
+pub mod harness;
+pub use harness::{HarnessElement, SignalHarness};
+
+pub mod swapping;
+pub use swapping::{PinSwapAssignment, PinSwappingEngine, SwappableGate, SwappablePin};
+
 pub mod ratsnest;
 pub use ratsnest::{RatsnestEngine, RatsnestLine};

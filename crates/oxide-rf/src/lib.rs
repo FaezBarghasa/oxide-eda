@@ -13,6 +13,7 @@ pub mod channel;
 pub mod constellation;
 pub mod eye_diagram;
 pub mod modulation;
+pub mod pdn;
 pub mod s_param;
 
 pub use ber::{BerCurve, BerPoint};
@@ -20,6 +21,7 @@ pub use channel::ChannelModel;
 pub use constellation::{ConstellationDataset, ConstellationPoint};
 pub use eye_diagram::{EyeDiagramDataset, EyeMetrics, EyeTraceWindow};
 pub use modulation::{IqSymbol, ModulationScheme, Modulator};
+pub use pdn::{DecapModel, PdnSolver, PdnTargetSpec, PowerPlaneCavity};
 pub use s_param::{Complex64, SParameterDataset, SParameters2Port};
 
 #[cfg(test)]

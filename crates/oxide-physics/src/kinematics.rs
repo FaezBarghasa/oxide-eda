@@ -69,6 +69,7 @@ impl Matrix4x4 {
         }
     }
 
+    #[allow(clippy::needless_range_loop)]
     pub fn multiply(&self, other: &Self) -> Self {
         let mut res = [[0.0; 4]; 4];
         for i in 0..4 {
