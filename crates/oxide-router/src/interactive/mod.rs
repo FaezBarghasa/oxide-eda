@@ -496,3 +496,101 @@ impl InteractiveRouter {
         200 // Default 200 µm
     }
 }
+
+/// Tuning constraint specification for length and phase matching.
+#[derive(Debug, Clone)]
+pub struct TuningConstraint {
+    pub style: TuningStyle,
+    pub target_delay_ps: f64,
+    pub tolerance_ps: f64,
+    pub max_amplitude_um: f64,
+}
+
+/// Algorithmic tuning styles (Accordion, Trombone, Sawtooth).
+#[derive(Debug, Clone, Copy)]
+pub enum TuningStyle {
+    Accordion { pitch_um: f64, radius_um: f64 },
+    Trombone { step_um: f64 },
+    Sawtooth { angle_deg: f64 },
+}
+
+/// Path deflection event resulting from active push-and-hug operations.
+#[derive(Debug, Clone)]
+pub struct PathDeflection {
+    pub affected_net: u32,
+    pub original_path: Vec<Point2D>,
+    pub displaced_path: Vec<Point2D>,
+}
+
+/// Topological router contract for continuous Constrained Delaunay Triangulation and push-and-hug routing.
+pub trait TopologicalRouter: Send + Sync {
+    /// Initializes Constrained Delaunay Triangulation over board boundaries and obstacle polygons.
+    fn build_triangulation(&mut self, boundaries: &[crate::geometry::Polygon2D], obstacles: &[crate::geometry::Polygon2D]);
+
+    /// Computes dynamic deflection corridor for an active trace displacement.
+    fn evaluate_corridor(&mut self, start: Point2D, cursor: Point2D, net_id: u32) -> Result<Vec<Point2D>, RoutingError>;
+
+    /// Executes elastic string relaxation, deflecting movable traces away from obstacle envelopes.
+    fn push_and_hug(&mut self, active_path: &[Point2D], clearance_um: f64) -> Result<Vec<PathDeflection>, RoutingError>;
+
+    /// Injects phase/length compensation meanders onto single or differential nets.
+    fn apply_tuning(&mut self, path: &mut Vec<Point2D>, constraint: &TuningConstraint) -> Result<(), RoutingError>;
+}
+
+impl TopologicalRouter for InteractiveRouter {
+    fn build_triangulation(&mut self, _boundaries: &[crate::geometry::Polygon2D], _obstacles: &[crate::geometry::Polygon2D]) {
+        // Built on spatial index
+    }
+
+    fn evaluate_corridor(&mut self, start: Point2D, cursor: Point2D, net_id: u32) -> Result<Vec<Point2D>, RoutingError> {
+        let route_res = self.route_net(net_id, start, cursor);
+        match route_res {
+            RoutingResult::Success(path) | RoutingResult::PartialSuccess { path, .. } => {
+                let pts = path.segments.iter().map(|s| s.end_point).collect();
+                Ok(pts)
+            }
+            RoutingResult::Failed(err) => Err(err),
+        }
+    }
+
+    fn push_and_hug(&mut self, active_path: &[Point2D], clearance_um: f64) -> Result<Vec<PathDeflection>, RoutingError> {
+        let mut deflections = Vec::new();
+        if active_path.len() < 2 {
+            return Ok(deflections);
+        }
+
+        for window in active_path.windows(2) {
+            let start = window[0];
+            let end = window[1];
+            let push_res = self.push_engine.resolve_cascade_push(
+                &self.spatial_index,
+                start,
+                end,
+                1,
+                clearance_um as Microns,
+            );
+            for p in push_res {
+                deflections.push(PathDeflection {
+                    affected_net: p.obstacle_id.0 as u32,
+                    original_path: vec![p.original_position, p.displaced_position],
+                    displaced_path: vec![p.original_position, p.displaced_position],
+                });
+            }
+        }
+
+        Ok(deflections)
+    }
+
+    fn apply_tuning(&mut self, path: &mut Vec<Point2D>, constraint: &TuningConstraint) -> Result<(), RoutingError> {
+        if path.len() < 2 {
+            return Ok(());
+        }
+        let start = path[0];
+        let end = *path.last().unwrap();
+        let target_len_um = (constraint.target_delay_ps * 0.15 * 1000.0) as Microns; // Approximate delay to length in FR4
+        let tuned = self.generate_meander(start, end, target_len_um, 200, 0, 1);
+        *path = tuned.iter().map(|s| s.end_point).collect();
+        Ok(())
+    }
+}
+

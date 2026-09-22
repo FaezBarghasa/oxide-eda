@@ -166,3 +166,77 @@ impl BoundingBox {
         }
     }
 }
+
+/// 2D Vector in routing space (f64 precision).
+#[derive(Debug, Clone, Copy, PartialEq, Default, Serialize, Deserialize)]
+pub struct Vector2D {
+    pub dx: f64,
+    pub dy: f64,
+}
+
+impl Vector2D {
+    pub const ZERO: Self = Self { dx: 0.0, dy: 0.0 };
+
+    pub fn new(dx: f64, dy: f64) -> Self {
+        Self { dx, dy }
+    }
+
+    pub fn from_points(from: Point2D, to: Point2D) -> Self {
+        Self {
+            dx: (to.x - from.x) as f64,
+            dy: (to.y - from.y) as f64,
+        }
+    }
+
+    pub fn length(&self) -> f64 {
+        (self.dx * self.dx + self.dy * self.dy).sqrt()
+    }
+
+    pub fn normalize(&self) -> Self {
+        let len = self.length();
+        if len > 1e-12 {
+            Self {
+                dx: self.dx / len,
+                dy: self.dy / len,
+            }
+        } else {
+            Self::ZERO
+        }
+    }
+}
+
+/// Closed 2D Polygon in routing space.
+#[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize)]
+pub struct Polygon2D {
+    pub vertices: Vec<Point2D>,
+}
+
+impl Polygon2D {
+    pub fn new(vertices: Vec<Point2D>) -> Self {
+        Self { vertices }
+    }
+
+    pub fn bounding_box(&self) -> BoundingBox {
+        BoundingBox::from_points(&self.vertices)
+    }
+
+    pub fn contains_point(&self, p: Point2D) -> bool {
+        if self.vertices.len() < 3 {
+            return false;
+        }
+        let mut inside = false;
+        let mut j = self.vertices.len() - 1;
+        for i in 0..self.vertices.len() {
+            let pi = self.vertices[i];
+            let pj = self.vertices[j];
+            if (pi.y > p.y) != (pj.y > p.y)
+                && (p.x < (pj.x - pi.x) * (p.y - pi.y) / (pj.y - pi.y + if pj.y == pi.y { 1 } else { 0 }) + pi.x)
+            {
+                inside = !inside;
+            }
+            j = i;
+        }
+        inside
+    }
+}
+

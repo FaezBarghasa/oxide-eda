@@ -18,8 +18,11 @@ pub use copper_pour::{
     CopperPourEngine, CopperZoneConfig, TeardropGenerator, ThermalReliefStyle, ThermalSpoke,
 };
 pub use geometry::rtree::{NetId, ObjectId, SpatialIndex, SpatialObject, SpatialObjectType};
-pub use geometry::{BoundingBox, Point2D};
-pub use interactive::{InteractiveRouter, RoutingMode};
+pub use geometry::{BoundingBox, Point2D, Polygon2D, Vector2D};
+pub use interactive::{
+    InteractiveRouter, PathDeflection, RoutingMode, TopologicalRouter, TuningConstraint,
+    TuningStyle,
+};
 pub use optimization::OptimizationEngine;
 pub use topology::TopologicalAutorouter;
 pub use workflow::{RoutingWorkflow, WorkflowResult};
