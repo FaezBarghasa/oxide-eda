@@ -215,6 +215,7 @@ mod tests {
             layers: vec!["F.Cu".to_string(), "B.Cu".to_string()],
             net: 1,
             via_type: ViaType::Through,
+            via_span: None,
         });
 
         let exporter = ExcellonExporter::new();
