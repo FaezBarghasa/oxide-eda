@@ -27,6 +27,8 @@ Oxide EDA uses a dual-layer serialization model designed for:
 | `.snxsym` | Schematic Symbol definition | TOML Envelope + TSV pin/shape definitions |
 | `.snxfp`  | PCB Footprint definition | TOML Envelope + TSV pad/shape definitions |
 | `.snxprj` | Project Manifest & Workspace Settings | Pure TOML Manifest with sheet/PCB file lists and rule references |
+| `.snxdraft` | Associative Manufacturing & Draftsman Document | TOML Manifest + drawing sheets, views, GD&T callouts, and drill tables |
+| `.snxwv`  | High-Throughput Binary Columnar Waveform Stream | Binary Columnar Container + LZ4/ZSTD chunked pages + decimation envelopes |
 
 ---
 
@@ -138,7 +140,69 @@ domain = "hierarchical_snippet"
 
 ---
 
-## 6. Precision, Units & Round-Trip Invariants
+## 6. Manufacturing & Drafting Document Format (`.snxdraft`)
+
+```toml
+format = "snxdraft/1"
+uuid = "0192a8c0-0020-7000-8000-000000000001"
+project_name = "Server_Motherboard_RevA"
+revision = "2.1"
+company = "Oxide Systems Inc."
+
+[[sheets]]
+sheet_number = 1
+title = "Fabrication Drawing & Drill Legend"
+size = "A3Landscape"
+
+[[sheets.views]]
+type = "FabricationView"
+title = "PRIMARY FABRICATION VIEW"
+pos_x_mm = 150.0
+pos_y_mm = 150.0
+scale = 1.0
+
+[[sheets.views]]
+type = "DrillLegend"
+pos_x_mm = 320.0
+pos_y_mm = 30.0
+
+[[sheets.dimensions]]
+type = "Ordinate"
+datum_x_mm = 0.0
+datum_y_mm = 0.0
+target_x_mm = 240.0
+target_y_mm = 180.0
+is_horizontal = true
+
+[[sheets.dimensions]]
+type = "GdtCallout"
+anchor_x_mm = 20.0
+anchor_y_mm = 20.0
+characteristic = "Position"
+tolerance_mm = 0.05
+datum_primary = "A"
+datum_secondary = "B"
+```
+
+---
+
+## 7. Out-of-Core Binary Waveform Stream Format (`.snxwv`)
+
+High-performance binary columnar container format with fast memory-mapped headers and LZ4 chunked pages:
+
+- **Magic Header (6 bytes):** `b"SNXWV1"`
+- **Fixed Metadata Block (64 bytes):**
+  - `sample_count: u64` (Little Endian)
+  - `channel_count: u32`
+  - `time_min_s: f64`
+  - `time_max_s: f64`
+  - `chunk_size_samples: u32` (typically 65,536 samples per page)
+- **Channel Descriptors Table:** Name strings, units (`V`, `A`, `W`, `deg`), and signal domains.
+- **Columnar Compressed Chunk Pages:** Sequential time and voltage arrays enabling direct sub-pixel min/max envelope decimation shaders without decompression of off-screen data.
+
+---
+
+## 8. Precision, Units & Round-Trip Invariants
 
 1. **Nanometer Coordinate Standard**: `1 mm = 1,000,000 nm`.
 2. **Zero-Loss Round-Trip**: Parsing a file and serializing it back must yield identical TSV and TOML content bit-for-bit (idempotent serialization).

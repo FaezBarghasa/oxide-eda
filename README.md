@@ -122,6 +122,20 @@ formats one-way. Run it once against your project; open the resulting
   in-app editor; menu labels sourced from the command table
 - **GPU schematic render path (v0.14)** — `oxide-gfx` aligned to iced's
   wgpu 27; schematic render module via the shader widget (feature-gated)
+- **In-Process MNA Sparse Matrix Solver (`oxide-sim`)** — Zero-heap Modified Nodal Analysis
+  solver with analytical Jacobians, adaptive Trapezoidal / Gear (BDF) integration, Milne LTE dynamic
+  timestep control, and 4-stage convergence recovery cascade ($G_{\text{min}}$ / source stepping / PTC)
+- **12-State Mixed-Signal Co-Simulation (`oxide-cosim`)** — IEEE 1164 9-state + decay/charge logic taxonomy,
+  continuous $\leftrightarrow$ discrete AtoD / DtoA gateways with Hermite trajectory interpolation,
+  and lockstep timestep synchronization
+- **Continuous Topological Routing & High-Speed Tuning (`oxide-router`)** — Constrained Delaunay
+  Triangulation (CDT), elastic string relaxation push-and-shove, Accordion / Trombone / Sawtooth length tuning
+- **Associative Manufacturing & "Draftsman" Engine (`oxide-output`)** — Parametric ASME Y14.5 / ISO 128
+  GD&T feature control frames, datum reference frames, live-updating grouped drill tables, and `.snxdraft` documents
+- **Multi-Stackup Rigid-Flex Kinematics (`oxide-physics`)** — Homogeneous $4 \times 4$ forward-kinematic
+  transformation chains across flexible bending lines with GJK / EPA 3D enclosure collision detection
+- **Power Delivery Network (PDN) Impedance Field Solver (`oxide-rf`)** — $Z_{\text{target}}$ synthesis,
+  planar cavity resonance modeling (DC to 10 GHz), and multi-decap RLC optimization
 
 **What's next:**
 

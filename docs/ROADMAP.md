@@ -45,12 +45,12 @@ Two of them placed different features at v1.4 and v1.5. A fourth axis
 Honesty first, because the previous revision of this document did not
 have this section and drifted six versions away from reality as a result.
 
-| Fact | State (2026-09-14) |
+| Fact | State (2026-09-22) |
 |------|--------------------|
-| Latest tagged release | **v0.16.0** (2026-09-14) |
+| Latest tagged release | **v0.16.0** |
 | `workspace.package.version` | **0.16.0** |
-| Latest CHANGELOG section | **0.16.0** — shipped 2026-09-14 |
-| Current work | Universal Multi-Arch MCU Simulation, External Memory Storage & FPGA Co-Simulation |
+| Latest CHANGELOG section | **0.16.0** — shipped |
+| Current work | Enterprise Altium & OrCAD PSpice Parity: MNA Sparse Solver, 12-State Mixed-Signal Co-Sim, Topological Router, Draftsman GD&T, Rigid-Flex Kinematics, PDN Solver |
 
 Phases 0–6 below (the original v0.1 → v0.8 schematic-editor plan) are
 **shipped**. The work since v0.9 — the Apache-clean native-format
