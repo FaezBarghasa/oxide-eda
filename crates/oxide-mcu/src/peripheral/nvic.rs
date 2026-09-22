@@ -78,6 +78,7 @@ impl Nvic {
         let mut highest_prio = u8::MAX;
 
         for (irq, line) in self.lines.iter().enumerate() {
+            #[allow(clippy::collapsible_if)]
             if line.enabled && line.pending && !line.active {
                 if self.basepri == 0 || line.priority < self.basepri {
                     if line.priority < highest_prio {

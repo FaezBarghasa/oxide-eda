@@ -64,8 +64,7 @@ impl SpiPeripheral {
             return 0xFF;
         }
         self.tx_fifo.push_back(tx_byte as u16);
-        let rx_byte = self.rx_fifo.pop_front().map(|v| v as u8).unwrap_or(0xFF);
-        rx_byte
+        self.rx_fifo.pop_front().map(|v| v as u8).unwrap_or(0xFF)
     }
 
     pub fn inject_rx(&mut self, val: u16) {
