@@ -5,7 +5,7 @@
 //! add/remove footprints, re-assign pins/pads, update designators).
 
 use std::collections::{HashMap, HashSet};
-use oxide_types::net::{Netlist, Terminal};
+use oxide_types::net::Netlist;
 use oxide_types::pcb::{Footprint, PadNet, PcbBoard, Point};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;

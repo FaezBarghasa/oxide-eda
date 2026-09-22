@@ -3,7 +3,7 @@
 
 pub mod canvas;
 
-use iced::widget::{Column, Row, Space, button, canvas as iced_canvas, container, row, scrollable, text};
+use iced::widget::{Column, Space, button, canvas as iced_canvas, container, row, scrollable, text};
 use iced::{Element, Length};
 use oxide_types::sim::WaveformDataset;
 use oxide_widgets::theme_ext;

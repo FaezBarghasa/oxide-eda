@@ -26,3 +26,6 @@ pub use eco::{EcoAction, EcoEngine, EcoReport};
 
 pub mod multichannel;
 pub use multichannel::{ChannelComponent, ChannelInstantiation, MultiChannelEngine};
+
+pub mod ratsnest;
+pub use ratsnest::{RatsnestEngine, RatsnestLine};

@@ -1,6 +1,6 @@
 //! Design Rule Check (DRC) panel implementation for Oxide EDA.
 
-use iced::widget::{Column, Row, Space, button, row, scrollable, text};
+use iced::widget::{Column, Space, button, row, scrollable, text};
 use iced::{Element, Length};
 use oxide_rules::RuleViolation;
 use oxide_widgets::theme_ext;

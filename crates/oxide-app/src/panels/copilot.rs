@@ -1,7 +1,7 @@
 //! AI Copilot panel implementation for Oxide EDA.
 //! Natural language circuit generation, part validation, and interactive design suggestions.
 
-use iced::widget::{Column, Row, Space, button, container, row, scrollable, text, text_input};
+use iced::widget::{Column, Space, button, container, row, scrollable, text, text_input};
 use iced::{Element, Length};
 use oxide_widgets::theme_ext;
 

@@ -1,7 +1,7 @@
 //! MCU & Network Protocol Console Panel for Oxide EDA.
 //! Renders Virtual UART Terminal, Live Embedded MQTT Inspector, Virtual Ethernet/Wi-Fi/BLE monitors, and Co-Sim controls.
 
-use iced::widget::{Column, Row, Space, button, container, row, scrollable, text, text_input};
+use iced::widget::{Column, Space, button, container, row, scrollable, text, text_input};
 use iced::{Element, Length};
 use oxide_widgets::theme_ext;
 

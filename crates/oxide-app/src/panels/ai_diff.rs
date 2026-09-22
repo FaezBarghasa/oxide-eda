@@ -1,7 +1,7 @@
 //! Visual Diff Review panel implementation for Oxide EDA.
 //! Side-by-side visual comparison and explicit engineer approval for AI-proposed changes.
 
-use iced::widget::{Column, Row, Space, button, container, row, scrollable, text};
+use iced::widget::{Column, Space, button, container, row, scrollable, text};
 use iced::{Element, Length};
 use oxide_widgets::theme_ext;
 

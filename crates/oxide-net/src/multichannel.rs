@@ -3,7 +3,6 @@
 //! Handles `Repeat(SheetName, StartIdx, EndIdx)` instantiation, channel-scoped net naming,
 //! component suffix assignment (`U1_CH1`, `U1_CH2`), and multi-channel bus breakout.
 
-use std::collections::HashMap;
 use oxide_types::net::{Net, NetId, Netlist, Terminal};
 use oxide_types::schematic::SchematicSheet;
 use serde::{Deserialize, Serialize};
