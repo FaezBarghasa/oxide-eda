@@ -131,11 +131,24 @@ oxide/
 │   ├── oxide-router/              # Interactive routing & topological autorouter (A*, Situs, Glossing)
 │   ├── oxide-compute/             # GPU-accelerated compute (wgpu WGSL & CPU Rayon for DRC, Thermal, FDTD, Congestion)
 │   ├── oxide-ai/                  # Signal AI copilot & LLM integration layer
+│   ├── oxide-ml/                  # Embedded pure-Rust ONNX inference engine (tract-onnx, learned routing heuristics)
+│   ├── oxide-sim/                 # Native SPICE & transient/AC simulation engine
+│   ├── oxide-rf/                  # RF & Telecommunications S-parameters, modulations & eye diagrams
+│   ├── oxide-mcu/                 # Virtual MCU architectures & peripheral/memory emulators
+│   ├── oxide-cosim/               # Universal multi-domain co-simulation & FPGA logic bridge
+│   ├── oxide-proto/               # High-speed protocol analyzer models (PCIe, USB, DDR5, I2C, SPI, UART)
+│   ├── oxide-cli/                 # Headless Hardware-as-Code CI/CD runner and validator
+│   ├── oxide-altium-importer/     # Altium Designer .SchDoc/.PcbDoc importer
 │   ├── oxide-sketch/              # Newton-LM constraint solver + sketch schema
 │   ├── oxide-bake/                # sketch → footprint bake pipeline
 │   ├── oxide-output/              # PDF / netlist / BOM export (+ oxide-bom)
 │   ├── oxide-renderer/            # domain types → render primitives (+ oxide-gfx)
 │   ├── oxide-library/             # .snxlib library model (+ oxide-library-server)
+│   ├── oxide-widgets/             # reusable iced widgets
+│   ├── oxide-3d-model-importer/   # STEP / WRL importer
+│   └── chrome-catalog/           # UI component catalog testbed
+└── docs/
+```l (+ oxide-library-server)
 │   ├── oxide-widgets/             # reusable iced widgets
 │   └── oxide-3d-model-importer/   # STEP / WRL importer
 └── docs/

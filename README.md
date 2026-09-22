@@ -158,30 +158,38 @@ formats one-way. Run it once against your project; open the resulting
 
 ## Architecture
 
-A 17-crate Rust workspace (`edition = 2024`), an acyclic DAG with
+A 30-crate Rust workspace (`edition = 2024`), an acyclic DAG with
 `oxide-app` at the apex and `oxide-types` as the shared foundation:
 
 ```
 oxide/
 ├── crates/
-│   ├── oxide-app/            # Main binary — iced 0.14 app (panels, dock, canvas, editors)
-│   ├── oxide-types/          # Domain types — schematic/PCB/layer/theme — NO rendering deps
-│   ├── oxide-engine/         # Command / patch / undo engine for schematic edits
-│   ├── oxide-net/            # Authoritative netlist + connectivity contract
-│   ├── oxide-erc/            # ERC rule engine (+ oxide-erc-dsl)
-│   ├── oxide-rules/          # Design rules & constraint validation engine
-│   ├── oxide-physics/        # Layer stackup, transmission lines, material physics
-│   ├── oxide-router/         # Interactive routing & topological autorouter (A*, Situs, Glossing)
-│   ├── oxide-compute/        # GPU-accelerated compute (wgpu WGSL & CPU Rayon for DRC, Thermal, FDTD, Congestion)
-│   ├── oxide-ml/             # Embedded pure-Rust ONNX inference engine (tract-onnx, learned routing heuristics)
-│   ├── oxide-ai/             # Signal AI copilot & LLM integration layer
-│   ├── oxide-sketch/         # Apache-clean Newton-LM constraint solver + sketch schema
-│   ├── oxide-bake/           # Sketch → footprint bake (pad / silk / courtyard / mask / …)
-│   ├── oxide-output/         # PDF / netlist / BOM export pipeline (+ oxide-bom)
-│   ├── oxide-renderer/       # Domain types → render primitives (+ oxide-gfx wgpu pipelines)
-│   ├── oxide-library/        # .snxlib component library — port/adapter model (+ oxide-library-server)
-│   ├── oxide-widgets/        # Reusable iced widgets (tree view, active bar, previews)
-│   └── oxide-3d-model-importer/  # STEP / WRL importer for 3D body attach
+│   ├── oxide-app/                 # Main binary — iced 0.14 app (panels, dock, canvas, editors)
+│   ├── oxide-types/               # Domain types — schematic/PCB/layer/theme — NO rendering deps
+│   ├── oxide-engine/              # Command / patch / undo engine for schematic edits
+│   ├── oxide-net/                 # Authoritative netlist + connectivity contract
+│   ├── oxide-erc/                 # ERC rule engine (+ oxide-erc-dsl)
+│   ├── oxide-rules/               # Design rules & constraint validation engine
+│   ├── oxide-physics/             # Layer stackup, transmission lines, material physics
+│   ├── oxide-router/              # Interactive routing & topological autorouter (A*, Situs, Glossing)
+│   ├── oxide-compute/             # GPU-accelerated compute (wgpu WGSL & CPU Rayon for DRC, Thermal, FDTD, Congestion)
+│   ├── oxide-ml/                  # Embedded pure-Rust ONNX inference engine (tract-onnx, learned routing heuristics)
+│   ├── oxide-ai/                  # Signal AI copilot & LLM integration layer
+│   ├── oxide-sim/                 # Native SPICE & transient/AC simulation engine
+│   ├── oxide-rf/                  # RF & Telecommunications S-parameters, modulations & eye diagrams
+│   ├── oxide-mcu/                 # Virtual MCU architectures & peripheral/memory emulators
+│   ├── oxide-cosim/               # Universal multi-domain co-simulation & FPGA logic bridge
+│   ├── oxide-proto/               # High-speed protocol analyzer models (PCIe, USB, DDR5, I2C, SPI, UART)
+│   ├── oxide-cli/                 # Headless Hardware-as-Code CI/CD runner and validator
+│   ├── oxide-altium-importer/     # Altium Designer .SchDoc/.PcbDoc importer
+│   ├── oxide-sketch/              # Apache-clean Newton-LM constraint solver + sketch schema
+│   ├── oxide-bake/                # Sketch → footprint bake (pad / silk / courtyard / mask / …)
+│   ├── oxide-output/              # PDF / netlist / BOM export pipeline (+ oxide-bom)
+│   ├── oxide-renderer/            # Domain types → render primitives (+ oxide-gfx wgpu pipelines)
+│   ├── oxide-library/             # .snxlib component library — port/adapter model (+ oxide-library-server)
+│   ├── oxide-widgets/             # Reusable iced widgets (tree view, active bar, previews)
+│   ├── oxide-3d-model-importer/   # STEP / WRL importer for 3D body attach
+│   └── chrome-catalog/           # UI component catalog testbed
 └── Cargo.toml
 ```
 
