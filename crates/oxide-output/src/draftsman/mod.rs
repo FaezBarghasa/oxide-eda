@@ -172,11 +172,12 @@ mod tests {
 
         let mut board = PcbBoard::default();
         board.vias.push(oxide_types::pcb::Via {
-            id: uuid::Uuid::new_v4(),
-            position: oxide_types::pcb::Point::new(0, 0),
-            net_id: None,
-            size_nm: 600_000,
-            drill_nm: 300_000,
+            uuid: uuid::Uuid::new_v4(),
+            position: oxide_types::pcb::Point::new(0.0, 0.0),
+            diameter: 0.6,
+            drill: 0.3,
+            layers: vec!["F.Cu".to_string(), "B.Cu".to_string()],
+            net: 0,
             via_type: oxide_types::pcb::ViaType::Through,
             via_span: None,
         });

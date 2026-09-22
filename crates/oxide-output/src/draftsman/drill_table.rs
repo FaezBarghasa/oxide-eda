@@ -139,7 +139,7 @@ mod tests {
         // Add 2 identical vias with 0.3mm drill
         board.vias.push(Via {
             uuid: Uuid::new_v4(),
-            position: Point::new(1000, 1000),
+            position: Point::new(1000.0, 1000.0),
             diameter: 0.6,
             drill: 0.3,
             layers: vec!["F.Cu".to_string(), "B.Cu".to_string()],
@@ -149,7 +149,7 @@ mod tests {
         });
         board.vias.push(Via {
             uuid: Uuid::new_v4(),
-            position: Point::new(2000, 2000),
+            position: Point::new(2000.0, 2000.0),
             diameter: 0.6,
             drill: 0.3,
             layers: vec!["F.Cu".to_string(), "B.Cu".to_string()],
@@ -164,7 +164,7 @@ mod tests {
             reference: "J1".to_string(),
             value: "CONN".to_string(),
             footprint_id: "HDR1".to_string(),
-            position: Point::new(0, 0),
+            position: Point::new(0.0, 0.0),
             rotation: 0.0,
             layer: "F.Cu".to_string(),
             locked: false,
@@ -177,8 +177,8 @@ mod tests {
             number: "1".to_string(),
             pad_type: PadType::Thru,
             shape: PadShape::Circle,
-            position: Point::new(5000, 5000),
-            size: Point::new(1600, 1600),
+            position: Point::new(5000.0, 5000.0),
+            size: Point::new(1600.0, 1600.0),
             drill: Some(DrillDef {
                 diameter: 1.0,
                 shape: "circle".to_string(),
