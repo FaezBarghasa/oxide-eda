@@ -131,10 +131,10 @@ impl OutputJobRunner {
                 format: BomFormat::Csv,
                 ..Default::default()
             };
-            if let Ok(bom_output) = bom_exp.export(ctx, &bom_opts) {
-                if let Ok(content_str) = String::from_utf8(bom_output.bytes) {
-                    pkg.add_text_file("bom/bill_of_materials.csv", &content_str);
-                }
+            if let Ok(bom_output) = bom_exp.export(ctx, &bom_opts)
+                && let Ok(content_str) = String::from_utf8(bom_output.bytes)
+            {
+                pkg.add_text_file("bom/bill_of_materials.csv", &content_str);
             }
         }
 

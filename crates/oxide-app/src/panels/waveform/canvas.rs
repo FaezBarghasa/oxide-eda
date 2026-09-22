@@ -119,7 +119,7 @@ impl<'a, Message> Program<Message, Theme, Renderer> for WaveformCanvas<'a> {
                     color: Color::from_rgba(0.6, 0.6, 0.6, 1.0),
                     size: iced::Pixels(12.0),
                     align_x: iced::alignment::Horizontal::Center.into(),
-                    align_y: iced::alignment::Vertical::Center.into(),
+                    align_y: iced::alignment::Vertical::Center,
                     ..Default::default()
                 });
                 return vec![frame.into_geometry()];
@@ -231,7 +231,7 @@ impl<'a, Message> Program<Message, Theme, Renderer> for WaveformCanvas<'a> {
                 color: axis_label_color,
                 size: iced::Pixels(9.0),
                 align_x: iced::alignment::Horizontal::Center.into(),
-                align_y: iced::alignment::Vertical::Top.into(),
+                align_y: iced::alignment::Vertical::Top,
                 ..Default::default()
             });
         }
@@ -249,56 +249,54 @@ impl<'a, Message> Program<Message, Theme, Renderer> for WaveformCanvas<'a> {
                 color: axis_label_color,
                 size: iced::Pixels(9.0),
                 align_x: iced::alignment::Horizontal::Right.into(),
-                align_y: iced::alignment::Vertical::Center.into(),
+                align_y: iced::alignment::Vertical::Center,
                 ..Default::default()
             });
         }
 
         // 4. Render Dual Measurement Cursors (Cursor A & Cursor B)
-        if let Some(ca) = self.cursor_a {
-            if ca >= x_min && ca <= x_max {
-                let px = plot_rect.x + ((ca - x_min) / x_span) as f32 * plot_rect.width;
-                let path = Path::line(
-                    Point::new(px, plot_rect.y),
-                    Point::new(px, plot_rect.y + plot_rect.height),
-                );
-                frame.stroke(
-                    &path,
-                    Stroke::default()
-                        .with_color(Color::from_rgb(0.9, 0.4, 0.1))
-                        .with_width(1.0),
-                );
-                frame.fill_text(canvas::Text {
-                    content: format!("A: {}", format_axis_value(ca, x_unit_suffix)),
-                    position: Point::new(px + 4.0, plot_rect.y + 4.0),
-                    color: Color::from_rgb(0.9, 0.4, 0.1),
-                    size: iced::Pixels(9.0),
-                    ..Default::default()
-                });
-            }
+        if let Some(ca) = self.cursor_a
+            && ca >= x_min && ca <= x_max {
+            let px = plot_rect.x + ((ca - x_min) / x_span) as f32 * plot_rect.width;
+            let path = Path::line(
+                Point::new(px, plot_rect.y),
+                Point::new(px, plot_rect.y + plot_rect.height),
+            );
+            frame.stroke(
+                &path,
+                Stroke::default()
+                    .with_color(Color::from_rgb(0.9, 0.4, 0.1))
+                    .with_width(1.0),
+            );
+            frame.fill_text(canvas::Text {
+                content: format!("A: {}", format_axis_value(ca, x_unit_suffix)),
+                position: Point::new(px + 4.0, plot_rect.y + 4.0),
+                color: Color::from_rgb(0.9, 0.4, 0.1),
+                size: iced::Pixels(9.0),
+                ..Default::default()
+            });
         }
 
-        if let Some(cb) = self.cursor_b {
-            if cb >= x_min && cb <= x_max {
-                let px = plot_rect.x + ((cb - x_min) / x_span) as f32 * plot_rect.width;
-                let path = Path::line(
-                    Point::new(px, plot_rect.y),
-                    Point::new(px, plot_rect.y + plot_rect.height),
-                );
-                frame.stroke(
-                    &path,
-                    Stroke::default()
-                        .with_color(Color::from_rgb(0.1, 0.7, 0.9))
-                        .with_width(1.0),
-                );
-                frame.fill_text(canvas::Text {
-                    content: format!("B: {}", format_axis_value(cb, x_unit_suffix)),
-                    position: Point::new(px + 4.0, plot_rect.y + 16.0),
-                    color: Color::from_rgb(0.1, 0.7, 0.9),
-                    size: iced::Pixels(9.0),
-                    ..Default::default()
-                });
-            }
+        if let Some(cb) = self.cursor_b
+            && cb >= x_min && cb <= x_max {
+            let px = plot_rect.x + ((cb - x_min) / x_span) as f32 * plot_rect.width;
+            let path = Path::line(
+                Point::new(px, plot_rect.y),
+                Point::new(px, plot_rect.y + plot_rect.height),
+            );
+            frame.stroke(
+                &path,
+                Stroke::default()
+                    .with_color(Color::from_rgb(0.1, 0.7, 0.9))
+                    .with_width(1.0),
+            );
+            frame.fill_text(canvas::Text {
+                content: format!("B: {}", format_axis_value(cb, x_unit_suffix)),
+                position: Point::new(px + 4.0, plot_rect.y + 16.0),
+                color: Color::from_rgb(0.1, 0.7, 0.9),
+                size: iced::Pixels(9.0),
+                ..Default::default()
+            });
         }
 
         vec![frame.into_geometry()]

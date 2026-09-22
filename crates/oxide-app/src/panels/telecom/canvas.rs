@@ -2,7 +2,7 @@
 
 use iced::mouse::Cursor;
 use iced::widget::canvas::{self, Geometry, Path, Program, Stroke};
-use iced::{Color, Point, Rectangle, Renderer, Size, Theme};
+use iced::{Color, Point, Rectangle, Renderer, Theme};
 use oxide_rf::constellation::ConstellationDataset;
 use oxide_rf::eye_diagram::EyeDiagramDataset;
 use oxide_rf::s_param::SParameterDataset;
@@ -10,7 +10,7 @@ use oxide_types::theme::ThemeTokens;
 
 #[derive(Default)]
 pub struct CanvasState {
-    cache: canvas::Cache,
+    pub _cache: canvas::Cache,
 }
 
 // -----------------------------------------------------------------------------
@@ -116,7 +116,7 @@ impl<'a, Message> Program<Message, Theme, Renderer> for SmithChartCanvas<'a> {
                 color: Color::from_rgba(0.6, 0.6, 0.6, 0.8),
                 size: iced::Pixels(11.0),
                 align_x: iced::alignment::Horizontal::Center.into(),
-                align_y: iced::alignment::Vertical::Center.into(),
+                align_y: iced::alignment::Vertical::Center,
                 ..Default::default()
             });
         }
@@ -197,7 +197,7 @@ impl<'a, Message> Program<Message, Theme, Renderer> for EyeDiagramCanvas<'a> {
                 color: Color::from_rgba(0.6, 0.6, 0.6, 0.8),
                 size: iced::Pixels(11.0),
                 align_x: iced::alignment::Horizontal::Center.into(),
-                align_y: iced::alignment::Vertical::Center.into(),
+                align_y: iced::alignment::Vertical::Center,
                 ..Default::default()
             });
         }
@@ -293,7 +293,7 @@ impl<'a, Message> Program<Message, Theme, Renderer> for ConstellationCanvas<'a> 
                 color: Color::from_rgba(0.6, 0.6, 0.6, 0.8),
                 size: iced::Pixels(11.0),
                 align_x: iced::alignment::Horizontal::Center.into(),
-                align_y: iced::alignment::Vertical::Center.into(),
+                align_y: iced::alignment::Vertical::Center,
                 ..Default::default()
             });
         }

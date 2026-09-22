@@ -169,13 +169,11 @@ impl ExcellonExporter {
         writeln!(out, "METRIC,LZ")?; // Metric millimeters, Leading zeros present
 
         // Tool Definitions
-        let mut tool_index = 1u32;
         let mut tool_ids: BTreeMap<i64, u32> = BTreeMap::new();
-        for &diam_nm in tool_map.keys() {
+        for (tool_index, &diam_nm) in (1u32..).zip(tool_map.keys()) {
             let diam_mm = diam_nm as f64 / 1_000_000.0;
             writeln!(out, "T{tool_index:02}C{diam_mm:.3}")?;
             tool_ids.insert(diam_nm, tool_index);
-            tool_index += 1;
         }
 
         writeln!(out, "%")?; // End of Header
