@@ -301,8 +301,9 @@ impl GlyphonTextPipeline {
             let attrs = attrs_for_item(text, family);
             let mut buffer = glyphon::Buffer::new(font_system, metrics);
 
-            buffer.set_size(Some(viewport_width), Some(viewport_height));
+            buffer.set_size(font_system, Some(viewport_width), Some(viewport_height));
             buffer.set_text(
+                font_system,
                 &text.content,
                 &attrs,
                 glyphon::Shaping::Advanced,
@@ -344,18 +345,27 @@ impl GlyphonTextPipeline {
                     scale: prepared.scale,
                     bounds: prepared.bounds,
                     default_color: prepared.default_color,
-                    custom_glyphs: &[],
                 });
 
-        self.text_renderer.prepare(
+        // cryoglyph's `prepare` uploads rasterized glyphs into the atlas
+        // texture through a `CommandEncoder` (glyphon 0.11 did this via the
+        // queue directly). This pipeline owns its device/queue, so it runs a
+        // dedicated encoder and submits it immediately.
+        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("oxide_gfx_text_prepare"),
+        });
+        let result = self.text_renderer.prepare(
             device,
             queue,
+            &mut encoder,
             font_system,
             &mut self.atlas,
             &self.viewport,
             text_areas,
             &mut self.swash_cache,
-        )
+        );
+        queue.submit(std::iter::once(encoder.finish()));
+        result
     }
 
     pub fn draw(
