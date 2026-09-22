@@ -89,7 +89,24 @@ pub enum PadShape {
 pub enum ViaType {
     Through,
     Blind,
+    Buried,
     Micro,
+}
+
+/// Physical layer span for HDI and multi-layer vias (Phase 1.1 / 4.4).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct ViaSpan {
+    pub start_layer: u8,
+    pub end_layer: u8,
+}
+
+impl ViaSpan {
+    pub fn new(start_layer: u8, end_layer: u8) -> Self {
+        Self {
+            start_layer,
+            end_layer,
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -269,6 +286,8 @@ pub struct Via {
     pub net: u32,
     #[serde(default = "default_via_type")]
     pub via_type: ViaType,
+    #[serde(default)]
+    pub via_span: Option<ViaSpan>,
 }
 
 fn default_via_type() -> ViaType {

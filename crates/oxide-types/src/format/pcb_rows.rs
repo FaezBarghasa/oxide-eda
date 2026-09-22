@@ -308,6 +308,7 @@ fn via_type_str(t: ViaType) -> &'static str {
     match t {
         ViaType::Through => "through",
         ViaType::Blind => "blind",
+        ViaType::Buried => "buried",
         ViaType::Micro => "micro",
     }
 }
@@ -315,6 +316,7 @@ fn via_type_str(t: ViaType) -> &'static str {
 fn parse_via_type(s: &str) -> ViaType {
     match s {
         "blind" => ViaType::Blind,
+        "buried" => ViaType::Buried,
         "micro" => ViaType::Micro,
         _ => ViaType::Through,
     }
