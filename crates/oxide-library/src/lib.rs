@@ -16,6 +16,7 @@ pub mod diff;
 pub mod distributor;
 #[cfg(feature = "distributors-community")]
 pub mod distributors;
+pub mod harvester;
 pub mod hash;
 pub mod identity;
 pub mod library_file;
@@ -24,13 +25,22 @@ pub mod manifest;
 pub mod manufacturer;
 pub mod param;
 pub mod primitive;
+pub mod qa;
 pub mod scraper;
 pub mod search;
 #[cfg(feature = "search-tantivy")]
 pub mod search_index;
+pub mod symbol;
 pub mod tables;
 pub mod templates;
 pub mod where_used;
+
+pub use harvester::{
+    BackoffConfig, ComponentHarvester, DiscoveredPin, ElectricalPinType, HarvestError,
+    HarvestQuery, HarvestedRawData, HarvesterCascade, PackageDimensions, TokenBucket,
+};
+pub use symbol::{GRID_100_MIL_MM, MultiGateSymbolGenerator, PartitioningStrategy};
+pub use qa::{GateVerificationError, VerificationEngine};
 
 pub use scraper::{
     ComponentScraper, PackageType, ScrapedComponent, synthesize_footprint, synthesize_symbol,
