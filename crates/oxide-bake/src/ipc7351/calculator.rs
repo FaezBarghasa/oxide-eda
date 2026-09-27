@@ -1,8 +1,5 @@
 use serde::{Deserialize, Serialize};
-use oxide_library::harvester::PackageDimensions;
-use oxide_library::primitive::footprint::{
-    FpGraphic, FpGraphicKind, FpPasteAperture, LayerId, Pad, PadKind, PadShape, Polygon,
-};
+use oxide_library::primitive::footprint::{FpPasteAperture, LayerId, Polygon};
 
 /// IPC-7351C Density Level target.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]

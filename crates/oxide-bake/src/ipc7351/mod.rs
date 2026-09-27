@@ -89,7 +89,7 @@ impl Ipc7351Generator {
             let side_pins = dims.pin_count / 4;
             let pitch = dims.lead_pitch_mm;
             let body_w_nom = dims.body_width_mm[1];
-            let body_l_nom = dims.body_length_mm[1];
+            let _body_l_nom = dims.body_length_mm[1];
 
             let solved = calculate_ipc7351c_pad(
                 dims.body_width_mm[0] + 2.0 * dims.lead_length_mm[0],
@@ -189,7 +189,6 @@ impl Ipc7351Generator {
             ]);
 
             // Silk Outline + Pin 1 marker
-            let silk_r = body_w_nom / 2.0 + 0.1;
             fp.silk_f.push(FpGraphic {
                 kind: FpGraphicKind::Circle {
                     center: [-offset - 0.5, span_start - 0.5],
@@ -202,8 +201,8 @@ impl Ipc7351Generator {
             // Dual inline / SOIC / SOP / SOT
             let half = dims.pin_count / 2;
             let pitch = dims.lead_pitch_mm;
-            let body_w_nom = dims.body_width_mm[1];
-            let body_l_nom = dims.body_length_mm[1];
+            let _body_w_nom = dims.body_width_mm[1];
+            let _body_l_nom = dims.body_length_mm[1];
 
             let solved = calculate_ipc7351c_pad(
                 dims.body_width_mm[0] + 2.0 * dims.lead_length_mm[0],
