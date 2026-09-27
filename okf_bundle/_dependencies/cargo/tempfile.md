@@ -11,9 +11,9 @@ tags:
   - "domain:oxide-app"
   - "git:branch:master"
   - "git:repo:oxide-eda"
-  - "version:3"
   - "manifest:Cargo.toml"
   - "ecosystem:cargo"
+  - "version:3"
 timestamp: "2026-09-22T07:37:17Z"
 concept_id: _dependencies/cargo/tempfile
 language: manifest

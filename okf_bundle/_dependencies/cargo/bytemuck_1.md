@@ -11,9 +11,9 @@ tags:
   - "domain:oxide-gfx"
   - "git:branch:master"
   - "git:repo:oxide-eda"
-  - "version:1"
   - "manifest:Cargo.toml"
   - "ecosystem:cargo"
+  - "version:1"
 timestamp: "2026-09-22T07:34:40Z"
 concept_id: _dependencies/cargo/bytemuck_1
 language: manifest

@@ -11,8 +11,8 @@ tags:
   - "domain:oxide-cli"
   - "git:branch:master"
   - "git:repo:oxide-eda"
-  - "manifest:Cargo.toml"
   - "version:4.5"
+  - "manifest:Cargo.toml"
   - "ecosystem:cargo"
 timestamp: "2026-09-19T04:19:23Z"
 concept_id: _dependencies/cargo/clap

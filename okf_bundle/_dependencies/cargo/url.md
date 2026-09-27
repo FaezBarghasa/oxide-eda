@@ -11,8 +11,8 @@ tags:
   - "domain:oxide-library"
   - "git:branch:master"
   - "git:repo:oxide-eda"
-  - "manifest:Cargo.toml"
   - "version:2"
+  - "manifest:Cargo.toml"
   - "ecosystem:cargo"
 timestamp: "2026-09-14T09:27:32Z"
 concept_id: _dependencies/cargo/url

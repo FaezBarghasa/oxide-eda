@@ -11,9 +11,9 @@ tags:
   - "domain:oxide-gfx"
   - "git:branch:master"
   - "git:repo:oxide-eda"
-  - "version:0.33.7"
   - "manifest:Cargo.toml"
   - "ecosystem:cargo"
+  - "version:0.33.7"
 timestamp: "2026-09-22T07:34:40Z"
 concept_id: _dependencies/cargo/glam
 language: manifest

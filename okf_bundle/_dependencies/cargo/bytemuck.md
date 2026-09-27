@@ -11,9 +11,9 @@ tags:
   - "domain:oxide-compute"
   - "git:branch:master"
   - "git:repo:oxide-eda"
-  - "version:1"
   - "manifest:Cargo.toml"
   - "ecosystem:cargo"
+  - "version:1"
 timestamp: "2026-09-18T19:56:20Z"
 concept_id: _dependencies/cargo/bytemuck
 language: manifest

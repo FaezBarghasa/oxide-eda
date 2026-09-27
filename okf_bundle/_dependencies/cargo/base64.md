@@ -11,8 +11,8 @@ tags:
   - "domain:oxide-3d-model-importer"
   - "git:branch:master"
   - "git:repo:oxide-eda"
-  - "version:0.23.1"
   - "manifest:Cargo.toml"
+  - "version:0.23.1"
   - "ecosystem:cargo"
 timestamp: "2026-09-14T09:12:49Z"
 concept_id: _dependencies/cargo/base64

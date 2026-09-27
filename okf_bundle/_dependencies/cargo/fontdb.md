@@ -11,8 +11,8 @@ tags:
   - "domain:oxide-app"
   - "git:branch:master"
   - "git:repo:oxide-eda"
-  - "manifest:Cargo.toml"
   - "version:0.24.0"
+  - "manifest:Cargo.toml"
   - "ecosystem:cargo"
 timestamp: "2026-09-22T07:37:17Z"
 concept_id: _dependencies/cargo/fontdb

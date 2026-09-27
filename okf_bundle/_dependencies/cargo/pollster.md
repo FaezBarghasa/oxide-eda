@@ -11,8 +11,8 @@ tags:
   - "domain:oxide-compute"
   - "git:branch:master"
   - "git:repo:oxide-eda"
-  - "version:1.0.1"
   - "manifest:Cargo.toml"
+  - "version:1.0.1"
   - "ecosystem:cargo"
 timestamp: "2026-09-18T19:56:20Z"
 concept_id: _dependencies/cargo/pollster

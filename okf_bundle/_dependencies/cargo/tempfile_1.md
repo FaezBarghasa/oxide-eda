@@ -11,9 +11,9 @@ tags:
   - "domain:oxide-altium-importer"
   - "git:branch:master"
   - "git:repo:oxide-eda"
-  - "version:3"
   - "manifest:Cargo.toml"
   - "ecosystem:cargo"
+  - "version:3"
 timestamp: "2026-09-19T06:36:02Z"
 concept_id: _dependencies/cargo/tempfile_1
 language: manifest

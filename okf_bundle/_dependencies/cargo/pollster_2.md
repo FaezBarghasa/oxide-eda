@@ -11,8 +11,8 @@ tags:
   - "domain:oxide-gfx"
   - "git:branch:master"
   - "git:repo:oxide-eda"
-  - "version:1.0.1"
   - "manifest:Cargo.toml"
+  - "version:1.0.1"
   - "ecosystem:cargo"
 timestamp: "2026-09-22T07:34:40Z"
 concept_id: _dependencies/cargo/pollster_2

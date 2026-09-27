@@ -12,8 +12,8 @@ tags:
   - "git:branch:master"
   - "git:repo:oxide-eda"
   - "manifest:Cargo.toml"
-  - "version:0.6"
   - "ecosystem:cargo"
+  - "version:0.6"
 timestamp: "2026-09-22T07:37:17Z"
 concept_id: _dependencies/cargo/wiremock
 language: manifest

@@ -11,9 +11,9 @@ tags:
   - "domain:oxide-ml"
   - "git:branch:master"
   - "git:repo:oxide-eda"
-  - "version:0.23.7"
   - "manifest:Cargo.toml"
   - "ecosystem:cargo"
+  - "version:0.23.7"
 timestamp: "2026-09-14T09:10:54Z"
 concept_id: _dependencies/cargo/tract-onnx
 language: manifest

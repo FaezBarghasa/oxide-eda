@@ -12,8 +12,8 @@ tags:
   - "git:branch:master"
   - "git:repo:oxide-eda"
   - "manifest:Cargo.toml"
-  - "version:0.17.2"
   - "ecosystem:cargo"
+  - "version:0.17.2"
 timestamp: "2026-09-14T09:10:54Z"
 concept_id: _dependencies/cargo/ndarray
 language: manifest

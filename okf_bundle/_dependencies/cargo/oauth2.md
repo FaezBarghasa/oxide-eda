@@ -11,9 +11,9 @@ tags:
   - "domain:oxide-library"
   - "git:branch:master"
   - "git:repo:oxide-eda"
-  - "version:5"
   - "manifest:Cargo.toml"
   - "ecosystem:cargo"
+  - "version:5"
 timestamp: "2026-09-14T09:27:32Z"
 concept_id: _dependencies/cargo/oauth2
 language: manifest

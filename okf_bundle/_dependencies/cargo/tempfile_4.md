@@ -11,9 +11,9 @@ tags:
   - "domain:oxide-3d-model-importer"
   - "git:branch:master"
   - "git:repo:oxide-eda"
-  - "version:3"
   - "manifest:Cargo.toml"
   - "ecosystem:cargo"
+  - "version:3"
 timestamp: "2026-09-14T09:12:49Z"
 concept_id: _dependencies/cargo/tempfile_4
 language: manifest
