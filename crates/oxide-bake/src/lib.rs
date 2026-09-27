@@ -15,9 +15,11 @@ pub mod array;
 pub mod body3d;
 pub mod courtyard;
 pub mod cutout;
+pub mod ipc7351;
 pub mod keepout;
 pub mod mask;
 pub mod pad;
+pub mod parametric;
 pub mod pour;
 pub mod profile;
 pub mod silk;
@@ -27,9 +29,14 @@ pub use array::bake_arrays;
 pub use body3d::bake_body3d;
 pub use courtyard::bake_courtyard;
 pub use cutout::bake_cutouts;
+pub use ipc7351::{
+    calculate_ipc7351c_pad, synthesize_thermal_paste_panes, DensityLevel, FilletTargets,
+    Ipc7351Generator, Package3DExtruder, SolvedPadGeometry,
+};
 pub use keepout::bake_keepouts;
 pub use mask::{bake_mask_excludes, bake_mask_openings, bake_paste_apertures};
 pub use pad::bake_pads;
+pub use parametric::{BakeError, FootprintSynthesizer, Ipc7351Synthesizer};
 pub use pour::bake_pours;
 pub use profile::{ARC_SAMPLES, TraceError, TraceResult, trace_closed_profile};
 pub use silk::bake_silk;
