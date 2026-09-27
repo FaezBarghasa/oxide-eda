@@ -1,0 +1,73 @@
+# mod
+
+## Classs
+
+- [AnnotateOrder](AnnotateOrder.md) — Order in which symbols are visited during Annotate. Mirrors Altium's
+- [BomPreviewState](BomPreviewState.md) — Live BOM preview state — the rolled-up table for the active project
+- [BomSidebarTab](BomSidebarTab.md) — Which sidebar tab is currently shown inside the BOM preview's
+- [ColumnResizeState](ColumnResizeState.md) — [derive(Debug, Clone, Copy)]
+- [DocumentState](DocumentState.md)
+- [ErrorNotice](ErrorNotice.md) — A user-visible error card: a short heading plus the detail line.
+- [KeymapRecorderState](KeymapRecorderState.md) — Chord-recorder overlay state for the Preferences ▸ Keyboard
+- [LoadedProject](LoadedProject.md) — One loaded project in the multi-project workspace. `path` is the
+- [ModalId](ModalId.md) — [derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+- [MoveSelectionState](MoveSelectionState.md) — Transient state for the Altium-style Move Selection dialog.
+- [NetColorCustomState](NetColorCustomState.md) — Custom net-colour picker state (Active Bar → Net Color → Custom).
+- [NetlistIncompletePrompt](NetlistIncompletePrompt.md) — #431 — pending "Export anyway (incomplete)?" prompt for netlist export.
+- [Oxide](Oxide.md)
+- [PdfPreviewTab](PdfPreviewTab.md) — Tabs inside the unified Export PDF modal — Preview is the
+- [PdfQuality](PdfQuality.md) — Output PDF resolution preset — Altium parity. Drives the Quality
+- [PendingGitCommit](PendingGitCommit.md) — v0.23 — One queued commit for the async git pipeline. Stays
+- [PreviewState](PreviewState.md) — Open-print-preview state — rasterised pages + which one is currently
+- [ProjectId](ProjectId.md) — Opaque identifier for a loaded project in the workspace. Assigned by
+- [ReorderPicker](ReorderPicker.md) — Kind of z-order picker currently armed. Drives the first-click
+- [WindowKind](WindowKind.md) — Role of a non-main window opened by Oxide. Phase 2 adds detached
+
+## Functions
+
+- [active_document_project](active_document_project.md) — Project that owns the *active document* — the scope for export, ERC,
+- [active_document_project](active_document_project_1.md) — Project that owns the *active document* — the scope for export, ERC,
+- [active_engine](active_engine.md)
+- [active_engine](active_engine_1.md)
+- [active_engine_mut](active_engine_mut.md)
+- [active_engine_mut](active_engine_mut_1.md)
+- [active_loaded_project](active_loaded_project.md) — Convenience: currently-active project. Returns `None` when the
+- [active_loaded_project](active_loaded_project_1.md) — Convenience: currently-active project. Returns `None` when the
+- [child_sheet_refs](child_sheet_refs.md) — `sheet path → the `filename` strings it references as child sheets`,
+- [child_sheet_refs](child_sheet_refs_1.md) — `sheet path → the `filename` strings it references as child sheets`,
+- [clear_active_engine](clear_active_engine.md) — Drop the engine for the active path. Used when closing the
+- [clear_active_engine](clear_active_engine_1.md) — Drop the engine for the active path. Used when closing the
+- [default](default.md)
+- [default](default_1.md)
+- [dir](dir.md) — The project's directory — the *one* convention for "where this
+- [dir](dir_1.md) — The project's directory — the *one* convention for "where this
+- [engine_for_window](engine_for_window.md) — Per-window engine lookup. Main window → the active tab's engine
+- [engine_for_window](engine_for_window_1.md) — Per-window engine lookup. Main window → the active tab's engine
+- [export](export.md) — An export deliverable (PDF, netlist, BOM) could not be produced.
+- [export](export_1.md) — An export deliverable (PDF, netlist, BOM) could not be produced.
+- [export_dpi](export_dpi.md) — DPI written to `PdfOptions.dpi` at export time. Vector content
+- [export_dpi](export_dpi_1.md) — DPI written to `PdfOptions.dpi` at export time. Vector content
+- [fmt](fmt.md)
+- [fmt](fmt_1.md)
+- [fmt](fmt_2.md)
+- [fmt](fmt_3.md)
+- [has_active_engine](has_active_engine.md)
+- [has_active_engine](has_active_engine_1.md)
+- [mint_project_id](mint_project_id.md) — Mint a fresh `ProjectId` and bump the counter. Never reuses ids.
+- [mint_project_id](mint_project_id_1.md) — Mint a fresh `ProjectId` and bump the counter. Never reuses ids.
+- [new](new.md)
+- [new](new_1.md)
+- [open](open.md) — A file could not be opened — unreadable, unparseable, or empty
+- [open](open_1.md) — A file could not be opened — unreadable, unparseable, or empty
+- [preview_dpi](preview_dpi.md) — DPI used to rasterise the on-screen preview. Capped well below
+- [preview_dpi](preview_dpi_1.md) — DPI used to rasterise the on-screen preview. Capped well below
+- [project_by_id](project_by_id.md)
+- [project_by_id](project_by_id_1.md)
+- [project_for_path](project_for_path.md) — Resolve the project that contains a file at this path. Used for
+- [project_for_path](project_for_path_1.md) — Resolve the project that contains a file at this path. Used for
+- [save](save.md) — A write failed, and the operation that needed it did not proceed.
+- [save](save_1.md) — A write failed, and the operation that needed it did not proceed.
+- [trigger_text](trigger_text.md)
+- [trigger_text](trigger_text_1.md)
+- [unowned_engine_paths](unowned_engine_paths.md) — Open engine paths that belong to no loaded project — the page set of a
+- [unowned_engine_paths](unowned_engine_paths_1.md) — Open engine paths that belong to no loaded project — the page set of a

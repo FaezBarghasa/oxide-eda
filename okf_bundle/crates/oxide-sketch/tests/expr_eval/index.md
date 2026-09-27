@@ -1,0 +1,44 @@
+# expr_eval
+
+## Functions
+
+- [bin](bin.md)
+- [ctx_with](ctx_with.md)
+- [eval_addition_unit_conversion](eval_addition_unit_conversion.md) — [test]
+- [eval_array_index_in_context](eval_array_index_in_context.md) — [test]
+- [eval_array_index_j](eval_array_index_j.md) — [test]
+- [eval_array_index_outside_errors](eval_array_index_outside_errors.md) — [test]
+- [eval_compare_cross_family_errors](eval_compare_cross_family_errors.md) — [test]
+- [eval_compare_eq_with_tolerance](eval_compare_eq_with_tolerance.md) — [test]
+- [eval_compare_returns_dimensionless](eval_compare_returns_dimensionless.md) — [test]
+- [eval_div_length_by_length_returns_count](eval_div_length_by_length_returns_count.md) — [test]
+- [eval_div_length_by_length_with_unit_conversion](eval_div_length_by_length_with_unit_conversion.md) — [test]
+- [eval_literal_mm](eval_literal_mm.md) — [test]
+- [eval_logical_and_or](eval_logical_and_or.md) — [test]
+- [eval_lookup_match](eval_lookup_match.md) — [test]
+- [eval_lookup_no_match_errors](eval_lookup_no_match_errors.md) — [test]
+- [eval_lookup_shape_mismatch](eval_lookup_shape_mismatch.md) — [test]
+- [eval_lookup_with_unit_conversion_in_keys](eval_lookup_with_unit_conversion_in_keys.md) — [test]
+- [eval_mod_length_by_length](eval_mod_length_by_length.md) — [test]
+- [eval_mul_length_times_count_keeps_length_unit](eval_mul_length_times_count_keeps_length_unit.md) — [test]
+- [eval_mul_length_times_length_errors](eval_mul_length_times_length_errors.md) — [test]
+- [eval_param_ref](eval_param_ref.md) — [test]
+- [eval_pow_dimensionless](eval_pow_dimensionless.md) — [test]
+- [eval_pow_length_to_one_is_identity](eval_pow_length_to_one_is_identity.md) — [test]
+- [eval_pow_length_to_two_errors](eval_pow_length_to_two_errors.md) — [test]
+- [eval_pow_with_unit_exponent_errors](eval_pow_with_unit_exponent_errors.md) — [test]
+- [eval_ref_chains_recursively](eval_ref_chains_recursively.md) — [test]
+- [eval_ternary_takes_else](eval_ternary_takes_else.md) — [test]
+- [eval_ternary_takes_then](eval_ternary_takes_then.md) — [test]
+- [eval_unary_neg](eval_unary_neg.md) — [test]
+- [eval_unary_not_on_nonzero_returns_zero](eval_unary_not_on_nonzero_returns_zero.md) — [test]
+- [eval_unary_not_on_unit_errors](eval_unary_not_on_unit_errors.md) — [test]
+- [eval_unary_not_on_zero_returns_one](eval_unary_not_on_zero_returns_one.md) — [test]
+- [eval_unit_mismatch_errors](eval_unit_mismatch_errors.md) — [test]
+- [eval_unknown_param_errors](eval_unknown_param_errors.md) — [test]
+- [lit](lit.md)
+- [lit_count](lit_count.md)
+- [lit_mm](lit_mm.md) — ---------------------------------------------------------------------
+- [r#ref](r_ref.md)
+- [ternary](ternary.md)
+- [una](una.md)

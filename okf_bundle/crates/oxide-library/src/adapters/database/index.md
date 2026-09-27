@@ -1,0 +1,75 @@
+# database
+
+## Classs
+
+- [DatabaseAdapter](DatabaseAdapter.md)
+
+## Functions
+
+- [auth](auth.md) — Apply the `Authorization: Bearer <token>` header when configured.
+- [auth](auth_1.md) — Apply the `Authorization: Bearer <token>` header when configured.
+- [base_url](base_url.md) — Borrow the configured base URL.
+- [base_url](base_url_1.md) — Borrow the configured base URL.
+- [delete_row](delete_row.md)
+- [delete_row](delete_row_1.md)
+- [encode_segment](encode_segment.md) — Percent-encode a single path segment per RFC 3986.
+- [encode_segment](encode_segment_1.md) — Percent-encode a single path segment per RFC 3986.
+- [encode_segment_escapes_path_breakers](encode_segment_escapes_path_breakers.md) — [test]
+- [encode_segment_handles_utf8](encode_segment_handles_utf8.md) — [test]
+- [encode_segment_passes_through_unreserved](encode_segment_passes_through_unreserved.md) — [test]
+- [from_snxlib](from_snxlib.md) — Construct from a [`SnxlibManifest`] — the v0.9 manifest shape.
+- [from_snxlib](from_snxlib_1.md) — Construct from a [`SnxlibManifest`] — the v0.9 manifest shape.
+- [from_snxlib_rejects_non_database_mode](from_snxlib_rejects_non_database_mode.md) — [test]
+- [from_snxlib_round_trips_database_mode](from_snxlib_round_trips_database_mode.md) — `from_snxlib` mirrors `LocalGitAdapter::init`'s manifest API
+- [get_footprint](get_footprint.md)
+- [get_footprint](get_footprint_1.md)
+- [get_primitive_json](get_primitive_json.md) — Generic GET → JSON for a primitive at `/{collection}/{uuid}`.
+- [get_primitive_json](get_primitive_json_1.md) — Generic GET → JSON for a primitive at `/{collection}/{uuid}`.
+- [get_sim](get_sim.md)
+- [get_sim](get_sim_1.md)
+- [get_symbol](get_symbol.md)
+- [get_symbol](get_symbol_1.md)
+- [holder](holder.md) — Borrow the holder identity (logged but never the bearer secret).
+- [holder](holder_1.md) — Borrow the holder identity (logged but never the bearer secret).
+- [insert_row](insert_row.md)
+- [insert_row](insert_row_1.md)
+- [iter_rows](iter_rows.md) — Composed from `list_tables` + `read_table` per plan §9 (the server
+- [iter_rows](iter_rows_1.md) — Composed from `list_tables` + `read_table` per plan §9 (the server
+- [library_id_query](library_id_query.md) — `library_id` query string segment used by every row/table call. The
+- [library_id_query](library_id_query_1.md) — `library_id` query string segment used by every row/table call. The
+- [list_footprints](list_footprints.md)
+- [list_footprints](list_footprints_1.md)
+- [list_primitives_json](list_primitives_json.md) — Generic GET → list at `/{collection}` returning [`PrimitiveSummary`].
+- [list_primitives_json](list_primitives_json_1.md) — Generic GET → list at `/{collection}` returning [`PrimitiveSummary`].
+- [list_sims](list_sims.md)
+- [list_sims](list_sims_1.md)
+- [list_symbols](list_symbols.md)
+- [list_symbols](list_symbols_1.md)
+- [list_tables](list_tables.md) — ── Row + table CRUD ─────────────────────────────────────────────────
+- [list_tables](list_tables_1.md) — ── Row + table CRUD ─────────────────────────────────────────────────
+- [manifest](manifest.md)
+- [manifest](manifest_1.md)
+- [new](new.md) — Construct from a manifest. The manifest's `auth` field is treated as
+- [new](new_1.md) — Construct from a manifest. The manifest's `auth` field is treated as
+- [post_primitive_json](post_primitive_json.md) — Generic POST primitive JSON to `/{collection}` with the supplied
+- [post_primitive_json](post_primitive_json_1.md) — Generic POST primitive JSON to `/{collection}` with the supplied
+- [read_row](read_row.md)
+- [read_row](read_row_1.md)
+- [read_row_by_pn](read_row_by_pn.md) — Linear scan via `iter_rows` — same composition rationale as
+- [read_row_by_pn](read_row_by_pn_1.md) — Linear scan via `iter_rows` — same composition rationale as
+- [read_table](read_table.md)
+- [read_table](read_table_1.md)
+- [save_footprint](save_footprint.md)
+- [save_footprint](save_footprint_1.md)
+- [save_sim](save_sim.md)
+- [save_sim](save_sim_1.md)
+- [save_symbol](save_symbol.md)
+- [save_symbol](save_symbol_1.md)
+- [synthesize_legacy_manifest](synthesize_legacy_manifest.md) — Build a legacy [`Manifest`] from the v0.9 [`SnxlibManifest`] header.
+- [update_row](update_row.md)
+- [update_row](update_row_1.md)
+- [url](url.md)
+- [url](url_1.md)
+- [with_token](with_token.md) — Explicit bearer-token + holder constructor.
+- [with_token](with_token_1.md) — Explicit bearer-token + holder constructor.
+- [with_token_round_trips_holder_and_url](with_token_round_trips_holder_and_url.md) — [test]

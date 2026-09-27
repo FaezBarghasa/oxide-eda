@@ -1,0 +1,9 @@
+# production_date_code_tests
+
+## Functions
+
+- [four_year_cycle_encodes_year_and_month_in_one_case_sensitive_character](four_year_cycle_encodes_year_and_month_in_one_case_sensitive_character.md) — [test]
+- [production_date_code_preserves_its_structured_inputs](production_date_code_preserves_its_structured_inputs.md) — [test]
+- [production_year_dropdown_starts_with_the_current_year](production_year_dropdown_starts_with_the_current_year.md) — [test]
+- [ten_year_cycle_uses_the_year_digit_and_distinct_last_quarter_letters](ten_year_cycle_uses_the_year_digit_and_distinct_last_quarter_letters.md) — [test]
+- [twenty_year_cycle_matches_the_documented_examples_and_month_letters](twenty_year_cycle_matches_the_documented_examples_and_month_letters.md) — [test]

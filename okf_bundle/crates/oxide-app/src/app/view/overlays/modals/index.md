@@ -1,0 +1,60 @@
+# modals
+
+## Functions
+
+- [annotate_dialog_overlay](annotate_dialog_overlay.md) — ── Detachable dialogs ───────────────────────────────────────────
+- [annotate_dialog_overlay](annotate_dialog_overlay_1.md) — ── Detachable dialogs ───────────────────────────────────────────
+- [annotate_reset_confirm_overlay](annotate_reset_confirm_overlay.md)
+- [annotate_reset_confirm_overlay](annotate_reset_confirm_overlay_1.md)
+- [app_quit_confirm_overlay](app_quit_confirm_overlay.md)
+- [app_quit_confirm_overlay](app_quit_confirm_overlay_1.md)
+- [close_library_confirm_overlay](close_library_confirm_overlay.md) — Close-Library — Unsaved Drafts confirm modal.
+- [close_library_confirm_overlay](close_library_confirm_overlay_1.md) — Close-Library — Unsaved Drafts confirm modal.
+- [command_palette_overlay](command_palette_overlay.md) — Command palette dropdown (Ctrl+Shift+P). Painted last so it sits
+- [command_palette_overlay](command_palette_overlay_1.md) — Command palette dropdown (Ctrl+Shift+P). Painted last so it sits
+- [create_options_overlay](create_options_overlay.md) — "Library Options" modal — pops between the New Library Save-As
+- [create_options_overlay](create_options_overlay_1.md) — "Library Options" modal — pops between the New Library Save-As
+- [delete_confirm_overlay](delete_confirm_overlay.md) — Delete Selected confirm modal (Deliverable D). First browser with
+- [delete_confirm_overlay](delete_confirm_overlay_1.md) — Delete Selected confirm modal (Deliverable D). First browser with
+- [document_options_overlay](document_options_overlay.md) — Tools ▸ Document Options modal — Altium SchLib parity.
+- [document_options_overlay](document_options_overlay_1.md) — Tools ▸ Document Options modal — Altium SchLib parity.
+- [edit_row_modal_overlay](edit_row_modal_overlay.md) — F25 (2026-05-03) — Edit Component Details modal removed. Row click
+- [edit_row_modal_overlay](edit_row_modal_overlay_1.md) — F25 (2026-05-03) — Edit Component Details modal removed. Row click
+- [enable_version_control_overlay](enable_version_control_overlay.md)
+- [enable_version_control_overlay](enable_version_control_overlay_1.md)
+- [erc_dialog_overlay](erc_dialog_overlay.md)
+- [erc_dialog_overlay](erc_dialog_overlay_1.md)
+- [find_replace_overlay](find_replace_overlay.md) — Find & Replace dialog.
+- [find_replace_overlay](find_replace_overlay_1.md) — Find & Replace dialog.
+- [first_run_tour_overlay](first_run_tour_overlay.md) — First-run onboarding tour overlay.
+- [first_run_tour_overlay](first_run_tour_overlay_1.md) — First-run onboarding tour overlay.
+- [grid_properties_overlay](grid_properties_overlay.md)
+- [grid_properties_overlay](grid_properties_overlay_1.md)
+- [keyboard_shortcuts_overlay](keyboard_shortcuts_overlay.md) — Keyboard-shortcuts reference modal.
+- [keyboard_shortcuts_overlay](keyboard_shortcuts_overlay_1.md) — Keyboard-shortcuts reference modal.
+- [library_picker_overlay](library_picker_overlay.md) — v0.9 Library — picker modal overlay. Centered card on a dim
+- [library_picker_overlay](library_picker_overlay_1.md) — v0.9 Library — picker modal overlay. Centered card on a dim
+- [library_recovery_overlay](library_recovery_overlay.md) — Library recovery dialog (Stage 10). Surfaces missing-snxlib,
+- [library_recovery_overlay](library_recovery_overlay_1.md) — Library recovery dialog (Stage 10). Surfaces missing-snxlib,
+- [library_updates_overlay](library_updates_overlay.md) — "Library Updates Available" modal (Stage 16 §3.5). Opened on
+- [library_updates_overlay](library_updates_overlay_1.md) — "Library Updates Available" modal (Stage 16 §3.5). Opened on
+- [modal_detached](modal_detached.md) — True while `modal` is showing in its own detached OS window rather
+- [modal_detached](modal_detached_1.md) — True while `modal` is showing in its own detached OS window rather
+- [new_component_overlay](new_component_overlay.md) — New Component modal was removed (v0.13); "Add Component" now
+- [new_component_overlay](new_component_overlay_1.md) — New Component modal was removed (v0.13); "Add Component" now
+- [passive_calculator_overlay](passive_calculator_overlay.md) — Tools > Passive Network Calculator modal.
+- [passive_calculator_overlay](passive_calculator_overlay_1.md) — Tools > Passive Network Calculator modal.
+- [preferences_overlay](preferences_overlay.md) — Preferences renders inline only if it hasn't been detached into
+- [preferences_overlay](preferences_overlay_1.md) — Preferences renders inline only if it hasn't been detached into
+- [primitive_picker_overlay](primitive_picker_overlay.md) — Primitive picker (Pick Symbol / Pick Footprint).
+- [primitive_picker_overlay](primitive_picker_overlay_1.md) — Primitive picker (Pick Symbol / Pick Footprint).
+- [project_close_confirm_overlay](project_close_confirm_overlay.md)
+- [project_close_confirm_overlay](project_close_confirm_overlay_1.md)
+- [project_options_overlay](project_options_overlay.md)
+- [project_options_overlay](project_options_overlay_1.md)
+- [remove_dialog_overlay](remove_dialog_overlay.md)
+- [remove_dialog_overlay](remove_dialog_overlay_1.md)
+- [rename_dialog_overlay](rename_dialog_overlay.md)
+- [rename_dialog_overlay](rename_dialog_overlay_1.md)
+- [selection_filter_custom_overlay](selection_filter_custom_overlay.md)
+- [selection_filter_custom_overlay](selection_filter_custom_overlay_1.md)

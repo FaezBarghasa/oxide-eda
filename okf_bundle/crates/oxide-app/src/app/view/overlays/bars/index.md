@@ -1,0 +1,42 @@
+# bars
+
+## Functions
+
+- [a_detached_print_preview_stops_blocking_the_main_windows_overlay_stack](a_detached_print_preview_stops_blocking_the_main_windows_overlay_stack.md) — #547 — the painter kept suppressing the whole overlay stack for a
+- [blank_preview](blank_preview.md) — A print preview with no pages — enough to set the state flag the
+- [bom_preview_overlay](bom_preview_overlay.md) — BOM preview overlay — same detach-first pattern as Print Preview.
+- [bom_preview_overlay](bom_preview_overlay_1.md) — BOM preview overlay — same detach-first pattern as Print Preview.
+- [clamp_symbol_menu_position](clamp_symbol_menu_position.md) — Clamp the symbol context menu's requested `(x, y)` so a
+- [clamp_symbol_menu_position](clamp_symbol_menu_position_1.md) — Clamp the symbol context menu's requested `(x, y)` so a
+- [detaching_the_net_colour_palette_does_not_unblock_the_custom_picker](detaching_the_net_colour_palette_does_not_unblock_the_custom_picker.md) — The filter is one term, not four. `net_color_custom` is the
+- [error_notice_overlay](error_notice_overlay.md) — Export-error modal — appears when PDF / netlist / BOM export
+- [error_notice_overlay](error_notice_overlay_1.md) — Export-error modal — appears when PDF / netlist / BOM export
+- [footprint_active_bar_overlay](footprint_active_bar_overlay.md) — v0.13 — footprint editor active bar (+ its dropdown overlay)
+- [footprint_active_bar_overlay](footprint_active_bar_overlay_1.md) — v0.13 — footprint editor active bar (+ its dropdown overlay)
+- [footprint_align_overlay](footprint_align_overlay.md) — #370 — "Align…" dialog for the footprint editor. Mounted at the
+- [footprint_align_overlay](footprint_align_overlay_1.md) — #370 — "Align…" dialog for the footprint editor. Mounted at the
+- [footprint_context_menu_overlay](footprint_context_menu_overlay.md) — v0.26 — right-click context menu overlay for the footprint
+- [footprint_context_menu_overlay](footprint_context_menu_overlay_1.md) — v0.26 — right-click context menu overlay for the footprint
+- [footprint_move_by_overlay](footprint_move_by_overlay.md) — v0.14 — typed-delta "Move Selection By X, Y…" modal for the
+- [footprint_move_by_overlay](footprint_move_by_overlay_1.md) — v0.14 — typed-delta "Move Selection By X, Y…" modal for the
+- [has_blocking_modal](has_blocking_modal.md) — True when a modal that must own the entire overlay stack is up —
+- [has_blocking_modal](has_blocking_modal_1.md) — True when a modal that must own the entire overlay stack is up —
+- [net_color_custom_overlay](net_color_custom_overlay.md) — Custom net-colour picker. Bespoke modal (not the iced_aw
+- [net_color_custom_overlay](net_color_custom_overlay_1.md) — Custom net-colour picker. Bespoke modal (not the iced_aw
+- [netlist_incomplete_prompt_overlay](netlist_incomplete_prompt_overlay.md) — #431 — netlist-incomplete "Export anyway?" prompt. Same modal idiom as
+- [netlist_incomplete_prompt_overlay](netlist_incomplete_prompt_overlay_1.md) — #431 — netlist-incomplete "Export anyway?" prompt. Same modal idiom as
+- [panel_list_overlay](panel_list_overlay.md) — v0.18.10 status-bar panel list popup. Anchored above the "Panels"
+- [panel_list_overlay](panel_list_overlay_1.md) — v0.18.10 status-bar panel list popup. Anchored above the "Panels"
+- [placement_paused_overlay](placement_paused_overlay.md) — Altium-style pause overlay: big centered "Placement Paused" card
+- [placement_paused_overlay](placement_paused_overlay_1.md) — Altium-style pause overlay: big centered "Placement Paused" card
+- [print_preview_overlay](print_preview_overlay.md) — Print preview overlay — Altium parity: opens as a separate OS
+- [print_preview_overlay](print_preview_overlay_1.md) — Print preview overlay — Altium parity: opens as a separate OS
+- [schematic_active_bar_overlay](schematic_active_bar_overlay.md) — Schematic Active Bar overlay — only painted on the main window,
+- [schematic_active_bar_overlay](schematic_active_bar_overlay_1.md) — Schematic Active Bar overlay — only painted on the main window,
+- [symbol_context_menu_overlay](symbol_context_menu_overlay.md) — Right-click context menu overlay for the symbol canvas. Mirrors
+- [symbol_context_menu_overlay](symbol_context_menu_overlay_1.md) — Right-click context menu overlay for the symbol canvas. Mirrors
+- [symbol_editor_active_bar_overlay](symbol_editor_active_bar_overlay.md) — v0.13 — symbol library editor active bar (+ its dropdown overlay)
+- [symbol_editor_active_bar_overlay](symbol_editor_active_bar_overlay_1.md) — v0.13 — symbol library editor active bar (+ its dropdown overlay)
+- [text_edit_overlay](text_edit_overlay.md) — In-canvas text-edit input — the floating `text_input` anchored on
+- [text_edit_overlay](text_edit_overlay_1.md) — In-canvas text-edit input — the floating `text_input` anchored on
+- [the_painter_and_the_esc_ladder_agree_about_a_detached_preview](the_painter_and_the_esc_ladder_agree_about_a_detached_preview.md) — The Esc ladder builds its own copy of this predicate from a

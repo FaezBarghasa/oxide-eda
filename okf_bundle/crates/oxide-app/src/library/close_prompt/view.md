@@ -1,0 +1,51 @@
+---
+okf_version: "0.2"
+type: Function
+title: view
+resource: crates/oxide-app/src/library/close_prompt.rs
+tags:
+  - "lang:rust"
+  - "type:Function"
+  - "module:crates"
+  - "domain:oxide-app"
+  - "git:branch:master"
+  - "git:repo:oxide-eda"
+timestamp: "2026-08-23T06:53:48Z"
+concept_id: crates/oxide-app/src/library/close_prompt/view
+language: rust
+---
+
+# view
+
+## Signature
+
+```rust
+pub fn view(
+    state: &'a LibraryState,
+    confirm: &'a CloseLibraryConfirmState,
+    tokens: &'a ThemeTokens,
+) -> Element<'a, LibraryMessage>
+```
+
+## Type Parameters
+
+- `'a`
+
+## Visibility
+
+- `pub`
+
+## Source
+Lines 26–121 in `crates/oxide-app/src/library/close_prompt.rs`
+
+## Relationships
+
+| Type | Target |
+|------|--------|
+| related | [close_prompt](/crates/oxide-app/src/library/close_prompt.md) |
+| calls | [text_primary](/crates/oxide-app/src/preferences/widgets/text_primary.md) |
+| calls | [text_secondary](/crates/oxide-widgets/src/theme_ext/text_secondary.md) |
+| calls | [border_color](/crates/oxide-widgets/src/theme_ext/border_color.md) |
+| calls | [modal_header_strip](/crates/oxide-app/src/styles/modal_header_strip.md) |
+| calls | [modal_footer_strip](/crates/oxide-app/src/styles/modal_footer_strip.md) |
+| calls | [modal_card](/crates/oxide-app/src/styles/modal_card.md) |

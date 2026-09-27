@@ -1,0 +1,45 @@
+---
+okf_version: "0.2"
+type: Function
+title: library_at
+description: Look up an open library by its on-disk root path.
+resource: crates/oxide-app/src/library/state/methods.rs
+tags:
+  - "lang:rust"
+  - "type:Function"
+  - "module:crates"
+  - "domain:oxide-app"
+  - "git:branch:master"
+  - "git:repo:oxide-eda"
+timestamp: "2026-08-23T06:55:33Z"
+concept_id: crates/oxide-app/src/library/state/methods/library_at_1
+language: rust
+---
+
+# library_at
+
+Look up an open library by its on-disk root path.
+
+## Signature
+
+```rust
+pub fn library_at(&self, path: &Path) -> Option<&OpenLibrary>
+```
+
+## Visibility
+
+- `pub`
+
+## Docstring
+
+Look up an open library by its on-disk root path.
+
+## Source
+Lines 71–73 in `crates/oxide-app/src/library/state/methods.rs`
+
+## Relationships
+
+| Type | Target |
+|------|--------|
+| related | [methods](/crates/oxide-app/src/library/state/methods.md) |
+| calls | [find](/crates/oxide-app/src/library/editor/symbol/context_menu/rows/find.md) |

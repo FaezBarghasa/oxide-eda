@@ -1,0 +1,45 @@
+---
+okf_version: "0.2"
+type: Function
+title: sym_editor_open_graphic_fill_advanced
+description: "Expand the graphic's fill picker into the HSV / RGB overlay. No"
+resource: crates/oxide-app/src/app/handlers/dock/sch_library/symbol.rs
+tags:
+  - "lang:rust"
+  - "type:Function"
+  - "module:crates"
+  - "domain:oxide-app"
+  - "git:branch:master"
+  - "git:repo:oxide-eda"
+timestamp: "2026-08-23T06:55:33Z"
+concept_id: crates/oxide-app/src/app/handlers/dock/sch_library/symbol/sym_editor_open_graphic_fill_advanced_1
+language: rust
+---
+
+# sym_editor_open_graphic_fill_advanced
+
+Expand the graphic's fill picker into the HSV / RGB overlay. No
+
+## Signature
+
+```rust
+pub(super) fn sym_editor_open_graphic_fill_advanced(&mut self, idx: usize) -> bool
+```
+
+## Visibility
+
+- `pub(super)`
+
+## Docstring
+
+Expand the graphic's fill picker into the HSV / RGB overlay. No
+dirty.
+
+## Source
+Lines 136–147 in `crates/oxide-app/src/app/handlers/dock/sch_library/symbol.rs`
+
+## Relationships
+
+| Type | Target |
+|------|--------|
+| related | [symbol](/crates/oxide-app/src/app/handlers/dock/sch_library/symbol.md) |

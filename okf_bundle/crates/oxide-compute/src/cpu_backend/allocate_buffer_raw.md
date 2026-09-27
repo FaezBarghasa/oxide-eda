@@ -1,0 +1,38 @@
+---
+okf_version: "0.2"
+type: Function
+title: allocate_buffer_raw
+resource: crates/oxide-compute/src/cpu_backend.rs
+tags:
+  - "lang:rust"
+  - "type:Function"
+  - "module:crates"
+  - "domain:oxide-compute"
+  - "git:branch:master"
+  - "git:repo:oxide-eda"
+timestamp: "2026-09-13T10:06:40Z"
+concept_id: crates/oxide-compute/src/cpu_backend/allocate_buffer_raw
+language: rust
+---
+
+# allocate_buffer_raw
+
+## Signature
+
+```rust
+impl CpuBackend { fn allocate_buffer_raw(
+        &mut self,
+        size_bytes: usize,
+        data: Option<&[u8]>,
+    ) -> Result<BufferId, ComputeError> }
+```
+
+## Source
+Lines 41–53 in `crates/oxide-compute/src/cpu_backend.rs`
+
+## Relationships
+
+| Type | Target |
+|------|--------|
+| related | [cpu_backend](/crates/oxide-compute/src/cpu_backend.md) |
+| calls | [BufferId](/crates/oxide-compute/src/backend/BufferId.md) |

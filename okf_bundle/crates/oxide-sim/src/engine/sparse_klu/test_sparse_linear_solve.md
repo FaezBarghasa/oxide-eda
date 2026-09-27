@@ -1,0 +1,44 @@
+---
+okf_version: "0.2"
+type: Function
+title: test_sparse_linear_solve
+description: "[test]"
+resource: crates/oxide-sim/src/engine/sparse_klu.rs
+tags:
+  - "lang:rust"
+  - "type:Function"
+  - "module:crates"
+  - "domain:oxide-sim"
+  - "git:branch:master"
+  - "git:repo:oxide-eda"
+timestamp: "2026-09-27T12:25:03Z"
+concept_id: crates/oxide-sim/src/engine/sparse_klu/test_sparse_linear_solve
+language: rust
+---
+
+# test_sparse_linear_solve
+
+[test]
+
+## Signature
+
+```rust
+fn test_sparse_linear_solve()
+```
+
+## Decorators
+
+- `test`
+
+## Docstring
+
+[test]
+
+## Source
+Lines 210–224 in `crates/oxide-sim/src/engine/sparse_klu.rs`
+
+## Relationships
+
+| Type | Target |
+|------|--------|
+| related | [sparse_klu](/crates/oxide-sim/src/engine/sparse_klu.md) |

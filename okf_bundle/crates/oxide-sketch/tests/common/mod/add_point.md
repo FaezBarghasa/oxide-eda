@@ -1,0 +1,37 @@
+---
+okf_version: "0.2"
+type: Function
+title: add_point
+resource: crates/oxide-sketch/tests/common/mod.rs
+tags:
+  - "lang:rust"
+  - "type:Function"
+  - "module:crates"
+  - "domain:oxide-sketch"
+  - "git:branch:master"
+  - "git:repo:oxide-eda"
+timestamp: "2026-08-23T06:53:48Z"
+concept_id: crates/oxide-sketch/tests/common/mod/add_point
+language: rust
+---
+
+# add_point
+
+## Signature
+
+```rust
+impl Sketch { pub fn add_point(&mut self, x: f64, y: f64) -> SketchEntityId }
+```
+
+## Visibility
+
+- `pub`
+
+## Source
+Lines 41–47 in `crates/oxide-sketch/tests/common/mod.rs`
+
+## Relationships
+
+| Type | Target |
+|------|--------|
+| related | [common](/crates/oxide-sketch/tests/common/mod.md) |

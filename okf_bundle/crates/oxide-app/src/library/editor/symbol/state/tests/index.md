@@ -1,0 +1,49 @@
+# tests
+
+## Functions
+
+- [add_pin_assigns_next_number](add_pin_assigns_next_number.md) — [test]
+- [add_pin_records_active_part](add_pin_records_active_part.md) — [test]
+- [arc_endpoint_handle_drag_survives_save_reload](arc_endpoint_handle_drag_survives_save_reload.md) — Dragging an arc endpoint handle into the lower half-plane yields a
+- [arc_symbol](arc_symbol.md) — --- Arc CCW-wraparound convention ---------------------------------------
+- [delete_pin_clears_selection_via_return](delete_pin_clears_selection_via_return.md) — [test]
+- [delete_selected_removes_graphic](delete_selected_removes_graphic.md) — [test]
+- [delete_unit_out_of_range_leaves_count_unchanged](delete_unit_out_of_range_leaves_count_unchanged.md) — [test]
+- [delete_unit_prunes_and_renumbers_graphics](delete_unit_prunes_and_renumbers_graphics.md) — [test]
+- [delete_unit_removes_and_renumbers](delete_unit_removes_and_renumbers.md) — [test]
+- [graphic_handle_position_returns_polygon_vertex](graphic_handle_position_returns_polygon_vertex.md) — [test]
+- [graphic_handle_position_returns_rectangle_corners](graphic_handle_position_returns_rectangle_corners.md) — [test]
+- [graphic_handles_returns_one_per_polygon_vertex](graphic_handles_returns_one_per_polygon_vertex.md) — [test]
+- [graphic_on_part_shared_and_scoped](graphic_on_part_shared_and_scoped.md) — [test]
+- [hit_test_filled_concave_polygon_excludes_the_notch](hit_test_filled_concave_polygon_excludes_the_notch.md) — [test]
+- [hit_test_filled_polygon_hits_interior_and_edge](hit_test_filled_polygon_hits_interior_and_edge.md) — [test]
+- [hit_test_graphic_handle_finds_polygon_vertex_when_selected](hit_test_graphic_handle_finds_polygon_vertex_when_selected.md) — A `PolygonVertex` handle only hit-tests when its polygon is the
+- [hit_test_graphic_handle_finds_rectangle_corner](hit_test_graphic_handle_finds_rectangle_corner.md) — [test]
+- [hit_test_graphic_handle_ignores_polygon_vertex_when_not_selected](hit_test_graphic_handle_ignores_polygon_vertex_when_not_selected.md) — An unselected polygon's vertices don't hit-test at all — a click
+- [hit_test_ignores_other_unit_pin](hit_test_ignores_other_unit_pin.md) — [test]
+- [hit_test_outlined_polygon_hits_edge_band_not_interior](hit_test_outlined_polygon_hits_edge_band_not_interior.md) — [test]
+- [hit_test_respects_active_part](hit_test_respects_active_part.md) — [test]
+- [hit_test_returns_graphic_inside_rectangle](hit_test_returns_graphic_inside_rectangle.md) — [test]
+- [hit_test_returns_pin](hit_test_returns_pin.md) — [test]
+- [max_part_number_defaults_to_one](max_part_number_defaults_to_one.md) — [test]
+- [max_part_number_ignores_part_zero](max_part_number_ignores_part_zero.md) — [test]
+- [move_graphic_handle_moves_line_endpoint](move_graphic_handle_moves_line_endpoint.md) — [test]
+- [move_graphic_handle_moves_polygon_vertex](move_graphic_handle_moves_polygon_vertex.md) — [test]
+- [move_graphic_handle_no_op_for_mismatched_variant](move_graphic_handle_no_op_for_mismatched_variant.md) — [test]
+- [move_graphic_handle_resizes_circle_radius](move_graphic_handle_resizes_circle_radius.md) — [test]
+- [move_selected_translates_polygon_by_centroid_delta](move_selected_translates_polygon_by_centroid_delta.md) — [test]
+- [move_selected_translates_rectangle_by_anchor_delta](move_selected_translates_rectangle_by_anchor_delta.md) — [test]
+- [move_selected_updates_position](move_selected_updates_position.md) — [test]
+- [polygon_centroid_averages_vertices](polygon_centroid_averages_vertices.md) — [test]
+- [polygon_centroid_falls_back_to_vertex_mean_for_a_bowtie](polygon_centroid_falls_back_to_vertex_mean_for_a_bowtie.md) — A degenerate ring (~zero signed area — a bowtie) falls back to the
+- [polygon_centroid_is_area_weighted_not_skewed_by_a_densely_subdivided_side](polygon_centroid_is_area_weighted_not_skewed_by_a_densely_subdivided_side.md) — A rectangle-as-polygon whose top side is densely subdivided into
+- [polygon_symbol](polygon_symbol.md) — --- Polygon graphic coverage --------------------------------------------
+- [rotate_selected_about_geometry_center_keeps_rectangle_center](rotate_selected_about_geometry_center_keeps_rectangle_center.md) — [test]
+- [rotate_selected_about_geometry_center_keeps_text_anchor_fixed](rotate_selected_about_geometry_center_keeps_text_anchor_fixed.md) — [test]
+- [rotate_selected_about_geometry_center_rotates_polygon_vertices](rotate_selected_about_geometry_center_rotates_polygon_vertices.md) — [test]
+- [rotate_selected_rotates_pin_orientation_in_place](rotate_selected_rotates_pin_orientation_in_place.md) — [test]
+- [rotate_selected_rotates_rectangle_clockwise_around_origin](rotate_selected_rotates_rectangle_clockwise_around_origin.md) — [test]
+- [rotated_wraparound_arc_hit_test_and_draw_sweep_agree](rotated_wraparound_arc_hit_test_and_draw_sweep_agree.md) — Rotating a 0°-crossing arc must keep hit-test and the CPU draw
+- [select_in_box_all_uses_visible_counts](select_in_box_all_uses_visible_counts.md) — [test]
+- [select_in_box_crossing_touches_polygon_bbox](select_in_box_crossing_touches_polygon_bbox.md) — [test]
+- [select_in_box_window_includes_polygon_by_bbox](select_in_box_window_includes_polygon_by_bbox.md) — [test]

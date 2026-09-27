@@ -1,0 +1,33 @@
+---
+okf_version: "0.2"
+type: Function
+title: label
+resource: crates/oxide-erc/src/context.rs
+tags:
+  - "lang:rust"
+  - "type:Function"
+  - "module:crates"
+  - "domain:oxide-erc"
+  - "git:branch:master"
+  - "git:repo:oxide-eda"
+timestamp: "2026-08-23T06:53:49Z"
+concept_id: crates/oxide-erc/src/context/label
+language: rust
+---
+
+# label
+
+## Signature
+
+```rust
+fn label(pos: Point, text: &str, label_type: LabelType) -> ErcLabel
+```
+
+## Source
+Lines 631–638 in `crates/oxide-erc/src/context.rs`
+
+## Relationships
+
+| Type | Target |
+|------|--------|
+| related | [context](/crates/oxide-erc/src/context.md) |

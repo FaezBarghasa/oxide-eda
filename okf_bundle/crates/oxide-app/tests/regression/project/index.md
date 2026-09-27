@@ -1,0 +1,48 @@
+# project
+
+## Functions
+
+- [a_corrupt_snxsym_raises_the_error_card_naming_the_file](a_corrupt_snxsym_raises_the_error_card_naming_the_file.md) — [test]
+- [a_valid_snxsym_leaves_the_error_card_clear](a_valid_snxsym_leaves_the_error_card_clear.md) — [test]
+- [add_existing_same_file_twice_is_silently_skipped](add_existing_same_file_twice_is_silently_skipped.md) — [test]
+- [add_existing_with_external_path_copies_into_project_dir](add_existing_with_external_path_copies_into_project_dir.md) — [test]
+- [add_new_schematic_cancelled_picker_is_a_clean_noop](add_new_schematic_cancelled_picker_is_a_clean_noop.md) — [test]
+- [add_new_schematic_writes_blank_snxsch_marks_project_dirty_no_tab_open](add_new_schematic_writes_blank_snxsch_marks_project_dirty_no_tab_open.md) — [test]
+- [app_exit_confirm_cancel_dismisses_modal_and_keeps_dirty_state](app_exit_confirm_cancel_dismisses_modal_and_keeps_dirty_state.md) — [test]
+- [app_exit_confirm_discard_all_clears_modal](app_exit_confirm_discard_all_clears_modal.md) — [test]
+- [app_exit_save_all_never_loses_an_unsaveable_file](app_exit_save_all_never_loses_an_unsaveable_file.md) — [test]
+- [app_exit_with_dirty_paths_opens_confirm_modal_instead_of_exiting](app_exit_with_dirty_paths_opens_confirm_modal_instead_of_exiting.md) — [test]
+- [app_exit_with_no_dirty_paths_does_not_open_confirm_modal](app_exit_with_no_dirty_paths_does_not_open_confirm_modal.md) — [test]
+- [arm_project_rename](arm_project_rename.md) — Open the rename modal targeting a project root.
+- [arm_remove_dialog](arm_remove_dialog.md) — Open the remove modal for a tree leaf.
+- [close_remove_dialog_dismisses_modal_without_filesystem_changes](close_remove_dialog_dismisses_modal_without_filesystem_changes.md) — [test]
+- [close_rename_dialog_dismisses_modal_without_filesystem_changes](close_rename_dialog_dismisses_modal_without_filesystem_changes.md) — [test]
+- [commit_save_to_project_git_enqueues_when_enable_git_on](commit_save_to_project_git_enqueues_when_enable_git_on.md) — [test]
+- [commit_save_to_project_git_skips_when_enable_git_off](commit_save_to_project_git_skips_when_enable_git_off.md) — [test]
+- [cut_leaves_non_cuttable_child_sheet_in_place_and_selected](cut_leaves_non_cuttable_child_sheet_in_place_and_selected.md) — [test]
+- [dismissing_the_card_clears_it](dismissing_the_card_clears_it.md) — [test]
+- [f10_save_clears_dirty_paths_and_refreshes_panel_ctx](f10_save_clears_dirty_paths_and_refreshes_panel_ctx.md) — [test]
+- [f10_save_persists_snxprj_as_valid_json](f10_save_persists_snxprj_as_valid_json.md) — [test]
+- [f13_register_pending_library_does_not_touch_disk](f13_register_pending_library_does_not_touch_disk.md) — [test]
+- [f13_register_pending_rejects_existing_path](f13_register_pending_rejects_existing_path.md) — [test]
+- [f13_register_pending_rejects_non_snxlib_extension](f13_register_pending_rejects_non_snxlib_extension.md) — [test]
+- [f6_project_rename_does_not_touch_companion_snxsch_snxpcb](f6_project_rename_does_not_touch_companion_snxsch_snxpcb.md) — [test]
+- [f6_project_rename_refuses_to_overwrite_existing_target](f6_project_rename_refuses_to_overwrite_existing_target.md) — [test]
+- [f6_project_rename_rejects_path_separators_in_buffer](f6_project_rename_rejects_path_separators_in_buffer.md) — [test]
+- [f6_project_rename_with_unchanged_stem_is_a_silent_noop](f6_project_rename_with_unchanged_stem_is_a_silent_noop.md) — [test]
+- [fixture_project_with_companions](fixture_project_with_companions.md) — Project skeleton: writes `<stem>.snxprj` + companion
+- [fixture_schematic_with_symbol_and_child_sheet](fixture_schematic_with_symbol_and_child_sheet.md) — A schematic engine with one plain `Symbol` (cuttable) and one
+- [loaded_project_data_round_trips_via_write_then_parse](loaded_project_data_round_trips_via_write_then_parse.md) — [test]
+- [new_project_over_existing_non_empty_snxprj_is_refused](new_project_over_existing_non_empty_snxprj_is_refused.md) — [test]
+- [opening_snxfpt_does_not_create_editable_tab_when_gated](opening_snxfpt_does_not_create_editable_tab_when_gated.md) — [test]
+- [opening_snxsym_still_creates_editable_tab](opening_snxsym_still_creates_editable_tab.md) — [test]
+- [oxide_new_constructs_with_default_state](oxide_new_constructs_with_default_state.md) — [test]
+- [project_git_commit_done_clears_inflight_entry](project_git_commit_done_clears_inflight_entry.md) — [test]
+- [project_options_modal_opens_with_metadata_then_closes](project_options_modal_opens_with_metadata_then_closes.md) — [test]
+- [project_rename_migrates_dirty_paths_to_new_path](project_rename_migrates_dirty_paths_to_new_path.md) — [test]
+- [remove_with_delete_choice_unlinks_the_file](remove_with_delete_choice_unlinks_the_file.md) — [test]
+- [remove_with_exclude_choice_keeps_the_file_on_disk](remove_with_exclude_choice_keeps_the_file_on_disk.md) — [test]
+- [rename_buffer_changed_updates_modal_buffer](rename_buffer_changed_updates_modal_buffer.md) — [test]
+- [save_all_writes_dirty_snxprj_and_clears_dirty_marker](save_all_writes_dirty_snxprj_and_clears_dirty_marker.md) — [test]
+- [write_valid_snxfpt](write_valid_snxfpt.md) — Write a valid single-footprint `.snxfpt` envelope to `path`.
+- [write_valid_snxsym](write_valid_snxsym.md) — Write a valid single-symbol `.snxsym` envelope to `path`.

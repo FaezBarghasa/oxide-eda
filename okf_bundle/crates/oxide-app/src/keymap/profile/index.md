@@ -1,0 +1,108 @@
+# profile
+
+## Classs
+
+- [BindingConflict](BindingConflict.md) — [derive(Debug, Clone, PartialEq, Eq)]
+- [BuiltInProfile](BuiltInProfile.md) — [derive(Debug, Clone, PartialEq, Eq)]
+- [CompiledBinding](CompiledBinding.md) — [derive(Debug, Clone, PartialEq, Eq, Hash)]
+- [CompiledKeymap](CompiledKeymap.md) — [derive(Debug, Clone, PartialEq, Eq, Hash)]
+- [KeyLookup](KeyLookup.md) — [derive(Debug, Clone, PartialEq, Eq)]
+- [ProfileLoadError](ProfileLoadError.md) — [derive(Debug)]
+- [RestoredProfiles](RestoredProfiles.md) — What a restore recovered out of a backup, and what it could not.
+- [ShortcutProfile](ShortcutProfile.md) — [derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+- [ShortcutProfileKind](ShortcutProfileKind.md) — [derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+- [ShortcutProfileSet](ShortcutProfileSet.md) — [derive(Debug, Clone, PartialEq, Eq)]
+- [TomlKeyboardShortcuts](TomlKeyboardShortcuts.md) — [derive(Debug, Serialize, Deserialize)]
+- [TomlKeyboardShortcutsConfig](TomlKeyboardShortcutsConfig.md) — [derive(Debug, Serialize, Deserialize)]
+- [TomlKeymapSection](TomlKeymapSection.md) — [derive(Debug, Serialize, Deserialize)]
+- [TomlOxideSettings](TomlOxideSettings.md) — [derive(Debug, Serialize, Deserialize)]
+- [TomlShortcutConfig](TomlShortcutConfig.md) — [derive(Debug, Serialize, Deserialize)]
+- [TomlShortcutProfile](TomlShortcutProfile.md) — [derive(Debug, Serialize, Deserialize)]
+
+## Functions
+
+- [active_profile](active_profile.md)
+- [active_profile](active_profile_1.md)
+- [active_profile_id](active_profile_id.md)
+- [active_profile_id](active_profile_id_1.md)
+- [active_profile_mut](active_profile_mut.md)
+- [active_profile_mut](active_profile_mut_1.md)
+- [apply_to](apply_to.md)
+- [apply_to](apply_to_1.md)
+- [apply_to_recovering](apply_to_recovering.md) — Apply the config, treating an unresolvable `active_profile` as
+- [apply_to_recovering](apply_to_recovering_1.md) — Apply the config, treating an unresolvable `active_profile` as
+- [back_up_profile_file](back_up_profile_file.md) — [`back_up_profile_file_at`] against the resolved user config path,
+- [back_up_profile_file_at](back_up_profile_file_at.md) — Copy the existing shortcuts file aside before a save that would
+- [backup_path_for](backup_path_for.md) — Sibling `.bak` path — appended to the WHOLE file name, so
+- [backup_profiles_path](backup_profiles_path.md) — The `.bak` sibling of the resolved shortcuts file, whether or not it
+- [built_ins](built_ins.md)
+- [built_ins](built_ins_1.md)
+- [compile](compile.md)
+- [compile](compile_1.md)
+- [compile_active](compile_active.md)
+- [compile_active](compile_active_1.md)
+- [config_path](config_path.md)
+- [config_path_for_dir](config_path_for_dir.md)
+- [conflicts](conflicts.md)
+- [conflicts](conflicts_1.md)
+- [context_depth](context_depth.md)
+- [copy_as_custom](copy_as_custom.md)
+- [copy_as_custom](copy_as_custom_1.md)
+- [default](default.md)
+- [default](default_1.md)
+- [delete_custom_profile](delete_custom_profile.md)
+- [delete_custom_profile](delete_custom_profile_1.md)
+- [discard_profile_backup_at](discard_profile_backup_at.md) — Delete a profile backup. Only ever called from an explicit user
+- [existing_backup_profiles_path](existing_backup_profiles_path.md) — [`backup_profiles_path`] filtered to a backup that is actually on
+- [export_custom_profile](export_custom_profile.md)
+- [export_custom_profiles](export_custom_profiles.md)
+- [fmt](fmt.md)
+- [fmt](fmt_1.md)
+- [free_aside_path](free_aside_path.md) — First free sibling name to move the live shortcuts file aside to
+- [from_binding](from_binding.md)
+- [from_binding](from_binding_1.md)
+- [from_profile](from_profile.md)
+- [from_profile](from_profile_1.md)
+- [from_profile](from_profile_2.md)
+- [from_profile](from_profile_3.md)
+- [from_profile_set](from_profile_set.md)
+- [from_profile_set](from_profile_set_1.md)
+- [id](id.md)
+- [id](id_1.md)
+- [import_custom_profile](import_custom_profile.md)
+- [insert_custom_profile](insert_custom_profile.md)
+- [insert_custom_profile](insert_custom_profile_1.md)
+- [into_bindings](into_bindings.md)
+- [into_bindings](into_bindings_1.md)
+- [into_profile](into_profile.md)
+- [into_profile](into_profile_1.md)
+- [into_profile](into_profile_2.md)
+- [into_profile](into_profile_3.md)
+- [load_profile_set](load_profile_set.md)
+- [load_profile_set_at](load_profile_set_at.md)
+- [lookup](lookup.md)
+- [lookup](lookup_1.md)
+- [matches_input](matches_input.md)
+- [matches_input](matches_input_1.md)
+- [new](new.md)
+- [new](new_1.md)
+- [parse](parse.md)
+- [parse](parse_1.md)
+- [parse](parse_2.md)
+- [parse](parse_3.md)
+- [profile](profile.md)
+- [profile](profile_1.md)
+- [profiles](profiles.md)
+- [profiles](profiles_1.md)
+- [read_backup_profiles_at](read_backup_profiles_at.md) — Read the profiles out of a backup file, through the normal loader.
+- [resolve_matched_command](resolve_matched_command.md)
+- [restore_profiles_at](restore_profiles_at.md) — Move the live shortcuts file aside to a free slot, then write `set`
+- [save_profile_set](save_profile_set.md)
+- [save_profile_set_at](save_profile_set_at.md) — Crash-safe: [`oxide_types::atomic_io::atomic_write`] writes to a temp
+- [set_active_profile](set_active_profile.md)
+- [set_active_profile](set_active_profile_1.md)
+- [shortcut_label](shortcut_label.md)
+- [shortcut_label](shortcut_label_1.md)
+- [validate](validate.md)
+- [validate](validate_1.md)
+- [validate_profile_id](validate_profile_id.md)
