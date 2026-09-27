@@ -8,14 +8,19 @@
 //! and component models into valid PSpice simulation decks, plus result parsers
 //! and mathematical analysis helpers.
 
+pub mod abm;
 pub mod analysis;
 pub mod deck;
 pub mod engine;
 pub mod parser;
 pub mod simulator;
 
+pub use abm::{AbmExpr, LaplaceTransferFunction};
 pub use analysis::{TraceStats, calculate_rise_time, calculate_stats};
 pub use deck::PSpiceDeckBuilder;
-pub use engine::{ConvergenceStage, InProcessMnaSolver, MnaSolver, StepTelemetry};
+pub use engine::{
+    ConvergenceCascade, ConvergenceStage, InProcessMnaSolver, IntegrationMethod, LteController,
+    MnaSolver, SparseMatrixCsc, StepTelemetry,
+};
 pub use parser::{parse_csdf, parse_spice_raw};
 pub use simulator::{NgSpiceSimulator, PSpiceCliSimulator, SimError, SimProgress, Simulator};

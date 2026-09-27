@@ -1,4 +1,7 @@
+pub mod bem_solver;
 pub mod clearance_3d;
+pub mod collision;
+pub mod dual_quat;
 pub mod hdi;
 pub mod impedance;
 pub mod kinematics;
@@ -6,9 +9,12 @@ pub mod material;
 pub mod stackup;
 pub mod units;
 
+pub use bem_solver::{BemBoundaryElement, BemFieldSolver, ExtractedTransmissionLine, TransmissionLineCrossSection};
 pub use clearance_3d::{
     Aabb3d, Body3d, ClearanceEngine3d, ClearanceViolation3d, Vec3,
 };
+pub use collision::{CollisionResult, ConvexPolytope, GjkEpaEngine};
+pub use dual_quat::{DualQuaternion, Quaternion};
 pub use hdi::{HdiError, ViaDefinition, ViaType, check_hdi_rules};
 pub use impedance::ImpedanceCalculator;
 pub use kinematics::{
@@ -20,3 +26,4 @@ pub use stackup::{CopperWeight, LayerDefinition, LayerStackup, LayerType};
 pub use units::{
     Microns, Nanometers, microns_to_mils, microns_to_mm, mils_to_microns, mm_to_microns,
 };
+

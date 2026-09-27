@@ -4,6 +4,14 @@
 //! supporting analytical Jacobians, four-stage automated convergence cascades,
 //! and adaptive local truncation error (LTE) step selection (Trapezoidal / Gear BDF).
 
+pub mod cascade;
+pub mod lte_stepper;
+pub mod sparse_klu;
+
+pub use cascade::ConvergenceCascade;
+pub use lte_stepper::{IntegrationMethod, LteController};
+pub use sparse_klu::SparseMatrixCsc;
+
 use thiserror::Error;
 
 #[derive(Error, Debug, Clone)]
@@ -20,7 +28,9 @@ pub enum SimError {
     Uninitialized,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ConvergenceStage {
     StandardNewtonRaphson,
     DampedLineSearch,
@@ -30,7 +40,7 @@ pub enum ConvergenceStage {
 }
 
 #[repr(C)]
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct StepTelemetry {
     pub achieved_dt: f64,
     pub iterations: u32,

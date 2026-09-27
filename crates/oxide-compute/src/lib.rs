@@ -4,6 +4,7 @@ pub mod cpu_backend;
 pub mod drc;
 pub mod signal;
 pub mod thermal;
+pub mod thermal_grid;
 pub mod wgpu_backend;
 
 pub use backend::{
@@ -14,6 +15,7 @@ pub use cpu_backend::CpuBackend;
 pub use drc::{DrcParams, GpuBBox, GpuDrcChecker, GpuViolation};
 pub use signal::{FdtdParams, FdtdSimulator, FieldCell};
 pub use thermal::{ThermalParams, ThermalResult, ThermalSimulator};
+pub use thermal_grid::{GridThermalMaterial, ThermalGrid3D};
 pub use wgpu_backend::WgpuBackend;
 
 /// Factory function to select and initialize the best available compute backend
