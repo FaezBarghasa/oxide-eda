@@ -26,6 +26,7 @@ Oxide EDA uses a dual-layer serialization model designed for:
 | `.snxblk` | Reusable Schematic / Layout Snippet | TOML Envelope + embedded `.snxsch` / `.snxpcb` payload |
 | `.snxsym` | Schematic Symbol definition | TOML Envelope + TSV pin/shape definitions |
 | `.snxfp`  | PCB Footprint definition | TOML Envelope + TSV pad/shape definitions |
+| `.snxlib` | Component Library Table Manifest & DBLib Row Database | TOML Manifest + TSV component table + primitive refs (`.snxsym`, `.snxfpt`, `.snxsim`) |
 | `.snxprj` | Project Manifest & Workspace Settings | Pure TOML Manifest with sheet/PCB file lists and rule references |
 | `.snxdraft` | Associative Manufacturing & Draftsman Document | TOML Manifest + drawing sheets, views, GD&T callouts, and drill tables |
 | `.snxwv`  | High-Throughput Binary Columnar Waveform Stream | Binary Columnar Container + LZ4/ZSTD chunked pages + decimation envelopes |

@@ -1405,7 +1405,7 @@ dependencies = [
 
 [[package]]
 name = "chrome-catalog"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "iced",
  "oxide-types",
@@ -5887,7 +5887,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-3d-model-importer"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "base64 0.23.1",
  "serde",
@@ -5899,7 +5899,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-ai"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "oxide-physics",
  "oxide-rules",
@@ -5911,7 +5911,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-altium-importer"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "byteorder",
  "chrono",
@@ -5928,7 +5928,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-app"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -5977,7 +5977,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-bake"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "oxide-library",
  "oxide-sketch",
@@ -5992,7 +5992,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-bom"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "oxide-types",
  "serde",
@@ -6000,7 +6000,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-cli"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "clap",
  "oxide-net",
@@ -6016,7 +6016,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-compute"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "bytemuck",
  "log",
@@ -6033,7 +6033,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-cosim"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "anyhow",
  "oxide-mcu",
@@ -6049,7 +6049,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-engine"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "anyhow",
  "oxide-net",
@@ -6061,7 +6061,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-erc"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "oxide-net",
  "oxide-types",
@@ -6071,7 +6071,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-erc-dsl"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "chumsky",
  "oxide-erc",
@@ -6082,7 +6082,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-gfx"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "bitflags 2.11.1",
  "bytemuck",
@@ -6099,7 +6099,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-library"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -6132,7 +6132,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-library-server"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "actix-cors",
  "actix-web",
@@ -6157,7 +6157,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-mcu"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "anyhow",
  "oxide-types",
@@ -6169,7 +6169,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-ml"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "log",
  "ndarray",
@@ -6185,7 +6185,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-net"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "oxide-types",
  "serde",
@@ -6194,7 +6194,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-output"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "chrono",
  "oxide-bom",
@@ -6211,7 +6211,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-physics"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "serde",
  "serde_json",
@@ -6220,7 +6220,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-proto"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "anyhow",
  "oxide-types",
@@ -6232,7 +6232,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-renderer"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "oxide-3d-model-importer",
  "oxide-gfx",
@@ -6245,7 +6245,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-rf"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "anyhow",
  "oxide-sim",
@@ -6257,7 +6257,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-router"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "oxide-ml",
  "oxide-physics",
@@ -6271,7 +6271,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-rules"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "oxide-physics",
  "serde",
@@ -6282,7 +6282,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-sim"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "oxide-library",
  "oxide-net",
@@ -6297,7 +6297,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-sketch"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "approx",
  "oxide-types",
@@ -6311,7 +6311,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-types"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "serde",
  "serde_json",
@@ -6323,7 +6323,7 @@ dependencies = [
 
 [[package]]
 name = "oxide-widgets"
-version = "0.16.0"
+version = "1.5.0"
 dependencies = [
  "chrono",
  "iced",

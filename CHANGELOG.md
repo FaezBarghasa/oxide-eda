@@ -18,6 +18,14 @@ Each release section is authored **before** the `vX.Y.Z` tag is created, so the 
 
 ## [Unreleased]
 
+### Added — Autonomous Component Harvester, Generative Ingest & IPC-7351C Synthesis (`oxide-library`, `oxide-bake`)
+
+- **Multi-Tier Harvester & Scraper Cascade (`oxide-library::harvester`)** — Autonomous discovery cascade with local SQLite caching, distributor REST APIs (DigiKey, Mouser, LCSC, JLCPCB), open hub connectors, web crawlers, and generative fallbacks. Features token bucket rate limiting (`TokenBucket`), jittered exponential backoff (`BackoffConfig`), and SHA-256 artifact deduplication.
+- **Procedural Multi-Gate Symbol Generator (`oxide-library::symbol`)** — Automatic multi-gate partitioning splitting homogeneous dual/quad op-amps and logic buffers into $K$ functional gates with shared/dedicated power units (Part 0), and heterogeneous ICs/MCUs by IO banks. Employs energy-minimizing spatial pin arrangement (Inputs on Left, Outputs on Right, Power on Top, Ground on Bottom), strict 100-mil ($2.54\,\text{mm}$) grid snapping, and active-low overbar/bubble styling.
+- **Mathematical IPC-7351C Footprint Synthesizer (`oxide-bake::ipc7351`, `oxide-bake::parametric`)** — Closed-form solder fillet land pattern generation ($Z_{\text{max}}, G_{\text{min}}, X, Y, C$) across Density Levels A (Most), B (Nominal), and C (Least). Implements solder mask radial clearance expansion ($+0.05\,\text{mm}$), thermal pad paste window-panning (subdivision into $M \times N$ apertures for $>2.0 \times 2.0\,\text{mm}$ pads achieving $60-70\%$ coverage), and courtyard bounding hulls.
+- **Procedural 3D B-Rep Package Extruder (`oxide-bake::ipc7351::extrusion_3d`)** — Automated procedural 3D package generation (`Package3DExtruder`) outputting embedded `Body3D` primitives and 3D Wavefront OBJ / B-Rep mesh data with Pin 1 orientation chamfer notches anchored to $(x=0, y=0, z=0)$.
+- **Senior QA Verification Engine (`oxide-library::qa`)** — Anti-hallucination verification suite enforcing `GATE-PIN-01` (100% bijective 1:1 mapping between symbol pins and footprint pads), `GATE-IPC-02` (minimum copper clearance $\ge 0.10\,\text{mm}$), and `GATE-STEP-03` (3D body height and coplanarity verification).
+
 ### Added — Telecommunications, RF & Signal Integrity Engine (`oxide-rf`, `oxide-app`)
 
 - **2-Port S-Parameter Network Analysis (`oxide-rf::s_param`)** — Complete 2-port scattering matrix analysis (`SParameters2Port`, `SParameterDataset`) supporting return loss, insertion loss, VSWR, normalized input impedance, and standard Touchstone v1.1 `.s2p` file export.

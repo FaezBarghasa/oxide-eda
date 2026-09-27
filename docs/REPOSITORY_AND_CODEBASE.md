@@ -274,6 +274,28 @@ Responsibilities:
 
 Design rules, stackup geometry, and electromagnetic physics calculations.
 
+### 5.9. `oxide-library`
+
+Component library subsystem, autonomous discovery harvester, and multi-gate symbol generator.
+
+Responsibilities:
+- `.snxlib` table persistence and DBLib row/primitive binding model
+- Multi-tier `HarvesterCascade` (Local SQLite cache, distributor REST APIs, open hubs, web crawlers)
+- Jittered exponential backoff and token bucket rate limiting
+- `MultiGateSymbolGenerator` with homogeneous op-amp/gate splitting, heterogeneous bank grouping, 100-mil grid quantization, and active-low overbar/bubble styling
+- Senior QA Verification Engine (`GATE-PIN-01` pin-to-pad bijection, `GATE-IPC-02` clearance invariants, `GATE-STEP-03` coplanarity)
+
+### 5.10. `oxide-bake`
+
+Parametric footprint synthesis, sketch-to-footprint compiler, and procedural 3D B-Rep engine.
+
+Responsibilities:
+- Mathematical IPC-7351C pad calculations ($Z_{\text{max}}, G_{\text{min}}, X, Y, C$) across Density Levels A (Most), B (Nominal), and C (Least)
+- Solder mask radial expansion ($+0.05\,\text{mm}$) and paste aperture window-panning ($60-70\%$ coverage) for thermal pads
+- Courtyard excess bounding polygon generation
+- `Package3DExtruder` procedural 3D package body synthesis with Pin 1 chamfer notch and $(0, 0, 0)$ centroid snapping
+- `FootprintSynthesizer` contract implementation
+
 > **Pre-v0.9 history:** earlier revisions of this document listed
 > `kicad-parser` and `kicad-writer` as Sections 5.5 and 5.6. Both crates
 > were removed from this workspace in v0.9 as part of the Apache-clean
