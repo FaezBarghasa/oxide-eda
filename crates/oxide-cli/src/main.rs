@@ -156,7 +156,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let pcb: PcbBoard = serde_json::from_str(&board_content)?;
 
             let pkg = oxide_output::export_odbpp_package(&pcb)?;
-            for file in pkg.files {
+            for file in &pkg.files {
                 let full_path = out_dir.join(&file.relative_path);
                 if let Some(parent) = full_path.parent() {
                     std::fs::create_dir_all(parent)?;

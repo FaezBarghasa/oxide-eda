@@ -30,29 +30,13 @@ fn empty_test_sheet() -> SchematicSheet {
 #[test]
 fn test_multi_channel_repeat_expansion() {
     let mut child_content = empty_test_sheet();
-    child_content.symbols.push(Symbol {
-        uuid: Uuid::new_v4(),
-        lib_id: "Device:R".to_string(),
-        reference: "R1".to_string(),
-        value: "10k".to_string(),
-        footprint: "Resistor_SMD:R_0603".to_string(),
-        datasheet: "".to_string(),
-        position: Point::new(10.0, 10.0),
-        rotation: 0.0,
-        mirror_x: false,
-        mirror_y: false,
-        unit: 1,
-        is_power: false,
-        ref_text: None,
-        val_text: None,
-        fields_autoplaced: false,
-        fields_user_placed: false,
-        dnp: false,
-        in_bom: true,
-        on_board: true,
-        exclude_from_sim: false,
-        fields: HashMap::new(),
-    });
+    let mut sym = Symbol::empty();
+    sym.lib_id = "Device:R".to_string();
+    sym.reference = "R1".to_string();
+    sym.value = "10k".to_string();
+    sym.footprint = "Resistor_SMD:R_0603".to_string();
+    sym.position = Point::new(10.0, 10.0);
+    child_content.symbols.push(sym);
 
     let child_sheet = ChildSheet {
         uuid: Uuid::new_v4(),

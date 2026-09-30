@@ -3,7 +3,6 @@
 //! Propagates electrical signal paths across series passives (termination resistors,
 //! AC coupling capacitors) and computes aggregate delay and length matching statistics.
 
-use std::collections::HashMap;
 use oxide_physics::Microns;
 use crate::geometry::rtree::NetId;
 
@@ -23,7 +22,7 @@ impl XSignal {
         Self {
             name: name.to_string(),
             sub_nets,
-            total_length: Microns(0),
+            total_length: 0,
             total_delay_ps: 0.0,
             package_delay_ps: 0.0,
         }
@@ -69,9 +68,9 @@ impl MatchedGroup {
     pub fn evaluate_status(&self, ps_per_mm: f64) -> MatchedGroupStatus {
         if self.signals.is_empty() {
             return MatchedGroupStatus {
-                min_length: Microns(0),
-                max_length: Microns(0),
-                delta: Microns(0),
+                min_length: 0,
+                max_length: 0,
+                delta: 0,
                 within_tolerance: true,
                 skew_ps: 0.0,
             };
@@ -91,7 +90,7 @@ impl MatchedGroup {
 
         let delta = max_l - min_l;
         let within_tolerance = delta <= self.tolerance;
-        let delta_mm = delta.0 as f64 / 1000.0;
+        let delta_mm = delta as f64 / 1000.0;
         let skew_ps = delta_mm * ps_per_mm;
 
         MatchedGroupStatus {
