@@ -19,9 +19,10 @@ pub use query_dsl::{
     ComparisonOp, PrimitiveEvaluationContext, QueryParser, QueryPredicate, QueryTargetType,
 };
 pub use rules::{
-    ClearanceRule, ComponentClearanceRule, DesignRule, DiffPairPhaseRule, HighSpeedRule,
-    NetAntennaRule, ObjectType, PolygonConnectRule, ReturnPathRule, RoutingLayerRule,
-    SilkscreenRule, SolderMaskRule, ViaStyleRule, WidthRule,
+    AnnularRingRule, ClearanceRule, ComponentClearanceRule, CreepageClearanceRule, DesignRule,
+    DiffPairPhaseRule, HighSpeedRule, HoleToHoleRule, NetAntennaRule, ObjectType,
+    PolygonConnectRule, ReturnPathRule, RoomPlacementRule, RoutingLayerRule, SilkscreenRule,
+    SolderMaskRule, ViaStyleRule, WidthRule,
 };
 pub use scope::RuleScope;
 pub use violation::{RuleViolation, RuleViolationType};

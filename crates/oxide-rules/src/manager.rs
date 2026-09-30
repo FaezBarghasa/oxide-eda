@@ -5,9 +5,10 @@ use serde::{Deserialize, Serialize};
 use oxide_physics::Microns;
 
 use crate::rules::{
-    ClearanceRule, ComponentClearanceRule, DesignRule, DiffPairPhaseRule, HighSpeedRule,
-    NetAntennaRule, PolygonConnectRule, ReturnPathRule, RoutingLayerRule, SilkscreenRule,
-    SolderMaskRule, ViaStyleRule, WidthRule,
+    AnnularRingRule, ClearanceRule, ComponentClearanceRule, CreepageClearanceRule, DesignRule,
+    DiffPairPhaseRule, HighSpeedRule, HoleToHoleRule, NetAntennaRule, PolygonConnectRule,
+    ReturnPathRule, RoomPlacementRule, RoutingLayerRule, SilkscreenRule, SolderMaskRule,
+    ViaStyleRule, WidthRule,
 };
 use crate::scope::RuleScope;
 use crate::violation::RuleViolation;
@@ -528,6 +529,195 @@ impl ConstraintManager {
                     actual_skew,
                     is_intra_pair,
                 ));
+            }
+        }
+        Ok(())
+    }
+
+    /// Resolve the most specific [`AnnularRingRule`] for a given net, net class, and room.
+    pub fn resolve_annular_ring_rule(
+        &self,
+        net: &str,
+        net_class: Option<&str>,
+        room: Option<&str>,
+    ) -> Option<&AnnularRingRule> {
+        let mut candidates: Vec<&AnnularRingRule> = self
+            .rules
+            .iter()
+            .filter_map(|r| match r {
+                DesignRule::AnnularRing(a) if a.scope.matches(net, net_class, room) => Some(a),
+                _ => None,
+            })
+            .collect();
+
+        candidates.sort_by_key(|a| std::cmp::Reverse(a.scope.specificity()));
+        candidates.first().copied()
+    }
+
+    /// Validate that a via or pad annular ring meets the minimum requirement.
+    #[allow(clippy::result_large_err)]
+    pub fn validate_annular_ring(
+        &self,
+        object_id: &str,
+        net: &str,
+        net_class: Option<&str>,
+        room: Option<&str>,
+        pad_diameter: Microns,
+        drill_diameter: Microns,
+    ) -> Result<(), RuleViolation> {
+        let actual_annular_ring = (pad_diameter.saturating_sub(drill_diameter)) / 2;
+        if let Some(rule) = self.resolve_annular_ring_rule(net, net_class, room)
+            && actual_annular_ring < rule.min_annular_ring
+        {
+            return Err(RuleViolation::annular_ring_too_small(
+                object_id,
+                rule.scope.clone(),
+                rule.min_annular_ring,
+                actual_annular_ring,
+            ));
+        }
+        Ok(())
+    }
+
+    /// Resolve the most specific [`CreepageClearanceRule`] for a given net, net class, and room.
+    pub fn resolve_creepage_rule(
+        &self,
+        net: &str,
+        net_class: Option<&str>,
+        room: Option<&str>,
+    ) -> Option<&CreepageClearanceRule> {
+        let mut candidates: Vec<&CreepageClearanceRule> = self
+            .rules
+            .iter()
+            .filter_map(|r| match r {
+                DesignRule::CreepageClearance(c) if c.scope.matches(net, net_class, room) => Some(c),
+                _ => None,
+            })
+            .collect();
+
+        candidates.sort_by_key(|c| std::cmp::Reverse(c.scope.specificity()));
+        candidates.first().copied()
+    }
+
+    /// Validate high-voltage creepage and air clearance between two nets.
+    #[allow(clippy::result_large_err)]
+    pub fn validate_creepage(
+        &self,
+        net_a: &str,
+        class_a: Option<&str>,
+        net_b: &str,
+        class_b: Option<&str>,
+        room: Option<&str>,
+        actual_distance: Microns,
+    ) -> Result<(), RuleViolation> {
+        let rule_a = self.resolve_creepage_rule(net_a, class_a, room);
+        let rule_b = self.resolve_creepage_rule(net_b, class_b, room);
+
+        let required = match (rule_a, rule_b) {
+            (Some(a), Some(b)) => {
+                if a.min_creepage_microns >= b.min_creepage_microns {
+                    (a.min_creepage_microns, a.working_voltage_v, a.scope.clone())
+                } else {
+                    (b.min_creepage_microns, b.working_voltage_v, b.scope.clone())
+                }
+            }
+            (Some(a), None) => (a.min_creepage_microns, a.working_voltage_v, a.scope.clone()),
+            (None, Some(b)) => (b.min_creepage_microns, b.working_voltage_v, b.scope.clone()),
+            (None, None) => return Ok(()),
+        };
+
+        if actual_distance < required.0 {
+            return Err(RuleViolation::creepage_violation(
+                net_a,
+                net_b,
+                required.2,
+                required.0,
+                actual_distance,
+                required.1,
+            ));
+        }
+
+        Ok(())
+    }
+
+    /// Resolve the most specific [`HoleToHoleRule`].
+    pub fn resolve_hole_to_hole_rule(
+        &self,
+        net: &str,
+        net_class: Option<&str>,
+        room: Option<&str>,
+    ) -> Option<&HoleToHoleRule> {
+        let mut candidates: Vec<&HoleToHoleRule> = self
+            .rules
+            .iter()
+            .filter_map(|r| match r {
+                DesignRule::HoleToHole(h) if h.scope.matches(net, net_class, room) => Some(h),
+                _ => None,
+            })
+            .collect();
+
+        candidates.sort_by_key(|h| std::cmp::Reverse(h.scope.specificity()));
+        candidates.first().copied()
+    }
+
+    /// Validate hole-to-hole edge clearance to prevent drill breakout.
+    #[allow(clippy::result_large_err)]
+    pub fn validate_hole_to_hole(
+        &self,
+        hole_a: &str,
+        net_a: &str,
+        hole_b: &str,
+        net_b: &str,
+        room: Option<&str>,
+        actual_edge_distance: Microns,
+    ) -> Result<(), RuleViolation> {
+        let rule_a = self.resolve_hole_to_hole_rule(net_a, None, room);
+        let rule_b = self.resolve_hole_to_hole_rule(net_b, None, room);
+
+        let required = match (rule_a, rule_b) {
+            (Some(a), Some(b)) => {
+                if a.min_hole_spacing >= b.min_hole_spacing {
+                    (a.min_hole_spacing, a.scope.clone())
+                } else {
+                    (b.min_hole_spacing, b.scope.clone())
+                }
+            }
+            (Some(a), None) => (a.min_hole_spacing, a.scope.clone()),
+            (None, Some(b)) => (b.min_hole_spacing, b.scope.clone()),
+            (None, None) => return Ok(()),
+        };
+
+        if actual_edge_distance < required.0 {
+            return Err(RuleViolation::hole_to_hole_too_small(
+                hole_a,
+                hole_b,
+                required.1,
+                required.0,
+                actual_edge_distance,
+            ));
+        }
+
+        Ok(())
+    }
+
+    /// Validate that a component belongs inside its assigned Room.
+    #[allow(clippy::result_large_err)]
+    pub fn validate_room_containment(
+        &self,
+        designator: &str,
+        actual_room: Option<&str>,
+    ) -> Result<(), RuleViolation> {
+        for rule in &self.rules {
+            if let DesignRule::RoomPlacement(rp) = rule {
+                if rp.component_designators.iter().any(|d| d == designator) {
+                    if actual_room != Some(&rp.room_name) {
+                        return Err(RuleViolation::room_placement_violation(
+                            designator,
+                            &rp.room_name,
+                            actual_room,
+                        ));
+                    }
+                }
             }
         }
         Ok(())

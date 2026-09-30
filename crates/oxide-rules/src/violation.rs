@@ -23,6 +23,10 @@ pub enum RuleViolationType {
     ComponentClearanceViolation,
     UnpermittedRoutingLayer,
     PhaseSkewViolation,
+    AnnularRingTooSmall,
+    CreepageViolation,
+    HoleToHoleTooSmall,
+    RoomPlacementViolation,
 }
 
 /// Detailed design rule violation report with actionable delta metrics.
@@ -228,6 +232,91 @@ impl RuleViolation {
             actual_value: format!("{act_mm:.3}mm"),
             location: None,
             object_ids: vec![pair_or_bus.to_string()],
+        }
+    }
+
+    pub fn annular_ring_too_small(
+        object_id: &str,
+        scope: RuleScope,
+        min_annular_ring_microns: i64,
+        actual_annular_ring_microns: i64,
+    ) -> Self {
+        let req_mm = min_annular_ring_microns as f64 / 1000.0;
+        let act_mm = actual_annular_ring_microns as f64 / 1000.0;
+        Self {
+            violation_type: RuleViolationType::AnnularRingTooSmall,
+            message: format!(
+                "Annular ring violation on '{object_id}': annular ring is {act_mm:.3}mm ({actual_annular_ring_microns}µm), rule requires minimum {req_mm:.3}mm ({min_annular_ring_microns}µm)"
+            ),
+            scope,
+            required_value: format!("{req_mm:.3}mm"),
+            actual_value: format!("{act_mm:.3}mm"),
+            location: None,
+            object_ids: vec![object_id.to_string()],
+        }
+    }
+
+    pub fn creepage_violation(
+        net_a: &str,
+        net_b: &str,
+        scope: RuleScope,
+        min_creepage_microns: i64,
+        actual_distance_microns: i64,
+        voltage_v: f64,
+    ) -> Self {
+        let req_mm = min_creepage_microns as f64 / 1000.0;
+        let act_mm = actual_distance_microns as f64 / 1000.0;
+        Self {
+            violation_type: RuleViolationType::CreepageViolation,
+            message: format!(
+                "High-voltage creepage violation between '{net_a}' and '{net_b}' ({voltage_v:.0}V): surface distance is {act_mm:.3}mm ({actual_distance_microns}µm), rule requires minimum {req_mm:.3}mm ({min_creepage_microns}µm)"
+            ),
+            scope,
+            required_value: format!("{req_mm:.3}mm"),
+            actual_value: format!("{act_mm:.3}mm"),
+            location: None,
+            object_ids: vec![net_a.to_string(), net_b.to_string()],
+        }
+    }
+
+    pub fn hole_to_hole_too_small(
+        hole_a: &str,
+        hole_b: &str,
+        scope: RuleScope,
+        min_spacing_microns: i64,
+        actual_spacing_microns: i64,
+    ) -> Self {
+        let req_mm = min_spacing_microns as f64 / 1000.0;
+        let act_mm = actual_spacing_microns as f64 / 1000.0;
+        Self {
+            violation_type: RuleViolationType::HoleToHoleTooSmall,
+            message: format!(
+                "Hole-to-hole spacing violation between '{hole_a}' and '{hole_b}': edge distance is {act_mm:.3}mm ({actual_spacing_microns}µm), rule requires minimum {req_mm:.3}mm ({min_spacing_microns}µm)"
+            ),
+            scope,
+            required_value: format!("{req_mm:.3}mm"),
+            actual_value: format!("{act_mm:.3}mm"),
+            location: None,
+            object_ids: vec![hole_a.to_string(), hole_b.to_string()],
+        }
+    }
+
+    pub fn room_placement_violation(
+        designator: &str,
+        target_room: &str,
+        actual_room: Option<&str>,
+    ) -> Self {
+        let act_str = actual_room.unwrap_or("outside all rooms");
+        Self {
+            violation_type: RuleViolationType::RoomPlacementViolation,
+            message: format!(
+                "Room placement violation: component '{designator}' is assigned to room '{target_room}' but located in '{act_str}'"
+            ),
+            scope: RuleScope::Room(target_room.to_string()),
+            required_value: target_room.to_string(),
+            actual_value: act_str.to_string(),
+            location: None,
+            object_ids: vec![designator.to_string()],
         }
     }
 }

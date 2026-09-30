@@ -406,4 +406,65 @@ fn test_component_clearance_and_routing_layer_and_phase_skew_validation() {
     );
 }
 
+#[test]
+fn test_advanced_industrial_drc_rules() {
+    let mut cm = ConstraintManager::standard_default();
+
+    // 1. Annular Ring rule: minimum 150µm
+    cm.add_rule(DesignRule::AnnularRing(oxide_rules::AnnularRingRule {
+        scope: RuleScope::Global,
+        min_annular_ring: 150,
+    }));
+
+    // Pad 600µm with 400µm drill -> annular ring = (600 - 400)/2 = 100µm < 150µm (FAIL)
+    let ar_err = cm
+        .validate_annular_ring("VIA_NET1", "NET1", None, None, 600, 400)
+        .unwrap_err();
+    assert_eq!(ar_err.violation_type, RuleViolationType::AnnularRingTooSmall);
+
+    // Pad 700µm with 300µm drill -> annular ring = (700 - 300)/2 = 200µm >= 150µm (PASS)
+    assert!(cm.validate_annular_ring("VIA_NET2", "NET2", None, None, 700, 300).is_ok());
+
+    // 2. High-Voltage Creepage: 230V mains requires 2500µm (2.5mm)
+    cm.add_rule(DesignRule::CreepageClearance(oxide_rules::CreepageClearanceRule {
+        scope: RuleScope::NetClass("HV_MAINS".into()),
+        working_voltage_v: 230.0,
+        min_clearance_microns: 2000,
+        min_creepage_microns: 2500,
+    }));
+
+    // 1800µm distance fails 2500µm creepage
+    let creep_err = cm
+        .validate_creepage("MAINS_L", Some("HV_MAINS"), "GND", None, None, 1800)
+        .unwrap_err();
+    assert_eq!(creep_err.violation_type, RuleViolationType::CreepageViolation);
+
+    // 3. Hole-to-Hole spacing: minimum 300µm edge-to-edge
+    cm.add_rule(DesignRule::HoleToHole(oxide_rules::HoleToHoleRule {
+        scope: RuleScope::Global,
+        min_hole_spacing: 300,
+    }));
+
+    // 200µm edge distance fails 300µm requirement
+    let hole_err = cm
+        .validate_hole_to_hole("HOLE_1", "GND", "HOLE_2", "GND", None, 200)
+        .unwrap_err();
+    assert_eq!(hole_err.violation_type, RuleViolationType::HoleToHoleTooSmall);
+
+    // 4. Room Containment: U1_CH1 must be in Room_CH1
+    cm.add_rule(DesignRule::RoomPlacement(oxide_rules::RoomPlacementRule {
+        room_name: "Room_CH1".into(),
+        component_designators: vec!["U1_CH1".into(), "R1_CH1".into()],
+    }));
+
+    // Placing U1_CH1 in Room_CH2 or None fails
+    let room_err = cm
+        .validate_room_containment("U1_CH1", Some("Room_CH2"))
+        .unwrap_err();
+    assert_eq!(room_err.violation_type, RuleViolationType::RoomPlacementViolation);
+
+    // Correct placement passes
+    assert!(cm.validate_room_containment("U1_CH1", Some("Room_CH1")).is_ok());
+}
+
 

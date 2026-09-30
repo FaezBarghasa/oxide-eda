@@ -188,6 +188,41 @@ pub struct DiffPairPhaseRule {
     pub max_inter_pair_skew: Microns,
 }
 
+/// Minimum Annular Ring constraint to prevent drill breakout on vias and PTH pads.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AnnularRingRule {
+    pub scope: RuleScope,
+    /// Minimum annular ring width in micrometers: (pad_diameter - drill_diameter) / 2.
+    pub min_annular_ring: Microns,
+}
+
+/// High-Voltage Creepage and Clearance rule (IEC 60950 / IEC 62368 / IPC-2221B).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct CreepageClearanceRule {
+    pub scope: RuleScope,
+    /// Working peak/RMS voltage between nets (e.g. 230V, 400V, 1000V).
+    pub working_voltage_v: f64,
+    /// Minimum electrical clearance through air in micrometers.
+    pub min_clearance_microns: Microns,
+    /// Minimum creepage distance along insulation surface in micrometers.
+    pub min_creepage_microns: Microns,
+}
+
+/// Hole-to-Hole spacing constraint preventing mechanical drill web fracture.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct HoleToHoleRule {
+    pub scope: RuleScope,
+    /// Minimum edge-to-edge spacing between drill holes in micrometers.
+    pub min_hole_spacing: Microns,
+}
+
+/// Room Placement & Containment rule ensuring multi-channel components stay in designated rooms.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RoomPlacementRule {
+    pub room_name: String,
+    pub component_designators: Vec<String>,
+}
+
 /// Top-level unified design rule variant.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "rule_type", rename_all = "snake_case")]
@@ -204,5 +239,9 @@ pub enum DesignRule {
     ComponentClearance(ComponentClearanceRule),
     RoutingLayer(RoutingLayerRule),
     DiffPairPhase(DiffPairPhaseRule),
+    AnnularRing(AnnularRingRule),
+    CreepageClearance(CreepageClearanceRule),
+    HoleToHole(HoleToHoleRule),
+    RoomPlacement(RoomPlacementRule),
 }
 

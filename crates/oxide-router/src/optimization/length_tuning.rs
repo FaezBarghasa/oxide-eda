@@ -48,40 +48,110 @@ impl LengthTuningOptimizer {
         }
     }
 
-    fn add_meander(&self, path: &mut RoutingPath, _extra: Microns) {
-        if path.segments.is_empty() {
+    fn add_meander(&self, path: &mut RoutingPath, extra: Microns) {
+        if path.segments.is_empty() || extra <= 0 {
             return;
         }
 
         let last_seg = path.segments.pop().unwrap();
-        let amplitude = 400; // 400µm
+        let amplitude: Microns = 400; // 400µm amplitude
+        let pitch: Microns = 300;     // 300µm pitch per bump
+        let seg_len = last_seg.length();
+
+        if seg_len < pitch {
+            // Segment too short for meander, insert single detour
+            let (dx, dy) = last_seg.start_point.direction_to(last_seg.end_point);
+            let (perp_x, perp_y) = (-dy, dx);
+            let p_out = crate::geometry::Point2D::new(
+                last_seg.start_point.x + (perp_x * amplitude as f64).round() as i64,
+                last_seg.start_point.y + (perp_y * amplitude as f64).round() as i64,
+            );
+            path.segments.push(RouteSegment {
+                start_point: last_seg.start_point,
+                end_point: p_out,
+                width: last_seg.width,
+                layer: last_seg.layer,
+                net_id: last_seg.net_id,
+                segment_type: last_seg.segment_type,
+            });
+            path.segments.push(RouteSegment {
+                start_point: p_out,
+                end_point: last_seg.end_point,
+                width: last_seg.width,
+                layer: last_seg.layer,
+                net_id: last_seg.net_id,
+                segment_type: last_seg.segment_type,
+            });
+            path.total_length = path.segments.iter().map(|s| s.length()).sum();
+            return;
+        }
+
+        // Multi-cycle accordion along the segment direction
         let (dx, dy) = last_seg.start_point.direction_to(last_seg.end_point);
         let (perp_x, perp_y) = (-dy, dx);
 
-        // Simple accordion insert
-        let p_mid = last_seg.start_point;
-        let p_out = crate::geometry::Point2D::new(
-            p_mid.x + (perp_x * amplitude as f64).round() as i64,
-            p_mid.y + (perp_y * amplitude as f64).round() as i64,
-        );
+        let mut current = last_seg.start_point;
+        let mut remaining = extra;
+        let mut flip = true;
 
-        path.segments.push(RouteSegment {
-            start_point: last_seg.start_point,
-            end_point: p_out,
-            width: last_seg.width,
-            layer: last_seg.layer,
-            net_id: last_seg.net_id,
-            segment_type: last_seg.segment_type,
-        });
+        while current.distance_to(last_seg.end_point) > pitch && remaining > 0 {
+            let next_base = crate::geometry::Point2D::new(
+                current.x + (dx * pitch as f64).round() as i64,
+                current.y + (dy * pitch as f64).round() as i64,
+            );
+            let sign = if flip { 1.0 } else { -1.0 };
+            let p1 = crate::geometry::Point2D::new(
+                current.x + (perp_x * amplitude as f64 * sign).round() as i64,
+                current.y + (perp_y * amplitude as f64 * sign).round() as i64,
+            );
+            let p2 = crate::geometry::Point2D::new(
+                next_base.x + (perp_x * amplitude as f64 * sign).round() as i64,
+                next_base.y + (perp_y * amplitude as f64 * sign).round() as i64,
+            );
 
-        path.segments.push(RouteSegment {
-            start_point: p_out,
-            end_point: last_seg.end_point,
-            width: last_seg.width,
-            layer: last_seg.layer,
-            net_id: last_seg.net_id,
-            segment_type: last_seg.segment_type,
-        });
+            let bump_len = current.distance_to(p1) + p1.distance_to(p2) + p2.distance_to(next_base);
+            let added = bump_len.saturating_sub(pitch);
+
+            path.segments.push(RouteSegment {
+                start_point: current,
+                end_point: p1,
+                width: last_seg.width,
+                layer: last_seg.layer,
+                net_id: last_seg.net_id,
+                segment_type: last_seg.segment_type,
+            });
+            path.segments.push(RouteSegment {
+                start_point: p1,
+                end_point: p2,
+                width: last_seg.width,
+                layer: last_seg.layer,
+                net_id: last_seg.net_id,
+                segment_type: last_seg.segment_type,
+            });
+            path.segments.push(RouteSegment {
+                start_point: p2,
+                end_point: next_base,
+                width: last_seg.width,
+                layer: last_seg.layer,
+                net_id: last_seg.net_id,
+                segment_type: last_seg.segment_type,
+            });
+
+            current = next_base;
+            remaining = remaining.saturating_sub(added);
+            flip = !flip;
+        }
+
+        if current != last_seg.end_point {
+            path.segments.push(RouteSegment {
+                start_point: current,
+                end_point: last_seg.end_point,
+                width: last_seg.width,
+                layer: last_seg.layer,
+                net_id: last_seg.net_id,
+                segment_type: last_seg.segment_type,
+            });
+        }
 
         path.total_length = path.segments.iter().map(|s| s.length()).sum();
     }

@@ -13,6 +13,7 @@ pub struct PushResult {
     pub original_pos: Point2D,
     pub new_pos: Point2D,
     pub displacement: Microns,
+    pub is_via: bool,
 }
 
 /// Calculate push displacement vector to move obstacle out of clearance zone.
@@ -31,7 +32,10 @@ pub fn calculate_push(
     let dot_perp = vx * perp_x + vy * perp_y;
 
     let sign = if dot_perp >= 0.0 { 1.0 } else { -1.0 };
-    let push_amount = required_clearance + 100;
+    let is_via = obstacle.object_type == crate::geometry::rtree::SpatialObjectType::Via;
+    // Vias require extra clearance buffer (150µm vs 100µm) to prevent annular ring overlap
+    let extra_buffer: Microns = if is_via { 150 } else { 100 };
+    let push_amount = required_clearance + extra_buffer;
 
     let new_pos = Point2D::new(
         obs_center.x + (perp_x * push_amount as f64 * sign).round() as i64,
@@ -43,6 +47,7 @@ pub fn calculate_push(
         original_pos: obs_center,
         new_pos,
         displacement: push_amount,
+        is_via,
     })
 }
 
@@ -155,11 +160,13 @@ impl PushAndShoveEngine {
                 sec_center.y + (dy * push_dist as f64).round() as i64,
             );
 
+            let is_via = sec_obs.object_type == crate::geometry::rtree::SpatialObjectType::Via;
             let push = PushResult {
                 object_id: sec_obs.id,
                 original_pos: sec_center,
                 new_pos,
                 displacement: push_dist,
+                is_via,
             };
 
             visited.insert(push.object_id);
