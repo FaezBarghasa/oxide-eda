@@ -1,12 +1,16 @@
-# OKF Knowledge Bundle — Copilot Instructions
+# Windsurf Rules — OKF Knowledge Bundle
 
-This project uses okf-generator to produce an OKF v0.2 knowledge bundle at ./okf_bundle/.
+This project is indexed as an OKF v0.2 bundle at ./okf_bundle/.
 Every function, class, module, and dependency has a structured markdown card.
 
 ## MCP Tools (preferred)
 
-If an MCP server is running, use lookup/get_concept/find_callers etc. via MCP.
-Otherwise, use the shell commands below.
+If this agent supports MCP, the OKF MCP server exposes 11 tools:
+  lookup, get_concept, find_callers, find_callees, list_by_file,
+  list_dependencies, bundle_info, list_by_type, search_by_tag,
+  get_related, get_manifest_source
+
+Use these instead of shell commands when available.
 
 ## CRITICAL RULE: Never grep source files first
 
