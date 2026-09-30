@@ -723,6 +723,87 @@ impl ConstraintManager {
         Ok(())
     }
 
+    /// Run full batch Design Rule Check (DRC) on a `PcbBoard` layout.
+    pub fn run_drc(&self, board: &oxide_types::pcb::PcbBoard) -> Vec<RuleViolation> {
+        let mut violations = Vec::new();
+
+        // 1. Trace Width Validations
+        for seg in &board.segments {
+            let width_microns = (seg.width * 1000.0).round() as i64;
+            let net_name = format!("NET_{}", seg.net);
+            if let Err(v) = self.validate_trace_width(&net_name, None, None, width_microns) {
+                violations.push(v);
+            }
+        }
+
+        // 2. Via Style & Annular Ring Validations
+        for via in &board.vias {
+            let drill_microns = (via.drill * 1000.0).round() as i64;
+            let pad_microns = (via.diameter * 1000.0).round() as i64;
+            let net_name = format!("NET_{}", via.net);
+            let obj_id = format!("Via_{}", via.uuid);
+
+            if let Err(v) = self.validate_annular_ring(
+                &obj_id,
+                &net_name,
+                None,
+                None,
+                pad_microns,
+                drill_microns,
+            ) {
+                violations.push(v);
+            }
+        }
+
+        // 3. Electrical Clearance Validations (Segments vs Segments)
+        for i in 0..board.segments.len() {
+            for j in (i + 1)..board.segments.len() {
+                let seg_a = &board.segments[i];
+                let seg_b = &board.segments[j];
+
+                if seg_a.layer == seg_b.layer && seg_a.net != seg_b.net {
+                    let d = oxide_types::schematic::point_to_segment_dist(
+                        seg_a.start.x, seg_a.start.y,
+                        seg_b.start.x, seg_b.start.y,
+                        seg_b.end.x, seg_b.end.y,
+                    );
+                    let dist_microns = (d * 1000.0).round() as i64;
+                    let net_a = format!("NET_{}", seg_a.net);
+                    let net_b = format!("NET_{}", seg_b.net);
+
+                    if let Err(v) = self.validate_clearance(&net_a, None, &net_b, None, None, dist_microns) {
+                        violations.push(v);
+                    }
+                }
+            }
+        }
+
+        // 4. Hole-to-Hole Validations (Vias vs Vias)
+        for i in 0..board.vias.len() {
+            for j in (i + 1)..board.vias.len() {
+                let via_a = &board.vias[i];
+                let via_b = &board.vias[j];
+
+                let center_dist = ((via_a.position.x - via_b.position.x).powi(2)
+                    + (via_a.position.y - via_b.position.y).powi(2))
+                .sqrt();
+                let edge_dist = center_dist - (via_a.drill / 2.0) - (via_b.drill / 2.0);
+                let edge_microns = (edge_dist.max(0.0) * 1000.0).round() as i64;
+
+                let id_a = format!("Via_{}", via_a.uuid);
+                let id_b = format!("Via_{}", via_b.uuid);
+                let net_a = format!("NET_{}", via_a.net);
+                let net_b = format!("NET_{}", via_b.net);
+
+                if let Err(v) = self.validate_hole_to_hole(&id_a, &net_a, &id_b, &net_b, None, edge_microns) {
+                    violations.push(v);
+                }
+            }
+        }
+
+        violations
+    }
+
     /// Parse constraints from a TOML configuration string.
     pub fn from_toml_str(toml_content: &str) -> Result<Self, toml::de::Error> {
         let config: RuleConfigFile = toml::from_str(toml_content)?;

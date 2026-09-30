@@ -8,10 +8,12 @@ license.workspace = true
 
 [dependencies]
 oxide-physics = { path = "../oxide-physics" }
+oxide-types = { path = "../oxide-types" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
 toml = { workspace = true }
+uuid = { workspace = true }
 
 [dev-dependencies]
 

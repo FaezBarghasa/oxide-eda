@@ -467,4 +467,51 @@ fn test_advanced_industrial_drc_rules() {
     assert!(cm.validate_room_containment("U1_CH1", Some("Room_CH1")).is_ok());
 }
 
+#[test]
+fn test_batch_drc_evaluation() {
+    let cm = ConstraintManager::standard_default();
+    let mut board = oxide_types::pcb::PcbBoard::default();
+
+    // Add a narrow trace that violates min 0.15mm (150µm) rule
+    board.segments.push(oxide_types::pcb::Segment {
+        uuid: uuid::Uuid::new_v4(),
+        start: oxide_types::pcb::Point::new(0.0, 0.0),
+        end: oxide_types::pcb::Point::new(10.0, 0.0),
+        width: 0.10, // 100µm < 150µm
+        layer: "Top Layer".into(),
+        net: 1,
+    });
+
+    // Add 2 vias that violate hole-to-hole spacing (0.3mm drill, placed 0.4mm apart -> edge dist = 0.1mm = 100µm < 254µm)
+    board.vias.push(oxide_types::pcb::Via {
+        uuid: uuid::Uuid::new_v4(),
+        position: oxide_types::pcb::Point::new(20.0, 20.0),
+        diameter: 0.6,
+        drill: 0.3,
+        layers: vec!["Top Layer".into(), "Bottom Layer".into()],
+        net: 1,
+        via_type: oxide_types::pcb::ViaType::Through,
+        via_span: None,
+    });
+    board.vias.push(oxide_types::pcb::Via {
+        uuid: uuid::Uuid::new_v4(),
+        position: oxide_types::pcb::Point::new(20.4, 20.0),
+        diameter: 0.6,
+        drill: 0.3,
+        layers: vec!["Top Layer".into(), "Bottom Layer".into()],
+        net: 2,
+        via_type: oxide_types::pcb::ViaType::Through,
+        via_span: None,
+    });
+
+    let violations = cm.run_drc(&board);
+    assert!(!violations.is_empty(), "DRC must detect violations on board");
+    assert!(
+        violations
+            .iter()
+            .any(|v| v.violation_type == RuleViolationType::WidthTooSmall),
+        "Must flag trace width violation"
+    );
+}
+
 
