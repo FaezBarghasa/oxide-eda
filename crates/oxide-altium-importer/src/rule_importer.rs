@@ -2,9 +2,8 @@
 //!
 //! Translates proprietary Altium Rule records into native [`oxide_rules::ConstraintManager`].
 
-use oxide_physics::Microns;
 use oxide_rules::{
-    ClearanceRule, ConstraintManager, DesignRule, DiffPairPhaseRule, HighSpeedRule,
+    ClearanceRule, ConstraintManager, DesignRule, HighSpeedRule,
     RuleScope, WidthRule,
 };
 use crate::record::AltiumRecord;
@@ -26,36 +25,30 @@ pub fn import_rules_from_records(records: &[AltiumRecord]) -> ConstraintManager 
         if rule_kind.contains("Clearance") {
             let gap_mm = rec.get_coord_mm("GAP").unwrap_or(0.15);
             let gap_um = (gap_mm * 1000.0).round() as i64;
-            manager.add_rule(DesignRule::Clearance(ClearanceRule {
-                scope,
-                min_clearance: Microns(gap_um),
-                matrix: None,
-            }));
+            manager.add_rule(DesignRule::Clearance(ClearanceRule::new(scope, gap_um)));
         } else if rule_kind.contains("Width") {
             let min_w = rec.get_coord_mm("MINWIDTH").unwrap_or(0.15);
             let opt_w = rec.get_coord_mm("FAVOREDWIDTH").unwrap_or(0.20);
             let max_w = rec.get_coord_mm("MAXWIDTH").unwrap_or(0.50);
 
-            manager.add_rule(DesignRule::Width(WidthRule {
+            manager.add_rule(DesignRule::Width(WidthRule::new(
                 scope,
-                min_width: Microns((min_w * 1000.0).round() as i64),
-                preferred_width: Microns((opt_w * 1000.0).round() as i64),
-                max_width: Microns((max_w * 1000.0).round() as i64),
-            }));
+                (min_w * 1000.0).round() as i64,
+                (opt_w * 1000.0).round() as i64,
+                (max_w * 1000.0).round() as i64,
+            )));
         } else if rule_kind.contains("DiffPairsRouting") || rule_kind.contains("MatchedLength") {
             let max_tol = rec.get_coord_mm("TOLERANCE").unwrap_or(0.10);
+            let net_class = match &scope {
+                RuleScope::NetClass(cls) => cls.clone(),
+                RuleScope::Net(n) => n.clone(),
+                _ => "DIFF_PAIR".to_string(),
+            };
             manager.add_rule(DesignRule::HighSpeed(HighSpeedRule {
-                scope: scope.clone(),
-                target_length: None,
-                max_length_tolerance: Some(Microns((max_tol * 1000.0).round() as i64)),
-                delay_matching_ps: rec.get_f64("DELAYTOLERANCE"),
-                max_unmatched_length: None,
-            }));
-
-            manager.add_rule(DesignRule::DiffPairPhase(DiffPairPhaseRule {
-                scope,
-                max_phase_skew_microns: Microns((max_tol * 1000.0).round() as i64),
-                target_diff_impedance_ohms: 90.0,
+                net_class,
+                impedance_target: 90.0,
+                length_tolerance: (max_tol * 1000.0).round() as i64,
+                max_uncoupled_length: 500,
             }));
         }
     }

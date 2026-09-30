@@ -4,7 +4,7 @@
 //! and binds multi-channel schematic hierarchy to 2D PCB room layout definitions.
 
 use std::collections::HashMap;
-use oxide_types::schematic::{ChildSheet, SchematicSheet, Symbol};
+use oxide_types::schematic::{ChildSheet, SchematicSheet};
 
 /// A single instantiated channel resulting from a multi-channel expansion.
 #[derive(Debug, Clone, PartialEq)]
@@ -60,7 +60,7 @@ pub fn parse_and_expand_repeat(
         let mut des_map = HashMap::new();
 
         for sym in &child_content.symbols {
-            let original_ref = sym.reference.text.clone();
+            let original_ref = sym.reference.clone();
             let new_ref = format!("{}{}", original_ref, suffix);
             des_map.insert(original_ref, new_ref);
         }

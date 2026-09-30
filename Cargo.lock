@@ -5918,6 +5918,7 @@ dependencies = [
  "flate2",
  "oxide-library",
  "oxide-physics",
+ "oxide-rules",
  "oxide-types",
  "serde",
  "serde_json",
