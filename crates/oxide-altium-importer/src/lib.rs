@@ -10,8 +10,10 @@ pub mod intlib_importer;
 pub mod pcb_importer;
 pub mod pcblib_importer;
 pub mod record;
+pub mod rule_importer;
 pub mod sch_importer;
 pub mod schlib_importer;
+pub mod verification;
 
 pub use cfb::CfbContainer;
 pub use error::AltiumImportError;
@@ -19,8 +21,10 @@ pub use intlib_importer::{import_intlib_bytes, ExtractedIntLib};
 pub use pcb_importer::import_pcbdoc_bytes;
 pub use pcblib_importer::import_pcblib_bytes;
 pub use record::{parse_record_stream, AltiumRecord};
+pub use rule_importer::import_rules_from_records;
 pub use sch_importer::import_schdoc_bytes;
 pub use schlib_importer::import_schlib_bytes;
+pub use verification::{verify_pcb_board, verify_schematic_sheet, VerificationReport};
 
 use std::path::Path;
 

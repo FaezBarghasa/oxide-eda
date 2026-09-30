@@ -39,6 +39,20 @@ enum Commands {
         #[arg(short, long)]
         out_dir: PathBuf,
     },
+    /// Generate IPC-2581C intelligent manufacturing package
+    Ipc2581 {
+        #[arg(short, long)]
+        board: PathBuf,
+        #[arg(short, long)]
+        out: PathBuf,
+    },
+    /// Generate ODB++ v8.1 manufacturing package
+    Odbpp {
+        #[arg(short, long)]
+        board: PathBuf,
+        #[arg(short, long)]
+        out_dir: PathBuf,
+    },
 }
 
 #[tokio::main]
@@ -123,6 +137,33 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             pkg.write_to_disk(&out_dir)?;
 
             println!("Output Job Completed: Package written to {}", out_dir.display());
+        }
+        Commands::Ipc2581 { board, out } => {
+            println!("Oxide EDA IPC-2581C Exporter: {}", board.display());
+            let board_content = std::fs::read_to_string(&board)?;
+            let pcb: PcbBoard = serde_json::from_str(&board_content)?;
+
+            let opts = oxide_output::Ipc2581Options::default();
+            let res = oxide_output::export_ipc2581(&pcb, &opts)?;
+            std::fs::write(&out, &res.xml_content)?;
+            println!("IPC-2581C Export written to {}", out.display());
+        }
+        Commands::Odbpp { board, out_dir } => {
+            println!("Oxide EDA ODB++ v8.1 Exporter: {}", board.display());
+            std::fs::create_dir_all(&out_dir)?;
+
+            let board_content = std::fs::read_to_string(&board)?;
+            let pcb: PcbBoard = serde_json::from_str(&board_content)?;
+
+            let pkg = oxide_output::export_odbpp_package(&pcb)?;
+            for file in pkg.files {
+                let full_path = out_dir.join(&file.relative_path);
+                if let Some(parent) = full_path.parent() {
+                    std::fs::create_dir_all(parent)?;
+                }
+                std::fs::write(&full_path, &file.content)?;
+            }
+            println!("ODB++ Export Completed: {} files written to {}", pkg.files.len(), out_dir.display());
         }
     }
 

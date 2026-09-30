@@ -10,6 +10,9 @@ pub mod glossing;
 pub mod length_tuning;
 pub mod loop_removal;
 pub mod retrace;
+pub mod xsignals;
+
+pub use xsignals::{MatchedGroup, MatchedGroupStatus, XSignal};
 
 /// Unified optimization engine coordinating all post-route cleanups.
 #[derive(Debug, Clone)]

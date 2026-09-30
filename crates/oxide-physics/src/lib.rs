@@ -1,3 +1,4 @@
+pub mod backdrill;
 pub mod bem_solver;
 pub mod clearance_3d;
 pub mod collision;
@@ -9,6 +10,7 @@ pub mod material;
 pub mod stackup;
 pub mod units;
 
+pub use backdrill::{calculate_backdrilling, BackdrillSummary, BackdrillTarget};
 pub use bem_solver::{BemBoundaryElement, BemFieldSolver, ExtractedTransmissionLine, TransmissionLineCrossSection};
 pub use clearance_3d::{
     Aabb3d, Body3d, ClearanceEngine3d, ClearanceViolation3d, Vec3,

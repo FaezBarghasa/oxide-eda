@@ -16,7 +16,9 @@ pub mod draftsman;
 pub mod drill;
 mod expression;
 pub mod gerber;
+pub mod ipc2581;
 pub mod netlist;
+pub mod odbpp;
 pub mod outjob;
 pub mod pdf;
 pub mod preview;
@@ -32,6 +34,8 @@ pub use draftsman::{
 };
 pub use drill::excellon::{DrillError, DrillHole, DrillHoleType, ExcellonExporter, ExcellonOutput};
 pub use gerber::{GerberError, GerberExporter, GerberLayer, GerberLayerOutput, GerberOptions};
+pub use ipc2581::{export_ipc2581, Ipc2581Error, Ipc2581Options, Ipc2581Output};
+pub use odbpp::{export_odbpp_package, OdbError, OdbFileEntry, OdbOutputPackage};
 pub use outjob::{OutJobError, OutputJobConfig, OutputJobRunner, ReleasePackage};
 
 pub use bom::{

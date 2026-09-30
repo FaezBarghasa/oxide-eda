@@ -3,6 +3,7 @@ mod error;
 mod patch;
 
 pub mod room;
+pub mod multi_channel;
 mod annotation;
 mod history;
 mod selection;
@@ -11,6 +12,7 @@ mod transform;
 
 mod exec;
 
+pub use multi_channel::{parse_and_expand_repeat, ChannelInstance};
 pub use room::{Room, RoomCopyOptions, RoomManager};
 
 #[cfg(test)]
