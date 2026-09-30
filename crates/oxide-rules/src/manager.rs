@@ -7,7 +7,7 @@ use oxide_physics::Microns;
 use crate::rules::{
     AnnularRingRule, ClearanceRule, ComponentClearanceRule, CreepageClearanceRule, DesignRule,
     DiffPairPhaseRule, HighSpeedRule, HoleToHoleRule, NetAntennaRule, PolygonConnectRule,
-    ReturnPathRule, RoomPlacementRule, RoutingLayerRule, SilkscreenRule, SolderMaskRule,
+    ReturnPathRule, RoutingLayerRule, SilkscreenRule, SolderMaskRule,
     ViaStyleRule, WidthRule,
 };
 use crate::scope::RuleScope;

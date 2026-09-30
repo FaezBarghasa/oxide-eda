@@ -235,7 +235,7 @@ impl DraftsmanDocument {
                     for row in &table.rows {
                         svg.push_str(&format!(
                             "  <text x=\"{tx:.1}\" y=\"{row_y:.1}\" class=\"table-cell\">SYM: {} | DIA: {:.3}mm | COUNT: {} | PLATED: {:?}</text>\n",
-                            row.symbol, row.diameter_mm, row.count, row.plated
+                            row.symbol_char, row.diameter_mm, row.count, row.plating
                         ));
                         row_y += 4.5;
                     }

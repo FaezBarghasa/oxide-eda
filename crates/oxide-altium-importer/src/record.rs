@@ -28,7 +28,11 @@ impl AltiumRecord {
     }
 
     pub fn get_f64(&self, key: &str) -> Option<f64> {
-        self.get(key).and_then(|v| v.parse::<f64>().ok())
+        self.get(key).and_then(|v| {
+            let s = v.trim();
+            let num_str = s.trim_end_matches(|c: char| c.is_alphabetic() || c == '%').trim();
+            num_str.parse::<f64>().ok()
+        })
     }
 
     pub fn get_bool(&self, key: &str) -> bool {
@@ -38,11 +42,19 @@ impl AltiumRecord {
         }
     }
 
-    /// Convert Altium DXP internal coordinate (1/10000 inch = 0.1 mil = 0.00254 mm) or point to mm.
+    /// Convert Altium DXP internal coordinate (or coordinate with mm/mil/in unit) to mm.
     pub fn get_coord_mm(&self, key: &str) -> Option<f64> {
-        // In Altium schematics, coordinates are typically in 10-mil (pt) or 1-mil units
-        // 1 pt = 0.127 mm (10 mil = 0.254 mm)
-        self.get_f64(key).map(|val| val * 0.0254) // 1 mil = 0.0254 mm
+        let val_str = self.get(key)?.trim();
+        if let Some(s) = val_str.strip_suffix("mm") {
+            s.trim().parse::<f64>().ok()
+        } else if let Some(s) = val_str.strip_suffix("mil") {
+            s.trim().parse::<f64>().ok().map(|v| v * 0.0254)
+        } else if let Some(s) = val_str.strip_suffix("in") {
+            s.trim().parse::<f64>().ok().map(|v| v * 25.4)
+        } else {
+            // In Altium schematics/PCB DXP internal coordinates, raw numbers are typically in 1-mil units (1 mil = 0.0254 mm)
+            val_str.parse::<f64>().ok().map(|val| val * 0.0254)
+        }
     }
 
     /// Parse a single pipe-delimited string (e.g. `|RECORD=1|LOCATION.X=100|...`) into an [`AltiumRecord`].

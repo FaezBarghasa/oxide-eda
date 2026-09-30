@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use uuid::Uuid;
 
-use oxide_types::pcb::{Footprint, PcbBoard, Point, Segment, Via, Zone};
+use oxide_types::pcb::{Footprint, PcbBoard, Point, Segment, Via};
 
 /// Definition of a 2D PCB Room grouping footprints, routing, and zones.
 #[derive(Debug, Clone, Serialize, Deserialize)]
