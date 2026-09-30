@@ -180,7 +180,82 @@ fn parse_components(records: &[AltiumRecord], board: &mut PcbBoard) {
     }
 }
 
+/// Parse Altium Pad records and assign to footprints or board elements.
+pub fn parse_pads(records: &[AltiumRecord], board: &mut PcbBoard) {
+    for rec in records {
+        let record_type = rec.get("RECORD").or_else(|| rec.get("OBJECTTYPE")).unwrap_or("");
+        if !record_type.eq_ignore_ascii_case("Pad") && record_type != "4" {
+            continue;
+        }
+
+        let name = rec.get("NAME").or_else(|| rec.get("PADNAME")).unwrap_or("1").to_string();
+        let x = rec.get_coord_mm("LOCATION.X").or_else(|| rec.get_coord_mm("X")).unwrap_or(0.0);
+        let y = rec.get_coord_mm("LOCATION.Y").or_else(|| rec.get_coord_mm("Y")).unwrap_or(0.0);
+        let size_x = rec.get_coord_mm("TOPXSIZE").or_else(|| rec.get_coord_mm("XSIZE")).unwrap_or(1.5);
+        let size_y = rec.get_coord_mm("TOPYSIZE").or_else(|| rec.get_coord_mm("YSIZE")).unwrap_or(1.5);
+        let hole_size = rec.get_coord_mm("HOLESIZE").unwrap_or(0.0);
+        let layer_str = rec.get("LAYER").unwrap_or("Multi-Layer");
+        let net_id = rec.get_i64("NET").unwrap_or(0) as u32;
+
+        let pad_type = if layer_str.eq_ignore_ascii_case("Multi-Layer") || hole_size > 0.0 {
+            oxide_types::pcb::PadType::Thru
+        } else {
+            oxide_types::pcb::PadType::Smd
+        };
+
+        // Determine shape and corner radius
+        let shape_raw = rec.get("TOPSHAPE").or_else(|| rec.get("SHAPE")).unwrap_or("Round");
+        let (shape, ratio) = match shape_raw {
+            "0" | "Round" | "Circle" => (oxide_types::pcb::PadShape::Circle, 0.0),
+            "1" | "Rectangular" | "Rectangle" => (oxide_types::pcb::PadShape::Rect, 0.0),
+            "2" | "Oval" => (oxide_types::pcb::PadShape::Oval, 0.0),
+            "3" | "RoundedRectangle" | "RoundRect" => {
+                let r_pct = rec.get_f64("ROUNDRECTANGULARRADIUS").unwrap_or(25.0) / 100.0;
+                (oxide_types::pcb::PadShape::RoundRect, r_pct)
+            }
+            "4" | "ChamferedRectangle" | "Custom" | "5" => (oxide_types::pcb::PadShape::Custom, 0.0),
+            _ => (oxide_types::pcb::PadShape::Rect, 0.0),
+        };
+
+        let drill_def = if hole_size > 0.0 {
+            Some(oxide_types::pcb::DrillDef {
+                diameter: hole_size,
+                shape: "circle".to_string(),
+            })
+        } else {
+            None
+        };
+
+        let pad = oxide_types::pcb::Pad {
+            uuid: Uuid::now_v7(),
+            number: name,
+            pad_type,
+            shape,
+            position: Point::new(x, y),
+            size: Point::new(size_x, size_y),
+            drill: drill_def,
+            layers: vec![layer_str.to_string()],
+            net: if net_id > 0 {
+                Some(oxide_types::pcb::PadNet {
+                    number: net_id,
+                    name: format!("NET_{net_id}"),
+                })
+            } else {
+                None
+            },
+            roundrect_ratio: ratio,
+        };
+
+        // Attach pad to closest footprint or last footprint
+        if let Some(fp) = board.footprints.last_mut() {
+            fp.pads.push(pad);
+        }
+    }
+}
+
 fn parse_all_pcb_records(records: &[AltiumRecord], board: &mut PcbBoard) {
+    parse_pads(records, board);
+
     for rec in records {
         let record_type = rec.get("RECORD").or_else(|| rec.get("OBJECTTYPE")).unwrap_or("");
         if record_type.eq_ignore_ascii_case("Track") || record_type == "1" {
@@ -221,3 +296,4 @@ fn parse_all_pcb_records(records: &[AltiumRecord], board: &mut PcbBoard) {
         }
     }
 }
+

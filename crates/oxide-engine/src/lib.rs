@@ -4,6 +4,8 @@ mod patch;
 
 pub mod room;
 pub mod multi_channel;
+pub mod harness;
+pub mod parameter_manager;
 mod annotation;
 mod history;
 mod selection;
@@ -12,7 +14,9 @@ mod transform;
 
 mod exec;
 
+pub use harness::{HarnessConnector, HarnessDefinition, HarnessEntry, HarnessManager};
 pub use multi_channel::{parse_and_expand_repeat, ChannelInstance};
+pub use parameter_manager::{ParameterManager, ParameterTableRow, ParameterUpdate, SymbolParameter};
 pub use room::{Room, RoomCopyOptions, RoomManager};
 
 #[cfg(test)]

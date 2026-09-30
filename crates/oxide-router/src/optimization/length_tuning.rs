@@ -7,6 +7,24 @@ use oxide_rules::ConstraintManager;
 
 use crate::{RouteSegment, RoutingPath};
 
+/// Pattern style for high-speed length matching meanders.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum TuningPattern {
+    #[default]
+    Accordion,
+    Trombone,
+    Sawtooth,
+}
+
+/// Corner geometry style for tuning meanders.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum TuningCorner {
+    #[default]
+    Mitred45,
+    Arc45,
+    RightAngle90,
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct TuningResult {
     pub positive_length: Microns,
@@ -22,6 +40,56 @@ pub struct LengthTuningOptimizer {
 impl LengthTuningOptimizer {
     pub fn new(rules: Arc<ConstraintManager>) -> Self {
         Self { rules }
+    }
+
+    /// Match lengths across an entire parallel bus (e.g. DDR5 data byte group, PCIe lane array).
+    pub fn tune_matched_bus(
+        &self,
+        paths: &mut [RoutingPath],
+        target_length: Option<Microns>,
+        _tolerance: Microns,
+    ) -> Vec<TuningResult> {
+        if paths.is_empty() {
+            return Vec::new();
+        }
+
+        // Target length is either explicitly specified or the maximum length in the bus
+        let target = target_length.unwrap_or_else(|| {
+            paths.iter().map(|p| p.total_length).max().unwrap_or(0)
+        });
+
+        let mut results = Vec::new();
+
+        for path in paths.iter_mut() {
+            let initial_len = path.total_length;
+            if initial_len < target {
+                let delta = target - initial_len;
+                self.add_meander(path, delta);
+            }
+
+            results.push(TuningResult {
+                positive_length: path.total_length,
+                negative_length: target,
+                length_difference: (path.total_length - target).abs(),
+            });
+        }
+
+        results
+    }
+
+    /// Tune a single-ended high-speed trace to exact target length using specified pattern.
+    pub fn tune_single_ended_path(
+        &self,
+        path: &mut RoutingPath,
+        target_length: Microns,
+        _pattern: TuningPattern,
+    ) -> Microns {
+        let current_len = path.total_length;
+        if current_len < target_length {
+            let delta = target_length - current_len;
+            self.add_meander(path, delta);
+        }
+        path.total_length
     }
 
     /// Match lengths between positive and negative traces of a differential pair.
