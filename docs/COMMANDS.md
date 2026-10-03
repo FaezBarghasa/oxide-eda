@@ -91,6 +91,7 @@ shrink.
 | `rotate_clockwise` | Rotate clockwise by 90 degrees | modify | `Shift+Space` | `Shift+R` |
 | `rotate_counterclockwise` | Rotate counterclockwise by 90 degrees | modify | `Space` | `R` |
 | `rubber_stamp_copy` | Rubber-stamp copy / repeated paste | edit | `Ctrl+R` | — |
+| `run_simulation` | Run SPICE simulation | simulation | — | — |
 | `save_document` | Save document | file | `Ctrl+S` | `Ctrl+S` |
 | `save_document_as` | Save as | file | — | `Ctrl+Shift+S` |
 | `select_all` | Select all | select | `Ctrl+A` | `Ctrl+A` |
@@ -218,7 +219,9 @@ shrink.
 
 ## PCB
 
-_No commands in this group yet._
+| command id | label | category | Altium | Classic |
+| --- | --- | --- | --- | --- |
+| `run_drc` | Run design rule check | validation | — | — |
 
 ## 3D
 
