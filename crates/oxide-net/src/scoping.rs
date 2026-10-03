@@ -149,9 +149,18 @@ mod tests {
 
     #[test]
     fn test_resolve_scoped_net_names() {
-        assert_eq!(resolve_scoped_net_name("Sheet1", "RESET", NetScope::Local), "Sheet1/RESET");
-        assert_eq!(resolve_scoped_net_name("Sheet1", "GND", NetScope::Global), "GND");
-        assert_eq!(resolve_scoped_net_name("Sheet1", "DATA0", NetScope::Hierarchical), "Sheet1:DATA0");
+        assert_eq!(
+            resolve_scoped_net_name("Sheet1", "RESET", NetScope::Local),
+            "Sheet1/RESET"
+        );
+        assert_eq!(
+            resolve_scoped_net_name("Sheet1", "GND", NetScope::Global),
+            "GND"
+        );
+        assert_eq!(
+            resolve_scoped_net_name("Sheet1", "DATA0", NetScope::Hierarchical),
+            "Sheet1:DATA0"
+        );
     }
 
     #[test]

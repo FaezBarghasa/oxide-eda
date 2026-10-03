@@ -280,4 +280,3 @@ pub enum DesignRule {
     AcidTrap(AcidTrapRule),
     CopperSliver(CopperSliverRule),
 }
-

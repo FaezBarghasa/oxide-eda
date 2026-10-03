@@ -234,14 +234,36 @@ impl InteractiveRouter {
         layer: LayerId,
         width: Microns,
     ) -> Vec<RouteSegment> {
-        vec![RouteSegment {
-            start_point: start,
-            end_point: end,
-            width,
-            layer,
-            net_id,
-            segment_type: SegmentType::Straight,
-        }]
+        let corner_mode = self
+            .session
+            .as_ref()
+            .map(|s| s.corner_mode)
+            .unwrap_or_default();
+
+        let waypoints = generate_corner_waypoints(start, end, corner_mode, true);
+        if waypoints.len() <= 1 {
+            return vec![RouteSegment {
+                start_point: start,
+                end_point: end,
+                width,
+                layer,
+                net_id,
+                segment_type: SegmentType::Straight,
+            }];
+        }
+
+        let mut segments = Vec::with_capacity(waypoints.len() - 1);
+        for i in 0..waypoints.len() - 1 {
+            segments.push(RouteSegment {
+                start_point: waypoints[i],
+                end_point: waypoints[i + 1],
+                width,
+                layer,
+                net_id,
+                segment_type: SegmentType::Straight,
+            });
+        }
+        segments
     }
 
     fn stop_at_obstacle_route(

@@ -537,17 +537,50 @@ fn test_acid_trap_and_copper_sliver_validation() {
 
     let mut cm = ConstraintManager::standard_default();
     // Enforce 45.0° min acute corner angle globally
-    cm.add_rule(DesignRule::AcidTrap(AcidTrapRule::new(RuleScope::Global, 45.0)));
+    cm.add_rule(DesignRule::AcidTrap(AcidTrapRule::new(
+        RuleScope::Global,
+        45.0,
+    )));
     // Enforce 100 µm min copper sliver width globally
-    cm.add_rule(DesignRule::CopperSliver(CopperSliverRule::new(RuleScope::Global, 100)));
+    cm.add_rule(DesignRule::CopperSliver(CopperSliverRule::new(
+        RuleScope::Global,
+        100,
+    )));
 
     // 1. Acid Trap checks:
     // 90.0° corner passes
-    assert!(cm.validate_acid_trap("SIG", None, None, 90.0, None, vec!["T1".into(), "T2".into()]).is_ok());
+    assert!(
+        cm.validate_acid_trap(
+            "SIG",
+            None,
+            None,
+            90.0,
+            None,
+            vec!["T1".into(), "T2".into()]
+        )
+        .is_ok()
+    );
     // 45.0° corner passes
-    assert!(cm.validate_acid_trap("SIG", None, None, 45.0, None, vec!["T1".into(), "T2".into()]).is_ok());
+    assert!(
+        cm.validate_acid_trap(
+            "SIG",
+            None,
+            None,
+            45.0,
+            None,
+            vec!["T1".into(), "T2".into()]
+        )
+        .is_ok()
+    );
     // 30.0° corner violates acute angle constraint
-    let acid_err = cm.validate_acid_trap("SIG", None, None, 30.0, Some((10.0, 20.0)), vec!["T1".into(), "T2".into()]);
+    let acid_err = cm.validate_acid_trap(
+        "SIG",
+        None,
+        None,
+        30.0,
+        Some((10.0, 20.0)),
+        vec!["T1".into(), "T2".into()],
+    );
     assert!(acid_err.is_err());
     let viol = acid_err.unwrap_err();
     assert_eq!(viol.violation_type, RuleViolationType::AcidTrapViolation);
@@ -556,13 +589,25 @@ fn test_acid_trap_and_copper_sliver_validation() {
 
     // 2. Copper Sliver checks:
     // 150 µm copper width passes
-    assert!(cm.validate_copper_sliver("GND", None, None, 150, None, vec!["Poly1".into()]).is_ok());
+    assert!(
+        cm.validate_copper_sliver("GND", None, None, 150, None, vec!["Poly1".into()])
+            .is_ok()
+    );
     // 50 µm copper sliver violates 100 µm minimum
-    let sliver_err = cm.validate_copper_sliver("GND", None, None, 50, Some((5.0, 15.0)), vec!["Poly1".into()]);
+    let sliver_err = cm.validate_copper_sliver(
+        "GND",
+        None,
+        None,
+        50,
+        Some((5.0, 15.0)),
+        vec!["Poly1".into()],
+    );
     assert!(sliver_err.is_err());
     let viol2 = sliver_err.unwrap_err();
-    assert_eq!(viol2.violation_type, RuleViolationType::CopperSliverViolation);
+    assert_eq!(
+        viol2.violation_type,
+        RuleViolationType::CopperSliverViolation
+    );
     assert_eq!(viol2.required_value, "0.100mm");
     assert_eq!(viol2.actual_value, "0.050mm");
 }
-

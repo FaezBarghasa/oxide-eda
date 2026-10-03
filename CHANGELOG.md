@@ -33,6 +33,10 @@ Each release section is authored **before** the `vX.Y.Z` tag is created, so the 
 - **Acid Trap Detection (`AcidTrapRule`, `RuleViolationType::AcidTrapViolation`)** — Detects acute copper angles ($\theta \le 45^\circ$) between adjacent track segments where chemical etchant pools during fabrication.
 - **Copper Sliver Detection (`CopperSliverRule`, `RuleViolationType::CopperSliverViolation`)** — Verifies minimum copper feature and island widths ($w \ge 100\,\mu\text{m}$) preventing narrow copper slivers from peeling off substrates.
 
+### Added — RF & Transmission Line Conformal Field Solvers (`oxide-physics`)
+
+- **Coplanar Waveguide Solvers (`calculate_coplanar_waveguide`, `calculate_grounded_coplanar_waveguide`)** — Conformal mapping characteristic impedance calculations ($Z_0$) for standard ungrounded CPW and Conductor-Backed Coplanar Waveguides (CBCPW / GCPWG) utilizing complete elliptic integral ratio approximations.
+
 ### Added — Cleanroom Altium Designer Binary Importer CLI (`oxide-cli`, `oxide-altium-importer`)
 
 - **Headless Altium Importer Subcommand (`oxide import-altium`)** — Added CLI command to ingest proprietary Altium OLE2/CFB binary containers (`.SchDoc`, `.PcbDoc`, `.SchLib`, `.PcbLib`, `.IntLib`) and convert to native Oxide EDA types, with support for JSON export and conversion summary reporting.

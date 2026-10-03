@@ -168,4 +168,3 @@ fn test_coplanar_waveguide_and_grounded_cpw() {
         "Expected Grounded CPW Z0 between 40Ω and 65Ω, got {z0_gcpw:.2}Ω"
     );
 }
-

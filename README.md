@@ -144,6 +144,7 @@ formats one-way. Run it once against your project; open the resulting
 - **Interactive Routing Corner Modes (`oxide-router`)** — Shift+Space cycling across 45° bevels, 45° smooth circular arcs, 90° Manhattan, and Any-Angle routing with nanometer waypoint synthesis
 - **Hierarchical Net Scoping & Wire Redundancy Pruning (`oxide-net`)** — Strict sheet scoping (`Local`, `Global`, `Hierarchical`) and automated collinear wire loop pruning
 - **Manufacturing Defect DRC & Geometric Rules (`oxide-rules`)** — Comprehensive detection of acute acid traps ($\theta \le 45^\circ$) and copper slivers ($<100\,\mu\text{m}$)
+- **Coplanar Waveguide Field Solvers (`oxide-physics`)** — Conformal mapping characteristic impedance calculations for standard ungrounded CPW and Conductor-Backed Coplanar Waveguides (CBCPW / GCPWG)
 - **Power Delivery Network (PDN) Impedance Field Solver (`oxide-rf`)** — $Z_{\text{target}}$ synthesis,
   planar cavity resonance modeling (DC to 10 GHz), and multi-decap RLC optimization
 

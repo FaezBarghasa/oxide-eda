@@ -832,7 +832,6 @@ impl ConstraintManager {
         Ok(())
     }
 
-
     /// Run full batch Design Rule Check (DRC) on a `PcbBoard` layout.
     pub fn run_drc(&self, board: &oxide_types::pcb::PcbBoard) -> Vec<RuleViolation> {
         let mut violations = Vec::new();

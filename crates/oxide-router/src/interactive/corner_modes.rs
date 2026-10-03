@@ -1,7 +1,7 @@
 //! Interactive routing corner mode state machine and waypoint generators.
 
-use serde::{Deserialize, Serialize};
 use crate::geometry::Point2D;
+use serde::{Deserialize, Serialize};
 
 /// Routing corner transition mode during interactive drag.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
@@ -106,7 +106,12 @@ pub fn generate_corner_waypoints(
         }
         CornerMode::FortyFiveArc => {
             // Generates 45-degree waypoints with intermediate arc approximation points
-            let base_waypoints = generate_corner_waypoints(start, target, CornerMode::FortyFiveDeg, horizontal_first);
+            let base_waypoints = generate_corner_waypoints(
+                start,
+                target,
+                CornerMode::FortyFiveDeg,
+                horizontal_first,
+            );
             if base_waypoints.len() <= 2 {
                 return base_waypoints;
             }
@@ -157,8 +162,17 @@ mod tests {
         let mode = CornerMode::FortyFiveDeg;
         assert_eq!(mode.cycle_forward(), CornerMode::FortyFiveArc);
         assert_eq!(mode.cycle_forward().cycle_forward(), CornerMode::NinetyDeg);
-        assert_eq!(mode.cycle_forward().cycle_forward().cycle_forward(), CornerMode::AnyAngle);
-        assert_eq!(mode.cycle_forward().cycle_forward().cycle_forward().cycle_forward(), CornerMode::FortyFiveDeg);
+        assert_eq!(
+            mode.cycle_forward().cycle_forward().cycle_forward(),
+            CornerMode::AnyAngle
+        );
+        assert_eq!(
+            mode.cycle_forward()
+                .cycle_forward()
+                .cycle_forward()
+                .cycle_forward(),
+            CornerMode::FortyFiveDeg
+        );
     }
 
     #[test]
@@ -187,4 +201,3 @@ mod tests {
         assert_eq!(d.x.abs(), d.y.abs());
     }
 }
-
