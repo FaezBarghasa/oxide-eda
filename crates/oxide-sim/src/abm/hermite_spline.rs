@@ -98,7 +98,7 @@ mod tests {
 
         assert_eq!(val_left, 0.0);
         assert_eq!(der_left, 0.0);
-        assert_eq!(val_mid, 0.5);
+        assert!((val_mid - 0.5).abs() < 1e-12);
         assert!(der_mid > 0.0);
         assert_eq!(val_right, 1.0);
         assert_eq!(der_right, 0.0);
