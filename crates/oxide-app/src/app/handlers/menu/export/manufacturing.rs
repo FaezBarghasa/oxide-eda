@@ -22,12 +22,13 @@ impl Oxide {
         // If schematic is active, try to derive an initial board from components
         if let Some((ctx, _)) = super::build_export_scope(&self.document_state) {
             let mut board = PcbBoard::default();
-            board.name = ctx.metadata.title.clone();
-            if let Some(netlist) = &ctx.netlist {
-                let mut components = Vec::new();
-                for comp in &netlist.components {
-                    components.push((comp.reference.clone(), comp.value.clone(), comp.footprint.clone()));
+            let mut components = Vec::new();
+            for sheet in &ctx.sheets {
+                for sym in &sheet.schematic.symbols {
+                    components.push((sym.reference.clone(), sym.value.clone(), sym.footprint.clone()));
                 }
+            }
+            if let Some(netlist) = &ctx.netlist {
                 let report = oxide_net::EcoEngine::diff_schematic_to_pcb(netlist, &board, &components);
                 oxide_net::EcoEngine::apply_eco(&mut board, &report);
             }
@@ -96,31 +97,37 @@ impl Oxide {
 
         Task::perform(
             async move {
-                let file = rfd::AsyncFileDialog::new()
-                    .set_title("Save Excellon Drill File")
-                    .set_file_name("drill.drl")
-                    .add_filter("Excellon Drill", &["drl", "txt"])
-                    .save_file()
+                let dir = rfd::AsyncFileDialog::new()
+                    .set_title("Select Folder for NC Drill Files")
+                    .pick_folder()
                     .await
                     .map(|f| f.path().to_path_buf());
 
-                let Some(path) = file else {
+                let Some(dir) = dir else {
                     return Err("Cancelled by user".to_string());
                 };
 
                 let exporter = ExcellonExporter::default();
-                let output = exporter.export_board(&board).map_err(|e| e.to_string())?;
+                let outputs = exporter.export_board(&board).map_err(|e| e.to_string())?;
 
-                std::fs::write(&path, &output.content).map_err(|e| e.to_string())?;
-                Ok((path, output.hole_count, output.tool_count))
+                let mut total_holes = 0;
+                let mut total_tools = 0;
+                for out in &outputs {
+                    let path = dir.join(&out.filename);
+                    std::fs::write(&path, &out.content).map_err(|e| e.to_string())?;
+                    total_holes += out.hole_count;
+                    total_tools += out.tool_count;
+                }
+                Ok((dir, total_holes, total_tools, outputs.len()))
             },
             |res| match res {
-                Ok((path, holes, tools)) => {
+                Ok((dir, holes, tools, files)) => {
                     crate::diagnostics::log_info(format!(
-                        "Export Drill: Wrote {} holes across {} tools to {}",
+                        "Export Drill: Wrote {} drill file(s) with {} holes across {} tools to {}",
+                        files,
                         holes,
                         tools,
-                        path.display()
+                        dir.display()
                     ));
                     Message::Noop
                 }
@@ -231,6 +238,10 @@ impl Oxide {
             return Task::none();
         };
 
+        let project_title = self.document_state.active_document_project()
+            .map(|p| p.data.name.clone())
+            .unwrap_or_else(|| "Oxide Project".to_string());
+
         Task::perform(
             async move {
                 let file = rfd::AsyncFileDialog::new()
@@ -245,7 +256,7 @@ impl Oxide {
                     return Err("Cancelled by user".to_string());
                 };
 
-                let mut draftsman = DraftsmanDocument::new(&board.name);
+                let mut draftsman = DraftsmanDocument::new(&project_title);
                 draftsman.sync_with_board(&board);
                 let svg_content = draftsman.generate_sheet_svg(0, &board)
                     .map_err(|e| e)?;
@@ -288,53 +299,55 @@ impl Oxide {
         };
 
         let mut schematic_components = Vec::new();
-        for comp in &netlist.components {
-            schematic_components.push((
-                comp.reference.clone(),
-                comp.value.clone(),
-                comp.footprint.clone(),
-            ));
+        for sheet in &ctx.sheets {
+            for sym in &sheet.schematic.symbols {
+                schematic_components.push((
+                    sym.reference.clone(),
+                    sym.value.clone(),
+                    sym.footprint.clone(),
+                ));
+            }
         }
 
         // Target active PCB engine, or primary open PCB engine, or create a new PCB tab
-        let pcb_path = if let Some(path) = self.document_state.active_pcb_path() {
-            path
-        } else if let Some((path, _)) = self.document_state.pcb_engines.iter().next() {
-            path.clone()
-        } else {
-            // Synthesize a PCB path alongside the active project or schematic
-            let synth_path = if let Some(proj) = self.document_state.active_document_project() {
-                proj.dir().join("board.snxpcb")
-            } else if let Some(active) = &self.document_state.active_path {
-                active.with_extension("snxpcb")
-            } else {
-                PathBuf::from("board.snxpcb")
-            };
+        let pcb_path = self.document_state.tabs.get(self.document_state.active_tab)
+            .and_then(|t| match t.kind {
+                crate::app::TabKind::Pcb => Some(t.path.clone()),
+                _ => None,
+            })
+            .or_else(|| self.document_state.pcb_engines.keys().next().cloned())
+            .unwrap_or_else(|| {
+                // Synthesize a PCB path alongside the active project or schematic
+                if let Some(proj) = self.document_state.active_document_project() {
+                    proj.dir().join("board.snxpcb")
+                } else if let Some(active) = &self.document_state.active_path {
+                    active.with_extension("snxpcb")
+                } else {
+                    PathBuf::from("board.snxpcb")
+                }
+            });
 
-            let mut board = PcbBoard::default();
-            board.name = ctx.metadata.title.clone();
+        if !self.document_state.pcb_engines.contains_key(&pcb_path) {
+            let board = PcbBoard::default();
             let engine = oxide_engine::pcb::PcbEngine::new(board);
-            self.document_state.pcb_engines.insert(synth_path.clone(), engine);
+            self.document_state.pcb_engines.insert(pcb_path.clone(), engine);
 
-            let tab_title = synth_path.file_name().and_then(|n| n.to_str()).unwrap_or("board.snxpcb").to_string();
-            let tab_id = uuid::Uuid::new_v4();
-            self.document_state.tabs.push(crate::app::state::Tab {
-                id: tab_id,
-                kind: crate::app::TabKind::Pcb(synth_path.clone()),
+            let tab_title = pcb_path.file_name().and_then(|n| n.to_str()).unwrap_or("board.snxpcb").to_string();
+            self.document_state.tabs.push(crate::app::TabInfo {
                 title: tab_title,
+                path: pcb_path.clone(),
+                cached_document: None,
                 dirty: true,
-                ephemeral: false,
-                closeable: true,
+                project_id: self.document_state.active_project,
+                kind: crate::app::TabKind::Pcb,
             });
             self.document_state.active_tab = self.document_state.tabs.len() - 1;
-            synth_path
-        };
+        }
 
         if let Some(engine) = self.document_state.pcb_engines.get_mut(&pcb_path) {
             let report = oxide_net::EcoEngine::diff_schematic_to_pcb(netlist, engine.board(), &schematic_components);
             let action_count = report.len();
             oxide_net::EcoEngine::apply_eco(engine.board_mut(), &report);
-            engine.mark_dirty();
 
             crate::diagnostics::log_info(format!(
                 "ECO: Applied {} engineering change orders to PCB '{}'. Synchronized {} components.",
@@ -344,7 +357,7 @@ impl Oxide {
             ));
 
             // Focus the PCB tab
-            if let Some(idx) = self.document_state.tabs.iter().position(|t| matches!(&t.kind, crate::app::TabKind::Pcb(p) if p == &pcb_path)) {
+            if let Some(idx) = self.document_state.tabs.iter().position(|t| matches!(t.kind, crate::app::TabKind::Pcb) && t.path == pcb_path) {
                 self.document_state.active_tab = idx;
             }
         }

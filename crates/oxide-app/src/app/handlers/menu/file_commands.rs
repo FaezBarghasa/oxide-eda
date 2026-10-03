@@ -58,8 +58,8 @@ impl Oxide {
             MenuMessage::ExportIpc2581 => Some(self.handle_export_ipc2581()),
             MenuMessage::ExportDraftsman => Some(self.handle_export_draftsman()),
             MenuMessage::UpdatePcbFromSchematic => Some(self.handle_update_pcb_from_schematic()),
-            MenuMessage::RunDrc => Some(self.update(Message::Panel(crate::panels::PanelMsg::RunDrc))),
-            MenuMessage::RunSimulation => Some(self.update(Message::Panel(crate::panels::PanelMsg::RunSimulation))),
+            MenuMessage::RunDrc => Some(self.update(Message::Dock(crate::dock::DockMessage::Panel(crate::panels::PanelMsg::RunDrc)))),
+            MenuMessage::RunSimulation => Some(self.update(Message::Dock(crate::dock::DockMessage::Panel(crate::panels::PanelMsg::RunSimulation)))),
             MenuMessage::Exit => Some(self.update(Message::Window(WindowMsg::CloseMainWindow))),
             MenuMessage::LibraryOpenLibrary => Some(self.update(Message::Library(
                 crate::library::LibraryMessage::OpenLibraryDialog,
