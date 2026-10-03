@@ -26,6 +26,7 @@ pub mod odbpp;
 pub mod outjob;
 pub mod pdf;
 pub mod preview;
+pub mod step;
 pub mod substitution;
 pub mod svg;
 pub mod template;
@@ -60,6 +61,7 @@ pub use pdf::{
     PdfScale, SchematicPalette,
 };
 pub use preview::{PreviewOptions, PreviewPage, PreviewRasterizer};
+pub use step::{AnalyticalSolidBRepExporter, StepExportError};
 pub use substitution::{SubstitutionContext, resolve};
 pub use template::{Template, TemplateError, TemplateId, TitleBlockField};
 
