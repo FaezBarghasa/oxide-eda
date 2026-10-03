@@ -144,6 +144,8 @@ pub fn prune_wire_redundancies(wires: &mut Vec<Wire>) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use oxide_types::schematic::Point;
+    use uuid::Uuid;
 
     #[test]
     fn test_resolve_scoped_net_names() {

@@ -27,6 +27,8 @@ pub enum RuleViolationType {
     CreepageViolation,
     HoleToHoleTooSmall,
     RoomPlacementViolation,
+    AcidTrapViolation,
+    CopperSliverViolation,
 }
 
 /// Detailed design rule violation report with actionable delta metrics.
@@ -327,4 +329,49 @@ impl RuleViolation {
             object_ids: vec![designator.to_string()],
         }
     }
+
+    pub fn acid_trap_violation(
+        net: &str,
+        scope: RuleScope,
+        min_angle_deg: f64,
+        actual_angle_deg: f64,
+        location: Option<(f64, f64)>,
+        track_ids: Vec<String>,
+    ) -> Self {
+        Self {
+            violation_type: RuleViolationType::AcidTrapViolation,
+            message: format!(
+                "Acid trap acute angle on net '{net}': corner angle is {actual_angle_deg:.1}°, rule requires minimum {min_angle_deg:.1}° (acute angles <= 45° pool etchant)"
+            ),
+            scope,
+            required_value: format!("{min_angle_deg:.1}°"),
+            actual_value: format!("{actual_angle_deg:.1}°"),
+            location,
+            object_ids: track_ids,
+        }
+    }
+
+    pub fn copper_sliver_violation(
+        net: &str,
+        scope: RuleScope,
+        min_width_microns: i64,
+        actual_width_microns: i64,
+        location: Option<(f64, f64)>,
+        object_ids: Vec<String>,
+    ) -> Self {
+        let req_mm = min_width_microns as f64 / 1000.0;
+        let act_mm = actual_width_microns as f64 / 1000.0;
+        Self {
+            violation_type: RuleViolationType::CopperSliverViolation,
+            message: format!(
+                "Copper sliver / narrow peninsula violation on net '{net}': sliver width is {act_mm:.3}mm ({actual_width_microns}µm), rule requires minimum {req_mm:.3}mm ({min_width_microns}µm)"
+            ),
+            scope,
+            required_value: format!("{req_mm:.3}mm"),
+            actual_value: format!("{act_mm:.3}mm"),
+            location,
+            object_ids,
+        }
+    }
 }
+

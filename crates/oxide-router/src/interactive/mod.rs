@@ -12,10 +12,12 @@ use crate::{LayerId, RouteSegment, RoutingError, RoutingPath, RoutingResult, Seg
 
 pub mod astar;
 pub mod conflict;
+pub mod corner_modes;
 pub mod elastic_shove;
 pub mod session;
 
 use conflict::{PushAndShoveEngine, PushResult};
+pub use corner_modes::{CornerMode, generate_corner_waypoints};
 pub use elastic_shove::{ElasticShoveEngine, ElasticShoveResult, ShoveContext, ShoveError};
 
 /// Modes supported during interactive routing gestures.

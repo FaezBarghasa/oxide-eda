@@ -223,6 +223,40 @@ pub struct RoomPlacementRule {
     pub component_designators: Vec<String>,
 }
 
+/// Acute angle / Acid Trap constraint preventing chemical etchant pooling in tight copper angles.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct AcidTrapRule {
+    pub scope: RuleScope,
+    /// Minimum allowed internal angle between adjacent copper track segments in degrees (e.g. 90.0° or 45.0°).
+    pub min_angle_deg: f64,
+}
+
+impl AcidTrapRule {
+    pub fn new(scope: RuleScope, min_angle_deg: f64) -> Self {
+        Self {
+            scope,
+            min_angle_deg,
+        }
+    }
+}
+
+/// Minimum Copper Sliver width constraint to prevent peeling narrow copper features and islands.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CopperSliverRule {
+    pub scope: RuleScope,
+    /// Minimum allowed copper feature width or island width in micrometers (e.g. 100 µm).
+    pub min_sliver_width: Microns,
+}
+
+impl CopperSliverRule {
+    pub fn new(scope: RuleScope, min_sliver_width: Microns) -> Self {
+        Self {
+            scope,
+            min_sliver_width,
+        }
+    }
+}
+
 /// Top-level unified design rule variant.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "rule_type", rename_all = "snake_case")]
@@ -243,4 +277,7 @@ pub enum DesignRule {
     CreepageClearance(CreepageClearanceRule),
     HoleToHole(HoleToHoleRule),
     RoomPlacement(RoomPlacementRule),
+    AcidTrap(AcidTrapRule),
+    CopperSliver(CopperSliverRule),
 }
+

@@ -5,9 +5,10 @@ use serde::{Deserialize, Serialize};
 use oxide_physics::Microns;
 
 use crate::rules::{
-    AnnularRingRule, ClearanceRule, ComponentClearanceRule, CreepageClearanceRule, DesignRule,
-    DiffPairPhaseRule, HighSpeedRule, HoleToHoleRule, NetAntennaRule, PolygonConnectRule,
-    ReturnPathRule, RoutingLayerRule, SilkscreenRule, SolderMaskRule, ViaStyleRule, WidthRule,
+    AcidTrapRule, AnnularRingRule, ClearanceRule, ComponentClearanceRule, CopperSliverRule,
+    CreepageClearanceRule, DesignRule, DiffPairPhaseRule, HighSpeedRule, HoleToHoleRule,
+    NetAntennaRule, PolygonConnectRule, ReturnPathRule, RoutingLayerRule, SilkscreenRule,
+    SolderMaskRule, ViaStyleRule, WidthRule,
 };
 use crate::scope::RuleScope;
 use crate::violation::RuleViolation;
@@ -738,6 +739,99 @@ impl ConstraintManager {
         }
         Ok(())
     }
+
+    /// Resolve the most specific [`AcidTrapRule`] for a given net, net class, and room.
+    pub fn resolve_acid_trap_rule(
+        &self,
+        net: &str,
+        net_class: Option<&str>,
+        room: Option<&str>,
+    ) -> Option<&AcidTrapRule> {
+        let mut candidates: Vec<&AcidTrapRule> = self
+            .rules
+            .iter()
+            .filter_map(|r| match r {
+                DesignRule::AcidTrap(at) if at.scope.matches(net, net_class, room) => Some(at),
+                _ => None,
+            })
+            .collect();
+
+        candidates.sort_by_key(|at| std::cmp::Reverse(at.scope.specificity()));
+        candidates.first().copied()
+    }
+
+    /// Validate that adjacent track segments do not form an acute acid trap angle (< 45° or min angle).
+    #[allow(clippy::result_large_err)]
+    pub fn validate_acid_trap(
+        &self,
+        net: &str,
+        net_class: Option<&str>,
+        room: Option<&str>,
+        actual_angle_deg: f64,
+        location: Option<(f64, f64)>,
+        track_ids: Vec<String>,
+    ) -> Result<(), RuleViolation> {
+        if let Some(rule) = self.resolve_acid_trap_rule(net, net_class, room)
+            && actual_angle_deg < rule.min_angle_deg
+        {
+            return Err(RuleViolation::acid_trap_violation(
+                net,
+                rule.scope.clone(),
+                rule.min_angle_deg,
+                actual_angle_deg,
+                location,
+                track_ids,
+            ));
+        }
+        Ok(())
+    }
+
+    /// Resolve the most specific [`CopperSliverRule`] for a given net, net class, and room.
+    pub fn resolve_copper_sliver_rule(
+        &self,
+        net: &str,
+        net_class: Option<&str>,
+        room: Option<&str>,
+    ) -> Option<&CopperSliverRule> {
+        let mut candidates: Vec<&CopperSliverRule> = self
+            .rules
+            .iter()
+            .filter_map(|r| match r {
+                DesignRule::CopperSliver(cs) if cs.scope.matches(net, net_class, room) => Some(cs),
+                _ => None,
+            })
+            .collect();
+
+        candidates.sort_by_key(|cs| std::cmp::Reverse(cs.scope.specificity()));
+        candidates.first().copied()
+    }
+
+    /// Validate that copper features or islands do not violate minimum copper sliver width.
+    #[allow(clippy::result_large_err)]
+    pub fn validate_copper_sliver(
+        &self,
+        net: &str,
+        net_class: Option<&str>,
+        room: Option<&str>,
+        actual_width_microns: Microns,
+        location: Option<(f64, f64)>,
+        object_ids: Vec<String>,
+    ) -> Result<(), RuleViolation> {
+        if let Some(rule) = self.resolve_copper_sliver_rule(net, net_class, room)
+            && actual_width_microns < rule.min_sliver_width
+        {
+            return Err(RuleViolation::copper_sliver_violation(
+                net,
+                rule.scope.clone(),
+                rule.min_sliver_width,
+                actual_width_microns,
+                location,
+                object_ids,
+            ));
+        }
+        Ok(())
+    }
+
 
     /// Run full batch Design Rule Check (DRC) on a `PcbBoard` layout.
     pub fn run_drc(&self, board: &oxide_types::pcb::PcbBoard) -> Vec<RuleViolation> {
