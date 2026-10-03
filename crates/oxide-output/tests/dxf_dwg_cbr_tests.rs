@@ -2,8 +2,8 @@ use oxide_output::{
     CbrExporter, CbrOptions, DwgExporter, DwgOptions, DwgVersion, DxfExporter, DxfOptions,
 };
 use oxide_types::pcb::{
-    DrillDef, Footprint, FpGraphic, Pad, PadShape, PadType, PcbBoard, Point, Segment, Via,
-    ViaType, Zone,
+    DrillDef, Footprint, FpGraphic, Pad, PadShape, PadType, PcbBoard, Point, Segment, Via, ViaType,
+    Zone,
 };
 use uuid::Uuid;
 
@@ -205,10 +205,10 @@ fn test_cbr_copper_bottom_routing_export() {
     assert!(cbr_content.contains("%MOMM*%"));
     assert!(cbr_content.contains("%LPD*%"));
     assert!(cbr_content.contains("%ADD10C,")); // Aperture definition
-    assert!(cbr_content.contains("D02*"));     // Move
-    assert!(cbr_content.contains("D01*"));     // Draw
-    assert!(cbr_content.contains("D03*"));     // Flash pad/via
-    assert!(cbr_content.contains("G36*"));     // Start polygon fill
-    assert!(cbr_content.contains("G37*"));     // End polygon fill
+    assert!(cbr_content.contains("D02*")); // Move
+    assert!(cbr_content.contains("D01*")); // Draw
+    assert!(cbr_content.contains("D03*")); // Flash pad/via
+    assert!(cbr_content.contains("G36*")); // Start polygon fill
+    assert!(cbr_content.contains("G37*")); // End polygon fill
     assert!(cbr_content.ends_with("M02*\n"));
 }

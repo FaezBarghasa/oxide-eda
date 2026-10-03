@@ -123,7 +123,11 @@ impl DxfExporter {
     }
 
     /// Export individual PCB layer into a standalone single-layer DXF file.
-    pub fn export_single_layer(&self, board: &PcbBoard, layer_name: &str) -> Result<String, DxfError> {
+    pub fn export_single_layer(
+        &self,
+        board: &PcbBoard,
+        layer_name: &str,
+    ) -> Result<String, DxfError> {
         let mut single_opt = self.options.clone();
         single_opt.layer_filter = Some(vec![layer_name.to_string()]);
         let exporter = DxfExporter::new(single_opt);
@@ -152,7 +156,8 @@ impl DxfExporter {
         }
 
         if let Some(ref filter) = self.options.layer_filter {
-            let filter_set: BTreeSet<String> = filter.iter().map(|s| canonicalize_layer_name(s)).collect();
+            let filter_set: BTreeSet<String> =
+                filter.iter().map(|s| canonicalize_layer_name(s)).collect();
             known_layers.retain(|l| filter_set.contains(&l.name));
         }
 
@@ -297,7 +302,9 @@ impl DxfExporter {
                 let center_y = fp.position.y + py;
 
                 let pad_layer = if pad.pad_type == PadType::Smd {
-                    if fp.layer.to_ascii_lowercase().contains("bottom") || fp.layer.to_ascii_lowercase().contains("b_cu") {
+                    if fp.layer.to_ascii_lowercase().contains("bottom")
+                        || fp.layer.to_ascii_lowercase().contains("b_cu")
+                    {
                         "B_CU"
                     } else {
                         "F_CU"
@@ -339,7 +346,11 @@ impl DxfExporter {
                 }
 
                 // Drill hole
-                if let Some(ref drill) = pad.drill.as_ref().filter(|d| self.should_include_layer("DRILL") && d.diameter > 0.0) {
+                if let Some(drill) = pad
+                    .drill
+                    .as_ref()
+                    .filter(|d| self.should_include_layer("DRILL") && d.diameter > 0.0)
+                {
                     self.write_circle(out, "DRILL", center_x, center_y, drill.diameter / 2.0)?;
                 }
             }
@@ -436,10 +447,18 @@ impl DxfExporter {
         let mut max_y = f64::NEG_INFINITY;
 
         let mut update = |x: f64, y: f64| {
-            if x < min_x { min_x = x; }
-            if y < min_y { min_y = y; }
-            if x > max_x { max_x = x; }
-            if y > max_y { max_y = y; }
+            if x < min_x {
+                min_x = x;
+            }
+            if y < min_y {
+                min_y = y;
+            }
+            if x > max_x {
+                max_x = x;
+            }
+            if y > max_y {
+                max_y = y;
+            }
         };
 
         for seg in &board.segments {
@@ -474,7 +493,15 @@ impl DxfExporter {
         }
     }
 
-    fn write_line(&self, out: &mut String, layer: &str, x1: f64, y1: f64, x2: f64, y2: f64) -> Result<(), DxfError> {
+    fn write_line(
+        &self,
+        out: &mut String,
+        layer: &str,
+        x1: f64,
+        y1: f64,
+        x2: f64,
+        y2: f64,
+    ) -> Result<(), DxfError> {
         writeln!(out, "  0\nLINE")?;
         writeln!(out, "  8\n{}", layer)?;
         writeln!(out, " 10\n{:.4}", x1)?;
@@ -486,7 +513,14 @@ impl DxfExporter {
         Ok(())
     }
 
-    fn write_circle(&self, out: &mut String, layer: &str, cx: f64, cy: f64, r: f64) -> Result<(), DxfError> {
+    fn write_circle(
+        &self,
+        out: &mut String,
+        layer: &str,
+        cx: f64,
+        cy: f64,
+        r: f64,
+    ) -> Result<(), DxfError> {
         writeln!(out, "  0\nCIRCLE")?;
         writeln!(out, "  8\n{}", layer)?;
         writeln!(out, " 10\n{:.4}", cx)?;
@@ -523,7 +557,13 @@ impl DxfExporter {
         Ok(())
     }
 
-    fn write_polyline(&self, out: &mut String, layer: &str, points: &[(f64, f64)], closed: bool) -> Result<(), DxfError> {
+    fn write_polyline(
+        &self,
+        out: &mut String,
+        layer: &str,
+        points: &[(f64, f64)],
+        closed: bool,
+    ) -> Result<(), DxfError> {
         if points.is_empty() {
             return Ok(());
         }
@@ -548,10 +588,16 @@ impl DxfExporter {
         Ok(())
     }
 
-    fn write_closed_polyline(&self, out: &mut String, layer: &str, points: &[(f64, f64)]) -> Result<(), DxfError> {
+    fn write_closed_polyline(
+        &self,
+        out: &mut String,
+        layer: &str,
+        points: &[(f64, f64)],
+    ) -> Result<(), DxfError> {
         self.write_polyline(out, layer, points, true)
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn write_text(
         &self,
         out: &mut String,
@@ -581,17 +627,32 @@ pub fn canonicalize_layer_name(name: &str) -> String {
     let lower = name.to_ascii_lowercase();
     if (lower.contains("top") && lower.contains("copper")) || lower == "f.cu" || lower == "f_cu" {
         "F_CU".to_string()
-    } else if (lower.contains("bottom") && lower.contains("copper")) || lower == "b.cu" || lower == "b_cu" {
+    } else if (lower.contains("bottom") && lower.contains("copper"))
+        || lower == "b.cu"
+        || lower == "b_cu"
+    {
         "B_CU".to_string()
     } else if lower.contains("edge") || lower.contains("outline") || lower == "edge.cuts" {
         "BOARD_OUTLINE".to_string()
-    } else if (lower.contains("top") && lower.contains("silk")) || lower == "f.silks" || lower == "f_silks" {
+    } else if (lower.contains("top") && lower.contains("silk"))
+        || lower == "f.silks"
+        || lower == "f_silks"
+    {
         "F_SILK".to_string()
-    } else if (lower.contains("bottom") && lower.contains("silk")) || lower == "b.silks" || lower == "b_silks" {
+    } else if (lower.contains("bottom") && lower.contains("silk"))
+        || lower == "b.silks"
+        || lower == "b_silks"
+    {
         "B_SILK".to_string()
-    } else if (lower.contains("top") && lower.contains("mask")) || lower == "f.mask" || lower == "f_mask" {
+    } else if (lower.contains("top") && lower.contains("mask"))
+        || lower == "f.mask"
+        || lower == "f_mask"
+    {
         "F_MASK".to_string()
-    } else if (lower.contains("bottom") && lower.contains("mask")) || lower == "b.mask" || lower == "b_mask" {
+    } else if (lower.contains("bottom") && lower.contains("mask"))
+        || lower == "b.mask"
+        || lower == "b_mask"
+    {
         "B_MASK".to_string()
     } else {
         name.to_ascii_uppercase().replace(['.', ' ', '-'], "_")

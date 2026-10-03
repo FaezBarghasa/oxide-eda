@@ -437,7 +437,9 @@ impl Oxide {
                 };
 
                 let exporter = CbrExporter::new(CbrOptions::default());
-                let cbr_content = exporter.export_bottom_copper(&board).map_err(|e| e.to_string())?;
+                let cbr_content = exporter
+                    .export_bottom_copper(&board)
+                    .map_err(|e| e.to_string())?;
 
                 std::fs::write(&path, cbr_content).map_err(|e| e.to_string())?;
                 Ok(path)

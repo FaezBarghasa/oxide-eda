@@ -75,7 +75,8 @@ impl CbrExporter {
         // Pad apertures
         let mut pad_apertures = BTreeMap::new();
         for fp in &board.footprints {
-            let is_bottom_fp = fp.layer.to_ascii_lowercase().contains("bottom") || fp.layer.to_ascii_lowercase().contains("b_cu");
+            let is_bottom_fp = fp.layer.to_ascii_lowercase().contains("bottom")
+                || fp.layer.to_ascii_lowercase().contains("b_cu");
             for pad in &fp.pads {
                 let on_bottom = pad.pad_type == PadType::Thru
                     || (pad.pad_type == PadType::Smd && is_bottom_fp)
@@ -83,12 +84,17 @@ impl CbrExporter {
 
                 if on_bottom {
                     let key = pad_aperture_key(pad);
-                    if let std::collections::btree_map::Entry::Vacant(e) = pad_apertures.entry(key) {
+                    if let std::collections::btree_map::Entry::Vacant(e) = pad_apertures.entry(key)
+                    {
                         e.insert(next_dcode);
                         let ap = match pad.shape {
                             PadShape::Circle => ApertureDef::Circle(pad.size.x.max(pad.size.y)),
-                            PadShape::Rect | PadShape::RoundRect | PadShape::Custom => ApertureDef::Rect(pad.size.x, pad.size.y),
-                            PadShape::Oval | PadShape::Trapezoid => ApertureDef::Oval(pad.size.x, pad.size.y),
+                            PadShape::Rect | PadShape::RoundRect | PadShape::Custom => {
+                                ApertureDef::Rect(pad.size.x, pad.size.y)
+                            }
+                            PadShape::Oval | PadShape::Trapezoid => {
+                                ApertureDef::Oval(pad.size.x, pad.size.y)
+                            }
                         };
                         apertures.insert(next_dcode, ap);
                         next_dcode += 1;
@@ -106,11 +112,20 @@ impl CbrExporter {
         }
 
         // 2. Write Standard Photoplotter Header
-        writeln!(out, "G04 ===================================================================*")?;
-        writeln!(out, "G04 File: CBR (Copper Bottom Routing) - Oxide EDA CAM Exporter*")?;
+        writeln!(
+            out,
+            "G04 ===================================================================*"
+        )?;
+        writeln!(
+            out,
+            "G04 File: CBR (Copper Bottom Routing) - Oxide EDA CAM Exporter*"
+        )?;
         writeln!(out, "G04 Title: {}*", self.options.title)?;
         writeln!(out, "G04 Format: RS-274X Compatible Bottom Copper Layer*")?;
-        writeln!(out, "G04 ===================================================================*")?;
+        writeln!(
+            out,
+            "G04 ===================================================================*"
+        )?;
         writeln!(out, "%FSLAX24Y24*%")?;
         writeln!(out, "%MOMM*%")?;
         writeln!(out, "%LPD*%")?;
@@ -155,7 +170,8 @@ impl CbrExporter {
 
         // 5. Emit Pads (D03 Flash)
         for fp in &board.footprints {
-            let is_bottom_fp = fp.layer.to_ascii_lowercase().contains("bottom") || fp.layer.to_ascii_lowercase().contains("b_cu");
+            let is_bottom_fp = fp.layer.to_ascii_lowercase().contains("bottom")
+                || fp.layer.to_ascii_lowercase().contains("b_cu");
             let fp_rot = fp.rotation.to_radians();
 
             for pad in &fp.pads {
@@ -239,10 +255,7 @@ enum ApertureDef {
 }
 
 fn pad_aperture_key(pad: &oxide_types::pcb::Pad) -> String {
-    format!(
-        "{:?}_{:.4}_{:.4}",
-        pad.shape, pad.size.x, pad.size.y
-    )
+    format!("{:?}_{:.4}_{:.4}", pad.shape, pad.size.x, pad.size.y)
 }
 
 fn is_bottom_copper_layer(layer: &str) -> bool {

@@ -98,7 +98,11 @@ impl DwgExporter {
         buf.write_all(&[0x00, 0x00])?; // Zero padding
 
         // Header variable section (R12/R14 drawing properties)
-        let header_flags: u16 = if self.options.is_template { 0x0001 } else { 0x0000 };
+        let header_flags: u16 = if self.options.is_template {
+            0x0001
+        } else {
+            0x0000
+        };
         buf.write_all(&header_flags.to_le_bytes())?;
 
         // Metric flag: 1 = Metric (mm), 0 = English (inches)
@@ -108,13 +112,13 @@ impl DwgExporter {
         // 2. Collect and register layer definitions
         let mut layers = BTreeMap::new();
         layers.insert("BOARD_OUTLINE".to_string(), (7u16, 0u8)); // White
-        layers.insert("F_CU".to_string(), (1u16, 0u8));          // Red
-        layers.insert("B_CU".to_string(), (5u16, 0u8));          // Blue
-        layers.insert("F_SILK".to_string(), (2u16, 0u8));        // Yellow
-        layers.insert("B_SILK".to_string(), (6u16, 0u8));        // Magenta
-        layers.insert("F_MASK".to_string(), (8u16, 0u8));        // Dark Gray
-        layers.insert("B_MASK".to_string(), (9u16, 0u8));        // Light Gray
-        layers.insert("DRILL".to_string(), (4u16, 0u8));         // Cyan
+        layers.insert("F_CU".to_string(), (1u16, 0u8)); // Red
+        layers.insert("B_CU".to_string(), (5u16, 0u8)); // Blue
+        layers.insert("F_SILK".to_string(), (2u16, 0u8)); // Yellow
+        layers.insert("B_SILK".to_string(), (6u16, 0u8)); // Magenta
+        layers.insert("F_MASK".to_string(), (8u16, 0u8)); // Dark Gray
+        layers.insert("B_MASK".to_string(), (9u16, 0u8)); // Light Gray
+        layers.insert("DRILL".to_string(), (4u16, 0u8)); // Cyan
         if self.options.include_border {
             layers.insert("TITLE_BLOCK".to_string(), (3u16, 0u8)); // Green
         }
@@ -138,7 +142,14 @@ impl DwgExporter {
         // Trace segments
         for seg in &board.segments {
             let layer = canonicalize_layer_name(&seg.layer);
-            write_binary_line(&mut buf, &layer, seg.start.x, seg.start.y, seg.end.x, seg.end.y)?;
+            write_binary_line(
+                &mut buf,
+                &layer,
+                seg.start.x,
+                seg.start.y,
+                seg.end.x,
+                seg.end.y,
+            )?;
         }
 
         // Vias
@@ -162,7 +173,11 @@ impl DwgExporter {
                 let cy = fp.position.y + py;
 
                 let pad_layer = if pad.pad_type == PadType::Smd {
-                    if fp.layer.to_ascii_lowercase().contains("bottom") { "B_CU" } else { "F_CU" }
+                    if fp.layer.to_ascii_lowercase().contains("bottom") {
+                        "B_CU"
+                    } else {
+                        "F_CU"
+                    }
                 } else {
                     "F_CU"
                 };
@@ -195,13 +210,17 @@ impl DwgExporter {
                     }
                 }
 
-                if let Some(ref drill) = pad.drill.as_ref().filter(|d| d.diameter > 0.0) {
+                if let Some(drill) = pad.drill.as_ref().filter(|d| d.diameter > 0.0) {
                     write_binary_circle(&mut buf, "DRILL", cx, cy, drill.diameter / 2.0)?;
                 }
             }
 
             // Silkscreen
-            let silk_layer = if fp.layer.to_ascii_lowercase().contains("bottom") { "B_SILK" } else { "F_SILK" };
+            let silk_layer = if fp.layer.to_ascii_lowercase().contains("bottom") {
+                "B_SILK"
+            } else {
+                "F_SILK"
+            };
             for g in &fp.graphics {
                 if let (Some(s), Some(e)) = (g.start, g.end) {
                     let (s_rot_x, s_rot_y) = rotate_point(s.x, s.y, fp_rot);
@@ -219,7 +238,14 @@ impl DwgExporter {
 
             // Reference text
             if !fp.reference.is_empty() {
-                write_binary_text(&mut buf, silk_layer, fp.position.x, fp.position.y, 1.2, &fp.reference)?;
+                write_binary_text(
+                    &mut buf,
+                    silk_layer,
+                    fp.position.x,
+                    fp.position.y,
+                    1.2,
+                    &fp.reference,
+                )?;
             }
         }
 
@@ -229,7 +255,14 @@ impl DwgExporter {
                 write_binary_line(&mut buf, "BOARD_OUTLINE", s.x, s.y, e.x, e.y)?;
             } else if !bg.points.is_empty() {
                 for window in bg.points.windows(2) {
-                    write_binary_line(&mut buf, "BOARD_OUTLINE", window[0].x, window[0].y, window[1].x, window[1].y)?;
+                    write_binary_line(
+                        &mut buf,
+                        "BOARD_OUTLINE",
+                        window[0].x,
+                        window[0].y,
+                        window[1].x,
+                        window[1].y,
+                    )?;
                 }
                 if let (Some(first), Some(last)) = (bg.points.first(), bg.points.last()) {
                     write_binary_line(&mut buf, "BOARD_OUTLINE", last.x, last.y, first.x, first.y)?;
@@ -257,7 +290,11 @@ impl DwgExporter {
         Ok(buf)
     }
 
-    fn write_drawing_template_border(&self, buf: &mut Vec<u8>, board: &PcbBoard) -> Result<(), DwgError> {
+    fn write_drawing_template_border(
+        &self,
+        buf: &mut Vec<u8>,
+        board: &PcbBoard,
+    ) -> Result<(), DwgError> {
         let (min_x, min_y, max_x, max_y) = calculate_bounds(board);
         let pad = 20.0;
         let x0 = min_x - pad;
@@ -285,9 +322,33 @@ impl DwgExporter {
         write_binary_line(buf, "TITLE_BLOCK", tbx0, tby0 + 24.0, tbx1, tby0 + 24.0)?;
 
         // Title Block Text Labels
-        write_binary_text(buf, "TITLE_BLOCK", tbx0 + 2.0, tby1 - 6.0, 2.5, &format!("TITLE: {}", self.options.title))?;
-        write_binary_text(buf, "TITLE_BLOCK", tbx0 + 2.0, tby0 + 16.0, 2.0, &format!("REV: {} | AUTHOR: {}", self.options.revision, self.options.author))?;
-        write_binary_text(buf, "TITLE_BLOCK", tbx0 + 2.0, tby0 + 4.0, 2.0, "OXIDE EDA FABRICATION TEMPLATE (DWT)")?;
+        write_binary_text(
+            buf,
+            "TITLE_BLOCK",
+            tbx0 + 2.0,
+            tby1 - 6.0,
+            2.5,
+            &format!("TITLE: {}", self.options.title),
+        )?;
+        write_binary_text(
+            buf,
+            "TITLE_BLOCK",
+            tbx0 + 2.0,
+            tby0 + 16.0,
+            2.0,
+            &format!(
+                "REV: {} | AUTHOR: {}",
+                self.options.revision, self.options.author
+            ),
+        )?;
+        write_binary_text(
+            buf,
+            "TITLE_BLOCK",
+            tbx0 + 2.0,
+            tby0 + 4.0,
+            2.0,
+            "OXIDE EDA FABRICATION TEMPLATE (DWT)",
+        )?;
 
         Ok(())
     }
@@ -302,7 +363,14 @@ const ENTITY_CIRCLE: u8 = 0x03;
 const ENTITY_SOLID: u8 = 0x0B;
 const ENTITY_TEXT: u8 = 0x07;
 
-fn write_binary_line(buf: &mut Vec<u8>, layer: &str, x1: f64, y1: f64, x2: f64, y2: f64) -> Result<(), DwgError> {
+fn write_binary_line(
+    buf: &mut Vec<u8>,
+    layer: &str,
+    x1: f64,
+    y1: f64,
+    x2: f64,
+    y2: f64,
+) -> Result<(), DwgError> {
     buf.write_all(&[ENTITY_LINE])?;
     write_layer_tag(buf, layer)?;
     buf.write_all(&x1.to_le_bytes())?;
@@ -312,7 +380,13 @@ fn write_binary_line(buf: &mut Vec<u8>, layer: &str, x1: f64, y1: f64, x2: f64, 
     Ok(())
 }
 
-fn write_binary_circle(buf: &mut Vec<u8>, layer: &str, cx: f64, cy: f64, r: f64) -> Result<(), DwgError> {
+fn write_binary_circle(
+    buf: &mut Vec<u8>,
+    layer: &str,
+    cx: f64,
+    cy: f64,
+    r: f64,
+) -> Result<(), DwgError> {
     buf.write_all(&[ENTITY_CIRCLE])?;
     write_layer_tag(buf, layer)?;
     buf.write_all(&cx.to_le_bytes())?;
@@ -342,7 +416,14 @@ fn write_binary_solid(
     Ok(())
 }
 
-fn write_binary_text(buf: &mut Vec<u8>, layer: &str, x: f64, y: f64, height: f64, text: &str) -> Result<(), DwgError> {
+fn write_binary_text(
+    buf: &mut Vec<u8>,
+    layer: &str,
+    x: f64,
+    y: f64,
+    height: f64,
+    text: &str,
+) -> Result<(), DwgError> {
     buf.write_all(&[ENTITY_TEXT])?;
     write_layer_tag(buf, layer)?;
     buf.write_all(&x.to_le_bytes())?;

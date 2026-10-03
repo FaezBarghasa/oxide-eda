@@ -13,6 +13,7 @@ use thiserror::Error;
 pub mod assembly;
 pub mod bom;
 pub mod cbr;
+pub mod cdr;
 pub mod draftsman;
 pub mod drill;
 pub mod dwg;
@@ -31,6 +32,7 @@ pub mod template;
 
 pub use assembly::{AssemblyError, AssemblyLayer, PickAndPlaceExporter, PickAndPlaceOptions};
 pub use cbr::{CbrError, CbrExporter, CbrOptions};
+pub use cdr::{CdrColor, CdrError, CdrExporter, CdrLayerConfig, CdrOptions, CdrVersion};
 pub use draftsman::{
     DatumReference, DimensionKind, DraftsmanDocument, DraftsmanSheet, DrawingView, DrillTable,
     DrillTableRow, FeatureControlFrame, GeometricCharacteristic, HolePlating, MaterialCondition,
