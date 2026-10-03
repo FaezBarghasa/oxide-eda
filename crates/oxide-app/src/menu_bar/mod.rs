@@ -110,6 +110,7 @@ pub enum MenuMessage {
     ExportDwg,
     ExportDwt,
     ExportCbr,
+    ExportCdr,
     /// File ▸ Exit — closes the main window via the same path as the
     /// chrome ✕ button (`Message::Window(WindowMsg::CloseMainWindow)`). Wired through
     /// `handle_menu_file_command`.

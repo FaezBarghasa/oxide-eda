@@ -1,8 +1,8 @@
 use iced::Task;
 use oxide_output::{
-    CbrExporter, CbrOptions, DraftsmanDocument, DwgExporter, DwgOptions, DwgVersion, DxfExporter,
-    DxfOptions, ExcellonExporter, GerberExporter, GerberOptions, Ipc2581Options,
-    PickAndPlaceExporter, PickAndPlaceOptions, export_ipc2581,
+    CbrExporter, CbrOptions, CdrExporter, CdrOptions, CdrVersion, DraftsmanDocument, DwgExporter,
+    DwgOptions, DwgVersion, DxfExporter, DxfOptions, ExcellonExporter, GerberExporter,
+    GerberOptions, Ipc2581Options, PickAndPlaceExporter, PickAndPlaceOptions, export_ipc2581,
 };
 use oxide_types::pcb::PcbBoard;
 use std::path::PathBuf;
@@ -455,6 +455,56 @@ impl Oxide {
                 Err(e) => {
                     if e != "Cancelled by user" {
                         crate::diagnostics::log_warning(format!("Export CBR failed: {e}"));
+                    }
+                    Message::Noop
+                }
+            },
+        )
+    }
+
+    /// Export CorelDRAW Vector Drawing (`.cdr`) file.
+    pub(crate) fn handle_export_cdr(&mut self) -> Task<Message> {
+        let Some(board) = self.resolve_pcb_board() else {
+            crate::diagnostics::log_warning("Export CDR: No active PCB layout found.");
+            return Task::none();
+        };
+
+        Task::perform(
+            async move {
+                let file = rfd::AsyncFileDialog::new()
+                    .set_title("Export CorelDRAW Vector Drawing (.cdr)")
+                    .set_file_name("board.cdr")
+                    .add_filter("CorelDRAW Drawing (*.cdr)", &["cdr"])
+                    .save_file()
+                    .await
+                    .map(|f| f.path().to_path_buf());
+
+                let Some(path) = file else {
+                    return Err("Cancelled by user".to_string());
+                };
+
+                let exporter = CdrExporter::new(CdrOptions {
+                    version: CdrVersion::V3_0,
+                    ..Default::default()
+                });
+                let cdr_bytes = exporter
+                    .export_board(&board)
+                    .map_err(|e| e.to_string())?;
+
+                std::fs::write(&path, cdr_bytes).map_err(|e| e.to_string())?;
+                Ok(path)
+            },
+            |res| match res {
+                Ok(path) => {
+                    crate::diagnostics::log_info(format!(
+                        "Export CDR: Successfully generated CorelDRAW .cdr file at {}",
+                        path.display()
+                    ));
+                    Message::Noop
+                }
+                Err(e) => {
+                    if e != "Cancelled by user" {
+                        crate::diagnostics::log_warning(format!("Export CDR failed: {e}"));
                     }
                     Message::Noop
                 }

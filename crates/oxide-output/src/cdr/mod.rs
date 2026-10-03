@@ -156,7 +156,7 @@ impl CdrExporter {
         // Package as RIFF container:
         // "RIFF" [file_size - 8] "CDR " [chunks...]
         let mut total_chunk_payload = 4; // 'CDR ' form identifier length
-        for (fourcc, data) in &chunks {
+        for (_fourcc, data) in &chunks {
             let len = data.len();
             let padded_len = if len % 2 != 0 { len + 1 } else { len };
             total_chunk_payload += 8 + padded_len; // 4 bytes fourcc + 4 bytes size + payload + padding

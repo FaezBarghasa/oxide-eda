@@ -1,5 +1,6 @@
 use oxide_output::{
-    CbrExporter, CbrOptions, DwgExporter, DwgOptions, DwgVersion, DxfExporter, DxfOptions,
+    CbrExporter, CbrOptions, CdrExporter, CdrOptions, CdrVersion, DwgExporter, DwgOptions,
+    DwgVersion, DxfExporter, DxfOptions,
 };
 use oxide_types::pcb::{
     DrillDef, Footprint, FpGraphic, Pad, PadShape, PadType, PcbBoard, Point, Segment, Via, ViaType,
@@ -212,3 +213,24 @@ fn test_cbr_copper_bottom_routing_export() {
     assert!(cbr_content.contains("G37*")); // End polygon fill
     assert!(cbr_content.ends_with("M02*\n"));
 }
+
+#[test]
+fn test_cdr_coreldraw_export() {
+    let board = create_sample_board();
+    let exporter = CdrExporter::new(CdrOptions {
+        version: CdrVersion::V3_0,
+        title: "Motor Driver Silkscreen & Layers".to_string(),
+        ..Default::default()
+    });
+    let cdr_bytes = exporter.export_board(&board).expect("export cdr");
+
+    // Verify RIFF CDR binary container structure
+    assert_eq!(&cdr_bytes[0..4], b"RIFF");
+    assert_eq!(&cdr_bytes[8..12], b"CDR ");
+    assert!(cdr_bytes.windows(4).any(|w| w == b"vrsn"));
+    assert!(cdr_bytes.windows(4).any(|w| w == b"info"));
+    assert!(cdr_bytes.windows(4).any(|w| w == b"layr"));
+    assert!(cdr_bytes.windows(4).any(|w| w == b"oblt"));
+    assert!(cdr_bytes.len() > 200);
+}
+
