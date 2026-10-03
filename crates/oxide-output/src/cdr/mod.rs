@@ -651,6 +651,7 @@ impl CdrLayerConfig {
 
 // ─── Low-Level CDR Binary Serializers ───────────────────────────────────────
 
+#[allow(clippy::too_many_arguments)]
 fn write_cdr_line(
     out: &mut Vec<u8>,
     layer_id: u16,
@@ -674,6 +675,7 @@ fn write_cdr_line(
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 fn write_cdr_circle(
     out: &mut Vec<u8>,
     layer_id: u16,

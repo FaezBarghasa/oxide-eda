@@ -99,6 +99,13 @@ impl DxfExporter {
 
     /// Export complete PCB board into a unified multi-layer AutoCAD R12 DXF file.
     pub fn export_board(&self, board: &PcbBoard) -> Result<String, DxfError> {
+        let mut bytes = Vec::with_capacity(32 * 1024);
+        self.export_board_to_writer(board, &mut bytes)?;
+        String::from_utf8(bytes).map_err(|e| DxfError::Io(std::io::Error::new(std::io::ErrorKind::InvalidData, e)))
+    }
+
+    /// Stream complete PCB board into any `std::io::Write` target.
+    pub fn export_board_to_writer<W: std::io::Write>(&self, board: &PcbBoard, writer: &mut W) -> Result<(), DxfError> {
         let mut out = String::with_capacity(32 * 1024);
 
         // 1. Collect all active layer names from board
@@ -119,7 +126,8 @@ impl DxfExporter {
         // 6. Write EOF
         writeln!(out, "  0\nEOF")?;
 
-        Ok(out)
+        writer.write_all(out.as_bytes())?;
+        Ok(())
     }
 
     /// Export individual PCB layer into a standalone single-layer DXF file.
