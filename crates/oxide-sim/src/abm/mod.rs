@@ -7,6 +7,11 @@
 
 use serde::{Deserialize, Serialize};
 
+pub mod hermite_spline;
+pub use hermite_spline::{
+    HermiteSmoothingConfig, evaluate_smoothed_if, evaluate_smoothed_limit, evaluate_smoothed_step,
+};
+
 /// Rational s-domain Laplace Transfer Function: H(s) = N(s) / D(s).
 /// N(s) = sum(b_m * s^m), D(s) = sum(a_k * s^k).
 #[derive(Debug, Clone, Serialize, Deserialize)]

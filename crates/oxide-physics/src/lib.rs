@@ -8,7 +8,10 @@ pub mod impedance;
 pub mod kinematics;
 pub mod material;
 pub mod stackup;
+pub mod strain;
 pub mod units;
+
+pub use strain::{FlexLayerSlice, Ipc2223Validator, NeutralAxisEvaluator, StrainError};
 
 pub use backdrill::{
     BackdrillSummary, BackdrillTarget, BackdrillViaInput, ViaCoord, calculate_backdrilling,

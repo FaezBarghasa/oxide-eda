@@ -13,7 +13,12 @@ use crate::geometry::rtree::{NetId, ObjectId, SpatialIndex};
 use crate::geometry::{BoundingBox, Point2D};
 use crate::{LayerId, RouteSegment, RoutingError, RoutingPath, RoutingResult, SegmentType};
 
+pub mod cdt;
+pub mod predicates;
 pub mod triangulation;
+
+pub use cdt::{CdtError, DynamicCdt, TransversalCorridor};
+pub use predicates::{Orientation, incircle, orient2d};
 
 pub type TriangleId = Uuid;
 pub type EdgeId = Uuid;

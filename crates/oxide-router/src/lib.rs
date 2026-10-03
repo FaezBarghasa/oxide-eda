@@ -12,6 +12,7 @@ pub mod geometry;
 pub mod interactive;
 pub mod optimization;
 pub mod topology;
+pub mod tuning;
 pub mod workflow;
 
 pub use copper_pour::{
@@ -20,11 +21,16 @@ pub use copper_pour::{
 pub use geometry::rtree::{NetId, ObjectId, SpatialIndex, SpatialObject, SpatialObjectType};
 pub use geometry::{BoundingBox, Point2D, Polygon2D, Vector2D};
 pub use interactive::{
-    InteractiveRouter, PathDeflection, RoutingMode, TopologicalRouter, TuningConstraint,
-    TuningStyle,
+    ElasticShoveEngine, ElasticShoveResult, InteractiveRouter, PathDeflection, RoutingMode,
+    ShoveContext, ShoveError, TopologicalRouter, TuningConstraint, TuningStyle,
 };
 pub use optimization::OptimizationEngine;
-pub use topology::TopologicalAutorouter;
+pub use topology::{CdtError, DynamicCdt, TopologicalAutorouter, TransversalCorridor};
+pub use tuning::{
+    BalancedPairResult, MeanderConstraint, PhaseSkewBudget, TuningError,
+    balance_differential_phase, compute_coupled_delay_ps, fit_biarc_corner,
+    synthesize_coupled_accordion,
+};
 pub use workflow::{RoutingWorkflow, WorkflowResult};
 
 pub type LayerId = u8;
