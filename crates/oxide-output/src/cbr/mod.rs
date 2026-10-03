@@ -13,6 +13,8 @@ use thiserror::Error;
 pub enum CbrError {
     #[error("Formatting error: {0}")]
     Format(#[from] std::fmt::Error),
+    #[error("I/O error: {0}")]
+    Io(#[from] std::io::Error),
     #[error("Empty bottom copper layer")]
     EmptyLayer,
 }
@@ -53,6 +55,13 @@ impl CbrExporter {
 
     /// Export bottom copper layer into `.cbr` file format string.
     pub fn export_bottom_copper(&self, board: &PcbBoard) -> Result<String, CbrError> {
+        let mut bytes = Vec::with_capacity(32 * 1024);
+        self.export_bottom_copper_to_writer(board, &mut bytes)?;
+        String::from_utf8(bytes).map_err(|e| CbrError::Io(std::io::Error::new(std::io::ErrorKind::InvalidData, e)))
+    }
+
+    /// Stream bottom copper layer directly into any `std::io::Write` target.
+    pub fn export_bottom_copper_to_writer<W: std::io::Write>(&self, board: &PcbBoard, writer: &mut W) -> Result<(), CbrError> {
         let mut out = String::with_capacity(32 * 1024);
 
         // 1. Collect Apertures for bottom layer traces, pads, and vias
@@ -239,7 +248,8 @@ impl CbrExporter {
         // 8. End of File
         writeln!(out, "M02*")?;
 
-        Ok(out)
+        writer.write_all(out.as_bytes())?;
+        Ok(())
     }
 
     fn format_coord(&self, val: f64) -> i64 {

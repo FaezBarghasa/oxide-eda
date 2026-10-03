@@ -208,6 +208,13 @@ impl CdrExporter {
         Ok(out)
     }
 
+    /// Stream complete PCB board into any `std::io::Write` target as a binary CorelDRAW file.
+    pub fn export_board_to_writer<W: std::io::Write>(&self, board: &PcbBoard, writer: &mut W) -> Result<(), CdrError> {
+        let bytes = self.export_board(board)?;
+        writer.write_all(&bytes)?;
+        Ok(())
+    }
+
     /// Exports a single PCB layer to a CorelDRAW file.
     pub fn export_single_layer(
         &self,

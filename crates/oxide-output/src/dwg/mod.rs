@@ -81,6 +81,13 @@ impl DwgExporter {
         exporter.generate_binary_drawing(board)
     }
 
+    /// Stream board layout into a binary AutoCAD DWG drawing writer.
+    pub fn export_dwg_to_writer<W: std::io::Write>(&self, board: &PcbBoard, writer: &mut W) -> Result<(), DwgError> {
+        let bytes = self.export_dwg(board)?;
+        writer.write_all(&bytes)?;
+        Ok(())
+    }
+
     /// Export board layout into a binary AutoCAD Drawing Template (`.dwt`) file.
     pub fn export_dwt(&self, board: &PcbBoard) -> Result<Vec<u8>, DwgError> {
         let mut opts = self.options.clone();
@@ -88,6 +95,13 @@ impl DwgExporter {
         opts.include_border = true;
         let exporter = DwgExporter::new(opts);
         exporter.generate_binary_drawing(board)
+    }
+
+    /// Stream board layout into a binary AutoCAD Drawing Template (`.dwt`) writer.
+    pub fn export_dwt_to_writer<W: std::io::Write>(&self, board: &PcbBoard, writer: &mut W) -> Result<(), DwgError> {
+        let bytes = self.export_dwt(board)?;
+        writer.write_all(&bytes)?;
+        Ok(())
     }
 
     fn generate_binary_drawing(&self, board: &PcbBoard) -> Result<Vec<u8>, DwgError> {
