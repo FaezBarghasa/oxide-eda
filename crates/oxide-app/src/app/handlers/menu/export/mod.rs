@@ -5,6 +5,7 @@ use std::path::PathBuf;
 use oxide_output::{ExportContext, ProjectMetadata, SheetSnapshot};
 
 mod bom;
+pub(crate) mod manufacturing;
 mod pdf_netlist;
 mod print_preview;
 #[cfg(test)]

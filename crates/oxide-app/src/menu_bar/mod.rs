@@ -101,6 +101,11 @@ pub enum MenuMessage {
     ExportPdf,
     ExportNetlist,
     ExportBom,
+    ExportGerber,
+    ExportDrill,
+    ExportPnP,
+    ExportIpc2581,
+    ExportDraftsman,
     /// File ▸ Exit — closes the main window via the same path as the
     /// chrome ✕ button (`Message::Window(WindowMsg::CloseMainWindow)`). Wired through
     /// `handle_menu_file_command`.
@@ -174,6 +179,9 @@ pub enum MenuMessage {
     Erc,
     ToggleAutoFocus,
     GenerateBom,
+    UpdatePcbFromSchematic,
+    RunDrc,
+    RunSimulation,
     // Tools
     /// Open the Preferences dialog.
     OpenPreferences,

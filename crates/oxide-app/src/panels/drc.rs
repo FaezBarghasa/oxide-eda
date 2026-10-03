@@ -2,7 +2,6 @@
 
 use iced::widget::{Column, Space, button, row, scrollable, text};
 use iced::{Element, Length};
-use oxide_rules::RuleViolation;
 use oxide_widgets::theme_ext;
 
 use super::messages::PanelMsg;

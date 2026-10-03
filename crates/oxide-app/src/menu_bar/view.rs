@@ -66,6 +66,38 @@ pub fn view(tokens: &ThemeTokens, ctx: MenuContext) -> Element<'static, MenuMess
                 MenuMessage::ExportBom,
                 ctx.has_schematic,
             ),
+            separator(mc),
+            leaf_if(
+                "Gerber RS-274X / X2…",
+                None,
+                MenuMessage::ExportGerber,
+                ctx.has_pcb || ctx.has_schematic,
+            ),
+            leaf_if(
+                "NC Drill (Excellon .drl)…",
+                None,
+                MenuMessage::ExportDrill,
+                ctx.has_pcb || ctx.has_schematic,
+            ),
+            leaf_if(
+                "Pick and Place (Centroid .csv)…",
+                None,
+                MenuMessage::ExportPnP,
+                ctx.has_pcb || ctx.has_schematic,
+            ),
+            leaf_if(
+                "IPC-2581 XML…",
+                None,
+                MenuMessage::ExportIpc2581,
+                ctx.has_pcb || ctx.has_schematic,
+            ),
+            separator(mc),
+            leaf_if(
+                "Draftsman Drawing (.svg)…",
+                None,
+                MenuMessage::ExportDraftsman,
+                ctx.has_pcb || ctx.has_schematic,
+            ),
         ]),
     );
 
@@ -355,9 +387,25 @@ pub fn view(tokens: &ThemeTokens, ctx: MenuContext) -> Element<'static, MenuMess
                 MenuMessage::Erc,
                 ctx.has_schematic,
             ),
+            leaf_if(
+                "Update PCB Document from Schematic (ECO)",
+                None,
+                MenuMessage::UpdatePcbFromSchematic,
+                ctx.has_schematic,
+            ),
             separator(mc),
-            leaf_stub("Generate BOM", None, mc),
-            leaf_stub("Generate Netlist", None, mc),
+            leaf_if(
+                "Generate BOM",
+                None,
+                MenuMessage::ExportBom,
+                ctx.has_schematic,
+            ),
+            leaf_if(
+                "Generate Netlist",
+                None,
+                MenuMessage::ExportNetlist,
+                ctx.has_schematic,
+            ),
         ]),
     );
 
@@ -367,7 +415,18 @@ pub fn view(tokens: &ThemeTokens, ctx: MenuContext) -> Element<'static, MenuMess
             leaf_stub("Assign Footprints", None, mc),
             leaf_stub("Library Editor", None, mc),
             separator(mc),
-            leaf_stub("Design Rule Check", None, mc),
+            leaf_if(
+                "Design Rule Check (DRC)",
+                None,
+                MenuMessage::RunDrc,
+                ctx.has_pcb || ctx.has_schematic,
+            ),
+            leaf_if(
+                "Run SPICE Simulation (TRAN/DC)",
+                None,
+                MenuMessage::RunSimulation,
+                ctx.has_schematic || ctx.has_pcb,
+            ),
             leaf_stub("Net Inspector", None, mc),
             separator(mc),
             // Multi-part component flow — only meaningful when the
