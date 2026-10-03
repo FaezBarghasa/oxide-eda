@@ -11,6 +11,25 @@ use uuid::Uuid;
 
 use crate::error::EngineError;
 
+/// PCB entity category for selection.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum SelectedPcbKind {
+    Footprint,
+    Pad,
+    Segment,
+    Via,
+    Zone,
+    Graphic,
+}
+
+/// A selected PCB primitive item.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct SelectedPcbItem {
+    pub uuid: Uuid,
+    pub kind: SelectedPcbKind,
+    pub name: Option<String>,
+}
+
 /// Individual invertible PCB layout command.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum PcbCommand {
@@ -58,6 +77,11 @@ pub enum PcbCommand {
     },
     DeleteZone {
         uuid: Uuid,
+    },
+    MoveSelection {
+        items: Vec<SelectedPcbItem>,
+        dx: f64,
+        dy: f64,
     },
 }
 
