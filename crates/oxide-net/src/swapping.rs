@@ -9,8 +9,8 @@
 
 use crate::eco::{EcoAction, EcoReport};
 use serde::{Deserialize, Serialize};
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 /// Swappable Pin Definition within an IC package.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

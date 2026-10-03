@@ -156,7 +156,8 @@ mod tests {
             target_delay_ps: 200.0,
             ..Default::default()
         };
-        let meander = synthesize_coupled_accordion(start, end, &constraint, 0.15).expect("meander synthesized");
+        let meander = synthesize_coupled_accordion(start, end, &constraint, 0.15)
+            .expect("meander synthesized");
         assert!(meander.len() > 2);
     }
 }

@@ -19,7 +19,8 @@ pub enum Orientation {
 /// Clockwise if r lies to the right, and Collinear if all three points are collinear.
 #[inline]
 pub fn orient2d(p: Point2D, q: Point2D, r: Point2D) -> Orientation {
-    let det = ((q.x - p.x) as f64) * ((r.y - p.y) as f64) - ((q.y - p.y) as f64) * ((r.x - p.x) as f64);
+    let det =
+        ((q.x - p.x) as f64) * ((r.y - p.y) as f64) - ((q.y - p.y) as f64) * ((r.x - p.x) as f64);
     if det > 1e-12 {
         Orientation::CounterClockwise
     } else if det < -1e-12 {

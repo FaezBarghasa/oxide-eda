@@ -15,8 +15,8 @@ pub mod conflict;
 pub mod elastic_shove;
 pub mod session;
 
-pub use elastic_shove::{ElasticShoveEngine, ElasticShoveResult, ShoveContext, ShoveError};
 use conflict::{PushAndShoveEngine, PushResult};
+pub use elastic_shove::{ElasticShoveEngine, ElasticShoveResult, ShoveContext, ShoveError};
 
 /// Modes supported during interactive routing gestures.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]

@@ -183,7 +183,10 @@ mod tests {
             })
             .unwrap();
         assert_eq!(state, AnnotationState::Synchronized);
-        assert_eq!(engine.dimensions[&dim_id].cached_start_pt, Point::new(5.0, 5.0));
+        assert_eq!(
+            engine.dimensions[&dim_id].cached_start_pt,
+            Point::new(5.0, 5.0)
+        );
 
         // 2. Component deleted (resolver returns None for Pad) -> Graceful Dangling state without panic
         let state_after_delete = engine

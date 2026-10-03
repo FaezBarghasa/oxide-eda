@@ -16,7 +16,9 @@ pub enum CdtError {
     DegenerateVertices(Point2D, Point2D),
     #[error("Edge flip cycle detected on edge {0}; Lawson loop terminated")]
     EdgeFlipCycle(u32),
-    #[error("Corridor capacity breached: effective width {effective_nm} nm < required {required_nm} nm")]
+    #[error(
+        "Corridor capacity breached: effective width {effective_nm} nm < required {required_nm} nm"
+    )]
     CapacityBreached { effective_nm: i64, required_nm: i64 },
 }
 
@@ -86,6 +88,7 @@ impl DynamicCdt {
 
     /// Evaluates effective transversal corridor capacity across an edge,
     /// accounting for trapezoidal chemical etch factor on heavy copper layers.
+    #[allow(clippy::too_many_arguments)]
     pub fn evaluate_corridor_capacity(
         &self,
         edge_id: EdgeId,
@@ -99,11 +102,17 @@ impl DynamicCdt {
         let p_a = *self
             .vertices
             .get(v_a.0 as usize)
-            .ok_or(CdtError::DegenerateVertices(Point2D::new(0, 0), Point2D::new(0, 0)))?;
+            .ok_or(CdtError::DegenerateVertices(
+                Point2D::new(0, 0),
+                Point2D::new(0, 0),
+            ))?;
         let p_b = *self
             .vertices
             .get(v_b.0 as usize)
-            .ok_or(CdtError::DegenerateVertices(Point2D::new(0, 0), Point2D::new(0, 0)))?;
+            .ok_or(CdtError::DegenerateVertices(
+                Point2D::new(0, 0),
+                Point2D::new(0, 0),
+            ))?;
 
         let dx = (p_b.x - p_a.x) as f64;
         let dy = (p_b.y - p_a.y) as f64;
@@ -117,7 +126,8 @@ impl DynamicCdt {
         } else {
             0.0
         };
-        let trapezoidal_expansion_nm = (2.0 * (copper_thickness_nm as f64) * cot_theta).round() as i64;
+        let trapezoidal_expansion_nm =
+            (2.0 * (copper_thickness_nm as f64) * cot_theta).round() as i64;
         let effective_trace_width_nm = (nominal_trace_width_nm as i64) + trapezoidal_expansion_nm;
 
         let total_consumed_width_nm = effective_trace_width_nm + (clearance_rule_nm as i64);

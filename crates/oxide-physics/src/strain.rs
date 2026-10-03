@@ -13,7 +13,9 @@ use thiserror::Error;
 pub enum StrainError {
     #[error("Zero total modulus-thickness product: stackup layers invalid")]
     ZeroModulusProduct,
-    #[error("Bend radius too small ({radius_um} µm); copper strain {strain_pct:.2}% exceeds fatigue limit")]
+    #[error(
+        "Bend radius too small ({radius_um} µm); copper strain {strain_pct:.2}% exceeds fatigue limit"
+    )]
     FatigueLimitExceeded { radius_um: f64, strain_pct: f64 },
     #[error("IPC-2223 coverlay overlap {found_um} µm is less than required {required_um} µm")]
     InsufficientCoverlayOverlap { found_um: f64, required_um: f64 },

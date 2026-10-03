@@ -87,10 +87,7 @@ impl AnalyticalSolidBRepExporter {
         writeln!(writer, "DATA;")?;
 
         let id_origin = reg.next_id();
-        writeln!(
-            writer,
-            "#{id_origin}=CARTESIAN_POINT('Origin',(0.,0.,0.));"
-        )?;
+        writeln!(writer, "#{id_origin}=CARTESIAN_POINT('Origin',(0.,0.,0.));")?;
 
         let id_dir_z = reg.next_id();
         writeln!(writer, "#{id_dir_z}=DIRECTION('AxisZ',(0.,0.,1.));")?;

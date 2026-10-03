@@ -3,7 +3,6 @@
 use std::path::{Path, PathBuf};
 use tempfile::TempDir;
 
-use git2;
 use oxide_library::dependency::{GitDependencyManager, LockfileManager};
 use oxide_types::project::{
     DependencyKind, GitReference, GitSource, ProjectData, ProjectDependency,

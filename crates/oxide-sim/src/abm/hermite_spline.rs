@@ -12,9 +12,7 @@ pub struct HermiteSmoothingConfig {
 
 impl Default for HermiteSmoothingConfig {
     fn default() -> Self {
-        Self {
-            delta_smooth: 1e-5,
-        }
+        Self { delta_smooth: 1e-5 }
     }
 }
 
@@ -23,13 +21,7 @@ impl Default for HermiteSmoothingConfig {
 /// Smooths a step between `y_low` (for $x \le x_0 - \delta$) and `y_high` (for $x \ge x_0 + \delta$)
 /// using cubic Hermite interpolation $H(u) = 3u^2 - 2u^3$ with $u \in [0, 1]$.
 #[inline]
-pub fn evaluate_smoothed_step(
-    x: f64,
-    x0: f64,
-    y_low: f64,
-    y_high: f64,
-    delta: f64,
-) -> (f64, f64) {
+pub fn evaluate_smoothed_step(x: f64, x0: f64, y_low: f64, y_high: f64, delta: f64) -> (f64, f64) {
     if x <= x0 - delta {
         (y_low, 0.0)
     } else if x >= x0 + delta {
@@ -48,23 +40,13 @@ pub fn evaluate_smoothed_step(
 
 /// Smoothed IF(cond > 0, v_true, v_false) operator with continuous derivative.
 #[inline]
-pub fn evaluate_smoothed_if(
-    cond: f64,
-    v_true: f64,
-    v_false: f64,
-    delta: f64,
-) -> (f64, f64) {
+pub fn evaluate_smoothed_if(cond: f64, v_true: f64, v_false: f64, delta: f64) -> (f64, f64) {
     evaluate_smoothed_step(cond, 0.0, v_false, v_true, delta)
 }
 
 /// Smoothed LIMIT(x, min, max) with continuous derivatives at the clamping corners.
 #[inline]
-pub fn evaluate_smoothed_limit(
-    x: f64,
-    min_val: f64,
-    max_val: f64,
-    delta: f64,
-) -> (f64, f64) {
+pub fn evaluate_smoothed_limit(x: f64, min_val: f64, max_val: f64, delta: f64) -> (f64, f64) {
     if x < min_val - delta {
         (min_val, 0.0)
     } else if x > max_val + delta {
