@@ -20,7 +20,7 @@ pub fn parse_spice_raw(bytes: &[u8]) -> Result<WaveformDataset, SimError> {
     let mut is_binary = false;
     let mut binary_offset = 0usize;
 
-    while let Some(line) = lines.next() {
+    for line in lines.by_ref() {
         let trimmed = line.trim();
         if trimmed.starts_with("Title:") {
             title = trimmed.trim_start_matches("Title:").trim().to_string();
@@ -98,7 +98,7 @@ pub fn parse_spice_raw(bytes: &[u8]) -> Result<WaveformDataset, SimError> {
         let points_to_read = if num_points > 0 { num_points.min(available_points) } else { available_points };
 
         for p in 0..points_to_read {
-            for v in 0..var_names.len() {
+            for (v, trace) in traces_data.iter_mut().enumerate().take(var_names.len()) {
                 let offset = if is_complex {
                     p * point_stride + v * float_size * 2
                 } else {
@@ -107,7 +107,7 @@ pub fn parse_spice_raw(bytes: &[u8]) -> Result<WaveformDataset, SimError> {
 
                 if offset + 8 <= raw_data.len() {
                     let val = f64::from_le_bytes(raw_data[offset..offset + 8].try_into().unwrap_or([0; 8]));
-                    traces_data[v].push(val);
+                    trace.push(val);
                 }
             }
         }
@@ -130,14 +130,13 @@ pub fn parse_spice_raw(bytes: &[u8]) -> Result<WaveformDataset, SimError> {
                         current_var += 1;
                     }
                 }
-            } else if tokens.len() == 1 {
+            } else if tokens.len() == 1
+                && let Ok(val) = tokens[0].parse::<f64>()
+                && current_var < traces_data.len()
+            {
                 // Subsequent variables for the current point
-                if let Ok(val) = tokens[0].parse::<f64>() {
-                    if current_var < traces_data.len() {
-                        traces_data[current_var].push(val);
-                        current_var += 1;
-                    }
-                }
+                traces_data[current_var].push(val);
+                current_var += 1;
             }
         }
     }

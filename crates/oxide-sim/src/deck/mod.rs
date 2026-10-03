@@ -84,7 +84,7 @@ impl<'a> PSpiceDeckBuilder<'a> {
 
                     // Map pins in model's declared node order
                     if !model.default_node_map.is_empty() {
-                        for (_pin_idx, pin_name) in &model.default_node_map {
+                        for pin_name in model.default_node_map.values() {
                             let node = pin_to_net
                                 .get(&(refdes.to_string(), pin_name.clone()))
                                 .cloned()

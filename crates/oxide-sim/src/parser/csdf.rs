@@ -54,15 +54,15 @@ pub fn parse_csdf(content: &str) -> Result<WaveformDataset, SimError> {
             in_header = false;
         } else if in_data && !trimmed.starts_with('#') {
             let tokens: Vec<&str> = trimmed.split_whitespace().collect();
-            if !tokens.is_empty() {
-                if let Ok(x) = tokens[0].parse::<f64>() {
-                    x_vals.push(x);
-                    for (i, tok) in tokens[1..].iter().enumerate() {
-                        if i < trace_data.len() {
-                            if let Ok(val) = tok.parse::<f64>() {
-                                trace_data[i].push(val);
-                            }
-                        }
+            if !tokens.is_empty()
+                && let Ok(x) = tokens[0].parse::<f64>()
+            {
+                x_vals.push(x);
+                for (i, tok) in tokens[1..].iter().enumerate() {
+                    if i < trace_data.len()
+                        && let Ok(val) = tok.parse::<f64>()
+                    {
+                        trace_data[i].push(val);
                     }
                 }
             }
@@ -76,7 +76,7 @@ pub fn parse_csdf(content: &str) -> Result<WaveformDataset, SimError> {
 
     let traces = trace_defs
         .into_iter()
-        .zip(trace_data.into_iter())
+        .zip(trace_data)
         .map(|((name, unit), values)| WaveformTrace { name, unit, values })
         .collect();
 

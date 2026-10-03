@@ -339,9 +339,9 @@ impl MnaSolver for InProcessMnaSolver {
 
         // Compute LTE error estimate
         let mut max_lte = 0.0;
-        for i in 0..n {
-            let diff = (solution[i] - self.prev_state_vector[i]).abs();
-            let denom = self.reltol * solution[i].abs() + self.abstol;
+        for (i, &sol_val) in solution.iter().enumerate().take(n) {
+            let diff = (sol_val - self.prev_state_vector[i]).abs();
+            let denom = self.reltol * sol_val.abs() + self.abstol;
             let lte = diff / denom;
             if lte > max_lte {
                 max_lte = lte;
@@ -349,10 +349,10 @@ impl MnaSolver for InProcessMnaSolver {
         }
 
         // Update states
-        for i in 0..n {
-            self.prev_deriv_vector[i] = factor * (solution[i] - self.prev_state_vector[i]) - self.prev_deriv_vector[i];
-            self.prev_state_vector[i] = solution[i];
-            self.state_vector[i] = solution[i];
+        for (i, &sol_val) in solution.iter().enumerate().take(n) {
+            self.prev_deriv_vector[i] = factor * (sol_val - self.prev_state_vector[i]) - self.prev_deriv_vector[i];
+            self.prev_state_vector[i] = sol_val;
+            self.state_vector[i] = sol_val;
         }
 
         Ok(StepTelemetry {

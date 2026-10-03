@@ -195,28 +195,28 @@ impl TeardropGenerator {
             let via_r = via.pad_diameter / 2;
             for seg in segments {
                 if seg.net_id == via.net_id && seg.layer == via.start_layer {
-                    if seg.end_point.distance_to(via.position) <= via_r {
-                        if let Some(td) = Self::generate_teardrop_for_pad(
+                    if seg.end_point.distance_to(via.position) <= via_r
+                        && let Some(td) = Self::generate_teardrop_for_pad(
                             seg.start_point,
                             via.position,
                             seg.width,
                             via_r,
                             seg.net_id,
                             seg.layer,
-                        ) {
-                            teardrops.extend(td);
-                        }
-                    } else if seg.start_point.distance_to(via.position) <= via_r {
-                        if let Some(td) = Self::generate_teardrop_for_pad(
+                        )
+                    {
+                        teardrops.extend(td);
+                    } else if seg.start_point.distance_to(via.position) <= via_r
+                        && let Some(td) = Self::generate_teardrop_for_pad(
                             seg.end_point,
                             via.position,
                             seg.width,
                             via_r,
                             seg.net_id,
                             seg.layer,
-                        ) {
-                            teardrops.extend(td);
-                        }
+                        )
+                    {
+                        teardrops.extend(td);
                     }
                 }
             }

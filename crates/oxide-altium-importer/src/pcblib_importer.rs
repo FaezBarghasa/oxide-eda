@@ -22,14 +22,13 @@ pub fn import_pcblib_bytes(bytes: &[u8]) -> Result<Vec<Footprint>, AltiumImportE
 
     // Check individual storage streams (often named after the component footprint pattern)
     for (name, stream_bytes) in &cfb.streams {
-        if name != "FileHeader" && name != "Library" && !name.starts_with('/') {
-            if let Ok(records) = parse_record_stream(stream_bytes) {
-                if let Ok(parsed) = parse_footprints_from_records(&records) {
-                    for fp in parsed {
-                        if !footprints.iter().any(|f| f.name == fp.name) {
-                            footprints.push(fp);
-                        }
-                    }
+        if name != "FileHeader" && name != "Library" && !name.starts_with('/')
+            && let Ok(records) = parse_record_stream(stream_bytes)
+            && let Ok(parsed) = parse_footprints_from_records(&records)
+        {
+            for fp in parsed {
+                if !footprints.iter().any(|f| f.name == fp.name) {
+                    footprints.push(fp);
                 }
             }
         }
@@ -120,23 +119,23 @@ pub fn parse_footprints_from_records(records: &[AltiumRecord]) -> Result<Vec<Foo
                     ..Pad::default()
                 });
             }
-        } else if record_type.eq_ignore_ascii_case("Track") || record_type == "Track" {
-            if let Some(fp) = current_footprint.as_mut() {
-                let x1 = rec.get_coord_mm("X1").unwrap_or(0.0);
-                let y1 = rec.get_coord_mm("Y1").unwrap_or(0.0);
-                let x2 = rec.get_coord_mm("X2").unwrap_or(0.0);
-                let y2 = rec.get_coord_mm("Y2").unwrap_or(0.0);
-                let width = rec.get_coord_mm("WIDTH").unwrap_or(0.15);
+        } else if (record_type.eq_ignore_ascii_case("Track") || record_type == "Track")
+            && let Some(fp) = current_footprint.as_mut()
+        {
+            let x1 = rec.get_coord_mm("X1").unwrap_or(0.0);
+            let y1 = rec.get_coord_mm("Y1").unwrap_or(0.0);
+            let x2 = rec.get_coord_mm("X2").unwrap_or(0.0);
+            let y2 = rec.get_coord_mm("Y2").unwrap_or(0.0);
+            let width = rec.get_coord_mm("WIDTH").unwrap_or(0.15);
 
-                fp.silk_f.push(FpGraphic {
-                    kind: FpGraphicKind::Line {
-                        from: [x1, y1],
-                        to: [x2, y2],
-                    },
-                    stroke_width: width,
-                    filled: false,
-                });
-            }
+            fp.silk_f.push(FpGraphic {
+                kind: FpGraphicKind::Line {
+                    from: [x1, y1],
+                    to: [x2, y2],
+                },
+                stroke_width: width,
+                filled: false,
+            });
         }
     }
 

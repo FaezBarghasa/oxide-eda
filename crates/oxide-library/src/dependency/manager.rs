@@ -181,7 +181,7 @@ impl GitDependencyManager {
     ) -> Result<MountReport, DependencyError> {
         let mut report = MountReport::default();
 
-        for (_name, locked) in &lockfile.dependencies {
+        for locked in lockfile.dependencies.values() {
             let abs_path = project_root.join(&locked.install_path);
             match locked.kind {
                 DependencyKind::Library => {

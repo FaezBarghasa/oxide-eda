@@ -98,8 +98,7 @@ impl WaveformDecimator {
             let v_first = values[b_i_start];
             let v_last = values[b_i_end - 1];
 
-            for i in b_i_start..b_i_end {
-                let v = values[i];
+            for &v in &values[b_i_start..b_i_end] {
                 if v < v_min {
                     v_min = v;
                 }

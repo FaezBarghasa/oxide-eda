@@ -58,38 +58,38 @@ pub fn import_pcbdoc_bytes(bytes: &[u8]) -> Result<PcbBoard, AltiumImportError> 
     };
 
     // 1. Process Board stream if available (outline, layers, nets)
-    if let Ok(board_data) = cfb.get_stream("Board") {
-        if let Ok(records) = parse_record_stream(&board_data) {
-            parse_board_metadata(&records, &mut board)?;
-        }
+    if let Ok(board_data) = cfb.get_stream("Board")
+        && let Ok(records) = parse_record_stream(&board_data)
+    {
+        parse_board_metadata(&records, &mut board)?;
     }
 
     // 2. Process Tracks stream
-    if let Ok(tracks_data) = cfb.get_stream("Tracks") {
-        if let Ok(records) = parse_record_stream(&tracks_data) {
-            parse_tracks(&records, &mut board);
-        }
+    if let Ok(tracks_data) = cfb.get_stream("Tracks")
+        && let Ok(records) = parse_record_stream(&tracks_data)
+    {
+        parse_tracks(&records, &mut board);
     }
 
     // 3. Process Vias stream
-    if let Ok(vias_data) = cfb.get_stream("Vias") {
-        if let Ok(records) = parse_record_stream(&vias_data) {
-            parse_vias(&records, &mut board);
-        }
+    if let Ok(vias_data) = cfb.get_stream("Vias")
+        && let Ok(records) = parse_record_stream(&vias_data)
+    {
+        parse_vias(&records, &mut board);
     }
 
     // 4. Process Components & Pads stream
-    if let Ok(comp_data) = cfb.get_stream("Components") {
-        if let Ok(records) = parse_record_stream(&comp_data) {
-            parse_components(&records, &mut board);
-        }
+    if let Ok(comp_data) = cfb.get_stream("Components")
+        && let Ok(records) = parse_record_stream(&comp_data)
+    {
+        parse_components(&records, &mut board);
     }
 
     // 5. Check FileHeader stream for all records combined
-    if let Ok(header_data) = cfb.get_stream("FileHeader") {
-        if let Ok(records) = parse_record_stream(&header_data) {
-            parse_all_pcb_records(&records, &mut board);
-        }
+    if let Ok(header_data) = cfb.get_stream("FileHeader")
+        && let Ok(records) = parse_record_stream(&header_data)
+    {
+        parse_all_pcb_records(&records, &mut board);
     }
 
     Ok(board)
@@ -277,22 +277,22 @@ fn parse_all_pcb_records(records: &[AltiumRecord], board: &mut PcbBoard) {
                     net,
                 });
             }
-        } else if record_type.eq_ignore_ascii_case("Via") || record_type == "2" {
-            if let (Some(x), Some(y)) = (rec.get_coord_mm("X").or_else(|| rec.get_coord_mm("LOCATION.X")), rec.get_coord_mm("Y").or_else(|| rec.get_coord_mm("LOCATION.Y"))) {
-                let diameter = rec.get_coord_mm("DIAMETER").unwrap_or(0.6);
-                let drill = rec.get_coord_mm("HOLESIZE").unwrap_or(0.3);
-                let net = rec.get_i64("NET").unwrap_or(0) as u32;
-                board.vias.push(Via {
-                    uuid: Uuid::now_v7(),
-                    position: Point::new(x, y),
-                    diameter,
-                    drill,
-                    layers: vec!["Top Layer".to_string(), "Bottom Layer".to_string()],
-                    net,
-                    via_type: ViaType::Through,
-                    via_span: None,
-                });
-            }
+        } else if (record_type.eq_ignore_ascii_case("Via") || record_type == "2")
+            && let (Some(x), Some(y)) = (rec.get_coord_mm("X").or_else(|| rec.get_coord_mm("LOCATION.X")), rec.get_coord_mm("Y").or_else(|| rec.get_coord_mm("LOCATION.Y")))
+        {
+            let diameter = rec.get_coord_mm("DIAMETER").unwrap_or(0.6);
+            let drill = rec.get_coord_mm("HOLESIZE").unwrap_or(0.3);
+            let net = rec.get_i64("NET").unwrap_or(0) as u32;
+            board.vias.push(Via {
+                uuid: Uuid::now_v7(),
+                position: Point::new(x, y),
+                diameter,
+                drill,
+                layers: vec!["Top Layer".to_string(), "Bottom Layer".to_string()],
+                net,
+                via_type: ViaType::Through,
+                via_span: None,
+            });
         }
     }
 }

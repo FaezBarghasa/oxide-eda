@@ -15,6 +15,8 @@ pub struct LaplaceTransferFunction {
     pub denominator_coeffs: Vec<f64>, // [a0, a1, a2, ...]
 }
 
+pub type StateSpaceRepresentation = (Vec<Vec<f64>>, Vec<f64>, Vec<f64>, f64);
+
 impl LaplaceTransferFunction {
     pub fn new(numerator: &[f64], denominator: &[f64]) -> Self {
         Self {
@@ -66,7 +68,7 @@ impl LaplaceTransferFunction {
     }
 
     /// Transforms Laplace transfer function into controllable canonical state-space matrices (A, B, C, D).
-    pub fn to_state_space(&self) -> Option<(Vec<Vec<f64>>, Vec<f64>, Vec<f64>, f64)> {
+    pub fn to_state_space(&self) -> Option<StateSpaceRepresentation> {
         let den = &self.denominator_coeffs;
         let num = &self.numerator_coeffs;
         if den.is_empty() || den.last().copied().unwrap_or(0.0).abs() < 1e-15 {

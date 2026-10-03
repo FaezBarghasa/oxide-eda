@@ -84,37 +84,37 @@ impl InteractiveRouter {
 
     /// Hotkey '1': Increase meander amplitude by +100µm
     pub fn hotkey_increase_amplitude(&mut self) {
-        if let Some(s) = &mut self.session {
-            if let Some(hud) = &mut s.tuning_hud {
-                hud.adjust_amplitude(100);
-            }
+        if let Some(s) = &mut self.session
+            && let Some(hud) = &mut s.tuning_hud
+        {
+            hud.adjust_amplitude(100);
         }
     }
 
     /// Hotkey '2': Decrease meander amplitude by -100µm
     pub fn hotkey_decrease_amplitude(&mut self) {
-        if let Some(s) = &mut self.session {
-            if let Some(hud) = &mut s.tuning_hud {
-                hud.adjust_amplitude(-100);
-            }
+        if let Some(s) = &mut self.session
+            && let Some(hud) = &mut s.tuning_hud
+        {
+            hud.adjust_amplitude(-100);
         }
     }
 
     /// Hotkey '3': Increase meander pitch / wavelength by +100µm
     pub fn hotkey_increase_pitch(&mut self) {
-        if let Some(s) = &mut self.session {
-            if let Some(hud) = &mut s.tuning_hud {
-                hud.adjust_pitch(100);
-            }
+        if let Some(s) = &mut self.session
+            && let Some(hud) = &mut s.tuning_hud
+        {
+            hud.adjust_pitch(100);
         }
     }
 
     /// Hotkey '4': Decrease meander pitch / wavelength by -100µm
     pub fn hotkey_decrease_pitch(&mut self) {
-        if let Some(s) = &mut self.session {
-            if let Some(hud) = &mut s.tuning_hud {
-                hud.adjust_pitch(-100);
-            }
+        if let Some(s) = &mut self.session
+            && let Some(hud) = &mut s.tuning_hud
+        {
+            hud.adjust_pitch(-100);
         }
     }
 
@@ -411,6 +411,7 @@ impl InteractiveRouter {
     }
 
     /// Generate accordion / trombone meander pattern for length and phase-delay matching
+    #[allow(clippy::too_many_arguments)]
     pub fn generate_meander_with_params(
         &self,
         start: Point2D,

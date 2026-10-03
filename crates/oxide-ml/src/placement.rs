@@ -35,15 +35,15 @@ impl PlacementAdvisor {
             let mut target_y = 0i64;
             let mut connected_count = 0i64;
 
-            for (_net_id, connected_comps) in nets {
+            for (_, connected_comps) in nets {
                 if connected_comps.contains(&comp_id) {
                     for &other in connected_comps {
-                        if other != comp_id {
-                            if let Some(pos) = current_positions.get(&other) {
-                                target_x += pos.x;
-                                target_y += pos.y;
-                                connected_count += 1;
-                            }
+                        if other != comp_id
+                            && let Some(pos) = current_positions.get(&other)
+                        {
+                            target_x += pos.x;
+                            target_y += pos.y;
+                            connected_count += 1;
                         }
                     }
                 }

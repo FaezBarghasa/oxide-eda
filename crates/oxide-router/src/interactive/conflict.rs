@@ -106,7 +106,7 @@ impl PushAndShoveEngine {
             if visited.contains(&obstacle.id) {
                 continue;
             }
-            if let Some(push) = calculate_push(&obstacle, trace_start, trace_end, required_clearance) {
+            if let Some(push) = calculate_push(obstacle, trace_start, trace_end, required_clearance) {
                 visited.insert(push.object_id);
                 pushed_positions.insert(push.object_id, push.new_pos);
                 results.push(push);
@@ -117,7 +117,7 @@ impl PushAndShoveEngine {
                     &mut results,
                     &mut visited,
                     &mut pushed_positions,
-                    &obstacle,
+                    obstacle,
                     required_clearance,
                     1,
                 );
@@ -127,6 +127,7 @@ impl PushAndShoveEngine {
         results
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn cascade_step(
         &self,
         spatial_index: &SpatialIndex,
@@ -178,7 +179,7 @@ impl PushAndShoveEngine {
                 results,
                 visited,
                 pushed_positions,
-                &sec_obs,
+                sec_obs,
                 required_clearance,
                 depth + 1,
             );

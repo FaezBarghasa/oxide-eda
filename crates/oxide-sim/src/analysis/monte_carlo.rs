@@ -138,7 +138,7 @@ mod tests {
             assert_eq!(r1.parameter_values, r2.parameter_values);
             // Verify R1 stays within 5%
             let r1_val = r1.parameter_values[0].1;
-            assert!(r1_val >= 9_500.0 && r1_val <= 10_500.0);
+            assert!((9_500.0..=10_500.0).contains(&r1_val));
         }
     }
 }

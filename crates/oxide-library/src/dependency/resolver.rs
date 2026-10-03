@@ -157,10 +157,10 @@ impl GitResolver {
         for tag_res in tag_names.iter() {
             if let Ok(Some(tag_name)) = tag_res {
                 let clean = tag_name.strip_prefix('v').or_else(|| tag_name.strip_prefix('V')).unwrap_or(tag_name);
-                if let Ok(ver) = Version::parse(clean) {
-                    if version_req.matches(&ver) {
-                        matched_versions.push((ver, tag_name.to_string()));
-                    }
+                if let Ok(ver) = Version::parse(clean)
+                    && version_req.matches(&ver)
+                {
+                    matched_versions.push((ver, tag_name.to_string()));
                 }
             }
         }

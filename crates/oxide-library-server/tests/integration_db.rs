@@ -358,7 +358,7 @@ async fn locks_endpoint_returns_409_when_held() {
             .uri(&format!("/rows/{row_id}/locks"))
             .insert_header(("authorization", bearer_header()))
             .insert_header(("x-oxide-holder", holder))
-            .set_json(&serde_json::json!({"field_set": "Symbol"}))
+            .set_json(serde_json::json!({"field_set": "Symbol"}))
             .to_request()
     };
 

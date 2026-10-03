@@ -91,21 +91,20 @@ pub fn parse_schdoc_records(records: &[AltiumRecord]) -> Result<SchematicSheet, 
                 let name = rec.get("NAME").unwrap_or("");
                 let text = rec.get("TEXT").unwrap_or("");
 
-                if let Some(owner_idx) = rec.get_i64("OWNERINDEX") {
-                    if let Some(&sym_idx) = component_indices.get(&(owner_idx as usize)) {
-                        if let Some(sym) = sheet.symbols.get_mut(sym_idx) {
-                            if name.eq_ignore_ascii_case("Comment") || name.eq_ignore_ascii_case("Value") {
-                                sym.value = text.to_string();
-                            } else if name.eq_ignore_ascii_case("Footprint") {
-                                sym.footprint = text.to_string();
-                            } else if name.eq_ignore_ascii_case("Designator") {
-                                if sym.reference.is_empty() {
-                                    sym.reference = text.to_string();
-                                }
-                            } else {
-                                sym.fields.insert(name.to_string(), text.to_string());
-                            }
+                if let Some(owner_idx) = rec.get_i64("OWNERINDEX")
+                    && let Some(&sym_idx) = component_indices.get(&(owner_idx as usize))
+                    && let Some(sym) = sheet.symbols.get_mut(sym_idx)
+                {
+                    if name.eq_ignore_ascii_case("Comment") || name.eq_ignore_ascii_case("Value") {
+                        sym.value = text.to_string();
+                    } else if name.eq_ignore_ascii_case("Footprint") {
+                        sym.footprint = text.to_string();
+                    } else if name.eq_ignore_ascii_case("Designator") {
+                        if sym.reference.is_empty() {
+                            sym.reference = text.to_string();
                         }
+                    } else {
+                        sym.fields.insert(name.to_string(), text.to_string());
                     }
                 }
             }

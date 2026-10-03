@@ -53,20 +53,19 @@ impl DrillTable {
         // 1. Collect footprint through-hole and mounting pads
         for footprint in &board.footprints {
             for pad in &footprint.pads {
-                if pad.pad_type == PadType::Thru || pad.pad_type == PadType::NpThru {
-                    if let Some(ref drill_def) = pad.drill {
-                        if drill_def.diameter > 0.0 {
-                            let plating = if pad.pad_type == PadType::NpThru {
-                                HolePlating::NonPlated
-                            } else {
-                                HolePlating::Plated
-                            };
-                            let diam_nm = (drill_def.diameter * 1_000_000.0).round() as i64;
-                            let key = (diam_nm, plating, "Top-Bottom".to_string());
-                            *hole_groups.entry(key).or_insert(0) += 1;
-                            total_holes += 1;
-                        }
-                    }
+                if (pad.pad_type == PadType::Thru || pad.pad_type == PadType::NpThru)
+                    && let Some(ref drill_def) = pad.drill
+                    && drill_def.diameter > 0.0
+                {
+                    let plating = if pad.pad_type == PadType::NpThru {
+                        HolePlating::NonPlated
+                    } else {
+                        HolePlating::Plated
+                    };
+                    let diam_nm = (drill_def.diameter * 1_000_000.0).round() as i64;
+                    let key = (diam_nm, plating, "Top-Bottom".to_string());
+                    *hole_groups.entry(key).or_insert(0) += 1;
+                    total_holes += 1;
                 }
             }
         }
@@ -91,11 +90,9 @@ impl DrillTable {
 
         // 3. Assemble table rows and assign unique legend symbols
         let mut rows = Vec::new();
-        let mut symbol_idx = 0;
 
-        for ((diam_nm, plating, layer_pair), count) in hole_groups {
+        for (symbol_idx, ((diam_nm, plating, layer_pair), count)) in hole_groups.into_iter().enumerate() {
             let symbol_char = Self::SYMBOL_PALETTE[symbol_idx % Self::SYMBOL_PALETTE.len()];
-            symbol_idx += 1;
 
             let diam_mm = diam_nm as f64 / 1_000_000.0;
             let diam_mil = diam_mm / 0.0254;

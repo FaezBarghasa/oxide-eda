@@ -79,10 +79,9 @@ impl SparseMatrixCsc {
             *item = 0.0;
         }
 
-        for c in 0..self.ncols {
+        for (c, &xc) in x.iter().enumerate().take(self.ncols) {
             let start = self.col_ptrs[c];
             let end = self.col_ptrs[c + 1];
-            let xc = x[c];
             for i in start..end {
                 let r = self.row_indices[i];
                 y[r] += self.values[i] * xc;
@@ -93,8 +92,8 @@ impl SparseMatrixCsc {
     /// Computes Approximate Minimum Degree (AMD) heuristic permutation vector P.
     pub fn compute_amd_permutation(&self) -> Vec<usize> {
         let mut degrees = vec![0; self.ncols];
-        for c in 0..self.ncols {
-            degrees[c] = self.col_ptrs[c + 1] - self.col_ptrs[c];
+        for (c, deg) in degrees.iter_mut().enumerate().take(self.ncols) {
+            *deg = self.col_ptrs[c + 1] - self.col_ptrs[c];
         }
 
         let mut perm: Vec<usize> = (0..self.ncols).collect();
@@ -120,8 +119,7 @@ impl SparseMatrixCsc {
 
         // Expand to working matrix for small/medium MNA blocks
         let mut mat = vec![vec![0.0; n]; n];
-        for c in 0..n {
-            let start = self.col_ptrs[c];
+        for (c, &start) in self.col_ptrs.iter().take(n).enumerate() {
             let end = self.col_ptrs[c + 1];
             for i in start..end {
                 let r = self.row_indices[i];
@@ -135,8 +133,8 @@ impl SparseMatrixCsc {
         for i in 0..n {
             let mut max_val = mat[i][i].abs();
             let mut max_row = i;
-            for k in (i + 1)..n {
-                let val = mat[k][i].abs();
+            for (k, row_k) in mat.iter().enumerate().take(n).skip(i + 1) {
+                let val = row_k[i].abs();
                 if val > max_val {
                     max_val = val;
                     max_row = k;
@@ -153,11 +151,14 @@ impl SparseMatrixCsc {
             }
 
             let pivot = mat[i][i];
-            for k in (i + 1)..n {
-                let factor = mat[k][i] / pivot;
-                mat[k][i] = 0.0;
-                for j in (i + 1)..n {
-                    mat[k][j] -= factor * mat[i][j];
+            let (mat_top, mat_bottom) = mat.split_at_mut(i + 1);
+            let row_i = &mat_top[i];
+            for (k_offset, row_k) in mat_bottom.iter_mut().enumerate().take(n - (i + 1)) {
+                let k = i + 1 + k_offset;
+                let factor = row_k[i] / pivot;
+                row_k[i] = 0.0;
+                for (j, item) in row_k.iter_mut().enumerate().take(n).skip(i + 1) {
+                    *item -= factor * row_i[j];
                 }
                 b[k] -= factor * b[i];
             }

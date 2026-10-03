@@ -28,7 +28,7 @@ fn create_test_git_repo() -> (TempDir, PathBuf) {
         .commit(Some("HEAD"), &sig, &sig, "v0.1.0 release", &tree, &[])
         .expect("commit 1");
     let commit1 = repo.find_commit(commit1_id).expect("find commit1");
-    repo.tag("v0.1.0", &commit1.as_object(), &sig, "v0.1.0 tag", false)
+    repo.tag("v0.1.0", commit1.as_object(), &sig, "v0.1.0 tag", false)
         .expect("tag v0.1.0");
 
     // Commit 2 (v1.0.0)
@@ -50,7 +50,7 @@ fn create_test_git_repo() -> (TempDir, PathBuf) {
         )
         .expect("commit 2");
     let commit2 = repo.find_commit(commit2_id).expect("find commit2");
-    repo.tag("v1.0.0", &commit2.as_object(), &sig, "v1.0.0 tag", false)
+    repo.tag("v1.0.0", commit2.as_object(), &sig, "v1.0.0 tag", false)
         .expect("tag v1.0.0");
 
     // Commit 3 (v1.1.0)
@@ -72,7 +72,7 @@ fn create_test_git_repo() -> (TempDir, PathBuf) {
         )
         .expect("commit 3");
     let commit3 = repo.find_commit(commit3_id).expect("find commit3");
-    repo.tag("v1.1.0", &commit3.as_object(), &sig, "v1.1.0 tag", false)
+    repo.tag("v1.1.0", commit3.as_object(), &sig, "v1.1.0 tag", false)
         .expect("tag v1.1.0");
 
     // Commit 4 (v2.0.0 - breaking)
@@ -94,7 +94,7 @@ fn create_test_git_repo() -> (TempDir, PathBuf) {
         )
         .expect("commit 4");
     let commit4 = repo.find_commit(commit4_id).expect("find commit4");
-    repo.tag("v2.0.0", &commit4.as_object(), &sig, "v2.0.0 tag", false)
+    repo.tag("v2.0.0", commit4.as_object(), &sig, "v2.0.0 tag", false)
         .expect("tag v2.0.0");
 
     (dir, repo_path)

@@ -332,7 +332,7 @@ pub fn synthesize_symbol(
     }
 
     // Dual-inline rectangular symbol
-    let half = (pin_count + 1) / 2;
+    let half = pin_count.div_ceil(2);
     let pin_spacing = 2.54;
     let body_height = (half as f64 + 1.0) * pin_spacing;
     let body_width = 15.24;
@@ -350,8 +350,7 @@ pub fn synthesize_symbol(
     let y_start = -((half as f64 - 1.0) * pin_spacing) / 2.0;
 
     // Left pins
-    for i in 0..half {
-        let (num, pin_name, dir) = &pins_data[i];
+    for (i, (num, pin_name, dir)) in pins_data.iter().enumerate().take(half) {
         let y = y_start + (i as f64 * pin_spacing);
         let mut p = SymbolPin::new(num, pin_name);
         p.electrical = *dir;
@@ -362,8 +361,7 @@ pub fn synthesize_symbol(
     }
 
     // Right pins
-    for i in half..pin_count {
-        let (num, pin_name, dir) = &pins_data[i];
+    for (i, (num, pin_name, dir)) in pins_data.iter().enumerate().take(pin_count).skip(half) {
         let idx = i - half;
         let y = y_start + (idx as f64 * pin_spacing);
         let mut p = SymbolPin::new(num, pin_name);
@@ -466,35 +464,33 @@ impl ComponentScraper {
                 .header("Accept", "application/json, text/plain, */*")
                 .json(&body);
 
-            if let Ok(resp) = req.send() {
-                if resp.status().is_success() {
-                    if let Ok(json) = resp.json::<serde_json::Value>() {
-                        if let Some(list) = json["data"]["list"].as_array() {
-                            let mut results = Vec::new();
-                            for item in list {
-                                let mpn = item["mfrPart"].as_str().unwrap_or("").to_string();
-                                let mfr = item["manufacturer"].as_str().unwrap_or("").to_string();
-                                let desc = item["describe"].as_str().unwrap_or("").to_string();
-                                let pkg = item["componentSpecificationEn"].as_str().map(|s| s.to_string());
-                                let ds = item["dataManualUrl"].as_str().and_then(|u| Url::parse(u).ok());
+            if let Ok(resp) = req.send()
+                && resp.status().is_success()
+                && let Ok(json) = resp.json::<serde_json::Value>()
+                && let Some(list) = json["data"]["list"].as_array()
+            {
+                let mut results = Vec::new();
+                for item in list {
+                    let mpn = item["mfrPart"].as_str().unwrap_or("").to_string();
+                    let mfr = item["manufacturer"].as_str().unwrap_or("").to_string();
+                    let desc = item["describe"].as_str().unwrap_or("").to_string();
+                    let pkg = item["componentSpecificationEn"].as_str().map(|s| s.to_string());
+                    let ds = item["dataManualUrl"].as_str().and_then(|u| Url::parse(u).ok());
 
-                                if !mpn.is_empty() {
-                                    results.push(ScrapedComponent {
-                                        mpn,
-                                        manufacturer: mfr,
-                                        description: desc,
-                                        package: pkg,
-                                        datasheet_url: ds,
-                                        pin_count: None,
-                                        parameters: BTreeMap::new(),
-                                    });
-                                }
-                            }
-                            if !results.is_empty() {
-                                return Ok(results);
-                            }
-                        }
+                    if !mpn.is_empty() {
+                        results.push(ScrapedComponent {
+                            mpn,
+                            manufacturer: mfr,
+                            description: desc,
+                            package: pkg,
+                            datasheet_url: ds,
+                            pin_count: None,
+                            parameters: BTreeMap::new(),
+                        });
                     }
+                }
+                if !results.is_empty() {
+                    return Ok(results);
                 }
             }
         }
@@ -545,7 +541,7 @@ impl ComponentScraper {
             let result = hasher.finalize();
             let hex = result.iter().map(|b| format!("{b:02x}")).collect::<String>();
 
-            return Ok((bytes, hex));
+            Ok((bytes, hex))
         }
 
         #[cfg(not(feature = "distributors-community"))]

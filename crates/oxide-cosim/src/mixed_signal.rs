@@ -117,10 +117,10 @@ impl LogicEventQueue {
     }
 
     pub fn pop_before_or_at(&mut self, time_s: f64) -> Option<LogicEvent> {
-        if let Some(top) = self.events.peek() {
-            if top.timestamp_s <= time_s {
-                return self.events.pop();
-            }
+        if let Some(top) = self.events.peek()
+            && top.timestamp_s <= time_s
+        {
+            return self.events.pop();
         }
         None
     }

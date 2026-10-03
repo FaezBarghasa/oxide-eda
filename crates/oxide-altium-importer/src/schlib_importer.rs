@@ -27,14 +27,13 @@ pub fn import_schlib_bytes(bytes: &[u8]) -> Result<Vec<LibSymbol>, AltiumImportE
 
     // Check individual storage streams (often named after the component name or index)
     for (name, stream_bytes) in &cfb.streams {
-        if name != "FileHeader" && name != "Storage" && !name.starts_with('/') {
-            if let Ok(records) = parse_record_stream(stream_bytes) {
-                if let Ok(parsed) = parse_symbols_from_records(&records) {
-                    for sym in parsed {
-                        if !symbols.iter().any(|s| s.name == sym.name) {
-                            symbols.push(sym);
-                        }
-                    }
+        if name != "FileHeader" && name != "Storage" && !name.starts_with('/')
+            && let Ok(records) = parse_record_stream(stream_bytes)
+            && let Ok(parsed) = parse_symbols_from_records(&records)
+        {
+            for sym in parsed {
+                if !symbols.iter().any(|s| s.name == sym.name) {
+                    symbols.push(sym);
                 }
             }
         }

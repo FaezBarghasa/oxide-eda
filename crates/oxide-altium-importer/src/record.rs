@@ -36,10 +36,7 @@ impl AltiumRecord {
     }
 
     pub fn get_bool(&self, key: &str) -> bool {
-        match self.get(key) {
-            Some("TRUE") | Some("true") | Some("1") | Some("T") => true,
-            _ => false,
-        }
+        matches!(self.get(key), Some("TRUE") | Some("true") | Some("1") | Some("T"))
     }
 
     /// Convert Altium DXP internal coordinate (or coordinate with mm/mil/in unit) to mm.
