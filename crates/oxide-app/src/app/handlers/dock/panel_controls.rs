@@ -388,9 +388,23 @@ impl Oxide {
                 self.handle_select_custom_filter_tab(*idx);
             }
             crate::panels::PanelMsg::RunDrc => {
+                if let Some(board) = self.active_pcb() {
+                    let cm = oxide_rules::ConstraintManager::standard_default();
+                    let violations = cm.run_drc(board);
+                    let violation_count = violations.len();
+                    self.document_state.panel_ctx.drc_violations = violations;
+                    crate::diagnostics::log_info(format!(
+                        "Design Rule Check complete: {} violations detected.",
+                        violation_count
+                    ));
+                } else {
+                    self.document_state.panel_ctx.drc_violations.clear();
+                    crate::diagnostics::log_info("No active PCB layout document to run DRC on.");
+                }
                 self.refresh_panel_ctx();
             }
             crate::panels::PanelMsg::ClearDrc => {
+                self.document_state.panel_ctx.drc_violations.clear();
                 self.refresh_panel_ctx();
             }
             crate::panels::PanelMsg::RecalculateStackupImpedance => {

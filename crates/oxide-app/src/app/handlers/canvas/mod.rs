@@ -117,6 +117,17 @@ impl Oxide {
                 return self.handle_canvas_clicked(world_x, world_y);
             }
             CanvasEvent::MoveSelected { dx, dy } => {
+                if self.has_active_pcb() {
+                    let items = self
+                        .active_pcb_engine()
+                        .map(|e| e.selected_items().to_vec())
+                        .unwrap_or_default();
+                    if !items.is_empty() && (dx.abs() > 0.001 || dy.abs() > 0.001) {
+                        self.apply_pcb_command(oxide_engine::PcbCommand::MoveSelection { items, dx, dy });
+                    }
+                    return Task::none();
+                }
+
                 // Snap so the PRIMARY selected item's connection point (its
                 // stored `position`) lands on a grid dot after the move, not
                 // just the drag delta. Snapping only the delta preserves an
@@ -200,6 +211,16 @@ impl Oxide {
                 }
             }
             CanvasEvent::CtrlClicked { world_x, world_y } => {
+                if self.has_active_pcb() {
+                    if let Some(pcb_engine) = self.active_pcb_engine_mut() {
+                        if let Some(hit) = pcb_engine.hit_test(world_x, world_y) {
+                            pcb_engine.toggle_selection(hit);
+                            self.interaction_state.pcb_canvas.clear_content_cache();
+                        }
+                    }
+                    return Task::none();
+                }
+
                 if let Some(snapshot) = self.active_render_snapshot()
                     && let Some(hit) =
                         crate::schematic_runtime::hit_test::hit_test(snapshot, world_x, world_y)

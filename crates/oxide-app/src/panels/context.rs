@@ -190,5 +190,7 @@ pub struct PanelContext {
     pub telecom_state: super::telecom::TelecomPanelState,
     /// MCU & Protocol co-simulation console state.
     pub mcu_console_state: super::mcu_console::McuConsolePanelState,
+    /// Active DRC rule violations for the Design Rule Check panel.
+    pub drc_violations: Vec<oxide_rules::RuleViolation>,
 }
 

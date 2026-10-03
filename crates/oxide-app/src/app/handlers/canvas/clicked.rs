@@ -6,6 +6,97 @@ use super::pre_placement_shape;
 
 impl Oxide {
     pub(super) fn handle_canvas_clicked(&mut self, world_x: f64, world_y: f64) -> Task<Message> {
+        if self.has_active_pcb() {
+            if self.interaction_state.current_tool == Tool::Wire {
+                let pt = oxide_types::pcb::Point::new(world_x, world_y);
+                if let Some(anchor) = self.interaction_state.shape_anchor.take() {
+                    let seg = oxide_types::pcb::Segment {
+                        uuid: uuid::Uuid::new_v4(),
+                        start: anchor,
+                        end: pt,
+                        width: 0.25,
+                        layer: "F.Cu".to_string(),
+                        net: 1,
+                    };
+                    self.apply_pcb_command(oxide_engine::PcbCommand::AddSegment { segment: seg });
+                    self.interaction_state.shape_anchor = Some(pt);
+                } else {
+                    self.interaction_state.shape_anchor = Some(pt);
+                }
+                return Task::none();
+            }
+
+            if self.interaction_state.current_tool == Tool::Circle {
+                let via = oxide_types::pcb::Via {
+                    uuid: uuid::Uuid::new_v4(),
+                    position: oxide_types::pcb::Point::new(world_x, world_y),
+                    diameter: 0.6,
+                    drill: 0.3,
+                    layers: vec!["F.Cu".to_string(), "B.Cu".to_string()],
+                    net: 1,
+                    via_type: oxide_types::pcb::ViaType::Through,
+                    via_span: None,
+                };
+                self.apply_pcb_command(oxide_engine::PcbCommand::AddVia { via });
+                return Task::none();
+            }
+
+            if self.interaction_state.current_tool == Tool::Component {
+                let fp_idx = self.active_pcb().map(|b| b.footprints.len() + 1).unwrap_or(1);
+                let fp = oxide_types::pcb::Footprint {
+                    uuid: uuid::Uuid::new_v4(),
+                    reference: format!("U{}", fp_idx),
+                    value: "IC".to_string(),
+                    footprint_id: "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm".to_string(),
+                    position: oxide_types::pcb::Point::new(world_x, world_y),
+                    rotation: 0.0,
+                    layer: "F.Cu".to_string(),
+                    locked: false,
+                    properties: Vec::new(),
+                    pads: vec![
+                        oxide_types::pcb::Pad {
+                            uuid: uuid::Uuid::new_v4(),
+                            number: "1".to_string(),
+                            pad_type: oxide_types::pcb::PadType::Smd,
+                            shape: oxide_types::pcb::PadShape::Rect,
+                            position: oxide_types::pcb::Point::new(world_x - 1.9, world_y - 1.905),
+                            size: oxide_types::pcb::Point::new(1.5, 0.6),
+                            drill: None,
+                            layers: vec!["F.Cu".to_string()],
+                            net: None,
+                            roundrect_ratio: 0.0,
+                        },
+                        oxide_types::pcb::Pad {
+                            uuid: uuid::Uuid::new_v4(),
+                            number: "2".to_string(),
+                            pad_type: oxide_types::pcb::PadType::Smd,
+                            shape: oxide_types::pcb::PadShape::Rect,
+                            position: oxide_types::pcb::Point::new(world_x - 1.9, world_y - 0.635),
+                            size: oxide_types::pcb::Point::new(1.5, 0.6),
+                            drill: None,
+                            layers: vec!["F.Cu".to_string()],
+                            net: None,
+                            roundrect_ratio: 0.0,
+                        },
+                    ],
+                    graphics: Vec::new(),
+                };
+                self.apply_pcb_command(oxide_engine::PcbCommand::PlaceFootprint { footprint: fp });
+                self.interaction_state.current_tool = Tool::Select;
+                return Task::none();
+            }
+
+            if let Some(pcb_engine) = self.active_pcb_engine_mut() {
+                if let Some(hit) = pcb_engine.hit_test(world_x, world_y) {
+                    pcb_engine.set_selection(vec![hit]);
+                } else {
+                    pcb_engine.clear_selection();
+                }
+                self.interaction_state.pcb_canvas.clear_content_cache();
+            }
+            return Task::none();
+        }
+
         // Altium-style lasso: first click anchors the start,
         // the cursor path auto-samples vertices, a second
         // click closes the polygon and commits. Escape /

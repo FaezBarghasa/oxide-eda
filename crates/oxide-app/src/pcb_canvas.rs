@@ -473,6 +473,84 @@ impl canvas::Program<Message> for PcbCanvas {
                     );
                 }
             }
+            Event::Keyboard(iced::keyboard::Event::ModifiersChanged(mods)) => {
+                state.ctrl_held = mods.control();
+                state.shift_held = mods.shift();
+            }
+            Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left)) => {
+                if let Some(cursor_pos) = cursor.position_in(bounds) {
+                    let world = self.camera.borrow().screen_to_world(cursor_pos, bounds);
+                    let wx = world.x as f64;
+                    let wy = world.y as f64;
+
+                    // Double-click detection (300ms threshold)
+                    let now = std::time::Instant::now();
+                    if let (Some(last_time), Some(last_pos)) =
+                        (state.last_click_time, state.last_click_world)
+                    {
+                        let dt = now.duration_since(last_time);
+                        let dist = ((wx - last_pos.0).powi(2) + (wy - last_pos.1).powi(2)).sqrt();
+                        if dt.as_millis() < 300 && dist < 3.0 {
+                            state.last_click_time = None;
+                            state.last_click_world = None;
+                            state.click_start = None;
+                            state.move_origin = None;
+                            state.move_dragging = false;
+                            return Some(canvas::Action::publish(Message::CanvasEvent(
+                                CanvasEvent::DoubleClicked {
+                                    world_x: wx,
+                                    world_y: wy,
+                                    screen_x: cursor_pos.x,
+                                    screen_y: cursor_pos.y,
+                                },
+                            )));
+                        }
+                    }
+                    state.last_click_time = Some(now);
+                    state.last_click_world = Some((wx, wy));
+                    state.click_start = Some((wx, wy));
+                    state.move_origin = Some((wx, wy));
+                    state.move_dragging = false;
+
+                    let event = if state.ctrl_held {
+                        CanvasEvent::CtrlClicked {
+                            world_x: wx,
+                            world_y: wy,
+                        }
+                    } else {
+                        CanvasEvent::Clicked {
+                            world_x: wx,
+                            world_y: wy,
+                        }
+                    };
+
+                    return Some(
+                        canvas::Action::publish(Message::CanvasEvent(event))
+                            .and_capture(),
+                    );
+                }
+            }
+            Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left)) => {
+                if state.move_dragging
+                    && let Some((ox, oy)) = state.move_origin.take()
+                    && let Some(cursor_pos) = cursor.position_in(bounds)
+                {
+                    let world = self.camera.borrow().screen_to_world(cursor_pos, bounds);
+                    let dx = world.x as f64 - ox;
+                    let dy = world.y as f64 - oy;
+                    state.move_dragging = false;
+                    state.click_start = None;
+                    if dx.abs() > 0.01 || dy.abs() > 0.01 {
+                        return Some(canvas::Action::publish(Message::CanvasEvent(
+                            CanvasEvent::MoveSelected { dx, dy },
+                        )));
+                    }
+                } else {
+                    state.move_dragging = false;
+                    state.click_start = None;
+                    state.move_origin = None;
+                }
+            }
             Event::Mouse(mouse::Event::ButtonPressed(button)) => {
                 if matches!(button, mouse::Button::Right | mouse::Button::Middle) {
                     state.panning = true;
@@ -508,6 +586,15 @@ impl canvas::Program<Message> for PcbCanvas {
                             camera.zoom_percent(),
                         )
                     };
+
+                    if let Some((sx, sy)) = state.click_start {
+                        let dx = world.x as f64 - sx;
+                        let dy = world.y as f64 - sy;
+                        if (dx * dx + dy * dy).sqrt() > 0.5 {
+                            state.move_dragging = true;
+                        }
+                    }
+
                     return Some(canvas::Action::publish(Message::CanvasEvent(
                         CanvasEvent::CursorAt {
                             x: world.x,

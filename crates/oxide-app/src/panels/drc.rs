@@ -9,12 +9,7 @@ use super::messages::PanelMsg;
 use super::widgets::{section_title, separator};
 use super::context::PanelContext;
 
-/// Group of violations belonging to a specific design rule category.
-#[derive(Debug, Clone)]
-pub struct DrcCategoryGroup {
-    pub name: &'static str,
-    pub violations: Vec<RuleViolation>,
-}
+
 
 pub fn view_drc<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
     let mut col: Column<'a, PanelMsg> = Column::new().spacing(4).padding(6).width(Length::Fill);
@@ -46,6 +41,13 @@ pub fn view_drc<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
 
     col = col.push(separator(&ctx.tokens));
 
+    let count = ctx.drc_violations.len();
+    let count_label = if count == 1 {
+        "1 Violation".to_string()
+    } else {
+        format!("{} Violations", count)
+    };
+
     // Summary count badge
     col = col.push(
         row![
@@ -53,30 +55,57 @@ pub fn view_drc<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
                 .size(10)
                 .color(theme_ext::text_secondary(&ctx.tokens)),
             Space::new().width(Length::Fill).height(Length::Shrink),
-            text("0 Violations")
+            text(count_label)
                 .size(10)
-                .color(theme_ext::text_secondary(&ctx.tokens)),
+                .color(if count > 0 {
+                    iced::Color::from_rgb(0.95, 0.35, 0.35)
+                } else {
+                    theme_ext::text_secondary(&ctx.tokens)
+                }),
         ]
         .align_y(iced::Alignment::Center),
     );
 
-    col = col.push(
-        scrollable(
-            Column::new()
-                .spacing(6)
+    let mut body_col = Column::new().spacing(6);
+
+    if ctx.drc_violations.is_empty() {
+        body_col = body_col
+            .push(
+                text("No DRC violations detected. Click 'Run DRC (F9)' to evaluate all multilayer geometric and electrical constraints.")
+                    .size(10)
+                    .color(theme_ext::text_secondary(&ctx.tokens)),
+            )
+            .push(
+                text("Rules: Clearance Matrix, Trace Widths, Differential Pairs, Annular Rings, HDI Microvias, and Keepouts.")
+                    .size(9)
+                    .color(theme_ext::text_secondary(&ctx.tokens)),
+            );
+    } else {
+        for (i, v) in ctx.drc_violations.iter().enumerate() {
+            let item = Column::new()
+                .spacing(2)
+                .padding([4, 6])
                 .push(
-                    text("No DRC violations detected. Ready to run full multilayer rule verification.")
-                        .size(10)
-                        .color(theme_ext::text_secondary(&ctx.tokens)),
+                    row![
+                        text(format!("{}. {:?}", i + 1, v.violation_type))
+                            .size(10)
+                            .color(iced::Color::from_rgb(0.95, 0.35, 0.35)),
+                        Space::new().width(Length::Fill).height(Length::Shrink),
+                        text(format!("Req: {} | Act: {}", v.required_value, v.actual_value))
+                            .size(9)
+                            .color(theme_ext::text_secondary(&ctx.tokens)),
+                    ]
+                    .align_y(iced::Alignment::Center),
                 )
                 .push(
-                    text("Checked rules: Clearance Matrix, Trace Widths, Differential Pairs, HDI Microvias, and Keepouts.")
+                    text(&v.message)
                         .size(9)
-                        .color(theme_ext::text_secondary(&ctx.tokens)),
-                ),
-        )
-        .height(Length::Fill),
-    );
+                        .color(theme_ext::text_primary(&ctx.tokens)),
+                );
+            body_col = body_col.push(item);
+        }
+    }
 
+    col = col.push(scrollable(body_col).height(Length::Fill));
     col.into()
 }

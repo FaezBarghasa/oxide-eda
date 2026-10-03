@@ -510,6 +510,7 @@ impl Oxide {
             waveform_state: self.document_state.panel_ctx.waveform_state.clone(),
             telecom_state: self.document_state.panel_ctx.telecom_state.clone(),
             mcu_console_state: self.document_state.panel_ctx.mcu_console_state.clone(),
+            drc_violations: self.document_state.panel_ctx.drc_violations.clone(),
         };
         self.document_state.panel_ctx.project_tree =
             crate::panels::build_project_tree(&self.document_state.panel_ctx);

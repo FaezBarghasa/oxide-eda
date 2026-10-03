@@ -356,6 +356,7 @@ impl Oxide {
                     waveform_state: crate::panels::waveform::WaveformPanelState::default(),
                     telecom_state: crate::panels::telecom::TelecomPanelState::default(),
                     mcu_console_state: crate::panels::mcu_console::McuConsolePanelState::default(),
+                    drc_violations: Vec::new(),
                 },
                 history: crate::panels::history::HistoryPanelState::default(),
                 standard_lib_dir,
