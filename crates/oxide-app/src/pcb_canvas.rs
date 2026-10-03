@@ -149,6 +149,18 @@ impl PcbCanvas {
         (camera.offset.x, camera.offset.y, camera.scale)
     }
 
+    pub fn zoom_in(&self) {
+        let mut cam = self.camera.borrow_mut();
+        let center = iced::Point::new(cam.offset.x + 400.0, cam.offset.y + 300.0);
+        cam.zoom_at(center, 1.0, iced::Rectangle::default());
+    }
+
+    pub fn zoom_out(&self) {
+        let mut cam = self.camera.borrow_mut();
+        let center = iced::Point::new(cam.offset.x + 400.0, cam.offset.y + 300.0);
+        cam.zoom_at(center, -1.0, iced::Rectangle::default());
+    }
+
     /// Build the `oxide_gfx` scene for a board snapshot. Shared by the CPU
     /// `draw` path and the GPU [`Self::gpu_scene`] path so both tessellate from
     /// identical instance data.

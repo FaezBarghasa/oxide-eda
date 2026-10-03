@@ -210,7 +210,8 @@ impl Oxide {
                 tokio::task::spawn_blocking(move || {
                     let output = export_ipc2581(&board, &Ipc2581Options::default())
                         .map_err(|e| e.to_string())?;
-                    atomic_write(&path, output.xml_content.as_bytes()).map_err(|e| e.to_string())?;
+                    atomic_write(&path, output.xml_content.as_bytes())
+                        .map_err(|e| e.to_string())?;
                     Ok(path)
                 })
                 .await
@@ -562,4 +563,3 @@ impl Oxide {
         )
     }
 }
-

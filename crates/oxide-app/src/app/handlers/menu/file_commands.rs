@@ -147,6 +147,18 @@ impl Oxide {
                     ))
                 })
             }
+            MenuMessage::CloseAllDocuments => {
+                Some(self.handle_tab_context_action(crate::app::TabContextAction::CloseAll))
+            }
+            MenuMessage::About => {
+                crate::diagnostics::log_info(
+                    "Oxide EDA v1.5.0 — Next-Generation Systems & Electronics Design Automation",
+                );
+                self.ui_state.keyboard_shortcuts_open = true;
+                self.interaction_state.context_menu = None;
+                self.ui_state.panel_list_open = false;
+                Some(Task::none())
+            }
             _ => None,
         }
     }

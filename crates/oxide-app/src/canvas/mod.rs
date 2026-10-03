@@ -246,6 +246,18 @@ impl CanvasSlot {
         self.camera.borrow_mut()
     }
 
+    pub fn zoom_in(&self) {
+        let mut cam = self.camera.borrow_mut();
+        let center = iced::Point::new(cam.offset.x + 400.0, cam.offset.y + 300.0);
+        cam.zoom_at(center, 1.0, iced::Rectangle::default());
+    }
+
+    pub fn zoom_out(&self) {
+        let mut cam = self.camera.borrow_mut();
+        let center = iced::Point::new(cam.offset.x + 400.0, cam.offset.y + 300.0);
+        cam.zoom_at(center, -1.0, iced::Rectangle::default());
+    }
+
     pub fn set_render_cache(
         &mut self,
         render_cache: Option<crate::schematic_runtime::SchematicRenderCache>,

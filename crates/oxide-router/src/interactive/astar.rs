@@ -54,7 +54,10 @@ pub fn find_astar_path_with_grid(
     if start_coord == target_coord {
         let half_w = width / 2 + 50;
         let check_bbox = BoundingBox::from_points(&[start, target]).expand(half_w);
-        if spatial_index.check_collision(&check_bbox, &[net_id]).is_empty() {
+        if spatial_index
+            .check_collision(&check_bbox, &[net_id])
+            .is_empty()
+        {
             return Ok(vec![start, target]);
         }
     }
@@ -177,7 +180,10 @@ pub fn find_astar_path_with_ml(
     if start_coord == target_coord {
         let half_w = width / 2 + 50;
         let check_bbox = BoundingBox::from_points(&[start, target]).expand(half_w);
-        if spatial_index.check_collision(&check_bbox, &[net_id]).is_empty() {
+        if spatial_index
+            .check_collision(&check_bbox, &[net_id])
+            .is_empty()
+        {
             return Ok(vec![start, target]);
         }
     }

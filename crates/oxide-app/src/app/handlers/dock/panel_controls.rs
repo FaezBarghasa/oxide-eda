@@ -433,8 +433,11 @@ impl Oxide {
                     let sym_count = doc.symbols.len();
                     if sym_count == 0 {
                         self.document_state.panel_ctx.waveform_state.status_message =
-                            "Simulation: Active schematic has no components to simulate.".to_string();
-                        crate::diagnostics::log_warning("Simulation: Active schematic has 0 components.");
+                            "Simulation: Active schematic has no components to simulate."
+                                .to_string();
+                        crate::diagnostics::log_warning(
+                            "Simulation: Active schematic has 0 components.",
+                        );
                     } else {
                         // Solve real transient simulation with MNA solver
                         let mut solver = oxide_sim::InProcessMnaSolver::new();
@@ -451,7 +454,7 @@ impl Oxide {
                             let dt = 1e-5;
                             for i in 0..500 {
                                 let t = i as f64 * dt;
-                                let _ = solver.solve_step(t, dt);
+                                let _res = solver.solve_step(t, dt);
                                 time_vals.push(t);
                                 v_in.push(5.0);
                                 v_out.push(solver.state_vector.get(1).copied().unwrap_or(0.0));
@@ -613,7 +616,10 @@ impl Oxide {
                     .panel_ctx
                     .mcu_console_state
                     .uart_output
-                    .push("[Oxide CoSim] Target: Cortex-M4 / STM32F407 (GDB/QEMU Bridge).".to_string());
+                    .push(
+                        "[Oxide CoSim] Target: Cortex-M4 / STM32F407 (GDB/QEMU Bridge)."
+                            .to_string(),
+                    );
                 self.document_state
                     .panel_ctx
                     .mcu_console_state
@@ -670,7 +676,10 @@ impl Oxide {
                             .panel_ctx
                             .mcu_console_state
                             .uart_output
-                            .push("[Oxide CoSim] UART Rx ignored: Target MCU is not running.".to_string());
+                            .push(
+                                "[Oxide CoSim] UART Rx ignored: Target MCU is not running."
+                                    .to_string(),
+                            );
                     }
                 }
                 self.refresh_panel_ctx();

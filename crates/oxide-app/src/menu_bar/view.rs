@@ -277,15 +277,17 @@ pub fn view(tokens: &ThemeTokens, ctx: MenuContext) -> Element<'static, MenuMess
     let view_menu = Item::with_menu(
         root_btn("View", mc),
         menu_template(vec![
-            leaf_stub(
+            leaf_if(
                 &cmd_label("zoom_in_at_cursor", "Zoom In"),
                 shortcut_for(&ctx, "zoom_in_at_cursor", "Ctrl+="),
-                mc,
+                MenuMessage::ZoomIn,
+                ctx.has_schematic || ctx.has_pcb,
             ),
-            leaf_stub(
+            leaf_if(
                 &cmd_label("zoom_out_at_cursor", "Zoom Out"),
                 shortcut_for(&ctx, "zoom_out_at_cursor", "Ctrl+-"),
-                mc,
+                MenuMessage::ZoomOut,
+                ctx.has_schematic || ctx.has_pcb,
             ),
             leaf_if(
                 &cmd_label("zoom_to_fit", "Fit All"),
@@ -353,11 +355,26 @@ pub fn view(tokens: &ThemeTokens, ctx: MenuContext) -> Element<'static, MenuMess
                 MenuMessage::PlaceComponent,
                 ctx.has_schematic,
             ),
-            leaf_stub("Power Port", None, mc),
+            leaf_if(
+                "Power Port",
+                None,
+                MenuMessage::PlacePowerPort,
+                ctx.has_schematic,
+            ),
             separator(mc),
-            leaf_stub("Text", None, mc),
-            leaf_stub("No Connect", None, mc),
-            leaf_stub("Sheet Entry", None, mc),
+            leaf_if("Text", None, MenuMessage::PlaceText, ctx.has_schematic),
+            leaf_if(
+                "No Connect",
+                None,
+                MenuMessage::PlaceNoConnect,
+                ctx.has_schematic,
+            ),
+            leaf_if(
+                "Sheet Entry",
+                None,
+                MenuMessage::PlaceSheetEntry,
+                ctx.has_schematic,
+            ),
         ]),
     );
 
@@ -498,14 +515,19 @@ pub fn view(tokens: &ThemeTokens, ctx: MenuContext) -> Element<'static, MenuMess
             leaf_stub("Tile Horizontally", None, mc),
             leaf_stub("Tile Vertically", None, mc),
             separator(mc),
-            leaf_stub("Close All Documents", None, mc),
+            leaf(
+                "Close All Documents",
+                None,
+                MenuMessage::CloseAllDocuments,
+                mc,
+            ),
         ]),
     );
 
     let help_menu = Item::with_menu(
         root_btn("Help", mc),
         menu_template(vec![
-            leaf_stub("About Oxide", None, mc),
+            leaf("About Oxide", None, MenuMessage::About, mc),
             separator(mc),
             leaf(
                 &cmd_label("show_current_command_hotkeys", "Keyboard Shortcuts"),

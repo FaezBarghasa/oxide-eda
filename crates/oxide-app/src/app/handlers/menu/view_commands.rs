@@ -29,7 +29,34 @@ impl Oxide {
                 self.interaction_state.active_canvas_mut().clear_bg_cache();
                 Some(Task::none())
             }
-            MenuMessage::ZoomIn | MenuMessage::ZoomOut => Some(Task::none()),
+            MenuMessage::ZoomIn => {
+                if self.has_active_schematic() {
+                    self.interaction_state.active_canvas().zoom_in();
+                    self.interaction_state.active_canvas_mut().clear_bg_cache();
+                    self.interaction_state
+                        .active_canvas_mut()
+                        .clear_content_cache();
+                } else if self.has_active_pcb() {
+                    self.interaction_state.pcb_canvas.zoom_in();
+                    self.interaction_state.pcb_canvas.clear_bg_cache();
+                    self.interaction_state.pcb_canvas.clear_content_cache();
+                }
+                Some(Task::none())
+            }
+            MenuMessage::ZoomOut => {
+                if self.has_active_schematic() {
+                    self.interaction_state.active_canvas().zoom_out();
+                    self.interaction_state.active_canvas_mut().clear_bg_cache();
+                    self.interaction_state
+                        .active_canvas_mut()
+                        .clear_content_cache();
+                } else if self.has_active_pcb() {
+                    self.interaction_state.pcb_canvas.zoom_out();
+                    self.interaction_state.pcb_canvas.clear_bg_cache();
+                    self.interaction_state.pcb_canvas.clear_content_cache();
+                }
+                Some(Task::none())
+            }
             _ => None,
         }
     }

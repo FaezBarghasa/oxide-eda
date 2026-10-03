@@ -69,7 +69,8 @@ impl RetraceOptimizer {
                 continue;
             }
 
-            match astar::find_astar_path(spatial_index, run_start, run_end, route.net_id, run_width) {
+            match astar::find_astar_path(spatial_index, run_start, run_end, route.net_id, run_width)
+            {
                 Ok(waypoints) if waypoints.len() >= 2 => {
                     for i in 0..waypoints.len() - 1 {
                         all_segments.push(RouteSegment {

@@ -173,6 +173,15 @@ pub enum MenuMessage {
     PlaceBus,
     PlaceLabel,
     PlaceComponent,
+    PlacePowerPort,
+    PlaceText,
+    PlaceNoConnect,
+    PlaceSheetEntry,
+    PlaceBusEntry,
+    // Window
+    CloseAllDocuments,
+    // Help
+    About,
     // Design
     Annotate,
     AnnotateQuietly,

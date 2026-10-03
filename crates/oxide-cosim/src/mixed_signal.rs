@@ -83,7 +83,12 @@ pub struct LogicEvent {
 }
 
 impl LogicEvent {
-    pub fn new(timestamp_s: f64, sequence_id: u64, signal_id: u32, new_state: Logic12State) -> Self {
+    pub fn new(
+        timestamp_s: f64,
+        sequence_id: u64,
+        signal_id: u32,
+        new_state: Logic12State,
+    ) -> Self {
         Self {
             timestamp_s,
             sequence_id,

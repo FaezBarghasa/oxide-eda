@@ -24,6 +24,23 @@ impl Oxide {
                 self.interaction_state.current_tool = Tool::Component;
                 Some(Task::none())
             }
+            MenuMessage::PlacePowerPort => Some(self.set_pending_power_port("GND", "power:GND")),
+            MenuMessage::PlaceText => {
+                self.interaction_state.current_tool = Tool::Text;
+                Some(Task::none())
+            }
+            MenuMessage::PlaceNoConnect => {
+                self.interaction_state.current_tool = Tool::NoConnect;
+                Some(Task::none())
+            }
+            MenuMessage::PlaceSheetEntry => {
+                self.interaction_state.current_tool = Tool::Rectangle;
+                Some(Task::none())
+            }
+            MenuMessage::PlaceBusEntry => {
+                self.interaction_state.current_tool = Tool::BusEntry;
+                Some(Task::none())
+            }
             _ => None,
         }
     }

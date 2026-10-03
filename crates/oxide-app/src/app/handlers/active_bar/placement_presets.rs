@@ -257,7 +257,7 @@ impl Oxide {
         follow
     }
 
-    fn set_pending_power_port(&mut self, net_name: &str, lib_id: &str) -> Task<Message> {
+    pub(crate) fn set_pending_power_port(&mut self, net_name: &str, lib_id: &str) -> Task<Message> {
         // Go through the normal tool-switch path first so previous ghosts
         // and tool_preview get cleaned up; then override tool_preview to
         // the specific power-port name and arm the ghost_symbol.
