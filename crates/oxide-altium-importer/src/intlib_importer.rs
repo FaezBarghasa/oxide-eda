@@ -9,8 +9,10 @@ use crate::pcblib_importer::parse_footprints_from_records;
 use crate::record::parse_record_stream;
 use crate::schlib_importer::parse_symbols_from_records;
 
+use serde::{Deserialize, Serialize};
+
 /// Extracted components from an Altium `.IntLib` container.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ExtractedIntLib {
     pub symbols: Vec<LibSymbol>,
     pub footprints: Vec<Footprint>,

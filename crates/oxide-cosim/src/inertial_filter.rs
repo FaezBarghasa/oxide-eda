@@ -66,6 +66,7 @@ mod tests {
 
         let ev1 = LogicEvent {
             timestamp_s: 0.0,
+            sequence_id: 0,
             signal_id: 1,
             new_state: Logic12State::ForcingOne,
         };
@@ -74,6 +75,7 @@ mod tests {
         // Event arriving 20 ps later (glitch, must be suppressed)
         let ev2 = LogicEvent {
             timestamp_s: 20e-12,
+            sequence_id: 0,
             signal_id: 1,
             new_state: Logic12State::ForcingZero,
         };
@@ -83,6 +85,7 @@ mod tests {
         // Event arriving 60 ps later (valid pulse, accepted)
         let ev3 = LogicEvent {
             timestamp_s: 80e-12,
+            sequence_id: 0,
             signal_id: 1,
             new_state: Logic12State::ForcingZero,
         };

@@ -56,6 +56,13 @@ enum Commands {
         #[arg(short, long)]
         out_dir: PathBuf,
     },
+    /// Import an Altium Designer file (.SchDoc, .PcbDoc, .SchLib, .PcbLib, .IntLib) to native Oxide format
+    ImportAltium {
+        #[arg(short, long)]
+        input: PathBuf,
+        #[arg(short, long)]
+        out: Option<PathBuf>,
+    },
 }
 
 #[tokio::main]
@@ -183,6 +190,75 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 pkg.files.len(),
                 out_dir.display()
             );
+        }
+        Commands::ImportAltium { input, out } => {
+            println!("Oxide EDA Altium Importer: {}", input.display());
+            let result = oxide_altium_importer::import_altium_file(&input)
+                .map_err(|e| format!("Altium import failed: {e}"))?;
+
+            match &result {
+                oxide_altium_importer::AltiumImportResult::Schematic(sheet) => {
+                    println!(
+                        "Successfully parsed Schematic Sheet: {} symbols, {} wires, {} labels",
+                        sheet.symbols.len(),
+                        sheet.wires.len(),
+                        sheet.labels.len()
+                    );
+                    if let Some(out_path) = out {
+                        let json = serde_json::to_string_pretty(sheet)?;
+                        std::fs::write(&out_path, json)?;
+                        println!("Wrote native schematic to {}", out_path.display());
+                    }
+                }
+                oxide_altium_importer::AltiumImportResult::Pcb(board) => {
+                    println!(
+                        "Successfully parsed PCB Board: {} footprints, {} tracks, {} vias, {} zones",
+                        board.footprints.len(),
+                        board.segments.len(),
+                        board.vias.len(),
+                        board.zones.len()
+                    );
+                    if let Some(out_path) = out {
+                        let json = serde_json::to_string_pretty(board)?;
+                        std::fs::write(&out_path, json)?;
+                        println!("Wrote native PCB board to {}", out_path.display());
+                    }
+                }
+                oxide_altium_importer::AltiumImportResult::SymbolLibrary(symbols) => {
+                    println!(
+                        "Successfully parsed Schematic Symbol Library: {} symbols",
+                        symbols.len()
+                    );
+                    if let Some(out_path) = out {
+                        let json = serde_json::to_string_pretty(symbols)?;
+                        std::fs::write(&out_path, json)?;
+                        println!("Wrote native symbol library to {}", out_path.display());
+                    }
+                }
+                oxide_altium_importer::AltiumImportResult::FootprintLibrary(fps) => {
+                    println!(
+                        "Successfully parsed PCB Footprint Library: {} footprints",
+                        fps.len()
+                    );
+                    if let Some(out_path) = out {
+                        let json = serde_json::to_string_pretty(fps)?;
+                        std::fs::write(&out_path, json)?;
+                        println!("Wrote native footprint library to {}", out_path.display());
+                    }
+                }
+                oxide_altium_importer::AltiumImportResult::IntegratedLibrary(intlib) => {
+                    println!(
+                        "Successfully parsed Integrated Library: {} symbols, {} footprints",
+                        intlib.symbols.len(),
+                        intlib.footprints.len()
+                    );
+                    if let Some(out_path) = out {
+                        let json = serde_json::to_string_pretty(intlib)?;
+                        std::fs::write(&out_path, json)?;
+                        println!("Wrote native integrated library to {}", out_path.display());
+                    }
+                }
+            }
         }
     }
 

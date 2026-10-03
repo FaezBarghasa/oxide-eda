@@ -4,8 +4,8 @@ use oxide_output::{
     DwgOptions, DwgVersion, DxfExporter, DxfOptions, ExcellonExporter, GerberExporter,
     GerberOptions, Ipc2581Options, PickAndPlaceExporter, PickAndPlaceOptions, export_ipc2581,
 };
+use oxide_types::atomic_io::{atomic_write, atomic_write_stream};
 use oxide_types::pcb::PcbBoard;
-use std::path::PathBuf;
 
 use super::super::super::super::*;
 
@@ -42,19 +42,23 @@ impl Oxide {
                     return Err("Cancelled by user".to_string());
                 };
 
-                let exporter = GerberExporter::new(GerberOptions::default());
-                let layers = exporter.export_board(&board).map_err(|e| e.to_string())?;
+                tokio::task::spawn_blocking(move || {
+                    let exporter = GerberExporter::new(GerberOptions::default());
+                    let layers = exporter.export_board(&board).map_err(|e| e.to_string())?;
 
-                let mut written = 0;
-                for layer in &layers {
-                    let out_path = dir.join(&layer.filename);
-                    std::fs::write(&out_path, &layer.content).map_err(|e| {
-                        format!("Failed to write layer '{}': {}", layer.filename, e)
-                    })?;
-                    written += 1;
-                }
+                    let mut written = 0;
+                    for layer in &layers {
+                        let out_path = dir.join(&layer.filename);
+                        atomic_write(&out_path, layer.content.as_bytes()).map_err(|e| {
+                            format!("Failed to write layer '{}': {}", layer.filename, e)
+                        })?;
+                        written += 1;
+                    }
 
-                Ok((dir, written))
+                    Ok((dir, written))
+                })
+                .await
+                .map_err(|e| e.to_string())?
             },
             |res| match res {
                 Ok((dir, count)) => {
@@ -94,18 +98,22 @@ impl Oxide {
                     return Err("Cancelled by user".to_string());
                 };
 
-                let exporter = ExcellonExporter::default();
-                let outputs = exporter.export_board(&board).map_err(|e| e.to_string())?;
+                tokio::task::spawn_blocking(move || {
+                    let exporter = ExcellonExporter::default();
+                    let outputs = exporter.export_board(&board).map_err(|e| e.to_string())?;
 
-                let mut total_holes = 0;
-                let mut total_tools = 0;
-                for out in &outputs {
-                    let path = dir.join(&out.filename);
-                    std::fs::write(&path, &out.content).map_err(|e| e.to_string())?;
-                    total_holes += out.hole_count;
-                    total_tools += out.tool_count;
-                }
-                Ok((dir, total_holes, total_tools, outputs.len()))
+                    let mut total_holes = 0;
+                    let mut total_tools = 0;
+                    for out in &outputs {
+                        let path = dir.join(&out.filename);
+                        atomic_write(&path, out.content.as_bytes()).map_err(|e| e.to_string())?;
+                        total_holes += out.hole_count;
+                        total_tools += out.tool_count;
+                    }
+                    Ok((dir, total_holes, total_tools, outputs.len()))
+                })
+                .await
+                .map_err(|e| e.to_string())?
             },
             |res| match res {
                 Ok((dir, holes, tools, files)) => {
@@ -149,11 +157,14 @@ impl Oxide {
                     return Err("Cancelled by user".to_string());
                 };
 
-                let exporter = PickAndPlaceExporter::new(PickAndPlaceOptions::default());
-                let content = exporter.export(&board).map_err(|e| e.to_string())?;
-
-                std::fs::write(&path, content).map_err(|e| e.to_string())?;
-                Ok(path)
+                tokio::task::spawn_blocking(move || {
+                    let exporter = PickAndPlaceExporter::new(PickAndPlaceOptions::default());
+                    let content = exporter.export(&board).map_err(|e| e.to_string())?;
+                    atomic_write(&path, content.as_bytes()).map_err(|e| e.to_string())?;
+                    Ok(path)
+                })
+                .await
+                .map_err(|e| e.to_string())?
             },
             |res| match res {
                 Ok(path) => {
@@ -196,11 +207,14 @@ impl Oxide {
                     return Err("Cancelled by user".to_string());
                 };
 
-                let output = export_ipc2581(&board, &Ipc2581Options::default())
-                    .map_err(|e| e.to_string())?;
-
-                std::fs::write(&path, output.xml_content).map_err(|e| e.to_string())?;
-                Ok(path)
+                tokio::task::spawn_blocking(move || {
+                    let output = export_ipc2581(&board, &Ipc2581Options::default())
+                        .map_err(|e| e.to_string())?;
+                    atomic_write(&path, output.xml_content.as_bytes()).map_err(|e| e.to_string())?;
+                    Ok(path)
+                })
+                .await
+                .map_err(|e| e.to_string())?
             },
             |res| match res {
                 Ok(path) => {
@@ -247,12 +261,17 @@ impl Oxide {
                     return Err("Cancelled by user".to_string());
                 };
 
-                let mut draftsman = DraftsmanDocument::new(&project_title);
-                draftsman.sync_with_board(&board);
-                let svg_content = draftsman.generate_sheet_svg(0, &board)?;
-
-                std::fs::write(&path, svg_content).map_err(|e| e.to_string())?;
-                Ok(path)
+                tokio::task::spawn_blocking(move || {
+                    let mut draftsman = DraftsmanDocument::new(&project_title);
+                    draftsman.sync_with_board(&board);
+                    let svg_content = draftsman
+                        .generate_sheet_svg(0, &board)
+                        .map_err(|e| e.to_string())?;
+                    atomic_write(&path, svg_content.as_bytes()).map_err(|e| e.to_string())?;
+                    Ok(path)
+                })
+                .await
+                .map_err(|e| e.to_string())?
             },
             |res| match res {
                 Ok(path) => {
@@ -293,14 +312,18 @@ impl Oxide {
                     return Err("Cancelled by user".to_string());
                 };
 
-                let out_file = std::fs::File::create(&path).map_err(|e| e.to_string())?;
-                let mut writer = std::io::BufWriter::new(out_file);
-                let exporter = DxfExporter::new(DxfOptions::default());
-                exporter
-                    .export_board_to_writer(&board, &mut writer)
+                tokio::task::spawn_blocking(move || {
+                    let exporter = DxfExporter::new(DxfOptions::default());
+                    atomic_write_stream(&path, |writer| {
+                        exporter
+                            .export_board_to_writer(&board, writer)
+                            .map_err(|e| std::io::Error::other(e.to_string()))
+                    })
                     .map_err(|e| e.to_string())?;
-
-                Ok(path)
+                    Ok(path)
+                })
+                .await
+                .map_err(|e| e.to_string())?
             },
             |res| match res {
                 Ok(path) => {
@@ -341,17 +364,21 @@ impl Oxide {
                     return Err("Cancelled by user".to_string());
                 };
 
-                let out_file = std::fs::File::create(&path).map_err(|e| e.to_string())?;
-                let mut writer = std::io::BufWriter::new(out_file);
-                let exporter = DwgExporter::new(DwgOptions {
-                    version: DwgVersion::R12Ac1009,
-                    ..Default::default()
-                });
-                exporter
-                    .export_dwg_to_writer(&board, &mut writer)
+                tokio::task::spawn_blocking(move || {
+                    let exporter = DwgExporter::new(DwgOptions {
+                        version: DwgVersion::R12Ac1009,
+                        ..Default::default()
+                    });
+                    atomic_write_stream(&path, |writer| {
+                        exporter
+                            .export_dwg_to_writer(&board, writer)
+                            .map_err(|e| std::io::Error::other(e.to_string()))
+                    })
                     .map_err(|e| e.to_string())?;
-
-                Ok(path)
+                    Ok(path)
+                })
+                .await
+                .map_err(|e| e.to_string())?
             },
             |res| match res {
                 Ok(path) => {
@@ -392,19 +419,23 @@ impl Oxide {
                     return Err("Cancelled by user".to_string());
                 };
 
-                let out_file = std::fs::File::create(&path).map_err(|e| e.to_string())?;
-                let mut writer = std::io::BufWriter::new(out_file);
-                let exporter = DwgExporter::new(DwgOptions {
-                    version: DwgVersion::R12Ac1009,
-                    is_template: true,
-                    include_border: true,
-                    ..Default::default()
-                });
-                exporter
-                    .export_dwt_to_writer(&board, &mut writer)
+                tokio::task::spawn_blocking(move || {
+                    let exporter = DwgExporter::new(DwgOptions {
+                        version: DwgVersion::R12Ac1009,
+                        is_template: true,
+                        include_border: true,
+                        ..Default::default()
+                    });
+                    atomic_write_stream(&path, |writer| {
+                        exporter
+                            .export_dwt_to_writer(&board, writer)
+                            .map_err(|e| std::io::Error::other(e.to_string()))
+                    })
                     .map_err(|e| e.to_string())?;
-
-                Ok(path)
+                    Ok(path)
+                })
+                .await
+                .map_err(|e| e.to_string())?
             },
             |res| match res {
                 Ok(path) => {
@@ -445,14 +476,18 @@ impl Oxide {
                     return Err("Cancelled by user".to_string());
                 };
 
-                let out_file = std::fs::File::create(&path).map_err(|e| e.to_string())?;
-                let mut writer = std::io::BufWriter::new(out_file);
-                let exporter = CbrExporter::new(CbrOptions::default());
-                exporter
-                    .export_bottom_copper_to_writer(&board, &mut writer)
+                tokio::task::spawn_blocking(move || {
+                    let exporter = CbrExporter::new(CbrOptions::default());
+                    atomic_write_stream(&path, |writer| {
+                        exporter
+                            .export_bottom_copper_to_writer(&board, writer)
+                            .map_err(|e| std::io::Error::other(e.to_string()))
+                    })
                     .map_err(|e| e.to_string())?;
-
-                Ok(path)
+                    Ok(path)
+                })
+                .await
+                .map_err(|e| e.to_string())?
             },
             |res| match res {
                 Ok(path) => {
@@ -493,17 +528,21 @@ impl Oxide {
                     return Err("Cancelled by user".to_string());
                 };
 
-                let out_file = std::fs::File::create(&path).map_err(|e| e.to_string())?;
-                let mut writer = std::io::BufWriter::new(out_file);
-                let exporter = CdrExporter::new(CdrOptions {
-                    version: CdrVersion::V3_0,
-                    ..Default::default()
-                });
-                exporter
-                    .export_board_to_writer(&board, &mut writer)
+                tokio::task::spawn_blocking(move || {
+                    let exporter = CdrExporter::new(CdrOptions {
+                        version: CdrVersion::V3_0,
+                        ..Default::default()
+                    });
+                    atomic_write_stream(&path, |writer| {
+                        exporter
+                            .export_board_to_writer(&board, writer)
+                            .map_err(|e| std::io::Error::other(e.to_string()))
+                    })
                     .map_err(|e| e.to_string())?;
-
-                Ok(path)
+                    Ok(path)
+                })
+                .await
+                .map_err(|e| e.to_string())?
             },
             |res| match res {
                 Ok(path) => {
@@ -522,109 +561,5 @@ impl Oxide {
             },
         )
     }
-
-    /// Handle Forward ECO: Update PCB from Schematic Netlist & Components.
-    pub(crate) fn handle_update_pcb_from_schematic(&mut self) -> Task<Message> {
-        let (ctx, issues) = match super::build_export_scope(&self.document_state) {
-            Some(c) => c,
-            None => {
-                crate::diagnostics::log_warning(
-                    "ECO: No active schematic or project loaded to update PCB from.",
-                );
-                return Task::none();
-            }
-        };
-        super::log_stitch_issues(&self.document_state, &ctx, &issues);
-
-        let Some(netlist) = &ctx.netlist else {
-            crate::diagnostics::log_warning(
-                "ECO: No connectivity netlist could be derived from schematic.",
-            );
-            return Task::none();
-        };
-
-        let mut schematic_components = Vec::new();
-        for sheet in &ctx.sheets {
-            for sym in &sheet.schematic.symbols {
-                schematic_components.push((
-                    sym.reference.clone(),
-                    sym.value.clone(),
-                    sym.footprint.clone(),
-                ));
-            }
-        }
-
-        // Target active PCB engine, or primary open PCB engine, or create a new PCB tab
-        let pcb_path = self
-            .document_state
-            .tabs
-            .get(self.document_state.active_tab)
-            .and_then(|t| match t.kind {
-                crate::app::TabKind::Pcb => Some(t.path.clone()),
-                _ => None,
-            })
-            .or_else(|| self.document_state.pcb_engines.keys().next().cloned())
-            .unwrap_or_else(|| {
-                // Synthesize a PCB path alongside the active project or schematic
-                if let Some(proj) = self.document_state.active_document_project() {
-                    proj.dir().join("board.snxpcb")
-                } else if let Some(active) = &self.document_state.active_path {
-                    active.with_extension("snxpcb")
-                } else {
-                    PathBuf::from("board.snxpcb")
-                }
-            });
-
-        if !self.document_state.pcb_engines.contains_key(&pcb_path) {
-            let board = PcbBoard::default();
-            let engine = oxide_engine::pcb::PcbEngine::new(board);
-            self.document_state
-                .pcb_engines
-                .insert(pcb_path.clone(), engine);
-
-            let tab_title = pcb_path
-                .file_name()
-                .and_then(|n| n.to_str())
-                .unwrap_or("board.snxpcb")
-                .to_string();
-            self.document_state.tabs.push(crate::app::TabInfo {
-                title: tab_title,
-                path: pcb_path.clone(),
-                cached_document: None,
-                dirty: true,
-                project_id: self.document_state.active_project,
-                kind: crate::app::TabKind::Pcb,
-            });
-            self.document_state.active_tab = self.document_state.tabs.len() - 1;
-        }
-
-        if let Some(engine) = self.document_state.pcb_engines.get_mut(&pcb_path) {
-            let report = oxide_net::EcoEngine::diff_schematic_to_pcb(
-                netlist,
-                engine.board(),
-                &schematic_components,
-            );
-            let action_count = report.len();
-            oxide_net::EcoEngine::apply_eco(engine.board_mut(), &report);
-
-            crate::diagnostics::log_info(format!(
-                "ECO: Applied {} engineering change orders to PCB '{}'. Synchronized {} components.",
-                action_count,
-                pcb_path.display(),
-                schematic_components.len()
-            ));
-
-            // Focus the PCB tab
-            if let Some(idx) = self
-                .document_state
-                .tabs
-                .iter()
-                .position(|t| matches!(t.kind, crate::app::TabKind::Pcb) && t.path == pcb_path)
-            {
-                self.document_state.active_tab = idx;
-            }
-        }
-
-        Task::none()
-    }
 }
+

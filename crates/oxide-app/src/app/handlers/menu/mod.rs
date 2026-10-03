@@ -2,6 +2,7 @@ use iced::Task;
 
 use super::super::*;
 
+mod eco;
 mod editing;
 pub(crate) mod export;
 mod file_commands;

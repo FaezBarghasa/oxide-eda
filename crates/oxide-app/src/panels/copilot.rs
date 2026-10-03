@@ -81,7 +81,7 @@ pub fn view_copilot<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
         row![
             text_input(
                 "Ask Copilot (e.g. 'Add 3.3V LDO regulator with 10uF decoupling')...",
-                &ctx.component_filter,
+                &ctx.copilot_prompt_input,
             )
             .size(10)
             .on_input(PanelMsg::SetCopilotPromptInput)

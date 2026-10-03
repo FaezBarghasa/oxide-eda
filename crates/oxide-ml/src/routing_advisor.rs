@@ -6,6 +6,9 @@ use crate::geom::Point2D;
 use crate::schema::{RoutingAction, RoutingAdvisorInputConfig, RoutingAdvisorOutput};
 use crate::tensors::BoardTensorBuilder;
 
+/// Maximum entries retained in the routing advisor prediction cache before eviction.
+const MAX_CACHE_SIZE: usize = 10_000;
+
 /// RoutingAdvisor evaluates local board context and predicts routing policy distributions
 pub struct RoutingAdvisor {
     tensor_builder: BoardTensorBuilder,
@@ -67,6 +70,9 @@ impl RoutingAdvisor {
                     action_scores,
                     confidence,
                 };
+                if self.cache.len() >= MAX_CACHE_SIZE {
+                    self.cache.clear();
+                }
                 self.cache.insert(key, out.clone());
                 return out;
             }
@@ -113,6 +119,9 @@ impl RoutingAdvisor {
             action_scores,
             confidence: 0.85,
         };
+        if self.cache.len() >= MAX_CACHE_SIZE {
+            self.cache.clear();
+        }
         self.cache.insert(key, out.clone());
         out
     }

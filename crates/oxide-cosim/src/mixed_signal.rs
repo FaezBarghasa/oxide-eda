@@ -77,13 +77,25 @@ impl Logic12State {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LogicEvent {
     pub timestamp_s: f64,
+    pub sequence_id: u64,
     pub signal_id: u32,
     pub new_state: Logic12State,
 }
 
+impl LogicEvent {
+    pub fn new(timestamp_s: f64, sequence_id: u64, signal_id: u32, new_state: Logic12State) -> Self {
+        Self {
+            timestamp_s,
+            sequence_id,
+            signal_id,
+            new_state,
+        }
+    }
+}
+
 impl PartialEq for LogicEvent {
     fn eq(&self, other: &Self) -> bool {
-        self.timestamp_s == other.timestamp_s && self.signal_id == other.signal_id
+        self.cmp(other) == Ordering::Equal
     }
 }
 
@@ -97,11 +109,17 @@ impl PartialOrd for LogicEvent {
 
 impl Ord for LogicEvent {
     fn cmp(&self, other: &Self) -> Ordering {
-        // Min-heap ordering by timestamp
-        other
-            .timestamp_s
-            .partial_cmp(&self.timestamp_s)
-            .unwrap_or(Ordering::Equal)
+        // Min-heap ordering: smaller timestamp first, then smaller sequence_id, then smaller signal_id
+        match other.timestamp_s.total_cmp(&self.timestamp_s) {
+            Ordering::Equal => match other.sequence_id.cmp(&self.sequence_id) {
+                Ordering::Equal => match other.signal_id.cmp(&self.signal_id) {
+                    Ordering::Equal => (other.new_state as u8).cmp(&(self.new_state as u8)),
+                    ord => ord,
+                },
+                ord => ord,
+            },
+            ord => ord,
+        }
     }
 }
 
@@ -109,16 +127,22 @@ impl Ord for LogicEvent {
 #[derive(Debug, Default, Clone)]
 pub struct LogicEventQueue {
     events: BinaryHeap<LogicEvent>,
+    sequence_counter: u64,
 }
 
 impl LogicEventQueue {
     pub fn new() -> Self {
         Self {
             events: BinaryHeap::new(),
+            sequence_counter: 0,
         }
     }
 
-    pub fn push(&mut self, event: LogicEvent) {
+    pub fn push(&mut self, mut event: LogicEvent) {
+        if event.sequence_id == 0 {
+            self.sequence_counter += 1;
+            event.sequence_id = self.sequence_counter;
+        }
         self.events.push(event);
     }
 
@@ -141,6 +165,7 @@ impl LogicEventQueue {
 
     pub fn clear(&mut self) {
         self.events.clear();
+        self.sequence_counter = 0;
     }
 }
 
@@ -212,6 +237,7 @@ impl AtoDGateway {
 
             Some(LogicEvent {
                 timestamp_s: t_cross,
+                sequence_id: 0,
                 signal_id: self.signal_id,
                 new_state: next_state,
             })
@@ -378,6 +404,7 @@ mod tests {
         let mut sync = LockstepSynchronizer::new();
         sync.event_queue.push(LogicEvent {
             timestamp_s: 5.0e-9,
+            sequence_id: 0,
             signal_id: 1,
             new_state: Logic12State::ForcingOne,
         });
@@ -389,5 +416,37 @@ mod tests {
         let events = sync.advance_to(5.0e-9);
         assert_eq!(events.len(), 1);
         assert_eq!(events[0].new_state, Logic12State::ForcingOne);
+    }
+
+    #[test]
+    fn test_logic_event_total_ordering_and_eq_consistency() {
+        let ev1 = LogicEvent::new(1e-9, 1, 10, Logic12State::ForcingOne);
+        let ev2 = LogicEvent::new(1e-9, 1, 10, Logic12State::ForcingOne);
+        let ev3 = LogicEvent::new(1e-9, 2, 10, Logic12State::ForcingZero);
+        let ev4 = LogicEvent::new(2e-9, 1, 10, Logic12State::ForcingOne);
+
+        assert_eq!(ev1, ev2);
+        assert_eq!(ev1.cmp(&ev2), Ordering::Equal);
+        assert_ne!(ev1, ev3);
+        assert_eq!(ev1.cmp(&ev3), Ordering::Greater); // ev1 has lower sequence_id => higher heap priority => Greater
+        assert_eq!(ev1.cmp(&ev4), Ordering::Greater); // ev1 has earlier timestamp => higher heap priority => Greater
+    }
+
+    #[test]
+    fn test_delta_cycle_sequence_determinism() {
+        let mut queue = LogicEventQueue::new();
+        // Push multiple events at identical timestamp (delta cycle)
+        queue.push(LogicEvent::new(1e-6, 0, 1, Logic12State::ForcingZero));
+        queue.push(LogicEvent::new(1e-6, 0, 2, Logic12State::ForcingOne));
+        queue.push(LogicEvent::new(1e-6, 0, 3, Logic12State::HighZ));
+
+        let first = queue.pop_before_or_at(1e-6).unwrap();
+        let second = queue.pop_before_or_at(1e-6).unwrap();
+        let third = queue.pop_before_or_at(1e-6).unwrap();
+
+        assert_eq!(first.signal_id, 1);
+        assert_eq!(second.signal_id, 2);
+        assert_eq!(third.signal_id, 3);
+        assert!(queue.is_empty());
     }
 }

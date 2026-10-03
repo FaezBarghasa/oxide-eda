@@ -51,6 +51,14 @@ pub fn find_astar_path_with_grid(
         y: target.y / grid_step,
     };
 
+    if start_coord == target_coord {
+        let half_w = width / 2 + 50;
+        let check_bbox = BoundingBox::from_points(&[start, target]).expand(half_w);
+        if spatial_index.check_collision(&check_bbox, &[net_id]).is_empty() {
+            return Ok(vec![start, target]);
+        }
+    }
+
     let mut open_set = BinaryHeap::new();
     let mut closed_set = HashSet::new();
     let mut came_from: HashMap<GridCoord, GridCoord> = HashMap::new();
@@ -72,7 +80,9 @@ pub fn find_astar_path_with_grid(
     ];
 
     let mut iterations = 0;
-    let max_iterations = 8000;
+    let euclidean_dist = start.distance_to(target);
+    let estimated_steps = (euclidean_dist / grid_step).max(1);
+    let max_iterations = (estimated_steps * 25).clamp(8000, 100_000);
     let mut target_reached = false;
 
     while let Some(Reverse((_, current_g, current))) = open_set.pop() {
@@ -164,6 +174,14 @@ pub fn find_astar_path_with_ml(
         y: target.y / grid_step,
     };
 
+    if start_coord == target_coord {
+        let half_w = width / 2 + 50;
+        let check_bbox = BoundingBox::from_points(&[start, target]).expand(half_w);
+        if spatial_index.check_collision(&check_bbox, &[net_id]).is_empty() {
+            return Ok(vec![start, target]);
+        }
+    }
+
     let mut open_set = BinaryHeap::new();
     let mut closed_set = HashSet::new();
     let mut came_from: HashMap<GridCoord, GridCoord> = HashMap::new();
@@ -185,7 +203,9 @@ pub fn find_astar_path_with_ml(
     ];
 
     let mut iterations = 0;
-    let max_iterations = 25000;
+    let euclidean_dist = start.distance_to(target);
+    let estimated_steps = (euclidean_dist / grid_step).max(1);
+    let max_iterations = (estimated_steps * 30).clamp(25000, 150_000);
     let mut target_reached = false;
 
     let mut advisor_ref = advisor;

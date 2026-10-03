@@ -109,6 +109,56 @@ pub fn atomic_write(path: &Path, bytes: &[u8]) -> io::Result<()> {
     Ok(())
 }
 
+/// Atomically stream-write to `path` via a closure providing a `BufWriter<File>`.
+///
+/// Same crash-safety contract as [`atomic_write`]: writes to a temporary sibling file,
+/// syncs to disk upon closure completion, and performs an atomic rename to `path`.
+/// If the closure returns an error or panics, the temporary file is deleted and `path` is untouched.
+pub fn atomic_write_stream<F>(path: &Path, writer_fn: F) -> io::Result<()>
+where
+    F: FnOnce(&mut std::io::BufWriter<File>) -> io::Result<()>,
+{
+    if let Some(parent) = path.parent()
+        && !parent.as_os_str().is_empty()
+    {
+        std::fs::create_dir_all(parent)?;
+    }
+    let tmp = tmp_path_for(path)?;
+
+    {
+        let file = File::create(&tmp)?;
+        let mut writer = std::io::BufWriter::new(file);
+        if let Err(e) = writer_fn(&mut writer) {
+            drop(writer);
+            let _ = std::fs::remove_file(&tmp);
+            return Err(e);
+        }
+        if let Err(e) = writer.flush().and_then(|()| writer.get_ref().sync_all()) {
+            drop(writer);
+            let _ = std::fs::remove_file(&tmp);
+            return Err(e);
+        }
+    }
+
+    if let Err(e) = std::fs::rename(&tmp, path) {
+        let _ = std::fs::remove_file(&tmp);
+        return Err(e);
+    }
+
+    #[cfg(unix)]
+    {
+        let dir = match path.parent() {
+            Some(p) if !p.as_os_str().is_empty() => p,
+            _ => Path::new("."),
+        };
+        if let Ok(dir_file) = File::open(dir) {
+            let _ = dir_file.sync_all();
+        }
+    }
+
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -201,5 +251,34 @@ mod tests {
             !has_stray_tmp(dir.path()),
             "the temp sibling must be cleaned up after a failed rename",
         );
+    }
+
+    #[test]
+    fn atomic_write_stream_success() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("stream.txt");
+        atomic_write_stream(&path, |writer| {
+            writer.write_all(b"streamed data")?;
+            Ok(())
+        })
+        .unwrap();
+        assert_eq!(std::fs::read(&path).unwrap(), b"streamed data");
+        assert!(!has_stray_tmp(dir.path()));
+    }
+
+    #[test]
+    fn atomic_write_stream_error_cleans_up_and_preserves_target() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("stream_err.txt");
+        std::fs::write(&path, b"original content").unwrap();
+
+        let res = atomic_write_stream(&path, |writer| {
+            writer.write_all(b"corrupted attempt")?;
+            Err(std::io::Error::other("forced failure"))
+        });
+
+        assert!(res.is_err());
+        assert_eq!(std::fs::read(&path).unwrap(), b"original content");
+        assert!(!has_stray_tmp(dir.path()));
     }
 }

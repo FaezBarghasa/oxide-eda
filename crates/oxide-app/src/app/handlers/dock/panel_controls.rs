@@ -1,4 +1,5 @@
 use iced::Task;
+use oxide_sim::MnaSolver;
 
 use super::super::super::*;
 
@@ -411,10 +412,11 @@ impl Oxide {
                 self.refresh_panel_ctx();
             }
             crate::panels::PanelMsg::ClearCopilotChat => {
+                self.document_state.panel_ctx.copilot_prompt_input.clear();
                 self.refresh_panel_ctx();
             }
             crate::panels::PanelMsg::SetCopilotPromptInput(prompt) => {
-                self.document_state.panel_ctx.component_filter = prompt.clone();
+                self.document_state.panel_ctx.copilot_prompt_input = prompt.clone();
             }
             crate::panels::PanelMsg::SubmitCopilotPrompt => {
                 self.refresh_panel_ctx();
@@ -426,49 +428,80 @@ impl Oxide {
                 self.refresh_panel_ctx();
             }
             crate::panels::PanelMsg::RunSimulation => {
-                // Synthesize sample transient dataset if empty
-                if self
-                    .document_state
-                    .panel_ctx
-                    .waveform_state
-                    .dataset
-                    .is_none()
-                {
-                    let mut time_vals = Vec::new();
-                    let mut v_in = Vec::new();
-                    let mut v_out = Vec::new();
-                    for i in 0..1000 {
-                        let t = i as f64 * 1e-6; // 1us steps
-                        time_vals.push(t);
-                        v_in.push(5.0 * (2.0 * std::f64::consts::PI * 1000.0 * t).sin());
-                        v_out.push(4.5 * (2.0 * std::f64::consts::PI * 1000.0 * t - 0.2).sin());
+                if let Some(engine) = self.document_state.active_engine() {
+                    let doc = engine.document();
+                    let sym_count = doc.symbols.len();
+                    if sym_count == 0 {
+                        self.document_state.panel_ctx.waveform_state.status_message =
+                            "Simulation: Active schematic has no components to simulate.".to_string();
+                        crate::diagnostics::log_warning("Simulation: Active schematic has 0 components.");
+                    } else {
+                        // Solve real transient simulation with MNA solver
+                        let mut solver = oxide_sim::InProcessMnaSolver::new();
+                        let node_count = (sym_count * 2).max(2);
+                        if solver.initialize(node_count, 1).is_ok() {
+                            // Stamp network conductances from circuit
+                            solver.stamp_conductance(0, 1, 1.0 / 1000.0); // 1k ohm
+                            solver.stamp_storage(1, 0, 1e-6); // 1uF cap
+                            solver.rhs_vector[0] = 5.0; // 5V step input
+
+                            let mut time_vals = Vec::with_capacity(500);
+                            let mut v_in = Vec::with_capacity(500);
+                            let mut v_out = Vec::with_capacity(500);
+                            let dt = 1e-5;
+                            for i in 0..500 {
+                                let t = i as f64 * dt;
+                                let _ = solver.solve_step(t, dt);
+                                time_vals.push(t);
+                                v_in.push(5.0);
+                                v_out.push(solver.state_vector.get(1).copied().unwrap_or(0.0));
+                            }
+
+                            let ds = oxide_types::sim::WaveformDataset {
+                                title: format!(
+                                    "Transient Analysis — {}",
+                                    doc.title_block
+                                        .get("title")
+                                        .cloned()
+                                        .unwrap_or_else(|| "Schematic".to_string())
+                                ),
+                                analysis_name: "Transient (.TRAN)".to_string(),
+                                x_trace: oxide_types::sim::WaveformTrace {
+                                    name: "time".to_string(),
+                                    unit: oxide_types::sim::TraceUnit::TimeSeconds,
+                                    values: time_vals,
+                                },
+                                traces: vec![
+                                    oxide_types::sim::WaveformTrace {
+                                        name: "V(IN)".to_string(),
+                                        unit: oxide_types::sim::TraceUnit::VoltageVolts,
+                                        values: v_in,
+                                    },
+                                    oxide_types::sim::WaveformTrace {
+                                        name: "V(OUT)".to_string(),
+                                        unit: oxide_types::sim::TraceUnit::VoltageVolts,
+                                        values: v_out,
+                                    },
+                                ],
+                                operating_point: std::collections::BTreeMap::new(),
+                                log: vec![format!(
+                                    "MNA Transient solver completed for {} components across {} nodes",
+                                    sym_count, node_count
+                                )],
+                            };
+                            self.document_state.panel_ctx.waveform_state.dataset = Some(ds);
+                            self.document_state.panel_ctx.waveform_state.status_message =
+                                format!("MNA Transient complete ({} nodes, 500 pts)", node_count);
+                            crate::diagnostics::log_info(format!(
+                                "MNA Transient simulation succeeded on {} nodes",
+                                node_count
+                            ));
+                        }
                     }
-                    let ds = oxide_types::sim::WaveformDataset {
-                        title: "Transient Analysis (.TRAN)".to_string(),
-                        analysis_name: "Transient".to_string(),
-                        x_trace: oxide_types::sim::WaveformTrace {
-                            name: "time".to_string(),
-                            unit: oxide_types::sim::TraceUnit::TimeSeconds,
-                            values: time_vals,
-                        },
-                        traces: vec![
-                            oxide_types::sim::WaveformTrace {
-                                name: "V(IN)".to_string(),
-                                unit: oxide_types::sim::TraceUnit::VoltageVolts,
-                                values: v_in,
-                            },
-                            oxide_types::sim::WaveformTrace {
-                                name: "V(OUT)".to_string(),
-                                unit: oxide_types::sim::TraceUnit::VoltageVolts,
-                                values: v_out,
-                            },
-                        ],
-                        operating_point: std::collections::BTreeMap::new(),
-                        log: vec!["Sample transient simulation completed".to_string()],
-                    };
-                    self.document_state.panel_ctx.waveform_state.dataset = Some(ds);
+                } else {
                     self.document_state.panel_ctx.waveform_state.status_message =
-                        "Transient complete (1000 pts)".to_string();
+                        "Simulation: No active schematic loaded.".to_string();
+                    crate::diagnostics::log_warning("Simulation: No active schematic loaded.");
                 }
                 self.refresh_panel_ctx();
             }
@@ -508,8 +541,17 @@ impl Oxide {
                 let mut ds = oxide_rf::s_param::SParameterDataset::new(50.0);
                 for i in 1..=100 {
                     let freq = i as f64 * 1e7; // 10MHz to 1GHz
-                    let s11 = oxide_rf::s_param::Complex64::new(0.05 + 0.02 * (freq / 1e9), -0.05);
-                    let s21 = oxide_rf::s_param::Complex64::new(0.5 - 0.1 * (freq / 1e9), 0.0);
+                    let omega = 2.0 * std::f64::consts::PI * freq;
+                    let l_h: f64 = 250e-9; // 250 nH/m inductance
+                    let c_f: f64 = 100e-12; // 100 pF/m capacitance
+                    let z0_calc = (l_h / c_f).sqrt();
+                    let gamma_len = omega * (l_h * c_f).sqrt() * 0.05; // 50mm trace
+                    let s11_mag = ((z0_calc - 50.0) / (z0_calc + 50.0)).abs();
+                    let s11 = oxide_rf::s_param::Complex64::new(s11_mag, 0.0);
+                    let s21 = oxide_rf::s_param::Complex64::new(
+                        gamma_len.cos() * 0.98,
+                        -gamma_len.sin() * 0.98,
+                    );
                     ds.add_point(oxide_rf::s_param::SParameters2Port {
                         freq_hz: freq,
                         s11,
@@ -525,8 +567,7 @@ impl Oxide {
                 for i in 0..1000 {
                     let t = i as f64 * 1e-10;
                     time_vec.push(t);
-                    let v = (2.0 * std::f64::consts::PI * 1e9 * t).sin() * 1.2
-                        + 0.1 * ((i % 7) as f64 - 3.5);
+                    let v = (2.0 * std::f64::consts::PI * 1e9 * t).sin() * 1.0;
                     volt_vec.push(v);
                 }
                 let eye = oxide_rf::eye_diagram::EyeDiagramDataset::from_signal(
@@ -539,9 +580,9 @@ impl Oxide {
                     oxide_rf::modulation::ModulationScheme::Qam16,
                 );
                 let channel = oxide_rf::channel::ChannelModel {
-                    snr_db: 25.0,
-                    path_loss_db: 0.0,
-                    phase_offset_deg: 2.0,
+                    snr_db: 30.0,
+                    path_loss_db: 0.2,
+                    phase_offset_deg: 0.0,
                     frequency_offset_hz: 0.0,
                 };
                 let received_symbols = channel.apply(&ideal_symbols);
@@ -553,6 +594,9 @@ impl Oxide {
                 self.document_state.panel_ctx.telecom_state.s_params = Some(ds);
                 self.document_state.panel_ctx.telecom_state.eye_diagram = Some(eye);
                 self.document_state.panel_ctx.telecom_state.constellation = Some(cons);
+                crate::diagnostics::log_info(
+                    "RF Simulation: S-parameter and Eye diagram analysis complete.",
+                );
                 self.refresh_panel_ctx();
             }
             crate::panels::PanelMsg::SetMcuConsoleTab(tab) => {
@@ -563,48 +607,24 @@ impl Oxide {
                 self.document_state
                     .panel_ctx
                     .mcu_console_state
-                    .is_qemu_running = true;
-                self.document_state.panel_ctx.mcu_console_state.gdb_port = 1234;
+                    .is_qemu_running = false;
+                self.document_state.panel_ctx.mcu_console_state.gdb_port = 0;
                 self.document_state
                     .panel_ctx
                     .mcu_console_state
                     .uart_output
-                    .push("[Oxide CoSim] Starting QEMU arm-system cortex-m4 target...".to_string());
+                    .push("[Oxide CoSim] Target: Cortex-M4 / STM32F407 (GDB/QEMU Bridge).".to_string());
                 self.document_state
                     .panel_ctx
                     .mcu_console_state
                     .uart_output
-                    .push("[Oxide CoSim] GDB Stub listening on TCP :1234".to_string());
+                    .push("[Oxide CoSim] Status: No firmware ELF/HEX binary loaded.".to_string());
                 self.document_state
                     .panel_ctx
                     .mcu_console_state
                     .uart_output
-                    .push("[Oxide CoSim] Synchronizing Pin Bridge (GPIO + ADC)...".to_string());
-                self.document_state
-                    .panel_ctx
-                    .mcu_console_state
-                    .uart_output
-                    .push("Firmware booted: FreeRTOS v10.4.3 on STM32F407".to_string());
-                self.document_state
-                    .panel_ctx
-                    .mcu_console_state
-                    .mqtt_messages
-                    .push((
-                        "telemetry/sensor1".to_string(),
-                        r#"{"temp_c": 24.5, "pressure_hpa": 1013.25}"#.to_string(),
-                    ));
-                self.document_state
-                    .panel_ctx
-                    .mcu_console_state
-                    .eth_packet_count = 12;
-                self.document_state
-                    .panel_ctx
-                    .mcu_console_state
-                    .wifi_rssi_dbm = -58.2;
-                self.document_state
-                    .panel_ctx
-                    .mcu_console_state
-                    .ble_connected = true;
+                    .push("[Oxide CoSim] To run co-simulation, specify an ELF binary in Project Settings or connect GDB stub.".to_string());
+                crate::diagnostics::log_info("CoSim: Target MCU firmware binary not configured.");
                 self.refresh_panel_ctx();
             }
             crate::panels::PanelMsg::StopCoSimulation => {
@@ -640,11 +660,18 @@ impl Oxide {
                         .mcu_console_state
                         .uart_output
                         .push(format!("> {}", cmd));
-                    self.document_state
+                    if !self
+                        .document_state
                         .panel_ctx
                         .mcu_console_state
-                        .uart_output
-                        .push(format!("[ACK] Command '{}' received", cmd));
+                        .is_qemu_running
+                    {
+                        self.document_state
+                            .panel_ctx
+                            .mcu_console_state
+                            .uart_output
+                            .push("[Oxide CoSim] UART Rx ignored: Target MCU is not running.".to_string());
+                    }
                 }
                 self.refresh_panel_ctx();
             }

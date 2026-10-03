@@ -23,6 +23,14 @@ pub fn calculate_push(
     trace_end: Point2D,
     required_clearance: Microns,
 ) -> Option<PushResult> {
+    if matches!(
+        obstacle.object_type,
+        crate::geometry::rtree::SpatialObjectType::BoardOutline
+            | crate::geometry::rtree::SpatialObjectType::Keepout
+    ) {
+        return None;
+    }
+
     let obs_center = obstacle.bbox.center();
     let (dx, dy) = trace_start.direction_to(trace_end);
     let (perp_x, perp_y) = (-dy, dx);
@@ -154,6 +162,13 @@ impl PushAndShoveEngine {
 
         for sec_obs in secondary_obstacles {
             if visited.contains(&sec_obs.id) {
+                continue;
+            }
+            if matches!(
+                sec_obs.object_type,
+                crate::geometry::rtree::SpatialObjectType::BoardOutline
+                    | crate::geometry::rtree::SpatialObjectType::Keepout
+            ) {
                 continue;
             }
 

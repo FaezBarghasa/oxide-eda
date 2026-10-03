@@ -330,6 +330,7 @@ impl Oxide {
                     child_sheet_fill_advanced_open: false,
                     child_sheet_stroke_width_buf: None,
                     component_filter: crate::fonts::read_component_filter(),
+                    copilot_prompt_input: String::new(),
                     collapsed_sections: std::collections::HashSet::new(),
                     pre_placement: None,
                     erc_diagnostics: Vec::new(),

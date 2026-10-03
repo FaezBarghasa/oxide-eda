@@ -6004,6 +6004,7 @@ name = "oxide-cli"
 version = "1.5.0"
 dependencies = [
  "clap",
+ "oxide-altium-importer",
  "oxide-net",
  "oxide-output",
  "oxide-physics",

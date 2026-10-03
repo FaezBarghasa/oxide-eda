@@ -106,7 +106,7 @@ impl ExportIssues {
 /// Put the stitch issues in front of the user — called once per *user action*
 /// (print-preview open, PDF written, netlist written), never from the shared
 /// context builder.
-fn log_stitch_issues(
+pub(crate) fn log_stitch_issues(
     document_state: &crate::app::state::DocumentState,
     ctx: &ExportContext,
     issues: &ExportIssues,
@@ -239,7 +239,7 @@ fn export_metadata(
 /// is machine-consumed and refuses on a hole, the PDF is human-consumed and
 /// degrades loudly. See `handle_export_netlist_finished` /
 /// `handle_export_pdf_finished`.
-fn build_export_scope(
+pub(crate) fn build_export_scope(
     document_state: &crate::app::state::DocumentState,
 ) -> Option<(ExportContext, ExportIssues)> {
     let active_path = document_state.active_path.as_ref()?;

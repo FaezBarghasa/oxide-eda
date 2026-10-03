@@ -126,6 +126,8 @@ pub struct PanelContext {
     pub child_sheet_stroke_width_buf: Option<String>,
     /// Component search filter text.
     pub component_filter: String,
+    /// AI Copilot prompt input buffer.
+    pub copilot_prompt_input: String,
     /// Which sections are collapsed (by section name key).
     pub collapsed_sections: CollapsedSections,
     /// Pre-placement configuration (shown when Tab pressed during placement tool).
