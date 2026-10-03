@@ -116,6 +116,12 @@ pub fn view(tokens: &ThemeTokens, ctx: MenuContext) -> Element<'static, MenuMess
                 MenuMessage::ExportCbr,
                 ctx.has_pcb || ctx.has_schematic,
             ),
+            leaf_if(
+                "CorelDRAW Vector Drawing (.cdr)…",
+                None,
+                MenuMessage::ExportCdr,
+                ctx.has_pcb || ctx.has_schematic,
+            ),
             separator(mc),
             leaf_if(
                 "Draftsman Drawing (.svg)…",

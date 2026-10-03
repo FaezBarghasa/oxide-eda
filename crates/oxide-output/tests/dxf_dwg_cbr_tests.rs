@@ -233,4 +233,3 @@ fn test_cdr_coreldraw_export() {
     assert!(cdr_bytes.windows(4).any(|w| w == b"oblt"));
     assert!(cdr_bytes.len() > 200);
 }
-

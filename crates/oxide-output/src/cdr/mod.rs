@@ -6,9 +6,9 @@
 //! Ideal for legacy CNC milling, laser cutting, screen printing, silkscreen stencil makers,
 //! and industrial shops requiring legacy CorelDRAW vector files.
 
+use oxide_types::pcb::{PadShape, PadType, PcbBoard};
 use std::collections::BTreeSet;
 use std::io::{self, Write};
-use oxide_types::pcb::{PadShape, PadType, PcbBoard};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -88,15 +88,39 @@ pub struct CdrColor {
 
 impl CdrColor {
     pub const BLACK: Self = Self { r: 0, g: 0, b: 0 };
-    pub const WHITE: Self = Self { r: 255, g: 255, b: 255 };
+    pub const WHITE: Self = Self {
+        r: 255,
+        g: 255,
+        b: 255,
+    };
     pub const RED: Self = Self { r: 255, g: 0, b: 0 };
     pub const GREEN: Self = Self { r: 0, g: 255, b: 0 };
     pub const BLUE: Self = Self { r: 0, g: 0, b: 255 };
-    pub const YELLOW: Self = Self { r: 255, g: 255, b: 0 };
-    pub const MAGENTA: Self = Self { r: 255, g: 0, b: 255 };
-    pub const CYAN: Self = Self { r: 0, g: 255, b: 255 };
-    pub const DARK_GRAY: Self = Self { r: 80, g: 80, b: 80 };
-    pub const LIGHT_GRAY: Self = Self { r: 180, g: 180, b: 180 };
+    pub const YELLOW: Self = Self {
+        r: 255,
+        g: 255,
+        b: 0,
+    };
+    pub const MAGENTA: Self = Self {
+        r: 255,
+        g: 0,
+        b: 255,
+    };
+    pub const CYAN: Self = Self {
+        r: 0,
+        g: 255,
+        b: 255,
+    };
+    pub const DARK_GRAY: Self = Self {
+        r: 80,
+        g: 80,
+        b: 80,
+    };
+    pub const LIGHT_GRAY: Self = Self {
+        r: 180,
+        g: 180,
+        b: 180,
+    };
 }
 
 /// CorelDRAW Exporter
@@ -185,7 +209,11 @@ impl CdrExporter {
     }
 
     /// Exports a single PCB layer to a CorelDRAW file.
-    pub fn export_single_layer(&self, board: &PcbBoard, layer_name: &str) -> Result<Vec<u8>, CdrError> {
+    pub fn export_single_layer(
+        &self,
+        board: &PcbBoard,
+        layer_name: &str,
+    ) -> Result<Vec<u8>, CdrError> {
         let mut single_opt = self.options.clone();
         single_opt.layer_filter = Some(vec![layer_name.to_string()]);
         let exporter = CdrExporter::new(single_opt);
@@ -212,7 +240,8 @@ impl CdrExporter {
         }
 
         if let Some(ref filter) = self.options.layer_filter {
-            let filter_set: BTreeSet<String> = filter.iter().map(|s| canonicalize_layer_name(s)).collect();
+            let filter_set: BTreeSet<String> =
+                filter.iter().map(|s| canonicalize_layer_name(s)).collect();
             known_layers.retain(|l| filter_set.contains(&l.name));
         }
 
@@ -224,12 +253,40 @@ impl CdrExporter {
         if self.should_include_layer("BOARD_OUTLINE") {
             for bg in &board.graphics {
                 if let (Some(s), Some(e)) = (bg.start, bg.end) {
-                    write_cdr_line(out, 0, s.x, s.y, e.x, e.y, 0.25, CdrColor::BLACK, self.options.scale_multiplier)?;
+                    write_cdr_line(
+                        out,
+                        0,
+                        s.x,
+                        s.y,
+                        e.x,
+                        e.y,
+                        0.25,
+                        CdrColor::BLACK,
+                        self.options.scale_multiplier,
+                    )?;
                 } else if !bg.points.is_empty() {
                     let pts: Vec<(f64, f64)> = bg.points.iter().map(|p| (p.x, p.y)).collect();
-                    write_cdr_polygon(out, 0, &pts, false, CdrColor::BLACK, 0.25, self.options.scale_multiplier)?;
+                    write_cdr_polygon(
+                        out,
+                        0,
+                        &pts,
+                        false,
+                        CdrColor::BLACK,
+                        0.25,
+                        self.options.scale_multiplier,
+                    )?;
                 } else if let Some(c) = bg.center.filter(|_| bg.radius > 0.0) {
-                    write_cdr_circle(out, 0, c.x, c.y, bg.radius, false, CdrColor::BLACK, 0.25, self.options.scale_multiplier)?;
+                    write_cdr_circle(
+                        out,
+                        0,
+                        c.x,
+                        c.y,
+                        bg.radius,
+                        false,
+                        CdrColor::BLACK,
+                        0.25,
+                        self.options.scale_multiplier,
+                    )?;
                 }
             }
         }
@@ -239,16 +296,46 @@ impl CdrExporter {
             let layer = canonicalize_layer_name(&seg.layer);
             if self.should_include_layer(&layer) {
                 let color = layer_to_color(&layer);
-                write_cdr_line(out, 1, seg.start.x, seg.start.y, seg.end.x, seg.end.y, seg.width, color, self.options.scale_multiplier)?;
+                write_cdr_line(
+                    out,
+                    1,
+                    seg.start.x,
+                    seg.start.y,
+                    seg.end.x,
+                    seg.end.y,
+                    seg.width,
+                    color,
+                    self.options.scale_multiplier,
+                )?;
             }
         }
 
         // 3. Vias
         if self.should_include_layer("DRILL") {
             for via in &board.vias {
-                write_cdr_circle(out, 7, via.position.x, via.position.y, via.diameter / 2.0, false, CdrColor::CYAN, 0.2, self.options.scale_multiplier)?;
+                write_cdr_circle(
+                    out,
+                    7,
+                    via.position.x,
+                    via.position.y,
+                    via.diameter / 2.0,
+                    false,
+                    CdrColor::CYAN,
+                    0.2,
+                    self.options.scale_multiplier,
+                )?;
                 if via.drill > 0.0 {
-                    write_cdr_circle(out, 7, via.position.x, via.position.y, via.drill / 2.0, true, CdrColor::CYAN, 0.1, self.options.scale_multiplier)?;
+                    write_cdr_circle(
+                        out,
+                        7,
+                        via.position.x,
+                        via.position.y,
+                        via.drill / 2.0,
+                        true,
+                        CdrColor::CYAN,
+                        0.1,
+                        self.options.scale_multiplier,
+                    )?;
                 }
             }
         }
@@ -263,7 +350,9 @@ impl CdrExporter {
                 let cy = fp.position.y + py;
 
                 let pad_layer = if pad.pad_type == PadType::Smd {
-                    if fp.layer.to_ascii_lowercase().contains("bottom") || fp.layer.to_ascii_lowercase().contains("b_cu") {
+                    if fp.layer.to_ascii_lowercase().contains("bottom")
+                        || fp.layer.to_ascii_lowercase().contains("b_cu")
+                    {
                         "B_CU"
                     } else {
                         "F_CU"
@@ -277,28 +366,82 @@ impl CdrExporter {
                     match pad.shape {
                         PadShape::Circle => {
                             let radius = pad.size.x.max(pad.size.y) / 2.0;
-                            write_cdr_circle(out, 2, cx, cy, radius, true, color, 0.1, self.options.scale_multiplier)?;
+                            write_cdr_circle(
+                                out,
+                                2,
+                                cx,
+                                cy,
+                                radius,
+                                true,
+                                color,
+                                0.1,
+                                self.options.scale_multiplier,
+                            )?;
                         }
                         PadShape::Rect | PadShape::RoundRect | PadShape::Custom => {
-                            write_cdr_rect(out, 2, cx, cy, pad.size.x, pad.size.y, fp.rotation, true, color, 0.1, self.options.scale_multiplier)?;
+                            write_cdr_rect(
+                                out,
+                                2,
+                                cx,
+                                cy,
+                                pad.size.x,
+                                pad.size.y,
+                                fp.rotation,
+                                true,
+                                color,
+                                0.1,
+                                self.options.scale_multiplier,
+                            )?;
                         }
                         PadShape::Oval | PadShape::Trapezoid => {
                             let radius = pad.size.x.max(pad.size.y) / 2.0;
-                            write_cdr_circle(out, 2, cx, cy, radius, true, color, 0.1, self.options.scale_multiplier)?;
+                            write_cdr_circle(
+                                out,
+                                2,
+                                cx,
+                                cy,
+                                radius,
+                                true,
+                                color,
+                                0.1,
+                                self.options.scale_multiplier,
+                            )?;
                         }
                     }
                 }
 
                 // Drill hole
-                if let Some(drill) = pad.drill.as_ref().filter(|d| self.should_include_layer("DRILL") && d.diameter > 0.0) {
-                    write_cdr_circle(out, 7, cx, cy, drill.diameter / 2.0, true, CdrColor::CYAN, 0.1, self.options.scale_multiplier)?;
+                if let Some(drill) = pad
+                    .drill
+                    .as_ref()
+                    .filter(|d| self.should_include_layer("DRILL") && d.diameter > 0.0)
+                {
+                    write_cdr_circle(
+                        out,
+                        7,
+                        cx,
+                        cy,
+                        drill.diameter / 2.0,
+                        true,
+                        CdrColor::CYAN,
+                        0.1,
+                        self.options.scale_multiplier,
+                    )?;
                 }
             }
 
             // Silkscreen graphics
-            let silk_layer = if fp.layer.to_ascii_lowercase().contains("bottom") { "B_SILK" } else { "F_SILK" };
+            let silk_layer = if fp.layer.to_ascii_lowercase().contains("bottom") {
+                "B_SILK"
+            } else {
+                "F_SILK"
+            };
             if self.should_include_layer(silk_layer) {
-                let silk_color = if silk_layer == "B_SILK" { CdrColor::MAGENTA } else { CdrColor::YELLOW };
+                let silk_color = if silk_layer == "B_SILK" {
+                    CdrColor::MAGENTA
+                } else {
+                    CdrColor::YELLOW
+                };
                 for g in &fp.graphics {
                     if let (Some(s), Some(e)) = (g.start, g.end) {
                         let (s_rx, s_ry) = rotate_point(s.x, s.y, fp_rot);
@@ -339,7 +482,15 @@ impl CdrExporter {
             if self.should_include_layer(&zone_layer) && zone.outline.len() >= 3 {
                 let color = layer_to_color(&zone_layer);
                 let pts: Vec<(f64, f64)> = zone.outline.iter().map(|p| (p.x, p.y)).collect();
-                write_cdr_polygon(out, 1, &pts, true, color, 0.1, self.options.scale_multiplier)?;
+                write_cdr_polygon(
+                    out,
+                    1,
+                    &pts,
+                    true,
+                    color,
+                    0.1,
+                    self.options.scale_multiplier,
+                )?;
             }
         }
 
@@ -360,7 +511,15 @@ impl CdrExporter {
         let by2 = max_y + margin;
 
         let pts = vec![(bx1, by1), (bx2, by1), (bx2, by2), (bx1, by2)];
-        write_cdr_polygon(out, 0, &pts, false, CdrColor::BLACK, 0.5, self.options.scale_multiplier)?;
+        write_cdr_polygon(
+            out,
+            0,
+            &pts,
+            false,
+            CdrColor::BLACK,
+            0.5,
+            self.options.scale_multiplier,
+        )?;
 
         // Title box in lower-right
         let tb_w = 60.0;
@@ -371,10 +530,45 @@ impl CdrExporter {
         let ty2 = by1 + tb_h;
 
         let tb_pts = vec![(tx1, ty1), (tx2, ty1), (tx2, ty2), (tx1, ty2)];
-        write_cdr_polygon(out, 0, &tb_pts, false, CdrColor::BLACK, 0.35, self.options.scale_multiplier)?;
-        write_cdr_text(out, 0, tx1 + 2.0, ty1 + 14.0, 2.5, &self.options.title, CdrColor::BLACK, self.options.scale_multiplier)?;
-        write_cdr_text(out, 0, tx1 + 2.0, ty1 + 8.0, 1.8, "Format: CorelDRAW Vector Drawing", CdrColor::BLACK, self.options.scale_multiplier)?;
-        write_cdr_text(out, 0, tx1 + 2.0, ty1 + 3.0, 1.5, "Engine: Oxide EDA CAM", CdrColor::BLACK, self.options.scale_multiplier)?;
+        write_cdr_polygon(
+            out,
+            0,
+            &tb_pts,
+            false,
+            CdrColor::BLACK,
+            0.35,
+            self.options.scale_multiplier,
+        )?;
+        write_cdr_text(
+            out,
+            0,
+            tx1 + 2.0,
+            ty1 + 14.0,
+            2.5,
+            &self.options.title,
+            CdrColor::BLACK,
+            self.options.scale_multiplier,
+        )?;
+        write_cdr_text(
+            out,
+            0,
+            tx1 + 2.0,
+            ty1 + 8.0,
+            1.8,
+            "Format: CorelDRAW Vector Drawing",
+            CdrColor::BLACK,
+            self.options.scale_multiplier,
+        )?;
+        write_cdr_text(
+            out,
+            0,
+            tx1 + 2.0,
+            ty1 + 3.0,
+            1.5,
+            "Engine: Oxide EDA CAM",
+            CdrColor::BLACK,
+            self.options.scale_multiplier,
+        )?;
 
         Ok(())
     }
@@ -394,10 +588,18 @@ impl CdrExporter {
         let mut max_y = f64::NEG_INFINITY;
 
         let mut update = |x: f64, y: f64| {
-            if x < min_x { min_x = x; }
-            if y < min_y { min_y = y; }
-            if x > max_x { max_x = x; }
-            if y > max_y { max_y = y; }
+            if x < min_x {
+                min_x = x;
+            }
+            if y < min_y {
+                min_y = y;
+            }
+            if x > max_x {
+                max_x = x;
+            }
+            if y > max_y {
+                max_y = y;
+            }
         };
 
         for seg in &board.segments {
@@ -609,17 +811,32 @@ pub fn canonicalize_layer_name(name: &str) -> String {
     let lower = name.to_ascii_lowercase();
     if (lower.contains("top") && lower.contains("copper")) || lower == "f.cu" || lower == "f_cu" {
         "F_CU".to_string()
-    } else if (lower.contains("bottom") && lower.contains("copper")) || lower == "b.cu" || lower == "b_cu" {
+    } else if (lower.contains("bottom") && lower.contains("copper"))
+        || lower == "b.cu"
+        || lower == "b_cu"
+    {
         "B_CU".to_string()
     } else if lower.contains("edge") || lower.contains("outline") || lower == "edge.cuts" {
         "BOARD_OUTLINE".to_string()
-    } else if (lower.contains("top") && lower.contains("silk")) || lower == "f.silks" || lower == "f_silks" {
+    } else if (lower.contains("top") && lower.contains("silk"))
+        || lower == "f.silks"
+        || lower == "f_silks"
+    {
         "F_SILK".to_string()
-    } else if (lower.contains("bottom") && lower.contains("silk")) || lower == "b.silks" || lower == "b_silks" {
+    } else if (lower.contains("bottom") && lower.contains("silk"))
+        || lower == "b.silks"
+        || lower == "b_silks"
+    {
         "B_SILK".to_string()
-    } else if (lower.contains("top") && lower.contains("mask")) || lower == "f.mask" || lower == "f_mask" {
+    } else if (lower.contains("top") && lower.contains("mask"))
+        || lower == "f.mask"
+        || lower == "f_mask"
+    {
         "F_MASK".to_string()
-    } else if (lower.contains("bottom") && lower.contains("mask")) || lower == "b.mask" || lower == "b_mask" {
+    } else if (lower.contains("bottom") && lower.contains("mask"))
+        || lower == "b.mask"
+        || lower == "b_mask"
+    {
         "B_MASK".to_string()
     } else {
         name.to_ascii_uppercase().replace(['.', ' ', '-'], "_")

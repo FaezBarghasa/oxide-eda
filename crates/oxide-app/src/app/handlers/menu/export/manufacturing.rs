@@ -487,9 +487,7 @@ impl Oxide {
                     version: CdrVersion::V3_0,
                     ..Default::default()
                 });
-                let cdr_bytes = exporter
-                    .export_board(&board)
-                    .map_err(|e| e.to_string())?;
+                let cdr_bytes = exporter.export_board(&board).map_err(|e| e.to_string())?;
 
                 std::fs::write(&path, cdr_bytes).map_err(|e| e.to_string())?;
                 Ok(path)
