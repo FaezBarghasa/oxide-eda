@@ -103,47 +103,62 @@ impl ThermalGrid3D {
     }
 
     /// Advances transient thermal diffusion by timestep $\Delta t$ (in seconds).
+    /// Employs sub-stepping to satisfy the explicit finite difference von Neumann stability criterion:
+    /// $\Delta t_{sub} \le \frac{\Delta x^2 \cdot C_v}{6 k_{max}}$
     pub fn step_transient(&mut self, dt_sec: f64) {
-        let mut next_temp = self.temperature_k.clone();
         let dx = self.voxel_size_m;
         let dx2 = dx * dx;
         let cell_volume = dx * dx * dx;
 
-        for z in 0..self.dim_z {
-            for y in 0..self.dim_y {
-                for x in 0..self.dim_x {
-                    let idx = self.index(x, y, z);
+        // Find worst-case thermal diffusivity $\alpha = k / C_v$ across materials present
+        let max_diffusivity = self.materials.iter().map(|m| {
+            m.conductivity_w_per_mk() / m.volumetric_heat_capacity()
+        }).fold(1e-9, f64::max);
 
-                    // Boundary conditions: Ambient heat sink at exterior edges
-                    if x == 0 || x == self.dim_x - 1 || y == 0 || y == self.dim_y - 1 || z == 0 || z == self.dim_z - 1 {
-                        next_temp[idx] = self.ambient_temp_k;
-                        continue;
+        // Explicit 3D von Neumann stability limit: dt_max = dx^2 / (6 * alpha) * safety_margin
+        let dt_limit = (dx2 / (6.0 * max_diffusivity)) * 0.8;
+        let num_substeps = ((dt_sec / dt_limit).ceil() as usize).max(1);
+        let sub_dt = dt_sec / (num_substeps as f64);
+
+        for _ in 0..num_substeps {
+            let mut next_temp = self.temperature_k.clone();
+
+            for z in 0..self.dim_z {
+                for y in 0..self.dim_y {
+                    for x in 0..self.dim_x {
+                        let idx = self.index(x, y, z);
+
+                        // Boundary conditions: Ambient heat sink at exterior edges
+                        if x == 0 || x == self.dim_x - 1 || y == 0 || y == self.dim_y - 1 || z == 0 || z == self.dim_z - 1 {
+                            next_temp[idx] = self.ambient_temp_k;
+                            continue;
+                        }
+
+                        let t_c = self.temperature_k[idx];
+                        let t_left = self.temperature_k[self.index(x - 1, y, z)];
+                        let t_right = self.temperature_k[self.index(x + 1, y, z)];
+                        let t_down = self.temperature_k[self.index(x, y - 1, z)];
+                        let t_up = self.temperature_k[self.index(x, y + 1, z)];
+                        let t_back = self.temperature_k[self.index(x, y, z - 1)];
+                        let t_front = self.temperature_k[self.index(x, y, z + 1)];
+
+                        let mat = self.materials[idx];
+                        let k = mat.conductivity_w_per_mk();
+                        let cv = mat.volumetric_heat_capacity();
+
+                        // 3D 6-point Laplacian
+                        let laplacian = (t_left + t_right + t_down + t_up + t_back + t_front - 6.0 * t_c) / dx2;
+                        let volumetric_q = self.power_dissipation_w[idx] / cell_volume;
+
+                        // Fourier diffusion update: T_new = T + sub_dt * (k * Lap + Q) / Cv
+                        let dt_flux = sub_dt * (k * laplacian + volumetric_q) / cv;
+                        next_temp[idx] = t_c + dt_flux;
                     }
-
-                    let t_c = self.temperature_k[idx];
-                    let t_left = self.temperature_k[self.index(x - 1, y, z)];
-                    let t_right = self.temperature_k[self.index(x + 1, y, z)];
-                    let t_down = self.temperature_k[self.index(x, y - 1, z)];
-                    let t_up = self.temperature_k[self.index(x, y + 1, z)];
-                    let t_back = self.temperature_k[self.index(x, y, z - 1)];
-                    let t_front = self.temperature_k[self.index(x, y, z + 1)];
-
-                    let mat = self.materials[idx];
-                    let k = mat.conductivity_w_per_mk();
-                    let cv = mat.volumetric_heat_capacity();
-
-                    // 3D 6-point Laplacian
-                    let laplacian = (t_left + t_right + t_down + t_up + t_back + t_front - 6.0 * t_c) / dx2;
-                    let volumetric_q = self.power_dissipation_w[idx] / cell_volume;
-
-                    // Fourier diffusion update: T_new = T + dt * (k * Lap + Q) / Cv
-                    let dt_flux = dt_sec * (k * laplacian + volumetric_q) / cv;
-                    next_temp[idx] = t_c + dt_flux;
                 }
             }
-        }
 
-        self.temperature_k = next_temp;
+            self.temperature_k = next_temp;
+        }
     }
 
     /// Evaluates maximum temperature across the board volume in Celsius.
