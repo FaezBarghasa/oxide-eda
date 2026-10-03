@@ -325,6 +325,8 @@ pub struct DocumentState {
     /// `engine_for_window`. Save-as rekeys an entry via
     /// `rekey_engine(old, new)`.
     pub engines: std::collections::HashMap<PathBuf, oxide_engine::Engine>,
+    /// All live PCB layout engines keyed by their on-disk path.
+    pub pcb_engines: std::collections::HashMap<PathBuf, oxide_engine::PcbEngine>,
     /// Per-tab state for open `.snxsym` document tabs. Keyed by the
     /// file path stored on `TabInfo.path` for matching
     /// `TabKind::SymbolEditor(path)` tabs. Insert on

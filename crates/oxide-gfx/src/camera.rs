@@ -40,7 +40,7 @@ impl CameraUniform {
         let top = offset_mm[1];
         let bottom = top + height_mm;
 
-        let proj = glam::Mat4::orthographic_rh_gl(left, right, bottom, top, -1.0, 1.0);
+        let proj = glam::camera::rh::proj::opengl::orthographic(left, right, bottom, top, -1.0, 1.0);
 
         Self {
             view_proj: proj.to_cols_array_2d(),
@@ -92,8 +92,8 @@ impl CameraUniform {
             1.0
         };
 
-        let view = glam::Mat4::look_at_rh(eye, target, glam::Vec3::Y);
-        let proj = glam::Mat4::perspective_rh_gl(fov_rad, aspect, 0.01, 10_000.0);
+        let view = glam::camera::rh::view::look_at_mat4(eye, target, glam::Vec3::Y);
+        let proj = glam::camera::rh::proj::opengl::perspective(fov_rad, aspect, 0.01, 10_000.0);
         let view_proj = proj * view;
 
         Self {

@@ -50,6 +50,13 @@ impl Oxide {
             return;
         }
 
+        if self.has_active_pcb() {
+            if self.undo_pcb() {
+                self.refresh_panel_ctx();
+            }
+            return;
+        }
+
         // Net-colour floods aren't persisted to the Standard document so
         // they don't enter the engine's history. Check the app-level
         // net_color_undo stack first; only fall through to the engine
@@ -93,6 +100,13 @@ impl Oxide {
             && let Some(editor) = self.document_state.footprint_editors.get_mut(&path)
         {
             if editor.redo() {
+                self.refresh_panel_ctx();
+            }
+            return;
+        }
+
+        if self.has_active_pcb() {
+            if self.redo_pcb() {
                 self.refresh_panel_ctx();
             }
             return;

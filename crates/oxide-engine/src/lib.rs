@@ -1,6 +1,7 @@
 mod command;
 mod error;
 mod patch;
+pub mod pcb;
 
 pub mod room;
 pub mod multi_channel;
@@ -29,6 +30,7 @@ pub use command::{
     TextTarget,
 };
 pub use error::EngineError;
+pub use pcb::{PcbCommand, PcbEngine};
 use history::HistoryEntry;
 use oxide_types::schematic::SchematicSheet;
 pub use patch::{CommandResult, DocumentPatch, PatchPair, SemanticPatch};

@@ -321,6 +321,62 @@ impl Oxide {
         }
         self.ui_state.project_netlist = Some(result);
     }
+
+    pub(crate) fn mark_active_pcb_dirty(&mut self) {
+        if let Some(tab) = self.document_state.tabs.get_mut(self.document_state.active_tab) {
+            tab.dirty = true;
+            self.document_state.dirty_paths.insert(tab.path.clone());
+        }
+    }
+
+    pub(crate) fn apply_pcb_command(&mut self, command: oxide_engine::PcbCommand) -> bool {
+        let Some(engine) = self.active_pcb_engine_mut() else {
+            return false;
+        };
+
+        match engine.execute(command) {
+            Ok(()) => {
+                self.mark_active_pcb_dirty();
+                self.sync_pcb_canvas_from_visible_board();
+                true
+            }
+            Err(error) => {
+                let error = anyhow::Error::new(error);
+                crate::diagnostics::log_error("PCB command execution failed", &error);
+                false
+            }
+        }
+    }
+
+    pub(crate) fn undo_pcb(&mut self) -> bool {
+        let Some(engine) = self.active_pcb_engine_mut() else {
+            return false;
+        };
+
+        match engine.undo() {
+            Ok(true) => {
+                self.mark_active_pcb_dirty();
+                self.sync_pcb_canvas_from_visible_board();
+                true
+            }
+            _ => false,
+        }
+    }
+
+    pub(crate) fn redo_pcb(&mut self) -> bool {
+        let Some(engine) = self.active_pcb_engine_mut() else {
+            return false;
+        };
+
+        match engine.redo() {
+            Ok(true) => {
+                self.mark_active_pcb_dirty();
+                self.sync_pcb_canvas_from_visible_board();
+                true
+            }
+            _ => false,
+        }
+    }
 }
 
 #[cfg(test)]

@@ -19,9 +19,22 @@ impl Oxide {
             .map(|engine| engine.document())
     }
 
+    pub(crate) fn active_pcb_engine(&self) -> Option<&oxide_engine::PcbEngine> {
+        let path = self.active_tab_path()?;
+        self.document_state.pcb_engines.get(&path)
+    }
+
+    pub(crate) fn active_pcb_engine_mut(&mut self) -> Option<&mut oxide_engine::PcbEngine> {
+        let path = self.active_tab_path()?;
+        self.document_state.pcb_engines.get_mut(&path)
+    }
+
     pub(crate) fn active_pcb(&self) -> Option<&PcbBoard> {
-        self.active_tab_cached_document()
-            .and_then(TabDocument::as_pcb)
+        if let Some(engine) = self.active_pcb_engine() {
+            Some(engine.board())
+        } else {
+            self.active_tab_cached_document().and_then(TabDocument::as_pcb)
+        }
     }
 
     pub(crate) fn has_active_schematic(&self) -> bool {
@@ -271,6 +284,10 @@ impl Oxide {
     pub(crate) fn open_pcb_tab(&mut self, path: PathBuf, title: String, board: PcbBoard) {
         self.park_active_schematic_session();
         let project_id = self.document_state.project_for_path(&path).map(|p| p.id);
+        self.document_state.pcb_engines.insert(
+            path.clone(),
+            oxide_engine::PcbEngine::new_with_path(board.clone(), Some(path.clone())),
+        );
         self.document_state.tabs.push(TabInfo {
             title,
             path,
