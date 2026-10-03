@@ -12,8 +12,11 @@ use thiserror::Error;
 
 pub mod assembly;
 pub mod bom;
+pub mod cbr;
 pub mod draftsman;
 pub mod drill;
+pub mod dwg;
+pub mod dxf;
 mod expression;
 pub mod gerber;
 pub mod ipc2581;
@@ -27,12 +30,15 @@ pub mod svg;
 pub mod template;
 
 pub use assembly::{AssemblyError, AssemblyLayer, PickAndPlaceExporter, PickAndPlaceOptions};
+pub use cbr::{CbrError, CbrExporter, CbrOptions};
 pub use draftsman::{
     DatumReference, DimensionKind, DraftsmanDocument, DraftsmanSheet, DrawingView, DrillTable,
     DrillTableRow, FeatureControlFrame, GeometricCharacteristic, HolePlating, MaterialCondition,
     SheetSize,
 };
 pub use drill::excellon::{DrillError, DrillHole, DrillHoleType, ExcellonExporter, ExcellonOutput};
+pub use dwg::{DwgError, DwgExporter, DwgOptions, DwgVersion};
+pub use dxf::{AciColor, DxfError, DxfExporter, DxfLayerConfig, DxfOptions, DxfOutput};
 pub use gerber::{GerberError, GerberExporter, GerberLayer, GerberLayerOutput, GerberOptions};
 pub use ipc2581::{Ipc2581Error, Ipc2581Options, Ipc2581Output, export_ipc2581};
 pub use odbpp::{OdbError, OdbFileEntry, OdbOutputPackage, export_odbpp_package};

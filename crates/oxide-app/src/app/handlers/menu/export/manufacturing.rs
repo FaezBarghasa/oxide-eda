@@ -1,8 +1,7 @@
-//! Manufacturing and Fabrication output handlers (Gerber X2, NC Drill, Pick-and-Place, IPC-2581, Draftsman).
-
 use iced::Task;
 use oxide_output::{
-    DraftsmanDocument, ExcellonExporter, GerberExporter, GerberOptions, Ipc2581Options,
+    CbrExporter, CbrOptions, DraftsmanDocument, DwgExporter, DwgOptions, DwgVersion, DxfExporter,
+    DxfOptions, ExcellonExporter, GerberExporter, GerberOptions, Ipc2581Options,
     PickAndPlaceExporter, PickAndPlaceOptions, export_ipc2581,
 };
 use oxide_types::pcb::PcbBoard;
