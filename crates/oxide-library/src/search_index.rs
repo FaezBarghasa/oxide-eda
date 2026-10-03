@@ -590,6 +590,7 @@ impl TantivySearchIndex {
             })
     }
 
+    #[allow(dead_code)]
     fn field_name_owned(&self, field: Field) -> String {
         self.index.schema().get_field_name(field).to_string()
     }

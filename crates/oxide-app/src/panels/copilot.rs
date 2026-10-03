@@ -9,6 +9,7 @@ use super::messages::PanelMsg;
 use super::widgets::{section_title, separator};
 use super::context::PanelContext;
 
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct CopilotMessageEntry {
     pub is_user: bool,

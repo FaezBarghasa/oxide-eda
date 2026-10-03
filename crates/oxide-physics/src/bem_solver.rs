@@ -56,9 +56,9 @@ pub struct ExtractedTransmissionLine {
 pub struct BemFieldSolver;
 
 impl BemFieldSolver {
-    const EPS0: f64 = 8.8541878128e-12;
-    const MU0: f64 = 1.2566370614e-6;
-    const C0: f64 = 299_792_458.0;
+    pub const EPS0: f64 = 8.8541878128e-12;
+    pub const MU0: f64 = 1.2566370614e-6;
+    pub const C0: f64 = 299_792_458.0;
 
     /// Evaluates transmission line parameters using closed-form analytical conformal mapping / BEM formulations.
     pub fn solve_microstrip(cross_section: &TransmissionLineCrossSection) -> ExtractedTransmissionLine {

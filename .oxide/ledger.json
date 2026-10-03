@@ -1,0 +1,21 @@
+{
+  "usage_records": [],
+  "savings_records": [
+    {
+      "timestamp": 1791040696,
+      "session_id": "cli_run",
+      "category": "condenser",
+      "original_bytes": 1342,
+      "saved_bytes": 813,
+      "estimated_tokens_saved": 203
+    },
+    {
+      "timestamp": 1791041373,
+      "session_id": "cli_run",
+      "category": "condenser",
+      "original_bytes": 3378,
+      "saved_bytes": 2861,
+      "estimated_tokens_saved": 715
+    }
+  ]
+}

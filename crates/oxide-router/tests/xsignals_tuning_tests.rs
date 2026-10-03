@@ -25,8 +25,8 @@ fn test_via_shoving_and_multi_cycle_accordion_tuning() {
     use std::sync::Arc;
     use oxide_rules::ConstraintManager;
     use oxide_router::geometry::{Point2D, BoundingBox};
-    use oxide_router::geometry::rtree::{SpatialIndex, SpatialObject, SpatialObjectType};
-    use oxide_router::interactive::conflict::{PushAndShoveEngine, calculate_push};
+    use oxide_router::geometry::rtree::{SpatialObject, SpatialObjectType};
+    use oxide_router::interactive::conflict::calculate_push;
     use oxide_router::optimization::length_tuning::LengthTuningOptimizer;
     use oxide_router::{RouteSegment, RoutingPath, SegmentType};
     use uuid::Uuid;
