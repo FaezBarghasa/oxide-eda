@@ -293,10 +293,13 @@ impl Oxide {
                     return Err("Cancelled by user".to_string());
                 };
 
+                let out_file = std::fs::File::create(&path).map_err(|e| e.to_string())?;
+                let mut writer = std::io::BufWriter::new(out_file);
                 let exporter = DxfExporter::new(DxfOptions::default());
-                let dxf_content = exporter.export_board(&board).map_err(|e| e.to_string())?;
+                exporter
+                    .export_board_to_writer(&board, &mut writer)
+                    .map_err(|e| e.to_string())?;
 
-                std::fs::write(&path, dxf_content).map_err(|e| e.to_string())?;
                 Ok(path)
             },
             |res| match res {
@@ -338,13 +341,16 @@ impl Oxide {
                     return Err("Cancelled by user".to_string());
                 };
 
+                let out_file = std::fs::File::create(&path).map_err(|e| e.to_string())?;
+                let mut writer = std::io::BufWriter::new(out_file);
                 let exporter = DwgExporter::new(DwgOptions {
                     version: DwgVersion::R12Ac1009,
                     ..Default::default()
                 });
-                let dwg_bytes = exporter.export_dwg(&board).map_err(|e| e.to_string())?;
+                exporter
+                    .export_dwg_to_writer(&board, &mut writer)
+                    .map_err(|e| e.to_string())?;
 
-                std::fs::write(&path, dwg_bytes).map_err(|e| e.to_string())?;
                 Ok(path)
             },
             |res| match res {
@@ -386,15 +392,18 @@ impl Oxide {
                     return Err("Cancelled by user".to_string());
                 };
 
+                let out_file = std::fs::File::create(&path).map_err(|e| e.to_string())?;
+                let mut writer = std::io::BufWriter::new(out_file);
                 let exporter = DwgExporter::new(DwgOptions {
                     version: DwgVersion::R12Ac1009,
                     is_template: true,
                     include_border: true,
                     ..Default::default()
                 });
-                let dwt_bytes = exporter.export_dwt(&board).map_err(|e| e.to_string())?;
+                exporter
+                    .export_dwt_to_writer(&board, &mut writer)
+                    .map_err(|e| e.to_string())?;
 
-                std::fs::write(&path, dwt_bytes).map_err(|e| e.to_string())?;
                 Ok(path)
             },
             |res| match res {
@@ -436,12 +445,13 @@ impl Oxide {
                     return Err("Cancelled by user".to_string());
                 };
 
+                let out_file = std::fs::File::create(&path).map_err(|e| e.to_string())?;
+                let mut writer = std::io::BufWriter::new(out_file);
                 let exporter = CbrExporter::new(CbrOptions::default());
-                let cbr_content = exporter
-                    .export_bottom_copper(&board)
+                exporter
+                    .export_bottom_copper_to_writer(&board, &mut writer)
                     .map_err(|e| e.to_string())?;
 
-                std::fs::write(&path, cbr_content).map_err(|e| e.to_string())?;
                 Ok(path)
             },
             |res| match res {
@@ -483,13 +493,16 @@ impl Oxide {
                     return Err("Cancelled by user".to_string());
                 };
 
+                let out_file = std::fs::File::create(&path).map_err(|e| e.to_string())?;
+                let mut writer = std::io::BufWriter::new(out_file);
                 let exporter = CdrExporter::new(CdrOptions {
                     version: CdrVersion::V3_0,
                     ..Default::default()
                 });
-                let cdr_bytes = exporter.export_board(&board).map_err(|e| e.to_string())?;
+                exporter
+                    .export_board_to_writer(&board, &mut writer)
+                    .map_err(|e| e.to_string())?;
 
-                std::fs::write(&path, cdr_bytes).map_err(|e| e.to_string())?;
                 Ok(path)
             },
             |res| match res {

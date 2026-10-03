@@ -57,11 +57,16 @@ impl CbrExporter {
     pub fn export_bottom_copper(&self, board: &PcbBoard) -> Result<String, CbrError> {
         let mut bytes = Vec::with_capacity(32 * 1024);
         self.export_bottom_copper_to_writer(board, &mut bytes)?;
-        String::from_utf8(bytes).map_err(|e| CbrError::Io(std::io::Error::new(std::io::ErrorKind::InvalidData, e)))
+        String::from_utf8(bytes)
+            .map_err(|e| CbrError::Io(std::io::Error::new(std::io::ErrorKind::InvalidData, e)))
     }
 
     /// Stream bottom copper layer directly into any `std::io::Write` target.
-    pub fn export_bottom_copper_to_writer<W: std::io::Write>(&self, board: &PcbBoard, writer: &mut W) -> Result<(), CbrError> {
+    pub fn export_bottom_copper_to_writer<W: std::io::Write>(
+        &self,
+        board: &PcbBoard,
+        writer: &mut W,
+    ) -> Result<(), CbrError> {
         let mut out = String::with_capacity(32 * 1024);
 
         // 1. Collect Apertures for bottom layer traces, pads, and vias
