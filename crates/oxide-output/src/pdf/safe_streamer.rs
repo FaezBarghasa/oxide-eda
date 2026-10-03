@@ -5,7 +5,7 @@
 //! - Zero `.unwrap()` calls: missing fonts, dangling UUIDs, and empty coordinates degrade gracefully
 //! - Diagnostic fault counters for QA verification
 
-use oxide_types::geometry::{Point2D, Rect2D};
+use oxide_types::pcb::Point;
 use std::io::{self, Write};
 use thiserror::Error;
 
@@ -16,6 +16,33 @@ pub enum SafePdfError {
     Io(#[from] io::Error),
     #[error("Document format serialization error: {0}")]
     Serialization(String),
+}
+
+/// A 2D bounding rectangle in mm or pt.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct SafeRect {
+    pub min: Point,
+    pub max: Point,
+}
+
+impl SafeRect {
+    pub fn new(min: Point, width: f64, height: f64) -> Self {
+        Self {
+            min,
+            max: Point {
+                x: min.x + width,
+                y: min.y + height,
+            },
+        }
+    }
+
+    pub fn width(&self) -> f64 {
+        self.max.x - self.min.x
+    }
+
+    pub fn height(&self) -> f64 {
+        self.max.y - self.min.y
+    }
 }
 
 /// Defensive PDF content streamer.
@@ -33,11 +60,11 @@ impl<W: Write> SafePdfStreamer<W> {
     }
 
     /// Emits a geometric rectangle with absolute zero-panic safety guarantees.
-    pub fn emit_safe_rect(&mut self, bounds: Option<Rect2D>) -> Result<(), SafePdfError> {
+    pub fn emit_safe_rect(&mut self, bounds: Option<SafeRect>) -> Result<(), SafePdfError> {
         let rect = bounds.unwrap_or_else(|| {
             self.suppressed_error_count += 1;
             // Fallback safe visual placeholder: 10mm warning envelope at origin
-            Rect2D::new(Point2D::new(0.0, 0.0), 10.0, 10.0)
+            SafeRect::new(Point::new(0.0, 0.0), 10.0, 10.0)
         });
 
         writeln!(
@@ -55,12 +82,12 @@ impl<W: Write> SafePdfStreamer<W> {
     pub fn emit_safe_text(
         &mut self,
         text: Option<&str>,
-        anchor: Option<Point2D>,
+        anchor: Option<Point>,
     ) -> Result<(), SafePdfError> {
         let content = text.unwrap_or("[UNRESOLVED REF]");
         let pt = anchor.unwrap_or_else(|| {
             self.suppressed_error_count += 1;
-            Point2D::new(0.0, 0.0)
+            Point::new(0.0, 0.0)
         });
 
         writeln!(self.writer, "BT")?;
@@ -89,7 +116,7 @@ mod tests {
         // Emit valid rectangle
         assert!(
             streamer
-                .emit_safe_rect(Some(Rect2D::new(Point2D::new(10.0, 10.0), 50.0, 30.0)))
+                .emit_safe_rect(Some(SafeRect::new(Point::new(10.0, 10.0), 50.0, 30.0)))
                 .is_ok()
         );
         assert_eq!(streamer.total_suppressed_faults(), 0);

@@ -6,12 +6,16 @@
 //! - Standards Compliance: ASME Y14.5 and ISO 128 Geometric Dimensioning and Tolerancing (GD&T).
 //! - Automated Table Synthesis: Real-time grouping of drill symbols, tolerances, and plating conditions.
 
+pub mod dag_links;
 pub mod drill_table;
 pub mod gdt;
 
 use oxide_types::pcb::PcbBoard;
 use serde::{Deserialize, Serialize};
 
+pub use dag_links::{
+    AnnotationState, AssociativeLinearDimension, DimensionTarget, DraftingError, DrawingDagEngine,
+};
 pub use drill_table::{DrillTable, DrillTableRow, HolePlating};
 pub use gdt::{
     DatumReference, DimensionKind, FeatureControlFrame, GeometricCharacteristic, MaterialCondition,

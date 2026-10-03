@@ -18,6 +18,7 @@ rust_xlsxwriter = { workspace = true }
 tiny-skia = { workspace = true }
 ttf-parser = { workspace = true }
 chrono = { workspace = true }
+uuid = { workspace = true }
 
 [dev-dependencies]
 uuid = { workspace = true }

@@ -35,7 +35,8 @@ pub use assembly::{AssemblyError, AssemblyLayer, PickAndPlaceExporter, PickAndPl
 pub use cbr::{CbrError, CbrExporter, CbrOptions};
 pub use cdr::{CdrColor, CdrError, CdrExporter, CdrLayerConfig, CdrOptions, CdrVersion};
 pub use draftsman::{
-    DatumReference, DimensionKind, DraftsmanDocument, DraftsmanSheet, DrawingView, DrillTable,
+    AnnotationState, AssociativeLinearDimension, DatumReference, DimensionKind, DimensionTarget,
+    DraftingError, DraftsmanDocument, DraftsmanSheet, DrawingDagEngine, DrawingView, DrillTable,
     DrillTableRow, FeatureControlFrame, GeometricCharacteristic, HolePlating, MaterialCondition,
     SheetSize,
 };
@@ -46,6 +47,10 @@ pub use gerber::{GerberError, GerberExporter, GerberLayer, GerberLayerOutput, Ge
 pub use ipc2581::{Ipc2581Error, Ipc2581Options, Ipc2581Output, export_ipc2581};
 pub use odbpp::{OdbError, OdbFileEntry, OdbOutputPackage, export_odbpp_package};
 pub use outjob::{OutJobError, OutputJobConfig, OutputJobRunner, ReleasePackage};
+pub use pdf::{
+    ColourMode, Margins, Orientation, PageRange, PageSize, PdfExporter, PdfOptions, PdfOutput,
+    PdfScale, SafePdfError, SafePdfStreamer, SchematicPalette,
+};
 
 pub use bom::{
     BomColumn, BomError, BomExporter, BomFormat, BomGrouping, BomIssueSeverity, BomMetadata,
@@ -55,10 +60,6 @@ pub use bom::{
 pub use netlist::{
     NetlistExporter, NetlistOptions, NetlistOutput, PSpiceNetlistError, PSpiceNetlistExporter,
     PSpiceNetlistOptions, PSpiceNetlistOutput,
-};
-pub use pdf::{
-    ColourMode, Margins, Orientation, PageRange, PageSize, PdfExporter, PdfOptions, PdfOutput,
-    PdfScale, SchematicPalette,
 };
 pub use preview::{PreviewOptions, PreviewPage, PreviewRasterizer};
 pub use step::{AnalyticalSolidBRepExporter, StepExportError};

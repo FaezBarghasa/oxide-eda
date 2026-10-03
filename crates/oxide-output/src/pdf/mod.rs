@@ -35,9 +35,11 @@ mod font;
 pub(crate) mod layout;
 mod page;
 pub mod palette;
+pub mod safe_streamer;
 mod surface;
 
 pub use palette::SchematicPalette;
+pub use safe_streamer::{SafePdfError, SafePdfStreamer};
 
 use crate::svg::{
     SvgElement, SvgEvaluatorInputs, SvgPathCommand, SvgRenderContext, SvgTextAlign, SvgTextVAlign,

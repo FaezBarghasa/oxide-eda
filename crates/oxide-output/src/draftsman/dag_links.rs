@@ -5,7 +5,7 @@
 //! - Graceful degradation to `AnnotationState::Dangling` on deleted components/pads/holes
 //! - Zero-unwrap panic-immune execution during PDF and vector exports
 
-use oxide_types::geometry::Point2D;
+use oxide_types::pcb::Point;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use thiserror::Error;
@@ -48,7 +48,7 @@ pub enum DimensionTarget {
         net_id: Uuid,
         segment_id: Uuid,
     },
-    FreeCoordinate(Point2D),
+    FreeCoordinate(Point),
 }
 
 /// Associative linear dimension with reactive target bindings.
@@ -57,8 +57,8 @@ pub struct AssociativeLinearDimension {
     pub dimension_id: Uuid,
     pub target_start: DimensionTarget,
     pub target_end: DimensionTarget,
-    pub cached_start_pt: Point2D,
-    pub cached_end_pt: Point2D,
+    pub cached_start_pt: Point,
+    pub cached_end_pt: Point,
     pub offset_distance_mm: f64,
     pub state: AnnotationState,
     pub text_override: Option<String>,
@@ -112,7 +112,7 @@ impl DrawingDagEngine {
     pub fn synchronize_dimension(
         &mut self,
         dim_id: Uuid,
-        entity_resolver: &impl Fn(&DimensionTarget) -> Option<Point2D>,
+        entity_resolver: &impl Fn(&DimensionTarget) -> Option<Point>,
     ) -> Result<AnnotationState, DraftingError> {
         let dim = match self.dimensions.get_mut(&dim_id) {
             Some(d) => d,
@@ -164,8 +164,8 @@ mod tests {
                 pad_number: "1".to_string(),
             },
             target_end: DimensionTarget::MountingHole { hole_id },
-            cached_start_pt: Point2D::new(0.0, 0.0),
-            cached_end_pt: Point2D::new(50.0, 0.0),
+            cached_start_pt: Point::new(0.0, 0.0),
+            cached_end_pt: Point::new(50.0, 0.0),
             offset_distance_mm: 10.0,
             state: AnnotationState::Synchronized,
             text_override: None,
@@ -177,21 +177,18 @@ mod tests {
         // 1. Resolver finds both targets -> Synchronized
         let state = engine
             .synchronize_dimension(dim_id, &|target| match target {
-                DimensionTarget::Pad { .. } => Some(Point2D::new(5.0, 5.0)),
-                DimensionTarget::MountingHole { .. } => Some(Point2D::new(55.0, 5.0)),
+                DimensionTarget::Pad { .. } => Some(Point::new(5.0, 5.0)),
+                DimensionTarget::MountingHole { .. } => Some(Point::new(55.0, 5.0)),
                 _ => None,
             })
             .unwrap();
         assert_eq!(state, AnnotationState::Synchronized);
-        assert_eq!(
-            engine.dimensions[&dim_id].cached_start_pt,
-            Point2D::new(5.0, 5.0)
-        );
+        assert_eq!(engine.dimensions[&dim_id].cached_start_pt, Point::new(5.0, 5.0));
 
         // 2. Component deleted (resolver returns None for Pad) -> Graceful Dangling state without panic
         let state_after_delete = engine
             .synchronize_dimension(dim_id, &|target| match target {
-                DimensionTarget::MountingHole { .. } => Some(Point2D::new(55.0, 5.0)),
+                DimensionTarget::MountingHole { .. } => Some(Point::new(55.0, 5.0)),
                 _ => None,
             })
             .unwrap();
