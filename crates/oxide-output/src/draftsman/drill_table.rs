@@ -4,9 +4,9 @@
 //! - Live calculation and grouping of drill symbols by diameter, tolerance, plating condition, and hole count.
 //! - Direct associativity with PCB layout database (pads, vias, mounting holes).
 
+use oxide_types::pcb::{PadType, PcbBoard};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-use oxide_types::pcb::{PcbBoard, PadType};
 
 /// Standard Drill Hole Plating Condition.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
@@ -39,9 +39,8 @@ pub struct DrillTable {
 impl DrillTable {
     /// Available standard symbol characters for drill legends.
     const SYMBOL_PALETTE: &'static [char] = &[
-        '⊕', '⊗', '⊙', '⊘', '⊚', '⊛', '⊜', '⊝',
-        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
-        'J', 'K', 'L', 'M', 'N', 'P', 'R', 'S',
+        '⊕', '⊗', '⊙', '⊘', '⊚', '⊛', '⊜', '⊝', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K',
+        'L', 'M', 'N', 'P', 'R', 'S',
     ];
 
     /// Synthesizes a live, grouped drill table from a `PcbBoard`.
@@ -91,7 +90,9 @@ impl DrillTable {
         // 3. Assemble table rows and assign unique legend symbols
         let mut rows = Vec::new();
 
-        for (symbol_idx, ((diam_nm, plating, layer_pair), count)) in hole_groups.into_iter().enumerate() {
+        for (symbol_idx, ((diam_nm, plating, layer_pair), count)) in
+            hole_groups.into_iter().enumerate()
+        {
             let symbol_char = Self::SYMBOL_PALETTE[symbol_idx % Self::SYMBOL_PALETTE.len()];
 
             let diam_mm = diam_nm as f64 / 1_000_000.0;
@@ -189,12 +190,20 @@ mod tests {
         let table = DrillTable::from_board(&board);
         assert_eq!(table.total_hole_count, 3);
         assert_eq!(table.rows.len(), 2);
-        
-        let via_row = table.rows.iter().find(|r| r.diameter_nm == 300_000).unwrap();
+
+        let via_row = table
+            .rows
+            .iter()
+            .find(|r| r.diameter_nm == 300_000)
+            .unwrap();
         assert_eq!(via_row.count, 2);
         assert_eq!(via_row.diameter_mm, 0.3);
 
-        let th_row = table.rows.iter().find(|r| r.diameter_nm == 1_000_000).unwrap();
+        let th_row = table
+            .rows
+            .iter()
+            .find(|r| r.diameter_nm == 1_000_000)
+            .unwrap();
         assert_eq!(th_row.count, 1);
         assert_eq!(th_row.diameter_mm, 1.0);
     }

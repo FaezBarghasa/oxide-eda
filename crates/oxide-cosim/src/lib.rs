@@ -23,7 +23,8 @@ mod tests {
     #[test]
     fn test_cosim_step_synchronization() {
         let mut orch = CoSimOrchestrator::new(1e-6); // 1 µs step
-        orch.pin_bridge.register_pin("PA5", PinFunction::GpioOutput, Some("NET_LED".to_string()));
+        orch.pin_bridge
+            .register_pin("PA5", PinFunction::GpioOutput, Some("NET_LED".to_string()));
         orch.pin_bridge.set_gpio_output("PA5", LogicLevel::High);
 
         orch.start();
@@ -52,4 +53,3 @@ mod tests {
         assert_eq!(fpga.read_register(0x00), 0xA5A5_5A5A);
     }
 }
-

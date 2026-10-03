@@ -33,7 +33,8 @@ impl Oxide {
         if let Some(engine) = self.active_pcb_engine() {
             Some(engine.board())
         } else {
-            self.active_tab_cached_document().and_then(TabDocument::as_pcb)
+            self.active_tab_cached_document()
+                .and_then(TabDocument::as_pcb)
         }
     }
 

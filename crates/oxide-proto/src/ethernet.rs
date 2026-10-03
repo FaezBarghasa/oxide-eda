@@ -34,12 +34,12 @@ impl VirtualEthernetBus {
 
         // Global Header (24 bytes)
         pcap.extend_from_slice(&0xa1b2c3d4u32.to_le_bytes()); // Magic number
-        pcap.extend_from_slice(&2u16.to_le_bytes());          // Major version
-        pcap.extend_from_slice(&4u16.to_le_bytes());          // Minor version
-        pcap.extend_from_slice(&0u32.to_le_bytes());          // Thiszone (GMT)
-        pcap.extend_from_slice(&0u32.to_le_bytes());          // Sigfigs
-        pcap.extend_from_slice(&65535u32.to_le_bytes());      // Snaplen
-        pcap.extend_from_slice(&1u32.to_le_bytes());          // Network: Ethernet (1)
+        pcap.extend_from_slice(&2u16.to_le_bytes()); // Major version
+        pcap.extend_from_slice(&4u16.to_le_bytes()); // Minor version
+        pcap.extend_from_slice(&0u32.to_le_bytes()); // Thiszone (GMT)
+        pcap.extend_from_slice(&0u32.to_le_bytes()); // Sigfigs
+        pcap.extend_from_slice(&65535u32.to_le_bytes()); // Snaplen
+        pcap.extend_from_slice(&1u32.to_le_bytes()); // Network: Ethernet (1)
 
         for f in &self.captured_frames {
             let mut raw_pkt = Vec::with_capacity(14 + f.payload.len());

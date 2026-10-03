@@ -85,8 +85,10 @@ impl WaveformDecimator {
             let b_end = b_start + dt_bucket;
 
             // Map bucket to sample index range
-            let b_i_start = start_idx + ((p as f64 / pixel_count as f64) * slice_len as f64) as usize;
-            let b_i_end = (start_idx + (((p + 1) as f64 / pixel_count as f64) * slice_len as f64) as usize)
+            let b_i_start =
+                start_idx + ((p as f64 / pixel_count as f64) * slice_len as f64) as usize;
+            let b_i_end = (start_idx
+                + (((p + 1) as f64 / pixel_count as f64) * slice_len as f64) as usize)
                 .min(end_idx);
 
             if b_i_start >= b_i_end {

@@ -4,10 +4,10 @@
 //! Enables complex mixed-signal buses (e.g. `SPI_WITH_INTERRUPT`, `DDR5_CTRL`, `AUDIO_I2S`) to be bundled
 //! into a single high-level connection across hierarchical schematic sheets.
 
-use std::collections::{HashMap, HashSet};
-use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 use oxide_types::schematic::Point;
+use serde::{Deserialize, Serialize};
+use std::collections::{HashMap, HashSet};
+use uuid::Uuid;
 
 /// An individual signal pin/entry within a harness connector.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -95,7 +95,8 @@ impl HarnessManager {
 
         for conn in &self.connectors {
             if let Some(def) = self.definitions.get(&conn.harness_type) {
-                let actual_signals: HashSet<&str> = conn.entries.iter().map(|e| e.name.as_str()).collect();
+                let actual_signals: HashSet<&str> =
+                    conn.entries.iter().map(|e| e.name.as_str()).collect();
                 for req in &def.member_signals {
                     if !actual_signals.contains(req.as_str()) {
                         errors.push(format!(

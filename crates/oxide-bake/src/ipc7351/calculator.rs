@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use oxide_library::primitive::footprint::{FpPasteAperture, LayerId, Polygon};
+use serde::{Deserialize, Serialize};
 
 /// IPC-7351C Density Level target.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
@@ -100,7 +100,12 @@ impl FilletTargets {
         let u = pkg_class.to_uppercase();
         if u.contains("QFN") || u.contains("DFN") || u.contains("SON") || u.contains("LGA") {
             Self::no_lead(density)
-        } else if u.contains("CHIP") || u.contains("0402") || u.contains("0603") || u.contains("0805") || u.contains("1206") {
+        } else if u.contains("CHIP")
+            || u.contains("0402")
+            || u.contains("0603")
+            || u.contains("0805")
+            || u.contains("1206")
+        {
             Self::leadless_chip(density)
         } else {
             Self::gull_wing(density)

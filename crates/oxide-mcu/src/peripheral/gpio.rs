@@ -1,7 +1,7 @@
 //! Multi-Port General Purpose I/O (GPIO) Emulation.
 
-use serde::{Deserialize, Serialize};
 use crate::pin_bridge::LogicLevel;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub enum GpioMode {

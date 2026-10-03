@@ -3,8 +3,8 @@
 //! Evaluates `Repeat(SheetName, StartIndex, EndIndex)` expressions, generates channel instances,
 //! and binds multi-channel schematic hierarchy to 2D PCB room layout definitions.
 
-use std::collections::HashMap;
 use oxide_types::schematic::{ChildSheet, SchematicSheet};
+use std::collections::HashMap;
 
 /// A single instantiated channel resulting from a multi-channel expansion.
 #[derive(Debug, Clone, PartialEq)]

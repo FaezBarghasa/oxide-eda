@@ -81,8 +81,16 @@ impl Aabb3d {
     /// Expand bounding box by margin on all sides.
     pub fn expanded(&self, margin: f64) -> Self {
         Self {
-            min: Vec3::new(self.min.x - margin, self.min.y - margin, self.min.z - margin),
-            max: Vec3::new(self.max.x + margin, self.max.y + margin, self.max.z + margin),
+            min: Vec3::new(
+                self.min.x - margin,
+                self.min.y - margin,
+                self.min.z - margin,
+            ),
+            max: Vec3::new(
+                self.max.x + margin,
+                self.max.y + margin,
+                self.max.z + margin,
+            ),
         }
     }
 }
@@ -201,16 +209,25 @@ mod tests {
         assert_eq!(violations.len(), 3);
 
         // Check collision between U1 and C2
-        let col = violations.iter().find(|v| v.item_a == "U1" && v.item_b == "C2").unwrap();
+        let col = violations
+            .iter()
+            .find(|v| v.item_a == "U1" && v.item_b == "C2")
+            .unwrap();
         assert!(col.is_collision);
 
         // Check clearance between U1 and C1
-        let clr = violations.iter().find(|v| v.item_a == "U1" && v.item_b == "C1").unwrap();
+        let clr = violations
+            .iter()
+            .find(|v| v.item_a == "U1" && v.item_b == "C1")
+            .unwrap();
         assert!(!clr.is_collision);
         assert!((clr.actual_clearance_mm - 0.2).abs() < 1e-4);
 
         // Check enclosure violation (U1 height 3.0 > max_h 2.5)
-        let enc = violations.iter().find(|v| v.item_b == "Enclosure_Ceiling").unwrap();
+        let enc = violations
+            .iter()
+            .find(|v| v.item_b == "Enclosure_Ceiling")
+            .unwrap();
         assert_eq!(enc.item_a, "U1");
     }
 }

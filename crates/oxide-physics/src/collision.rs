@@ -177,7 +177,11 @@ impl GjkEpaEngine {
     }
 
     /// Expanding Polytope Algorithm (EPA) to determine minimum penetration depth and contact normal.
-    fn compute_epa_penetration(a: &ConvexPolytope, b: &ConvexPolytope, simplex: &[Vec3]) -> (f64, Vec3) {
+    fn compute_epa_penetration(
+        a: &ConvexPolytope,
+        b: &ConvexPolytope,
+        simplex: &[Vec3],
+    ) -> (f64, Vec3) {
         if simplex.len() < 4 {
             return (0.01, [0.0, 1.0, 0.0]);
         }
@@ -187,18 +191,10 @@ impl GjkEpaEngine {
         // Faces represented as (i, j, k, normal, distance_to_origin)
         let mut faces: Vec<([usize; 3], Vec3, f64)> = Vec::new();
 
-        let initial_triangles = [
-            [0, 1, 2],
-            [0, 3, 1],
-            [0, 2, 3],
-            [1, 3, 2],
-        ];
+        let initial_triangles = [[0, 1, 2], [0, 3, 1], [0, 2, 3], [1, 3, 2]];
 
         let center = scale(
-            add(
-                add(vertices[0], vertices[1]),
-                add(vertices[2], vertices[3]),
-            ),
+            add(add(vertices[0], vertices[1]), add(vertices[2], vertices[3])),
             0.25,
         );
 
@@ -241,7 +237,11 @@ impl GjkEpaEngine {
             }
 
             let (_, normal, dist) = faces[min_idx];
-            let search_dir = if dist < 0.0 { scale(normal, -1.0) } else { normal };
+            let search_dir = if dist < 0.0 {
+                scale(normal, -1.0)
+            } else {
+                normal
+            };
             let p = Self::minkowski_support(a, b, search_dir);
             let d_proj = dot(p, search_dir);
 
@@ -262,7 +262,9 @@ impl GjkEpaEngine {
                     // Face is visible from p, collect its edges
                     let f_edges = [[tri[0], tri[1]], [tri[1], tri[2]], [tri[2], tri[0]]];
                     for e in f_edges {
-                        if let Some(pos) = edges.iter().position(|&x| (x[0] == e[1] && x[1] == e[0]) || (x[0] == e[0] && x[1] == e[1])) {
+                        if let Some(pos) = edges.iter().position(|&x| {
+                            (x[0] == e[1] && x[1] == e[0]) || (x[0] == e[0] && x[1] == e[1])
+                        }) {
                             edges.remove(pos);
                         } else {
                             edges.push(e);
@@ -295,7 +297,10 @@ impl GjkEpaEngine {
         }
 
         // Return best estimation
-        if let Some((_, n, d)) = faces.iter().min_by(|a, b| a.2.abs().partial_cmp(&b.2.abs()).unwrap()) {
+        if let Some((_, n, d)) = faces
+            .iter()
+            .min_by(|a, b| a.2.abs().partial_cmp(&b.2.abs()).unwrap())
+        {
             (d.abs(), *n)
         } else {
             (0.01, [0.0, 1.0, 0.0])
@@ -311,14 +316,26 @@ mod tests {
     fn test_gjk_overlapping_cubes() {
         // Cube 1: [-1, 1] in all axes
         let cube1 = ConvexPolytope::new(&[
-            [-1.0, -1.0, -1.0], [1.0, -1.0, -1.0], [1.0, 1.0, -1.0], [-1.0, 1.0, -1.0],
-            [-1.0, -1.0, 1.0], [1.0, -1.0, 1.0], [1.0, 1.0, 1.0], [-1.0, 1.0, 1.0],
+            [-1.0, -1.0, -1.0],
+            [1.0, -1.0, -1.0],
+            [1.0, 1.0, -1.0],
+            [-1.0, 1.0, -1.0],
+            [-1.0, -1.0, 1.0],
+            [1.0, -1.0, 1.0],
+            [1.0, 1.0, 1.0],
+            [-1.0, 1.0, 1.0],
         ]);
 
         // Cube 2 shifted by (0.5, 0.5, 0.5) - Overlapping
         let cube2 = ConvexPolytope::new(&[
-            [-0.5, -0.5, -0.5], [1.5, -0.5, -0.5], [1.5, 1.5, -0.5], [-0.5, 1.5, -0.5],
-            [-0.5, -0.5, 1.5], [1.5, -0.5, 1.5], [1.5, 1.5, 1.5], [-0.5, 1.5, 1.5],
+            [-0.5, -0.5, -0.5],
+            [1.5, -0.5, -0.5],
+            [1.5, 1.5, -0.5],
+            [-0.5, 1.5, -0.5],
+            [-0.5, -0.5, 1.5],
+            [1.5, -0.5, 1.5],
+            [1.5, 1.5, 1.5],
+            [-0.5, 1.5, 1.5],
         ]);
 
         let res = GjkEpaEngine::evaluate_collision(&cube1, &cube2);
@@ -330,31 +347,53 @@ mod tests {
     fn test_epa_penetration_accuracy() {
         // Cube 1: [0, 2] on X
         let cube1 = ConvexPolytope::new(&[
-            [0.0, 0.0, 0.0], [2.0, 0.0, 0.0], [2.0, 2.0, 0.0], [0.0, 2.0, 0.0],
-            [0.0, 0.0, 2.0], [2.0, 0.0, 2.0], [2.0, 2.0, 2.0], [0.0, 2.0, 2.0],
+            [0.0, 0.0, 0.0],
+            [2.0, 0.0, 0.0],
+            [2.0, 2.0, 0.0],
+            [0.0, 2.0, 0.0],
+            [0.0, 0.0, 2.0],
+            [2.0, 0.0, 2.0],
+            [2.0, 2.0, 2.0],
+            [0.0, 2.0, 2.0],
         ]);
 
         // Cube 2: [1.5, 3.5] on X (overlapping by 0.5 along X)
         let cube2 = ConvexPolytope::new(&[
-            [1.5, 0.0, 0.0], [3.5, 0.0, 0.0], [3.5, 2.0, 0.0], [1.5, 2.0, 0.0],
-            [1.5, 0.0, 2.0], [3.5, 0.0, 2.0], [3.5, 2.0, 2.0], [1.5, 2.0, 2.0],
+            [1.5, 0.0, 0.0],
+            [3.5, 0.0, 0.0],
+            [3.5, 2.0, 0.0],
+            [1.5, 2.0, 0.0],
+            [1.5, 0.0, 2.0],
+            [3.5, 0.0, 2.0],
+            [3.5, 2.0, 2.0],
+            [1.5, 2.0, 2.0],
         ]);
 
         let res = GjkEpaEngine::evaluate_collision(&cube1, &cube2);
         assert!(res.has_collision);
         // Penetration along X should be approximately 0.5
-        assert!((res.penetration_depth - 0.5).abs() < 0.1, "Expected penetration ~0.5, got {}", res.penetration_depth);
+        assert!(
+            (res.penetration_depth - 0.5).abs() < 0.1,
+            "Expected penetration ~0.5, got {}",
+            res.penetration_depth
+        );
     }
 
     #[test]
     fn test_gjk_separated_cubes() {
         let cube1 = ConvexPolytope::new(&[
-            [-1.0, -1.0, -1.0], [1.0, -1.0, -1.0], [1.0, 1.0, -1.0], [-1.0, 1.0, -1.0],
+            [-1.0, -1.0, -1.0],
+            [1.0, -1.0, -1.0],
+            [1.0, 1.0, -1.0],
+            [-1.0, 1.0, -1.0],
         ]);
 
         // Cube 2 shifted far away at (10, 10, 10)
         let cube2 = ConvexPolytope::new(&[
-            [9.0, 9.0, 9.0], [11.0, 9.0, 9.0], [11.0, 11.0, 9.0], [9.0, 11.0, 9.0],
+            [9.0, 9.0, 9.0],
+            [11.0, 9.0, 9.0],
+            [11.0, 11.0, 9.0],
+            [9.0, 11.0, 9.0],
         ]);
 
         let res = GjkEpaEngine::evaluate_collision(&cube1, &cube2);

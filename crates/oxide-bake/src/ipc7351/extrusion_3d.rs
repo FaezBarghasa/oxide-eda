@@ -8,7 +8,7 @@ impl Package3DExtruder {
     /// Synthesizes an embedded `Body3D` primitive for procedural viewport rendering.
     pub fn synthesize_body_3d(dimensions: &PackageDimensions) -> Body3D {
         let length_x = dimensions.body_length_mm[1] as f32; // nom
-        let width_y = dimensions.body_width_mm[1] as f32;   // nom
+        let width_y = dimensions.body_width_mm[1] as f32; // nom
         let height_z = dimensions.seated_height_mm[1] as f32; // nom
 
         let half_x = length_x / 2.0;
@@ -28,7 +28,7 @@ impl Package3DExtruder {
             shape: BodyShape::Extrude,
             height_mm: height_z.max(0.5),
             offset_z_mm: 0.0,
-            top_color: [0.18, 0.18, 0.18, 1.0],  // Dark IC epoxy black
+            top_color: [0.18, 0.18, 0.18, 1.0], // Dark IC epoxy black
             side_color: [0.22, 0.22, 0.22, 1.0], // Dark charcoal sides
             outline: Some(outline),
         }
@@ -63,10 +63,10 @@ impl Package3DExtruder {
 
         // Normals
         obj.push_str("vn 0.0 0.0 -1.0\n"); // 1: bottom
-        obj.push_str("vn 0.0 0.0 1.0\n");  // 2: top
+        obj.push_str("vn 0.0 0.0 1.0\n"); // 2: top
         obj.push_str("vn 0.0 -1.0 0.0\n"); // 3: south
-        obj.push_str("vn 1.0 0.0 0.0\n");  // 4: east
-        obj.push_str("vn 0.0 1.0 0.0\n");  // 5: north
+        obj.push_str("vn 1.0 0.0 0.0\n"); // 4: east
+        obj.push_str("vn 0.0 1.0 0.0\n"); // 5: north
         obj.push_str("vn -1.0 0.0 0.0\n"); // 6: west
 
         // Faces (1-indexed)

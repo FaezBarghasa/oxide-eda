@@ -221,7 +221,11 @@ impl McuTarget {
                 qemu_machine: "esp32s3",
             },
             // Espressif RISC-V
-            McuTarget::Esp32C2 | McuTarget::Esp32C3 | McuTarget::Esp32C6 | McuTarget::Esp32H2 | McuTarget::Esp32P4 => CoreProfile {
+            McuTarget::Esp32C2
+            | McuTarget::Esp32C3
+            | McuTarget::Esp32C6
+            | McuTarget::Esp32H2
+            | McuTarget::Esp32P4 => CoreProfile {
                 name: "ESP32-C Series (RISC-V RV32IMC)".to_string(),
                 arch: ArchClass::RiscV,
                 vendor: McuVendor::Espressif,
@@ -266,7 +270,10 @@ impl McuTarget {
                 qemu_cpu: "avr6",
                 qemu_machine: "mega2560",
             },
-            McuTarget::ATtiny85 | McuTarget::ATtiny1614 | McuTarget::ATmega32U4 | McuTarget::AvrDx => CoreProfile {
+            McuTarget::ATtiny85
+            | McuTarget::ATtiny1614
+            | McuTarget::ATmega32U4
+            | McuTarget::AvrDx => CoreProfile {
                 name: "AVR 8-bit Microcontroller".to_string(),
                 arch: ArchClass::Avr8,
                 vendor: McuVendor::MicrochipAtmel,
@@ -559,7 +566,9 @@ impl FirmwareImage {
         let bytes = std::fs::read(&path_buf)?;
 
         if bytes.is_empty() {
-            return Err(FirmwareError::ParseError("Firmware file is empty".to_string()));
+            return Err(FirmwareError::ParseError(
+                "Firmware file is empty".to_string(),
+            ));
         }
 
         // Check Intel HEX format (starts with ':')

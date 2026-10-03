@@ -26,7 +26,11 @@ pub fn import_intlib_bytes(bytes: &[u8]) -> Result<ExtractedIntLib, AltiumImport
             // Try parsing as symbol stream
             if let Ok(syms) = parse_symbols_from_records(&records) {
                 for s in syms {
-                    if !extracted.symbols.iter().any(|existing| existing.name == s.name) {
+                    if !extracted
+                        .symbols
+                        .iter()
+                        .any(|existing| existing.name == s.name)
+                    {
                         extracted.symbols.push(s);
                     }
                 }
@@ -35,7 +39,11 @@ pub fn import_intlib_bytes(bytes: &[u8]) -> Result<ExtractedIntLib, AltiumImport
             // Try parsing as footprint stream
             if let Ok(fps) = parse_footprints_from_records(&records) {
                 for f in fps {
-                    if !extracted.footprints.iter().any(|existing| existing.name == f.name) {
+                    if !extracted
+                        .footprints
+                        .iter()
+                        .any(|existing| existing.name == f.name)
+                    {
                         extracted.footprints.push(f);
                     }
                 }

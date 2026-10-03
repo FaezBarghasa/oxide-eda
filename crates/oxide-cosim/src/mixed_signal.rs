@@ -6,8 +6,8 @@
 //! - Lockstep dynamic timestep coupling between continuous MNA solver and discrete logic event queue
 
 use serde::{Deserialize, Serialize};
-use std::collections::BinaryHeap;
 use std::cmp::Ordering;
+use std::collections::BinaryHeap;
 
 /// 12-State Logic Taxonomy conforming to Directive §3.6.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -55,12 +55,15 @@ impl Logic12State {
         }
         match (self, other) {
             (Self::HighZ, s) | (s, Self::HighZ) => s,
-            (Self::ForcingOne, Self::ForcingZero) | (Self::ForcingZero, Self::ForcingOne) => Self::Unknown,
+            (Self::ForcingOne, Self::ForcingZero) | (Self::ForcingZero, Self::ForcingOne) => {
+                Self::Unknown
+            }
             (Self::ForcingOne, _) => Self::ForcingOne,
             (_, Self::ForcingOne) => Self::ForcingOne,
             (Self::ForcingZero, _) => Self::ForcingZero,
             (_, Self::ForcingZero) => Self::ForcingZero,
-            (Self::ResistiveOne, Self::ResistiveZero) | (Self::ResistiveZero, Self::ResistiveOne) => Self::WeakUnknown,
+            (Self::ResistiveOne, Self::ResistiveZero)
+            | (Self::ResistiveZero, Self::ResistiveOne) => Self::WeakUnknown,
             (Self::ResistiveOne, _) => Self::ResistiveOne,
             (_, Self::ResistiveOne) => Self::ResistiveOne,
             (Self::ResistiveZero, _) => Self::ResistiveZero,
@@ -95,7 +98,10 @@ impl PartialOrd for LogicEvent {
 impl Ord for LogicEvent {
     fn cmp(&self, other: &Self) -> Ordering {
         // Min-heap ordering by timestamp
-        other.timestamp_s.partial_cmp(&self.timestamp_s).unwrap_or(Ordering::Equal)
+        other
+            .timestamp_s
+            .partial_cmp(&self.timestamp_s)
+            .unwrap_or(Ordering::Equal)
     }
 }
 
@@ -233,7 +239,14 @@ pub struct DtoAGateway {
 }
 
 impl DtoAGateway {
-    pub fn new(signal_id: u32, v_low: f64, v_high: f64, rise_time_s: f64, fall_time_s: f64, r_out_ohms: f64) -> Self {
+    pub fn new(
+        signal_id: u32,
+        v_low: f64,
+        v_high: f64,
+        rise_time_s: f64,
+        fall_time_s: f64,
+        r_out_ohms: f64,
+    ) -> Self {
         Self {
             signal_id,
             v_low,
@@ -252,8 +265,12 @@ impl DtoAGateway {
         self.initial_voltage = current_v;
         self.transition_start_time_s = current_time_s;
         self.target_voltage = match state {
-            Logic12State::ForcingOne | Logic12State::ResistiveOne | Logic12State::HighDecay => self.v_high,
-            Logic12State::ForcingZero | Logic12State::ResistiveZero | Logic12State::LowDecay => self.v_low,
+            Logic12State::ForcingOne | Logic12State::ResistiveOne | Logic12State::HighDecay => {
+                self.v_high
+            }
+            Logic12State::ForcingZero | Logic12State::ResistiveZero | Logic12State::LowDecay => {
+                self.v_low
+            }
             _ => (self.v_low + self.v_high) * 0.5,
         };
     }
@@ -318,9 +335,18 @@ mod tests {
 
     #[test]
     fn test_logic_12_state_resolution() {
-        assert_eq!(Logic12State::ForcingOne.resolve(Logic12State::HighZ), Logic12State::ForcingOne);
-        assert_eq!(Logic12State::ForcingOne.resolve(Logic12State::ForcingZero), Logic12State::Unknown);
-        assert_eq!(Logic12State::ResistiveOne.resolve(Logic12State::ResistiveZero), Logic12State::WeakUnknown);
+        assert_eq!(
+            Logic12State::ForcingOne.resolve(Logic12State::HighZ),
+            Logic12State::ForcingOne
+        );
+        assert_eq!(
+            Logic12State::ForcingOne.resolve(Logic12State::ForcingZero),
+            Logic12State::Unknown
+        );
+        assert_eq!(
+            Logic12State::ResistiveOne.resolve(Logic12State::ResistiveZero),
+            Logic12State::WeakUnknown
+        );
         assert_eq!(Logic12State::ForcingOne.to_binary(), Some(true));
         assert_eq!(Logic12State::ForcingZero.to_binary(), Some(false));
         assert_eq!(Logic12State::HighZ.to_binary(), None);

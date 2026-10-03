@@ -1,4 +1,4 @@
-use oxide_output::{export_ipc2581, export_odbpp_package, Ipc2581Options};
+use oxide_output::{Ipc2581Options, export_ipc2581, export_odbpp_package};
 use oxide_types::pcb::{Footprint, LayerDef, NetDef, PcbBoard, Point, Segment, Via, ViaType};
 use uuid::Uuid;
 
@@ -81,6 +81,14 @@ fn test_odbpp_export_generation() {
 
     assert!(!pkg.files.is_empty());
     assert!(pkg.files.iter().any(|f| f.relative_path == "matrix/matrix"));
-    assert!(pkg.files.iter().any(|f| f.relative_path == "steps/step/netlists/cadnet/netlist"));
-    assert!(pkg.files.iter().any(|f| f.relative_path == "steps/step/layers/comp_+_top/components"));
+    assert!(
+        pkg.files
+            .iter()
+            .any(|f| f.relative_path == "steps/step/netlists/cadnet/netlist")
+    );
+    assert!(
+        pkg.files
+            .iter()
+            .any(|f| f.relative_path == "steps/step/layers/comp_+_top/components")
+    );
 }

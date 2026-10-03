@@ -107,7 +107,7 @@ impl PdnSolver {
                     return 1.0 / (2.0 * std::f64::consts::PI * 1.0 * c_plane);
                 }
                 let omega = 2.0 * std::f64::consts::PI * f;
-                
+
                 // Plane admittance: Y_plane = j * omega * C_plane
                 let mut total_conductance = 0.0;
                 let mut total_susceptance = omega * c_plane;
@@ -127,17 +127,20 @@ impl PdnSolver {
                     }
                 }
 
-                let y_mag = (total_conductance * total_conductance + total_susceptance * total_susceptance).sqrt();
-                if y_mag > 1e-15 { 1.0 / y_mag } else { f64::INFINITY }
+                let y_mag = (total_conductance * total_conductance
+                    + total_susceptance * total_susceptance)
+                    .sqrt();
+                if y_mag > 1e-15 {
+                    1.0 / y_mag
+                } else {
+                    f64::INFINITY
+                }
             })
             .collect()
     }
 
     /// Verifies whether the PDN impedance profile satisfies $Z(f) \le Z_{\text{target}}$ across all test frequencies.
-    pub fn verify_compliance(
-        z_profile: &[f64],
-        z_target: f64,
-    ) -> (bool, f64) {
+    pub fn verify_compliance(z_profile: &[f64], z_target: f64) -> (bool, f64) {
         let max_z = z_profile.iter().copied().fold(0.0, f64::max);
         (max_z <= z_target, max_z)
     }
@@ -159,8 +162,8 @@ mod tests {
     #[test]
     fn test_pdn_impedance_profile_evaluation() {
         let plane = PowerPlaneCavity {
-            length_m: 0.10, // 100mm
-            width_m: 0.08,  // 80mm
+            length_m: 0.10,                 // 100mm
+            width_m: 0.08,                  // 80mm
             dielectric_thickness_m: 0.1e-3, // 0.1mm FR4
             dielectric_er: 4.2,
             copper_thickness_m: 35e-6,

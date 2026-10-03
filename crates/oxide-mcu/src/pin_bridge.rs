@@ -106,7 +106,12 @@ impl PinBridge {
         }
     }
 
-    pub fn register_pin(&mut self, pin_name: impl Into<String>, function: PinFunction, connected_net: Option<String>) {
+    pub fn register_pin(
+        &mut self,
+        pin_name: impl Into<String>,
+        function: PinFunction,
+        connected_net: Option<String>,
+    ) {
         let name = pin_name.into();
         let mut pin = VirtualPinState::new(&name, function);
         pin.connected_net = connected_net;

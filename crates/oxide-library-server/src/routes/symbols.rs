@@ -14,10 +14,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route(web::get().to(list_symbols))
             .route(web::post().to(create_symbol)),
     )
-    .service(
-        web::resource("/symbols/{uuid}")
-            .route(web::get().to(get_symbol)),
-    );
+    .service(web::resource("/symbols/{uuid}").route(web::get().to(get_symbol)));
 }
 
 #[derive(Debug, Deserialize, Default)]

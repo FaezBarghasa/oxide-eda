@@ -5,13 +5,13 @@
 //! Sources: IPC-2612-1, IEEE 315, IEC 60617, wgpu/WGSL public docs.
 
 use crate::camera::{CameraGpu, CameraUniform};
+use crate::glyphon;
 use crate::pipeline::arc::ArcPipeline;
 use crate::pipeline::circle::CirclePipeline;
 use crate::pipeline::grid::{GridLodFactors, GridPipeline, lod_fade_factors};
 use crate::pipeline::line::LinePipeline;
 use crate::pipeline::polygon::PolygonPipeline;
 use crate::pipeline::text::GlyphonTextPipeline;
-use crate::glyphon;
 use crate::primitive::arc::Arc;
 use crate::primitive::circle::Circle;
 use crate::primitive::line::LineSegment;

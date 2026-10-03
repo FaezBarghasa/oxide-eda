@@ -18,9 +18,7 @@ use oxide_library::manufacturer::ManufacturerPart;
 use oxide_library::param::ParamMap;
 use oxide_library::primitive::PrimitiveRef;
 use oxide_library_server::db::AppState;
-use oxide_library_server::{
-    API_TOKEN_ENV, BearerAuth, configure_protected, default_cors,
-};
+use oxide_library_server::{API_TOKEN_ENV, BearerAuth, configure_protected, default_cors};
 use uuid::Uuid;
 
 const TEST_BEARER: &str = "test-bearer-token";
@@ -90,7 +88,10 @@ async fn migrations_apply_cleanly() {
     let state = fresh_state().await;
     for table in ["component_rows", "symbols", "footprints", "sims"] {
         let resp = state.db().query(format!("SELECT * FROM {table}")).await;
-        assert!(resp.is_ok(), "table {table} should be queryable in surrealdb");
+        assert!(
+            resp.is_ok(),
+            "table {table} should be queryable in surrealdb"
+        );
     }
 }
 
@@ -194,7 +195,10 @@ async fn route_post_duplicate_row_conflicts_and_preserves_original() {
     let resp = test::call_service(&app, req).await;
     assert_eq!(resp.status(), StatusCode::OK);
     let got: ComponentRow = test::read_body_json(resp).await;
-    assert_eq!(got, row1, "the original row must survive a conflicting POST");
+    assert_eq!(
+        got, row1,
+        "the original row must survive a conflicting POST"
+    );
 }
 
 #[actix_web::test]

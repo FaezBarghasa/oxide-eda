@@ -163,10 +163,18 @@ mod tests {
         let scoped = MultiChannelEngine::scope_netlist_for_channels(&base, 4, "CH");
         assert_eq!(scoped.nets.len(), 8); // 4 channels * 2 nets
 
-        let ch1_audio = scoped.nets.iter().find(|n| n.name == "AUDIO_IN_CH_1").unwrap();
+        let ch1_audio = scoped
+            .nets
+            .iter()
+            .find(|n| n.name == "AUDIO_IN_CH_1")
+            .unwrap();
         assert_eq!(ch1_audio.terminals[0].reference, "C1_CH_1");
 
-        let ch1_gnd = scoped.nets.iter().find(|n| n.name == "GND" && n.terminals[0].reference == "C1_CH_1").unwrap();
+        let ch1_gnd = scoped
+            .nets
+            .iter()
+            .find(|n| n.name == "GND" && n.terminals[0].reference == "C1_CH_1")
+            .unwrap();
         assert_eq!(ch1_gnd.name, "GND"); // GND preserved as global
     }
 }

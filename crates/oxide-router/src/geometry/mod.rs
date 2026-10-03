@@ -230,7 +230,10 @@ impl Polygon2D {
             let pi = self.vertices[i];
             let pj = self.vertices[j];
             if (pi.y > p.y) != (pj.y > p.y)
-                && (p.x < (pj.x - pi.x) * (p.y - pi.y) / (pj.y - pi.y + if pj.y == pi.y { 1 } else { 0 }) + pi.x)
+                && (p.x
+                    < (pj.x - pi.x) * (p.y - pi.y)
+                        / (pj.y - pi.y + if pj.y == pi.y { 1 } else { 0 })
+                        + pi.x)
             {
                 inside = !inside;
             }
@@ -239,4 +242,3 @@ impl Polygon2D {
         inside
     }
 }
-

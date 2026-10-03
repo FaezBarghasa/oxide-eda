@@ -17,14 +17,14 @@ pub mod verification;
 
 pub use cfb::CfbContainer;
 pub use error::AltiumImportError;
-pub use intlib_importer::{import_intlib_bytes, ExtractedIntLib};
+pub use intlib_importer::{ExtractedIntLib, import_intlib_bytes};
 pub use pcb_importer::import_pcbdoc_bytes;
 pub use pcblib_importer::import_pcblib_bytes;
-pub use record::{parse_record_stream, AltiumRecord};
+pub use record::{AltiumRecord, parse_record_stream};
 pub use rule_importer::import_rules_from_records;
 pub use sch_importer::import_schdoc_bytes;
 pub use schlib_importer::import_schlib_bytes;
-pub use verification::{verify_pcb_board, verify_schematic_sheet, VerificationReport};
+pub use verification::{VerificationReport, verify_pcb_board, verify_schematic_sheet};
 
 use std::path::Path;
 
@@ -38,7 +38,9 @@ pub enum AltiumImportResult {
 }
 
 /// Import an Altium Designer file from a local filesystem path.
-pub fn import_altium_file<P: AsRef<Path>>(path: P) -> Result<AltiumImportResult, AltiumImportError> {
+pub fn import_altium_file<P: AsRef<Path>>(
+    path: P,
+) -> Result<AltiumImportResult, AltiumImportError> {
     let p = path.as_ref();
     let bytes = std::fs::read(p)?;
     let ext = p

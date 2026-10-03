@@ -55,7 +55,13 @@ impl Modulator {
         match scheme {
             ModulationScheme::Bpsk => bits
                 .iter()
-                .map(|&b| if b { IqSymbol::new(1.0, 0.0) } else { IqSymbol::new(-1.0, 0.0) })
+                .map(|&b| {
+                    if b {
+                        IqSymbol::new(1.0, 0.0)
+                    } else {
+                        IqSymbol::new(-1.0, 0.0)
+                    }
+                })
                 .collect(),
 
             ModulationScheme::Qpsk => {
@@ -63,8 +69,16 @@ impl Modulator {
                 for chunk in bits.chunks(2) {
                     let b0 = chunk[0];
                     let b1 = if chunk.len() > 1 { chunk[1] } else { false };
-                    let i = if b0 { 1.0 / (2.0f64).sqrt() } else { -1.0 / (2.0f64).sqrt() };
-                    let q = if b1 { 1.0 / (2.0f64).sqrt() } else { -1.0 / (2.0f64).sqrt() };
+                    let i = if b0 {
+                        1.0 / (2.0f64).sqrt()
+                    } else {
+                        -1.0 / (2.0f64).sqrt()
+                    };
+                    let q = if b1 {
+                        1.0 / (2.0f64).sqrt()
+                    } else {
+                        -1.0 / (2.0f64).sqrt()
+                    };
                     symbols.push(IqSymbol::new(i, q));
                 }
                 symbols
@@ -98,15 +112,30 @@ impl Modulator {
 
             ModulationScheme::Ask => bits
                 .iter()
-                .map(|&b| if b { IqSymbol::new(1.0, 0.0) } else { IqSymbol::new(0.0, 0.0) })
+                .map(|&b| {
+                    if b {
+                        IqSymbol::new(1.0, 0.0)
+                    } else {
+                        IqSymbol::new(0.0, 0.0)
+                    }
+                })
                 .collect(),
 
             ModulationScheme::Fsk => bits
                 .iter()
-                .map(|&b| if b { IqSymbol::new(1.0, 0.0) } else { IqSymbol::new(0.0, 1.0) })
+                .map(|&b| {
+                    if b {
+                        IqSymbol::new(1.0, 0.0)
+                    } else {
+                        IqSymbol::new(0.0, 1.0)
+                    }
+                })
                 .collect(),
 
-            ModulationScheme::Qam64 | ModulationScheme::Qam256 | ModulationScheme::AmDsb | ModulationScheme::Fm => {
+            ModulationScheme::Qam64
+            | ModulationScheme::Qam256
+            | ModulationScheme::AmDsb
+            | ModulationScheme::Fm => {
                 // Default fallback to QPSK mapping for higher orders
                 Self::modulate_bits(bits, ModulationScheme::Qpsk)
             }

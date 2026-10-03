@@ -1,7 +1,7 @@
 //! Simulation types and data structures for Oxide EDA.
 
-use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
 /// Type of AC frequency sweep.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
@@ -216,6 +216,8 @@ impl WaveformDataset {
     }
 
     pub fn get_trace(&self, name: &str) -> Option<&WaveformTrace> {
-        self.traces.iter().find(|t| t.name.eq_ignore_ascii_case(name))
+        self.traces
+            .iter()
+            .find(|t| t.name.eq_ignore_ascii_case(name))
     }
 }

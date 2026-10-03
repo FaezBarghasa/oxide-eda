@@ -10,10 +10,10 @@ use oxide_rf::eye_diagram::EyeDiagramDataset;
 use oxide_rf::s_param::SParameterDataset;
 use oxide_widgets::theme_ext;
 
+use self::canvas::{ConstellationCanvas, EyeDiagramCanvas, SmithChartCanvas};
 use super::context::PanelContext;
 use super::messages::PanelMsg;
 use super::widgets::{section_title, separator};
-use self::canvas::{SmithChartCanvas, EyeDiagramCanvas, ConstellationCanvas};
 
 /// Active sub-tab for the Telecom Panel.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -50,41 +50,35 @@ pub fn view_telecom<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
         row![
             section_title("RF & Telecom Analysis", &ctx.tokens),
             Space::new().width(Length::Fill).height(Length::Shrink),
-            button(
-                text("Smith Chart (S-Params)")
-                    .size(10)
-                    .color(if state.active_tab == TelecomTab::SmithChart {
-                        theme_ext::accent(&ctx.tokens)
-                    } else {
-                        theme_ext::text_primary(&ctx.tokens)
-                    }),
-            )
+            button(text("Smith Chart (S-Params)").size(10).color(
+                if state.active_tab == TelecomTab::SmithChart {
+                    theme_ext::accent(&ctx.tokens)
+                } else {
+                    theme_ext::text_primary(&ctx.tokens)
+                }
+            ),)
             .padding([3, 8])
             .on_press(PanelMsg::SetTelecomTab(TelecomTab::SmithChart))
             .style(crate::styles::menu_item(&ctx.tokens)),
             Space::new().width(4).height(Length::Shrink),
-            button(
-                text("Eye Diagram")
-                    .size(10)
-                    .color(if state.active_tab == TelecomTab::EyeDiagram {
-                        theme_ext::accent(&ctx.tokens)
-                    } else {
-                        theme_ext::text_primary(&ctx.tokens)
-                    }),
-            )
+            button(text("Eye Diagram").size(10).color(
+                if state.active_tab == TelecomTab::EyeDiagram {
+                    theme_ext::accent(&ctx.tokens)
+                } else {
+                    theme_ext::text_primary(&ctx.tokens)
+                }
+            ),)
             .padding([3, 8])
             .on_press(PanelMsg::SetTelecomTab(TelecomTab::EyeDiagram))
             .style(crate::styles::menu_item(&ctx.tokens)),
             Space::new().width(4).height(Length::Shrink),
-            button(
-                text("Constellation (I/Q)")
-                    .size(10)
-                    .color(if state.active_tab == TelecomTab::Constellation {
-                        theme_ext::accent(&ctx.tokens)
-                    } else {
-                        theme_ext::text_primary(&ctx.tokens)
-                    }),
-            )
+            button(text("Constellation (I/Q)").size(10).color(
+                if state.active_tab == TelecomTab::Constellation {
+                    theme_ext::accent(&ctx.tokens)
+                } else {
+                    theme_ext::text_primary(&ctx.tokens)
+                }
+            ),)
             .padding([3, 8])
             .on_press(PanelMsg::SetTelecomTab(TelecomTab::Constellation))
             .style(crate::styles::menu_item(&ctx.tokens)),
@@ -117,20 +111,34 @@ pub fn view_telecom<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
         TelecomTab::EyeDiagram => {
             if let Some(eye) = &state.eye_diagram {
                 row![
-                    text(format!("Eye Height: {:.2} mV", eye.metrics.eye_height * 1e3))
-                        .size(10)
-                        .color(iced::Color::from_rgb(0.2, 0.8, 0.2)),
+                    text(format!(
+                        "Eye Height: {:.2} mV",
+                        eye.metrics.eye_height * 1e3
+                    ))
+                    .size(10)
+                    .color(iced::Color::from_rgb(0.2, 0.8, 0.2)),
                     Space::new().width(12).height(Length::Shrink),
-                    text(format!("Eye Width: {:.2} ps", eye.metrics.eye_width_s * 1e12))
-                        .size(10)
-                        .color(iced::Color::from_rgb(0.2, 0.6, 1.0)),
+                    text(format!(
+                        "Eye Width: {:.2} ps",
+                        eye.metrics.eye_width_s * 1e12
+                    ))
+                    .size(10)
+                    .color(iced::Color::from_rgb(0.2, 0.6, 1.0)),
                     Space::new().width(12).height(Length::Shrink),
-                    text(format!("Jitter RMS: {:.2} ps (P-P: {:.2} ps)", eye.metrics.jitter_rms_s * 1e12, eye.metrics.jitter_p2p_s * 1e12))
-                        .size(10)
-                        .color(iced::Color::from_rgb(0.9, 0.7, 0.1)),
+                    text(format!(
+                        "Jitter RMS: {:.2} ps (P-P: {:.2} ps)",
+                        eye.metrics.jitter_rms_s * 1e12,
+                        eye.metrics.jitter_p2p_s * 1e12
+                    ))
+                    .size(10)
+                    .color(iced::Color::from_rgb(0.9, 0.7, 0.1)),
                 ]
             } else {
-                row![text("No Eye Diagram simulated").size(10).color(theme_ext::text_secondary(&ctx.tokens))]
+                row![
+                    text("No Eye Diagram simulated")
+                        .size(10)
+                        .color(theme_ext::text_secondary(&ctx.tokens))
+                ]
             }
         }
         TelecomTab::Constellation => {
@@ -140,23 +148,34 @@ pub fn view_telecom<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
                         .size(10)
                         .color(theme_ext::accent(&ctx.tokens)),
                     Space::new().width(12).height(Length::Shrink),
-                    text(format!("EVM RMS: {:.2}% (Peak: {:.2}%)", cons.evm_rms_percent, cons.evm_peak_percent))
-                        .size(10)
-                        .color(iced::Color::from_rgb(0.9, 0.4, 0.1)),
+                    text(format!(
+                        "EVM RMS: {:.2}% (Peak: {:.2}%)",
+                        cons.evm_rms_percent, cons.evm_peak_percent
+                    ))
+                    .size(10)
+                    .color(iced::Color::from_rgb(0.9, 0.4, 0.1)),
                     Space::new().width(12).height(Length::Shrink),
                     text(format!("SNR Est: {:.1} dB", cons.snr_est_db))
                         .size(10)
                         .color(iced::Color::from_rgb(0.2, 0.8, 0.2)),
                 ]
             } else {
-                row![text("No Constellation I/Q data").size(10).color(theme_ext::text_secondary(&ctx.tokens))]
+                row![
+                    text("No Constellation I/Q data")
+                        .size(10)
+                        .color(theme_ext::text_secondary(&ctx.tokens))
+                ]
             }
         }
     };
 
     col = col.push(
-        container(metric_banner.align_y(iced::Alignment::Center).padding([2, 6]))
-            .style(crate::styles::panel_card(&ctx.tokens)),
+        container(
+            metric_banner
+                .align_y(iced::Alignment::Center)
+                .padding([2, 6]),
+        )
+        .style(crate::styles::panel_card(&ctx.tokens)),
     );
 
     // Canvas Container

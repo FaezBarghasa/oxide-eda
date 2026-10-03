@@ -64,7 +64,10 @@ impl FpgaBridge {
 
     /// Read AXI/Wishbone register bus from MCU side.
     pub fn read_register(&self, offset: u32) -> u32 {
-        self.memory_mapped_regs.get(&offset).copied().unwrap_or(0x0000_0000)
+        self.memory_mapped_regs
+            .get(&offset)
+            .copied()
+            .unwrap_or(0x0000_0000)
     }
 
     /// Write AXI/Wishbone register bus from MCU side.

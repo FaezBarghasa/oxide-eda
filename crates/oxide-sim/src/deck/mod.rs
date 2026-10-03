@@ -3,11 +3,11 @@
 //! Translates schematic netlists, placed symbols, and library `SimModel`s
 //! into a clean, valid PSpice/SPICE netlist deck.
 
-use std::collections::{HashMap, HashSet};
 use oxide_library::SimModel;
 use oxide_types::net::Netlist;
 use oxide_types::schematic::SchematicSheet;
 use oxide_types::sim::{AcSweepType, AnalysisKind, Probe, SimulationConfig};
+use std::collections::{HashMap, HashSet};
 
 /// Builder that generates a complete PSpice simulation deck (`.cir`).
 pub struct PSpiceDeckBuilder<'a> {
@@ -94,7 +94,8 @@ impl<'a> PSpiceDeckBuilder<'a> {
                     } else {
                         // Fallback: iterate symbol pins by index 1..N
                         for i in 1..=8 {
-                            if let Some(node) = pin_to_net.get(&(refdes.to_string(), i.to_string())) {
+                            if let Some(node) = pin_to_net.get(&(refdes.to_string(), i.to_string()))
+                            {
                                 node_tokens.push(node.clone());
                             }
                         }
@@ -118,29 +119,69 @@ impl<'a> PSpiceDeckBuilder<'a> {
 
                 // Standard SPICE Primitives
                 if upper_ref.starts_with('R') {
-                    let n1 = pin_to_net.get(&(refdes.to_string(), "1".to_string())).cloned().unwrap_or_else(|| "0".to_string());
-                    let n2 = pin_to_net.get(&(refdes.to_string(), "2".to_string())).cloned().unwrap_or_else(|| "0".to_string());
+                    let n1 = pin_to_net
+                        .get(&(refdes.to_string(), "1".to_string()))
+                        .cloned()
+                        .unwrap_or_else(|| "0".to_string());
+                    let n2 = pin_to_net
+                        .get(&(refdes.to_string(), "2".to_string()))
+                        .cloned()
+                        .unwrap_or_else(|| "0".to_string());
                     out.push_str(&format!("{} {} {} {}\n", refdes, n1, n2, value_str));
                 } else if upper_ref.starts_with('C') {
-                    let n1 = pin_to_net.get(&(refdes.to_string(), "1".to_string())).cloned().unwrap_or_else(|| "0".to_string());
-                    let n2 = pin_to_net.get(&(refdes.to_string(), "2".to_string())).cloned().unwrap_or_else(|| "0".to_string());
+                    let n1 = pin_to_net
+                        .get(&(refdes.to_string(), "1".to_string()))
+                        .cloned()
+                        .unwrap_or_else(|| "0".to_string());
+                    let n2 = pin_to_net
+                        .get(&(refdes.to_string(), "2".to_string()))
+                        .cloned()
+                        .unwrap_or_else(|| "0".to_string());
                     out.push_str(&format!("{} {} {} {}\n", refdes, n1, n2, value_str));
                 } else if upper_ref.starts_with('L') {
-                    let n1 = pin_to_net.get(&(refdes.to_string(), "1".to_string())).cloned().unwrap_or_else(|| "0".to_string());
-                    let n2 = pin_to_net.get(&(refdes.to_string(), "2".to_string())).cloned().unwrap_or_else(|| "0".to_string());
+                    let n1 = pin_to_net
+                        .get(&(refdes.to_string(), "1".to_string()))
+                        .cloned()
+                        .unwrap_or_else(|| "0".to_string());
+                    let n2 = pin_to_net
+                        .get(&(refdes.to_string(), "2".to_string()))
+                        .cloned()
+                        .unwrap_or_else(|| "0".to_string());
                     out.push_str(&format!("{} {} {} {}\n", refdes, n1, n2, value_str));
                 } else if upper_ref.starts_with('D') {
-                    let n1 = pin_to_net.get(&(refdes.to_string(), "1".to_string())).cloned().unwrap_or_else(|| "0".to_string());
-                    let n2 = pin_to_net.get(&(refdes.to_string(), "2".to_string())).cloned().unwrap_or_else(|| "0".to_string());
-                    let model_name = if sym.value.is_empty() { "DMOD" } else { &sym.value };
+                    let n1 = pin_to_net
+                        .get(&(refdes.to_string(), "1".to_string()))
+                        .cloned()
+                        .unwrap_or_else(|| "0".to_string());
+                    let n2 = pin_to_net
+                        .get(&(refdes.to_string(), "2".to_string()))
+                        .cloned()
+                        .unwrap_or_else(|| "0".to_string());
+                    let model_name = if sym.value.is_empty() {
+                        "DMOD"
+                    } else {
+                        &sym.value
+                    };
                     out.push_str(&format!("{} {} {} {}\n", refdes, n1, n2, model_name));
                 } else if upper_ref.starts_with('V') {
-                    let np = pin_to_net.get(&(refdes.to_string(), "1".to_string())).cloned().unwrap_or_else(|| "0".to_string());
-                    let nn = pin_to_net.get(&(refdes.to_string(), "2".to_string())).cloned().unwrap_or_else(|| "0".to_string());
+                    let np = pin_to_net
+                        .get(&(refdes.to_string(), "1".to_string()))
+                        .cloned()
+                        .unwrap_or_else(|| "0".to_string());
+                    let nn = pin_to_net
+                        .get(&(refdes.to_string(), "2".to_string()))
+                        .cloned()
+                        .unwrap_or_else(|| "0".to_string());
                     out.push_str(&format!("{} {} {} DC {}\n", refdes, np, nn, value_str));
                 } else if upper_ref.starts_with('I') {
-                    let np = pin_to_net.get(&(refdes.to_string(), "1".to_string())).cloned().unwrap_or_else(|| "0".to_string());
-                    let nn = pin_to_net.get(&(refdes.to_string(), "2".to_string())).cloned().unwrap_or_else(|| "0".to_string());
+                    let np = pin_to_net
+                        .get(&(refdes.to_string(), "1".to_string()))
+                        .cloned()
+                        .unwrap_or_else(|| "0".to_string());
+                    let nn = pin_to_net
+                        .get(&(refdes.to_string(), "2".to_string()))
+                        .cloned()
+                        .unwrap_or_else(|| "0".to_string());
                     out.push_str(&format!("{} {} {} DC {}\n", refdes, np, nn, value_str));
                 }
             }
@@ -217,11 +258,19 @@ impl<'a> PSpiceDeckBuilder<'a> {
                 param_name,
                 sweep_values,
             } => {
-                let vals = sweep_values.iter().map(|v| format!("{:.4e}", v)).collect::<Vec<_>>().join(" ");
+                let vals = sweep_values
+                    .iter()
+                    .map(|v| format!("{:.4e}", v))
+                    .collect::<Vec<_>>()
+                    .join(" ");
                 out.push_str(&format!(".STEP PARAM {} LIST {}\n", param_name, vals));
             }
             AnalysisKind::Temperature { temps } => {
-                let vals = temps.iter().map(|t| format!("{:.1}", t)).collect::<Vec<_>>().join(" ");
+                let vals = temps
+                    .iter()
+                    .map(|t| format!("{:.1}", t))
+                    .collect::<Vec<_>>()
+                    .join(" ");
                 out.push_str(&format!(".TEMP {}\n", vals));
             }
         }
@@ -262,7 +311,10 @@ impl<'a> PSpiceDeckBuilder<'a> {
         for net in &self.netlist.nets {
             let node_name = sanitize_node_name(&net.name);
             for terminal in &net.terminals {
-                map.insert((terminal.reference.clone(), terminal.pin.clone()), node_name.clone());
+                map.insert(
+                    (terminal.reference.clone(), terminal.pin.clone()),
+                    node_name.clone(),
+                );
             }
         }
 
@@ -337,8 +389,18 @@ mod tests {
                     wires: Vec::new(),
                     junctions: Vec::new(),
                     terminals: vec![
-                        Terminal { symbol: Uuid::nil(), reference: "V1".to_string(), pin: "1".to_string(), internal_delay_ps: 0.0 },
-                        Terminal { symbol: Uuid::nil(), reference: "R1".to_string(), pin: "1".to_string(), internal_delay_ps: 0.0 },
+                        Terminal {
+                            symbol: Uuid::nil(),
+                            reference: "V1".to_string(),
+                            pin: "1".to_string(),
+                            internal_delay_ps: 0.0,
+                        },
+                        Terminal {
+                            symbol: Uuid::nil(),
+                            reference: "R1".to_string(),
+                            pin: "1".to_string(),
+                            internal_delay_ps: 0.0,
+                        },
                     ],
                 },
                 Net {
@@ -348,8 +410,18 @@ mod tests {
                     wires: Vec::new(),
                     junctions: Vec::new(),
                     terminals: vec![
-                        Terminal { symbol: Uuid::nil(), reference: "R1".to_string(), pin: "2".to_string(), internal_delay_ps: 0.0 },
-                        Terminal { symbol: Uuid::nil(), reference: "C1".to_string(), pin: "1".to_string(), internal_delay_ps: 0.0 },
+                        Terminal {
+                            symbol: Uuid::nil(),
+                            reference: "R1".to_string(),
+                            pin: "2".to_string(),
+                            internal_delay_ps: 0.0,
+                        },
+                        Terminal {
+                            symbol: Uuid::nil(),
+                            reference: "C1".to_string(),
+                            pin: "1".to_string(),
+                            internal_delay_ps: 0.0,
+                        },
                     ],
                 },
                 Net {
@@ -359,8 +431,18 @@ mod tests {
                     wires: Vec::new(),
                     junctions: Vec::new(),
                     terminals: vec![
-                        Terminal { symbol: Uuid::nil(), reference: "V1".to_string(), pin: "2".to_string(), internal_delay_ps: 0.0 },
-                        Terminal { symbol: Uuid::nil(), reference: "C1".to_string(), pin: "2".to_string(), internal_delay_ps: 0.0 },
+                        Terminal {
+                            symbol: Uuid::nil(),
+                            reference: "V1".to_string(),
+                            pin: "2".to_string(),
+                            internal_delay_ps: 0.0,
+                        },
+                        Terminal {
+                            symbol: Uuid::nil(),
+                            reference: "C1".to_string(),
+                            pin: "2".to_string(),
+                            internal_delay_ps: 0.0,
+                        },
                     ],
                 },
             ],
@@ -409,7 +491,10 @@ mod tests {
                 max_step: None,
                 uic: false,
             },
-            probes: vec![Probe::Voltage { net_name: "OUT".to_string(), net_id: Some(2) }],
+            probes: vec![Probe::Voltage {
+                net_name: "OUT".to_string(),
+                net_id: Some(2),
+            }],
             ..Default::default()
         };
 

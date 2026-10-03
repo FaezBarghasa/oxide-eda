@@ -69,7 +69,11 @@ impl RtcPeripheral {
         }
 
         // Check alarms
-        if self.alarm_a.enabled && self.alarm_a.hours == self.time.hours && self.alarm_a.minutes == self.time.minutes && self.alarm_a.seconds == self.time.seconds {
+        if self.alarm_a.enabled
+            && self.alarm_a.hours == self.time.hours
+            && self.alarm_a.minutes == self.time.minutes
+            && self.alarm_a.seconds == self.time.seconds
+        {
             self.alarm_tripped = true;
         }
     }

@@ -2,8 +2,8 @@
 
 use std::path::PathBuf;
 use std::process::Stdio;
-use tokio::process::{Child, Command};
 use thiserror::Error;
+use tokio::process::{Child, Command};
 
 use crate::firmware::FirmwareImage;
 
@@ -67,8 +67,8 @@ impl QemuInstance {
         }
 
         cmd.stdout(Stdio::piped())
-           .stderr(Stdio::piped())
-           .stdin(Stdio::piped());
+            .stderr(Stdio::piped())
+            .stdin(Stdio::piped());
 
         let child = match cmd.spawn() {
             Ok(c) => c,

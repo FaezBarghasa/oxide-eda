@@ -422,7 +422,8 @@ mod tests {
         assert_eq!(dep, dep_back);
 
         let lock_json = serde_json::to_string(&lockfile).expect("serialize lockfile");
-        let lock_back: ProjectLockfile = serde_json::from_str(&lock_json).expect("deserialize lockfile");
+        let lock_back: ProjectLockfile =
+            serde_json::from_str(&lock_json).expect("deserialize lockfile");
         assert_eq!(lockfile, lock_back);
     }
 }

@@ -1,12 +1,12 @@
 //! Manufacturing and Fabrication output handlers (Gerber X2, NC Drill, Pick-and-Place, IPC-2581, Draftsman).
 
-use std::path::PathBuf;
 use iced::Task;
 use oxide_output::{
-    ExcellonExporter, GerberExporter, GerberOptions, PickAndPlaceExporter, PickAndPlaceOptions,
-    export_ipc2581, Ipc2581Options, DraftsmanDocument,
+    DraftsmanDocument, ExcellonExporter, GerberExporter, GerberOptions, Ipc2581Options,
+    PickAndPlaceExporter, PickAndPlaceOptions, export_ipc2581,
 };
 use oxide_types::pcb::PcbBoard;
+use std::path::PathBuf;
 
 use super::super::super::super::*;
 
@@ -26,7 +26,7 @@ impl Oxide {
     pub(crate) fn handle_export_gerber(&mut self) -> Task<Message> {
         let Some(board) = self.resolve_pcb_board() else {
             crate::diagnostics::log_warning(
-                "Export Gerber: No active PCB layout found. Please open a .snxpcb layout or run 'Update PCB from Schematic' first."
+                "Export Gerber: No active PCB layout found. Please open a .snxpcb layout or run 'Update PCB from Schematic' first.",
             );
             return Task::none();
         };
@@ -49,8 +49,9 @@ impl Oxide {
                 let mut written = 0;
                 for layer in &layers {
                     let out_path = dir.join(&layer.filename);
-                    std::fs::write(&out_path, &layer.content)
-                        .map_err(|e| format!("Failed to write layer '{}': {}", layer.filename, e))?;
+                    std::fs::write(&out_path, &layer.content).map_err(|e| {
+                        format!("Failed to write layer '{}': {}", layer.filename, e)
+                    })?;
                     written += 1;
                 }
 
@@ -165,7 +166,9 @@ impl Oxide {
                 }
                 Err(e) => {
                     if e != "Cancelled by user" {
-                        crate::diagnostics::log_warning(format!("Export Pick and Place failed: {e}"));
+                        crate::diagnostics::log_warning(format!(
+                            "Export Pick and Place failed: {e}"
+                        ));
                     }
                     Message::Noop
                 }
@@ -225,7 +228,9 @@ impl Oxide {
             return Task::none();
         };
 
-        let project_title = self.document_state.active_document_project()
+        let project_title = self
+            .document_state
+            .active_document_project()
             .map(|p| p.data.name.clone())
             .unwrap_or_else(|| "Oxide Project".to_string());
 
@@ -273,14 +278,18 @@ impl Oxide {
         let (ctx, issues) = match super::build_export_scope(&self.document_state) {
             Some(c) => c,
             None => {
-                crate::diagnostics::log_warning("ECO: No active schematic or project loaded to update PCB from.");
+                crate::diagnostics::log_warning(
+                    "ECO: No active schematic or project loaded to update PCB from.",
+                );
                 return Task::none();
             }
         };
         super::log_stitch_issues(&self.document_state, &ctx, &issues);
 
         let Some(netlist) = &ctx.netlist else {
-            crate::diagnostics::log_warning("ECO: No connectivity netlist could be derived from schematic.");
+            crate::diagnostics::log_warning(
+                "ECO: No connectivity netlist could be derived from schematic.",
+            );
             return Task::none();
         };
 
@@ -296,7 +305,10 @@ impl Oxide {
         }
 
         // Target active PCB engine, or primary open PCB engine, or create a new PCB tab
-        let pcb_path = self.document_state.tabs.get(self.document_state.active_tab)
+        let pcb_path = self
+            .document_state
+            .tabs
+            .get(self.document_state.active_tab)
             .and_then(|t| match t.kind {
                 crate::app::TabKind::Pcb => Some(t.path.clone()),
                 _ => None,
@@ -316,9 +328,15 @@ impl Oxide {
         if !self.document_state.pcb_engines.contains_key(&pcb_path) {
             let board = PcbBoard::default();
             let engine = oxide_engine::pcb::PcbEngine::new(board);
-            self.document_state.pcb_engines.insert(pcb_path.clone(), engine);
+            self.document_state
+                .pcb_engines
+                .insert(pcb_path.clone(), engine);
 
-            let tab_title = pcb_path.file_name().and_then(|n| n.to_str()).unwrap_or("board.snxpcb").to_string();
+            let tab_title = pcb_path
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("board.snxpcb")
+                .to_string();
             self.document_state.tabs.push(crate::app::TabInfo {
                 title: tab_title,
                 path: pcb_path.clone(),
@@ -331,7 +349,11 @@ impl Oxide {
         }
 
         if let Some(engine) = self.document_state.pcb_engines.get_mut(&pcb_path) {
-            let report = oxide_net::EcoEngine::diff_schematic_to_pcb(netlist, engine.board(), &schematic_components);
+            let report = oxide_net::EcoEngine::diff_schematic_to_pcb(
+                netlist,
+                engine.board(),
+                &schematic_components,
+            );
             let action_count = report.len();
             oxide_net::EcoEngine::apply_eco(engine.board_mut(), &report);
 
@@ -343,7 +365,12 @@ impl Oxide {
             ));
 
             // Focus the PCB tab
-            if let Some(idx) = self.document_state.tabs.iter().position(|t| matches!(t.kind, crate::app::TabKind::Pcb) && t.path == pcb_path) {
+            if let Some(idx) = self
+                .document_state
+                .tabs
+                .iter()
+                .position(|t| matches!(t.kind, crate::app::TabKind::Pcb) && t.path == pcb_path)
+            {
                 self.document_state.active_tab = idx;
             }
         }

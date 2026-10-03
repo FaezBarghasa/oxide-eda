@@ -5,11 +5,11 @@
 //! the local project library (`.snxlib`).
 #![allow(unused_imports, dead_code)]
 
+use chrono::Utc;
+use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 use std::fs;
 use std::path::{Path, PathBuf};
-use chrono::Utc;
-use sha2::{Digest, Sha256};
 use url::Url;
 use uuid::Uuid;
 
@@ -19,14 +19,11 @@ use crate::identity::{ComponentClass, InternalPn};
 use crate::lifecycle::LifecycleState;
 use crate::manufacturer::ManufacturerPart;
 use crate::param::{ParamMap, ParamValue};
-use crate::primitive::footprint::{
-    Footprint, LayerId, Pad, PadKind, PadShape, Polygon,
-};
-use crate::primitive::symbol::{
-    PinDirection, PinOrientation, Symbol, SymbolGraphic, SymbolGraphicKind,
-    SymbolPin,
-};
 use crate::primitive::PrimitiveRef;
+use crate::primitive::footprint::{Footprint, LayerId, Pad, PadKind, PadShape, Polygon};
+use crate::primitive::symbol::{
+    PinDirection, PinOrientation, Symbol, SymbolGraphic, SymbolGraphicKind, SymbolPin,
+};
 
 #[cfg(feature = "local-git")]
 use crate::adapters::local_git::LocalGitAdapter;
@@ -58,24 +55,45 @@ impl PackageType {
     pub fn from_name(name: &str) -> Self {
         let n = name.to_uppercase();
         if n.contains("0402") {
-            Self::Chip2Pin { length_mm: 1.0, width_mm: 0.5 }
+            Self::Chip2Pin {
+                length_mm: 1.0,
+                width_mm: 0.5,
+            }
         } else if n.contains("0603") {
-            Self::Chip2Pin { length_mm: 1.6, width_mm: 0.8 }
+            Self::Chip2Pin {
+                length_mm: 1.6,
+                width_mm: 0.8,
+            }
         } else if n.contains("0805") {
-            Self::Chip2Pin { length_mm: 2.0, width_mm: 1.25 }
+            Self::Chip2Pin {
+                length_mm: 2.0,
+                width_mm: 1.25,
+            }
         } else if n.contains("1206") {
-            Self::Chip2Pin { length_mm: 3.2, width_mm: 1.6 }
+            Self::Chip2Pin {
+                length_mm: 3.2,
+                width_mm: 1.6,
+            }
         } else if n.contains("SOT-23") || n.contains("SOT23") {
             Self::Sot23
         } else if n.contains("SOIC") || n.contains("SOP") {
             let pins = extract_trailing_digits(&n).unwrap_or(8);
-            Self::Soic { pin_count: pins, pitch_mm: 1.27 }
+            Self::Soic {
+                pin_count: pins,
+                pitch_mm: 1.27,
+            }
         } else if n.contains("QFP") || n.contains("TQFP") {
             let pins = extract_trailing_digits(&n).unwrap_or(32);
-            Self::Qfp { pin_count: pins, pitch_mm: 0.8 }
+            Self::Qfp {
+                pin_count: pins,
+                pitch_mm: 0.8,
+            }
         } else {
             let pins = extract_trailing_digits(&n).unwrap_or(8);
-            Self::GenericDual { pin_count: pins, pitch_mm: 1.27 }
+            Self::GenericDual {
+                pin_count: pins,
+                pitch_mm: 1.27,
+            }
         }
     }
 }
@@ -95,7 +113,10 @@ pub fn synthesize_footprint(name: &str, pkg: &PackageType) -> Footprint {
     ];
 
     match pkg {
-        PackageType::Chip2Pin { length_mm, width_mm } => {
+        PackageType::Chip2Pin {
+            length_mm,
+            width_mm,
+        } => {
             let pad_w = width_mm * 0.9;
             let pad_h = width_mm * 0.9;
             let pad_x = (length_mm / 2.0) - (pad_w / 2.0) + 0.1;
@@ -165,15 +186,16 @@ pub fn synthesize_footprint(name: &str, pkg: &PackageType) -> Footprint {
                 ..Pad::default()
             });
 
-            fp.courtyard = Polygon::new(vec![
-                [-1.6, -1.6],
-                [1.6, -1.6],
-                [1.6, 1.6],
-                [-1.6, 1.6],
-            ]);
+            fp.courtyard = Polygon::new(vec![[-1.6, -1.6], [1.6, -1.6], [1.6, 1.6], [-1.6, 1.6]]);
         }
-        PackageType::Soic { pin_count, pitch_mm }
-        | PackageType::GenericDual { pin_count, pitch_mm } => {
+        PackageType::Soic {
+            pin_count,
+            pitch_mm,
+        }
+        | PackageType::GenericDual {
+            pin_count,
+            pitch_mm,
+        } => {
             let half = pin_count / 2;
             let pad_size = [1.5, 0.6];
             let x_span = 2.7; // distance from center to pad center
@@ -216,7 +238,10 @@ pub fn synthesize_footprint(name: &str, pkg: &PackageType) -> Footprint {
                 [-cy_w / 2.0, cy_h / 2.0],
             ]);
         }
-        PackageType::Qfp { pin_count, pitch_mm } => {
+        PackageType::Qfp {
+            pin_count,
+            pitch_mm,
+        } => {
             let side_pins = pin_count / 4;
             let pad_size = [0.8, 0.4];
             let offset = (side_pins as f64 * pitch_mm) / 2.0 + 1.0;
@@ -281,12 +306,7 @@ pub fn synthesize_footprint(name: &str, pkg: &PackageType) -> Footprint {
             }
 
             let cy = offset + 1.2;
-            fp.courtyard = Polygon::new(vec![
-                [-cy, -cy],
-                [cy, -cy],
-                [cy, cy],
-                [-cy, cy],
-            ]);
+            fp.courtyard = Polygon::new(vec![[-cy, -cy], [cy, -cy], [cy, cy], [-cy, cy]]);
         }
     }
 
@@ -403,7 +423,10 @@ impl ComponentScraper {
     pub fn new() -> Self {
         #[cfg(feature = "distributors-community")]
         {
-            use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, ACCEPT_LANGUAGE, DNT, UPGRADE_INSECURE_REQUESTS, USER_AGENT};
+            use reqwest::header::{
+                ACCEPT, ACCEPT_LANGUAGE, DNT, HeaderMap, HeaderValue, UPGRADE_INSECURE_REQUESTS,
+                USER_AGENT,
+            };
 
             let mut headers = HeaderMap::new();
             let ua = REAL_USER_AGENTS[0];
@@ -415,7 +438,12 @@ impl ComponentScraper {
             headers.insert(ACCEPT_LANGUAGE, HeaderValue::from_static("en-US,en;q=0.9"));
             headers.insert(DNT, HeaderValue::from_static("1"));
             headers.insert(UPGRADE_INSECURE_REQUESTS, HeaderValue::from_static("1"));
-            headers.insert("sec-ch-ua", HeaderValue::from_static("\"Chromium\";v=\"128\", \"Not;A=Brand\";v=\"24\", \"Google Chrome\";v=\"128\""));
+            headers.insert(
+                "sec-ch-ua",
+                HeaderValue::from_static(
+                    "\"Chromium\";v=\"128\", \"Not;A=Brand\";v=\"24\", \"Google Chrome\";v=\"128\"",
+                ),
+            );
             headers.insert("sec-ch-ua-mobile", HeaderValue::from_static("?0"));
             headers.insert("sec-ch-ua-platform", HeaderValue::from_static("\"Linux\""));
             headers.insert("sec-fetch-dest", HeaderValue::from_static("document"));
@@ -455,7 +483,9 @@ impl ComponentScraper {
                 "pageSize": 10,
             });
 
-            let req = self.http.post(url)
+            let req = self
+                .http
+                .post(url)
                 .header("Origin", "https://jlcpcb.com")
                 .header("Referer", "https://jlcpcb.com/parts")
                 .header("Sec-Fetch-Dest", "empty")
@@ -474,8 +504,12 @@ impl ComponentScraper {
                     let mpn = item["mfrPart"].as_str().unwrap_or("").to_string();
                     let mfr = item["manufacturer"].as_str().unwrap_or("").to_string();
                     let desc = item["describe"].as_str().unwrap_or("").to_string();
-                    let pkg = item["componentSpecificationEn"].as_str().map(|s| s.to_string());
-                    let ds = item["dataManualUrl"].as_str().and_then(|u| Url::parse(u).ok());
+                    let pkg = item["componentSpecificationEn"]
+                        .as_str()
+                        .map(|s| s.to_string());
+                    let ds = item["dataManualUrl"]
+                        .as_str()
+                        .and_then(|u| Url::parse(u).ok());
 
                     if !mpn.is_empty() {
                         results.push(ScrapedComponent {
@@ -509,7 +543,8 @@ impl ComponentScraper {
             manufacturer: "Generic".to_string(),
             description: format!("Component {}", trimmed),
             package: pkg,
-            datasheet_url: Url::parse(&format!("https://datasheet.lcsc.com/generic/{trimmed}.pdf")).ok(),
+            datasheet_url: Url::parse(&format!("https://datasheet.lcsc.com/generic/{trimmed}.pdf"))
+                .ok(),
             pin_count: None,
             parameters: BTreeMap::new(),
         }])
@@ -519,8 +554,13 @@ impl ComponentScraper {
     pub fn download_datasheet(&self, url: &Url) -> Result<(Vec<u8>, String), String> {
         #[cfg(feature = "distributors-community")]
         {
-            let req = self.http.get(url.as_str())
-                .header("Accept", "application/pdf,application/octet-stream,*/*;q=0.9")
+            let req = self
+                .http
+                .get(url.as_str())
+                .header(
+                    "Accept",
+                    "application/pdf,application/octet-stream,*/*;q=0.9",
+                )
                 .header("Sec-Fetch-Dest", "document")
                 .header("Sec-Fetch-Mode", "navigate")
                 .header("Sec-Fetch-Site", "cross-site");
@@ -528,7 +568,10 @@ impl ComponentScraper {
             let resp = req.send().map_err(|e| format!("HTTP fetch failed: {e}"))?;
 
             if !resp.status().is_success() {
-                return Err(format!("Datasheet download returned status {}", resp.status()));
+                return Err(format!(
+                    "Datasheet download returned status {}",
+                    resp.status()
+                ));
             }
 
             let bytes = resp
@@ -539,7 +582,10 @@ impl ComponentScraper {
             let mut hasher = Sha256::new();
             hasher.update(&bytes);
             let result = hasher.finalize();
-            let hex = result.iter().map(|b| format!("{b:02x}")).collect::<String>();
+            let hex = result
+                .iter()
+                .map(|b| format!("{b:02x}"))
+                .collect::<String>();
 
             Ok((bytes, hex))
         }
@@ -624,7 +670,10 @@ impl ComponentScraper {
             let mut hasher = Sha256::new();
             hasher.update(bytes);
             let result = hasher.finalize();
-            let hash = result.iter().map(|b| format!("{b:02x}")).collect::<String>();
+            let hash = result
+                .iter()
+                .map(|b| format!("{b:02x}"))
+                .collect::<String>();
             let filename = format!("{}_{}.pdf", scraped.mpn, &hash[..8]);
             let _ = self.persist_datasheet(adapter.root(), &filename, bytes);
             DatasheetRef::hash_pinned(hash, filename)
@@ -641,7 +690,11 @@ impl ComponentScraper {
         let mut row = ComponentRow {
             row_id,
             internal_pn: InternalPn::new(&scraped.mpn),
-            class: ComponentClass::new(if pin_count == 2 { "Resistors" } else { "Integrated Circuits" }),
+            class: ComponentClass::new(if pin_count == 2 {
+                "Resistors"
+            } else {
+                "Integrated Circuits"
+            }),
             datasheet: datasheet_ref,
             state: LifecycleState::Draft,
             symbol_ref: PrimitiveRef::new(lib_id, sym_uuid),
@@ -664,16 +717,22 @@ impl ComponentScraper {
         };
 
         for (k, v) in &scraped.parameters {
-            row.parameters.insert(k.clone(), ParamValue::Text(v.clone()));
+            row.parameters
+                .insert(k.clone(), ParamValue::Text(v.clone()));
         }
         row.content_hash = crate::hash::hash_row_content(&row)?;
 
         // Ensure table exists and insert row
         let tables = adapter.list_tables()?;
         if !tables.iter().any(|t| t == table_name) {
-            adapter.create_empty_table(table_name, &format!("feat(lib): create table {table_name}"))?;
+            adapter
+                .create_empty_table(table_name, &format!("feat(lib): create table {table_name}"))?;
         }
-        adapter.insert_row(table_name, row.clone(), &format!("feat(lib): import component {}", scraped.mpn))?;
+        adapter.insert_row(
+            table_name,
+            row.clone(),
+            &format!("feat(lib): import component {}", scraped.mpn),
+        )?;
 
         Ok(row)
     }
@@ -687,18 +746,27 @@ mod tests {
     fn test_package_detection() {
         assert_eq!(
             PackageType::from_name("0805_RES"),
-            PackageType::Chip2Pin { length_mm: 2.0, width_mm: 1.25 }
+            PackageType::Chip2Pin {
+                length_mm: 2.0,
+                width_mm: 1.25
+            }
         );
         assert_eq!(PackageType::from_name("SOT-23"), PackageType::Sot23);
         assert_eq!(
             PackageType::from_name("SOIC-8"),
-            PackageType::Soic { pin_count: 8, pitch_mm: 1.27 }
+            PackageType::Soic {
+                pin_count: 8,
+                pitch_mm: 1.27
+            }
         );
     }
 
     #[test]
     fn test_synthesize_footprint_chip() {
-        let pkg = PackageType::Chip2Pin { length_mm: 2.0, width_mm: 1.25 };
+        let pkg = PackageType::Chip2Pin {
+            length_mm: 2.0,
+            width_mm: 1.25,
+        };
         let fp = synthesize_footprint("0805", &pkg);
         assert_eq!(fp.pads.len(), 2);
         assert_eq!(fp.pads[0].number, "1");
@@ -708,7 +776,10 @@ mod tests {
 
     #[test]
     fn test_synthesize_footprint_soic() {
-        let pkg = PackageType::Soic { pin_count: 8, pitch_mm: 1.27 };
+        let pkg = PackageType::Soic {
+            pin_count: 8,
+            pitch_mm: 1.27,
+        };
         let fp = synthesize_footprint("SOIC-8", &pkg);
         assert_eq!(fp.pads.len(), 8);
         assert_eq!(fp.pads[0].number, "1");

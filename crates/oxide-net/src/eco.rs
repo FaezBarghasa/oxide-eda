@@ -4,10 +4,10 @@
 //! and physical PCB layout state, synthesizing atomic ECO actions (add/remove/rename nets,
 //! add/remove footprints, re-assign pins/pads, update designators).
 
-use std::collections::{HashMap, HashSet};
 use oxide_types::net::Netlist;
 use oxide_types::pcb::{Footprint, PadNet, PcbBoard, Point};
 use serde::{Deserialize, Serialize};
+use std::collections::{HashMap, HashSet};
 use uuid::Uuid;
 
 /// Atomic ECO action to synchronize schematic and PCB.
@@ -21,10 +21,7 @@ pub enum EcoAction {
         suggested_pos: Point,
     },
     /// Remove an obsolete footprint from the PCB layout.
-    RemoveFootprint {
-        reference: String,
-        uuid: Uuid,
-    },
+    RemoveFootprint { reference: String, uuid: Uuid },
     /// Update footprint metadata or library reference.
     UpdateFootprint {
         reference: String,
@@ -34,15 +31,9 @@ pub enum EcoAction {
         new_footprint_id: String,
     },
     /// Add a new electrical net.
-    AddNet {
-        name: String,
-        net_id: u32,
-    },
+    AddNet { name: String, net_id: u32 },
     /// Remove an unused net.
-    RemoveNet {
-        name: String,
-        net_id: u32,
-    },
+    RemoveNet { name: String, net_id: u32 },
     /// Reconnect or assign a pad on a footprint to a net.
     AssignPadNet {
         reference: String,
@@ -116,7 +107,10 @@ impl EcoEngine {
                         reference: ref_des.clone(),
                         value: val.clone(),
                         footprint_id: fp_id.clone(),
-                        suggested_pos: Point { x: next_x, y: next_y },
+                        suggested_pos: Point {
+                            x: next_x,
+                            y: next_y,
+                        },
                     });
                     next_x += 15.0;
                     if next_x > 150.0 {
@@ -165,7 +159,8 @@ impl EcoEngine {
         for fp in &board.footprints {
             for pad in &fp.pads {
                 let actual_net_name = pad.net.as_ref().map(|n| n.name.as_str());
-                let expected = expected_connections.get(&(fp.reference.as_str(), pad.number.as_str()));
+                let expected =
+                    expected_connections.get(&(fp.reference.as_str(), pad.number.as_str()));
 
                 match (actual_net_name, expected) {
                     (Some(act), Some((exp_name, exp_id))) if act != *exp_name => {
@@ -237,7 +232,11 @@ impl EcoEngine {
                     new_footprint_id,
                     ..
                 } => {
-                    if let Some(fp) = board.footprints.iter_mut().find(|f| f.reference == *reference) {
+                    if let Some(fp) = board
+                        .footprints
+                        .iter_mut()
+                        .find(|f| f.reference == *reference)
+                    {
                         fp.value = new_value.clone();
                         fp.footprint_id = new_footprint_id.clone();
                     }
@@ -250,7 +249,11 @@ impl EcoEngine {
                     new_net_id,
                     ..
                 } => {
-                    if let Some(fp) = board.footprints.iter_mut().find(|f| f.reference == *reference) {
+                    if let Some(fp) = board
+                        .footprints
+                        .iter_mut()
+                        .find(|f| f.reference == *reference)
+                    {
                         if let Some(pad) = fp.pads.iter_mut().find(|p| p.number == *pad_number) {
                             pad.net = new_net.as_ref().map(|name| PadNet {
                                 number: *new_net_id,
@@ -263,7 +266,11 @@ impl EcoEngine {
                     old_reference,
                     new_reference,
                 } => {
-                    if let Some(fp) = board.footprints.iter_mut().find(|f| f.reference == *old_reference) {
+                    if let Some(fp) = board
+                        .footprints
+                        .iter_mut()
+                        .find(|f| f.reference == *old_reference)
+                    {
                         fp.reference = new_reference.clone();
                     }
                 }
@@ -283,22 +290,14 @@ mod tests {
     fn test_eco_diff_and_apply() {
         let mut board = PcbBoard::default();
 
-        let netlist = Netlist::from_nets(vec![
-            Net {
-                id: NetId(1),
-                name: "GND".to_string(),
-                class: None,
-                wires: vec![],
-                junctions: vec![],
-                terminals: vec![
-                    Terminal::new(
-                        Uuid::new_v4(),
-                        "R1",
-                        "1",
-                    ),
-                ],
-            },
-        ]);
+        let netlist = Netlist::from_nets(vec![Net {
+            id: NetId(1),
+            name: "GND".to_string(),
+            class: None,
+            wires: vec![],
+            junctions: vec![],
+            terminals: vec![Terminal::new(Uuid::new_v4(), "R1", "1")],
+        }]);
 
         let sch_components = vec![
             ("R1".to_string(), "10k".to_string(), "R_0603".to_string()),
@@ -330,7 +329,12 @@ mod tests {
         let pad_report = EcoEngine::diff_schematic_to_pcb(&netlist, &board, &sch_components);
         assert_eq!(pad_report.actions.len(), 1);
         match &pad_report.actions[0] {
-            EcoAction::AssignPadNet { reference, pad_number, new_net, .. } => {
+            EcoAction::AssignPadNet {
+                reference,
+                pad_number,
+                new_net,
+                ..
+            } => {
                 assert_eq!(reference, "R1");
                 assert_eq!(pad_number, "1");
                 assert_eq!(new_net.as_deref(), Some("GND"));
@@ -340,6 +344,9 @@ mod tests {
 
         // Apply pad assignment
         EcoEngine::apply_eco(&mut board, &pad_report);
-        assert_eq!(board.footprints[0].pads[0].net.as_ref().unwrap().name, "GND");
+        assert_eq!(
+            board.footprints[0].pads[0].net.as_ref().unwrap().name,
+            "GND"
+        );
     }
 }

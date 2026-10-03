@@ -107,31 +107,37 @@ impl SpiFlash {
                 self.cmd_buffer.push(byte);
                 let cmd = self.cmd_buffer[0];
                 match cmd {
-                    0x06 => { // WREN: Write Enable
+                    0x06 => {
+                        // WREN: Write Enable
                         self.write_enable_latch = true;
                         self.status_register_1 |= 0x02;
                         self.cmd_buffer.clear();
                         0xFF
                     }
-                    0x04 => { // WRDI: Write Disable
+                    0x04 => {
+                        // WRDI: Write Disable
                         self.write_enable_latch = false;
                         self.status_register_1 &= !0x02;
                         self.cmd_buffer.clear();
                         0xFF
                     }
-                    0x05 => { // RDSR1: Read Status Register 1
+                    0x05 => {
+                        // RDSR1: Read Status Register 1
                         self.state = SpiFlashState::ReadingStatus1;
                         0xFF
                     }
-                    0x35 => { // RDSR2: Read Status Register 2
+                    0x35 => {
+                        // RDSR2: Read Status Register 2
                         self.state = SpiFlashState::ReadingStatus2;
                         0xFF
                     }
-                    0x9F => { // RDID: Read JEDEC ID
+                    0x9F => {
+                        // RDID: Read JEDEC ID
                         self.state = SpiFlashState::ReadingJedecId { byte_idx: 0 };
                         0xFF
                     }
-                    0x03 => { // READ: Normal Read (3 address bytes)
+                    0x03 => {
+                        // READ: Normal Read (3 address bytes)
                         if self.cmd_buffer.len() == 4 {
                             self.current_addr = ((self.cmd_buffer[1] as usize) << 16)
                                 | ((self.cmd_buffer[2] as usize) << 8)
@@ -141,7 +147,8 @@ impl SpiFlash {
                         }
                         0xFF
                     }
-                    0x0B => { // Fast Read (3 address bytes + 1 dummy byte)
+                    0x0B => {
+                        // Fast Read (3 address bytes + 1 dummy byte)
                         if self.cmd_buffer.len() == 4 {
                             self.current_addr = ((self.cmd_buffer[1] as usize) << 16)
                                 | ((self.cmd_buffer[2] as usize) << 8)
@@ -151,7 +158,8 @@ impl SpiFlash {
                         }
                         0xFF
                     }
-                    0x20 => { // Sector Erase 4KB
+                    0x20 => {
+                        // Sector Erase 4KB
                         if self.cmd_buffer.len() == 4 {
                             let addr = ((self.cmd_buffer[1] as usize) << 16)
                                 | ((self.cmd_buffer[2] as usize) << 8)
@@ -161,7 +169,8 @@ impl SpiFlash {
                         }
                         0xFF
                     }
-                    0xD8 => { // Block Erase 64KB
+                    0xD8 => {
+                        // Block Erase 64KB
                         if self.cmd_buffer.len() == 4 {
                             let addr = ((self.cmd_buffer[1] as usize) << 16)
                                 | ((self.cmd_buffer[2] as usize) << 8)
@@ -171,7 +180,8 @@ impl SpiFlash {
                         }
                         0xFF
                     }
-                    0x02 => { // Page Program
+                    0x02 => {
+                        // Page Program
                         if self.cmd_buffer.len() == 4 {
                             self.current_addr = ((self.cmd_buffer[1] as usize) << 16)
                                 | ((self.cmd_buffer[2] as usize) << 8)
@@ -181,7 +191,8 @@ impl SpiFlash {
                         }
                         0xFF
                     }
-                    0xC7 | 0x60 => { // Chip Erase
+                    0xC7 | 0x60 => {
+                        // Chip Erase
                         self.erase_chip();
                         self.cmd_buffer.clear();
                         0xFF
@@ -195,7 +206,13 @@ impl SpiFlash {
                 let id = match *byte_idx {
                     0 => 0xEF, // Manufacturer: Winbond
                     1 => 0x40, // Memory Type: SPI
-                    2 => if self.size_bytes >= 16 * 1024 * 1024 { 0x18 } else { 0x17 }, // Capacity: 128Mbit or 64Mbit
+                    2 => {
+                        if self.size_bytes >= 16 * 1024 * 1024 {
+                            0x18
+                        } else {
+                            0x17
+                        }
+                    } // Capacity: 128Mbit or 64Mbit
                     _ => 0x00,
                 };
                 *byte_idx += 1;
@@ -206,7 +223,9 @@ impl SpiFlash {
                 self.current_addr = (self.current_addr + 1) % self.size_bytes;
                 val
             }
-            SpiFlashState::FastReadingData { ref mut dummy_cycles } => {
+            SpiFlashState::FastReadingData {
+                ref mut dummy_cycles,
+            } => {
                 if *dummy_cycles > 0 {
                     *dummy_cycles -= 1;
                     0xFF
@@ -226,7 +245,10 @@ impl SpiFlash {
                 }
                 0xFF
             }
-            SpiFlashState::ReadingSfdp { ref mut addr, ref mut dummy_cycles } => {
+            SpiFlashState::ReadingSfdp {
+                ref mut addr,
+                ref mut dummy_cycles,
+            } => {
                 if *dummy_cycles > 0 {
                     *dummy_cycles -= 1;
                     0xFF

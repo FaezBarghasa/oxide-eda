@@ -21,7 +21,11 @@ impl RngPeripheral {
     pub fn new(seed: u64) -> Self {
         Self {
             enabled: true,
-            state: if seed == 0 { 0xFEED_FACE_CAFE_BEEF } else { seed },
+            state: if seed == 0 {
+                0xFEED_FACE_CAFE_BEEF
+            } else {
+                seed
+            },
             seed_error: false,
             clock_error: false,
         }

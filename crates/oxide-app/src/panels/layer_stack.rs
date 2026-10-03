@@ -4,9 +4,9 @@ use iced::widget::{Column, Space, button, container, row, scrollable, text};
 use iced::{Element, Length};
 use oxide_widgets::theme_ext;
 
+use super::context::PanelContext;
 use super::messages::PanelMsg;
 use super::widgets::{section_title, separator};
-use super::context::PanelContext;
 
 pub fn view_layer_stack<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
     let mut col: Column<'a, PanelMsg> = Column::new().spacing(4).padding(6).width(Length::Fill);
@@ -47,23 +47,70 @@ pub fn view_layer_stack<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
     let mut layers_col = Column::new().spacing(4);
 
     let stackup_layers = [
-        ("Top Layer (F.Cu)", "Signal", "35 µm (1 oz Cu)", "Z₀ = 50.6 Ω (w = 140µm)"),
-        ("Prepreg (Core)", "Dielectric", "100 µm (FR-4 Standard)", "Dk = 4.4, Df = 0.02"),
-        ("Inner Layer 1 (In1.Cu)", "Plane (GND)", "35 µm (1 oz Cu)", "Reference Plane"),
-        ("Core", "Dielectric", "1200 µm (FR-4 Standard)", "Dk = 4.4, Df = 0.02"),
-        ("Inner Layer 2 (In2.Cu)", "Plane (PWR)", "35 µm (1 oz Cu)", "Power Plane (3.3V)"),
-        ("Prepreg (Core)", "Dielectric", "100 µm (FR-4 Standard)", "Dk = 4.4, Df = 0.02"),
-        ("Bottom Layer (B.Cu)", "Signal", "35 µm (1 oz Cu)", "Z₀ = 50.6 Ω (w = 140µm)"),
+        (
+            "Top Layer (F.Cu)",
+            "Signal",
+            "35 µm (1 oz Cu)",
+            "Z₀ = 50.6 Ω (w = 140µm)",
+        ),
+        (
+            "Prepreg (Core)",
+            "Dielectric",
+            "100 µm (FR-4 Standard)",
+            "Dk = 4.4, Df = 0.02",
+        ),
+        (
+            "Inner Layer 1 (In1.Cu)",
+            "Plane (GND)",
+            "35 µm (1 oz Cu)",
+            "Reference Plane",
+        ),
+        (
+            "Core",
+            "Dielectric",
+            "1200 µm (FR-4 Standard)",
+            "Dk = 4.4, Df = 0.02",
+        ),
+        (
+            "Inner Layer 2 (In2.Cu)",
+            "Plane (PWR)",
+            "35 µm (1 oz Cu)",
+            "Power Plane (3.3V)",
+        ),
+        (
+            "Prepreg (Core)",
+            "Dielectric",
+            "100 µm (FR-4 Standard)",
+            "Dk = 4.4, Df = 0.02",
+        ),
+        (
+            "Bottom Layer (B.Cu)",
+            "Signal",
+            "35 µm (1 oz Cu)",
+            "Z₀ = 50.6 Ω (w = 140µm)",
+        ),
     ];
 
     for (name, kind, thickness, note) in stackup_layers {
         layers_col = layers_col.push(
             container(
                 row![
-                    text(name).size(10).color(theme_ext::text_primary(&ctx.tokens)).width(Length::FillPortion(3)),
-                    text(kind).size(10).color(theme_ext::text_secondary(&ctx.tokens)).width(Length::FillPortion(2)),
-                    text(thickness).size(10).color(theme_ext::text_secondary(&ctx.tokens)).width(Length::FillPortion(3)),
-                    text(note).size(10).color(theme_ext::text_primary(&ctx.tokens)).width(Length::FillPortion(4)),
+                    text(name)
+                        .size(10)
+                        .color(theme_ext::text_primary(&ctx.tokens))
+                        .width(Length::FillPortion(3)),
+                    text(kind)
+                        .size(10)
+                        .color(theme_ext::text_secondary(&ctx.tokens))
+                        .width(Length::FillPortion(2)),
+                    text(thickness)
+                        .size(10)
+                        .color(theme_ext::text_secondary(&ctx.tokens))
+                        .width(Length::FillPortion(3)),
+                    text(note)
+                        .size(10)
+                        .color(theme_ext::text_primary(&ctx.tokens))
+                        .width(Length::FillPortion(4)),
                 ]
                 .align_y(iced::Alignment::Center)
                 .padding([4, 6]),

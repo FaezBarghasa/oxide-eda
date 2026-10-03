@@ -85,7 +85,11 @@ pub fn calculate_backdrilling(
     }
 
     let total_backdrilled = targets.len();
-    let max_residual = targets.iter().map(|t| t.residual_stub_length_um).max().unwrap_or(0);
+    let max_residual = targets
+        .iter()
+        .map(|t| t.residual_stub_length_um)
+        .max()
+        .unwrap_or(0);
 
     BackdrillSummary {
         total_stubs_identified: total_stubs,

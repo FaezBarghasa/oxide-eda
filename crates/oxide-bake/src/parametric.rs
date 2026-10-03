@@ -22,10 +22,7 @@ pub trait FootprintSynthesizer: Send + Sync {
     ) -> Result<Footprint, BakeError>;
 
     /// Procedurally extrudes a 3D boundary representation when no STEP file is supplied.
-    fn synthesize_3d_body(
-        &self,
-        dimensions: &PackageDimensions,
-    ) -> Result<Vec<u8>, BakeError>;
+    fn synthesize_3d_body(&self, dimensions: &PackageDimensions) -> Result<Vec<u8>, BakeError>;
 }
 
 /// Default IPC-7351C synthesizer engine.
@@ -45,10 +42,7 @@ impl FootprintSynthesizer for Ipc7351Synthesizer {
         ))
     }
 
-    fn synthesize_3d_body(
-        &self,
-        dimensions: &PackageDimensions,
-    ) -> Result<Vec<u8>, BakeError> {
+    fn synthesize_3d_body(&self, dimensions: &PackageDimensions) -> Result<Vec<u8>, BakeError> {
         Ok(Package3DExtruder::synthesize_mesh_obj(dimensions))
     }
 }

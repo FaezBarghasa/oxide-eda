@@ -10,7 +10,7 @@ use oxide_types::schematic::{
 
 use crate::cfb::CfbContainer;
 use crate::error::AltiumImportError;
-use crate::record::{parse_record_stream, AltiumRecord};
+use crate::record::{AltiumRecord, parse_record_stream};
 
 /// Import an Altium `.SchDoc` file from raw binary bytes.
 pub fn import_schdoc_bytes(bytes: &[u8]) -> Result<SchematicSheet, AltiumImportError> {
@@ -54,13 +54,17 @@ pub fn parse_schdoc_records(records: &[AltiumRecord]) -> Result<SchematicSheet, 
             // RECORD=31: Sheet header & Title Block
             31 => {
                 if let Some(title) = rec.get("TITLE") {
-                    sheet.title_block.insert("title".to_string(), title.to_string());
+                    sheet
+                        .title_block
+                        .insert("title".to_string(), title.to_string());
                 }
                 if let Some(rev) = rec.get("REVISION") {
                     sheet.title_block.insert("rev".to_string(), rev.to_string());
                 }
                 if let Some(doc_num) = rec.get("DOCUMENTNUMBER") {
-                    sheet.title_block.insert("doc_number".to_string(), doc_num.to_string());
+                    sheet
+                        .title_block
+                        .insert("doc_number".to_string(), doc_num.to_string());
                 }
             }
 
@@ -118,7 +122,9 @@ pub fn parse_schdoc_records(records: &[AltiumRecord]) -> Result<SchematicSheet, 
                     for i in 1..=count {
                         let x_key = format!("X{i}");
                         let y_key = format!("Y{i}");
-                        if let (Some(x), Some(y)) = (rec.get_coord_mm(&x_key), rec.get_coord_mm(&y_key)) {
+                        if let (Some(x), Some(y)) =
+                            (rec.get_coord_mm(&x_key), rec.get_coord_mm(&y_key))
+                        {
                             points.push(Point::new(x, y));
                         }
                     }
@@ -201,7 +207,8 @@ pub fn parse_schdoc_records(records: &[AltiumRecord]) -> Result<SchematicSheet, 
                 for i in 1..=count {
                     let x_key = format!("X{i}");
                     let y_key = format!("Y{i}");
-                    if let (Some(x), Some(y)) = (rec.get_coord_mm(&x_key), rec.get_coord_mm(&y_key)) {
+                    if let (Some(x), Some(y)) = (rec.get_coord_mm(&x_key), rec.get_coord_mm(&y_key))
+                    {
                         points.push(Point::new(x, y));
                     }
                 }

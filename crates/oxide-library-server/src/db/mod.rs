@@ -19,8 +19,8 @@ use chrono::Utc;
 use oxide_library::component::ComponentRow;
 use oxide_library::identity::RowId;
 use oxide_library::primitive::{Footprint, SimModel, Symbol};
-use surrealdb::engine::local::{Db, Mem};
 use surrealdb::Surreal;
+use surrealdb::engine::local::{Db, Mem};
 use uuid::Uuid;
 
 use crate::locks::LockManager;
@@ -160,7 +160,8 @@ impl AppState {
             .map_err(ApiError::from)?;
 
         let check_val: surrealdb::types::Value = check_resp.take(0usize).map_err(ApiError::from)?;
-        let check: Vec<ComponentRowRecord> = serde_json::from_value(check_val.into_json_value()).map_err(decode_err)?;
+        let check: Vec<ComponentRowRecord> =
+            serde_json::from_value(check_val.into_json_value()).map_err(decode_err)?;
         if !check.is_empty() {
             return Ok(false);
         }
@@ -212,8 +213,10 @@ impl AppState {
             .await
             .map_err(ApiError::from)?;
 
-        let updated_val: surrealdb::types::Value = update_resp.take(0usize).map_err(ApiError::from)?;
-        let updated: Vec<ComponentRowRecord> = serde_json::from_value(updated_val.into_json_value()).map_err(decode_err)?;
+        let updated_val: surrealdb::types::Value =
+            update_resp.take(0usize).map_err(ApiError::from)?;
+        let updated: Vec<ComponentRowRecord> =
+            serde_json::from_value(updated_val.into_json_value()).map_err(decode_err)?;
         Ok(!updated.is_empty())
     }
 
@@ -233,7 +236,8 @@ impl AppState {
             .map_err(ApiError::from)?;
 
         let val: surrealdb::types::Value = resp.take(0usize).map_err(ApiError::from)?;
-        let records: Vec<ComponentRowRecord> = serde_json::from_value(val.into_json_value()).map_err(decode_err)?;
+        let records: Vec<ComponentRowRecord> =
+            serde_json::from_value(val.into_json_value()).map_err(decode_err)?;
         if let Some(first) = records.first() {
             let row: ComponentRow = serde_json::from_str(&first.payload).map_err(decode_err)?;
             return Ok(Some(row));
@@ -258,7 +262,8 @@ impl AppState {
             .map_err(ApiError::from)?;
 
         let val: surrealdb::types::Value = resp.take(0usize).map_err(ApiError::from)?;
-        let deleted: Vec<ComponentRowRecord> = serde_json::from_value(val.into_json_value()).map_err(decode_err)?;
+        let deleted: Vec<ComponentRowRecord> =
+            serde_json::from_value(val.into_json_value()).map_err(decode_err)?;
         Ok(!deleted.is_empty())
     }
 
@@ -273,7 +278,8 @@ impl AppState {
             .map_err(ApiError::from)?;
 
         let val: surrealdb::types::Value = resp.take(0usize).map_err(ApiError::from)?;
-        let records: Vec<ComponentRowRecord> = serde_json::from_value(val.into_json_value()).map_err(decode_err)?;
+        let records: Vec<ComponentRowRecord> =
+            serde_json::from_value(val.into_json_value()).map_err(decode_err)?;
         let mut names: Vec<String> = Vec::new();
         for r in records {
             if !names.contains(&r.table_name) {
@@ -300,7 +306,8 @@ impl AppState {
             .map_err(ApiError::from)?;
 
         let val: surrealdb::types::Value = resp.take(0usize).map_err(ApiError::from)?;
-        let records: Vec<ComponentRowRecord> = serde_json::from_value(val.into_json_value()).map_err(decode_err)?;
+        let records: Vec<ComponentRowRecord> =
+            serde_json::from_value(val.into_json_value()).map_err(decode_err)?;
         let mut rows = Vec::with_capacity(records.len());
         for r in records {
             let row: ComponentRow = serde_json::from_str(&r.payload).map_err(decode_err)?;
@@ -313,10 +320,17 @@ impl AppState {
 
     pub async fn insert_symbol(&self, library_id: Uuid, sym: &Symbol) -> Result<(), ApiError> {
         let payload = serde_json::to_string(sym).map_err(decode_err)?;
-        upsert_primitive(&self.db, "symbols", library_id, sym.uuid, &sym.name, &payload).await
+        upsert_primitive(
+            &self.db, "symbols", library_id, sym.uuid, &sym.name, &payload,
+        )
+        .await
     }
 
-    pub async fn fetch_symbol(&self, library_id: Uuid, uuid: Uuid) -> Result<Option<Symbol>, ApiError> {
+    pub async fn fetch_symbol(
+        &self,
+        library_id: Uuid,
+        uuid: Uuid,
+    ) -> Result<Option<Symbol>, ApiError> {
         fetch_primitive_payload(&self.db, "symbols", library_id, uuid)
             .await?
             .map(|p| serde_json::from_str(&p).map_err(decode_err))
@@ -363,15 +377,7 @@ impl AppState {
 
     pub async fn insert_sim(&self, library_id: Uuid, sm: &SimModel) -> Result<(), ApiError> {
         let payload = serde_json::to_string(sm).map_err(decode_err)?;
-        upsert_primitive(
-            &self.db,
-            "sims",
-            library_id,
-            sm.uuid,
-            &sm.name,
-            &payload,
-        )
-        .await
+        upsert_primitive(&self.db, "sims", library_id, sm.uuid, &sm.name, &payload).await
     }
 
     pub async fn fetch_sim(
@@ -416,14 +422,17 @@ async fn upsert_primitive(
     let uuid_str = uuid.to_string();
 
     let mut check_resp = db
-        .query(format!("SELECT * FROM {table} WHERE library_id = $lib AND uuid = $uuid LIMIT 1"))
+        .query(format!(
+            "SELECT * FROM {table} WHERE library_id = $lib AND uuid = $uuid LIMIT 1"
+        ))
         .bind(("lib", lib_str.clone()))
         .bind(("uuid", uuid_str.clone()))
         .await
         .map_err(ApiError::from)?;
 
     let check_val: surrealdb::types::Value = check_resp.take(0usize).map_err(ApiError::from)?;
-    let check: Vec<PrimitiveRecord> = serde_json::from_value(check_val.into_json_value()).map_err(decode_err)?;
+    let check: Vec<PrimitiveRecord> =
+        serde_json::from_value(check_val.into_json_value()).map_err(decode_err)?;
 
     if !check.is_empty() {
         let mut update_resp = db
@@ -459,14 +468,17 @@ async fn fetch_primitive_payload(
 ) -> Result<Option<String>, ApiError> {
     assert_primitive_table(table);
     let mut resp = db
-        .query(format!("SELECT * FROM {table} WHERE library_id = $lib AND uuid = $uuid LIMIT 1"))
+        .query(format!(
+            "SELECT * FROM {table} WHERE library_id = $lib AND uuid = $uuid LIMIT 1"
+        ))
         .bind(("lib", library_id.to_string()))
         .bind(("uuid", uuid.to_string()))
         .await
         .map_err(ApiError::from)?;
 
     let val: surrealdb::types::Value = resp.take(0usize).map_err(ApiError::from)?;
-    let records: Vec<PrimitiveRecord> = serde_json::from_value(val.into_json_value()).map_err(decode_err)?;
+    let records: Vec<PrimitiveRecord> =
+        serde_json::from_value(val.into_json_value()).map_err(decode_err)?;
     if let Some(first) = records.first() {
         return Ok(Some(first.payload.clone()));
     }
@@ -480,20 +492,21 @@ async fn list_primitive_summaries(
 ) -> Result<Vec<PrimitiveSummary>, ApiError> {
     assert_primitive_table(table);
     let mut resp = if let Some(lib) = library_id {
-        db
-            .query(format!("SELECT * FROM {table} WHERE library_id = $lib ORDER BY name ASC"))
-            .bind(("lib", lib.to_string()))
-            .await
-            .map_err(ApiError::from)?
+        db.query(format!(
+            "SELECT * FROM {table} WHERE library_id = $lib ORDER BY name ASC"
+        ))
+        .bind(("lib", lib.to_string()))
+        .await
+        .map_err(ApiError::from)?
     } else {
-        db
-            .query(format!("SELECT * FROM {table} ORDER BY name ASC"))
+        db.query(format!("SELECT * FROM {table} ORDER BY name ASC"))
             .await
             .map_err(ApiError::from)?
     };
 
     let val: surrealdb::types::Value = resp.take(0usize).map_err(ApiError::from)?;
-    let records: Vec<PrimitiveRecord> = serde_json::from_value(val.into_json_value()).map_err(decode_err)?;
+    let records: Vec<PrimitiveRecord> =
+        serde_json::from_value(val.into_json_value()).map_err(decode_err)?;
     let mut summaries = Vec::with_capacity(records.len());
     for r in records {
         let library_id = Uuid::parse_str(&r.library_id).map_err(|e| {
@@ -564,9 +577,15 @@ mod tests {
         state.migrate().await.expect("migrate");
         let lib = Uuid::now_v7();
         let row = fixture_row("TEST-001");
-        let inserted = state.insert_row(lib, "resistors", &row).await.expect("insert row");
+        let inserted = state
+            .insert_row(lib, "resistors", &row)
+            .await
+            .expect("insert row");
         assert!(inserted);
-        let fetched = state.fetch_row(lib, "resistors", RowId::from_uuid(row.row_id)).await.expect("fetch row");
+        let fetched = state
+            .fetch_row(lib, "resistors", RowId::from_uuid(row.row_id))
+            .await
+            .expect("fetch row");
         assert!(fetched.is_some());
     }
 }

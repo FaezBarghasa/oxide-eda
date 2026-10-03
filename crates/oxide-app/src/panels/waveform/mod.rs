@@ -3,15 +3,17 @@
 
 pub mod canvas;
 
-use iced::widget::{Column, Space, button, canvas as iced_canvas, container, row, scrollable, text};
+use iced::widget::{
+    Column, Space, button, canvas as iced_canvas, container, row, scrollable, text,
+};
 use iced::{Element, Length};
 use oxide_types::sim::WaveformDataset;
 use oxide_widgets::theme_ext;
 
+use self::canvas::WaveformCanvas;
 use super::context::PanelContext;
 use super::messages::PanelMsg;
 use super::widgets::{section_title, separator};
-use self::canvas::WaveformCanvas;
 
 /// State for the Waveform Panel.
 #[derive(Debug, Clone, Default)]
@@ -25,7 +27,11 @@ pub struct WaveformPanelState {
 }
 
 pub fn view_waveform<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
-    let mut col: Column<'a, PanelMsg> = Column::new().spacing(4).padding(6).width(Length::Fill).height(Length::Fill);
+    let mut col: Column<'a, PanelMsg> = Column::new()
+        .spacing(4)
+        .padding(6)
+        .width(Length::Fill)
+        .height(Length::Fill);
 
     let state = &ctx.waveform_state;
 
@@ -79,7 +85,11 @@ pub fn view_waveform<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
     // Cursor Readout Banner
     if let (Some(ca), Some(cb)) = (state.cursor_a, state.cursor_b) {
         let delta = (cb - ca).abs();
-        let freq = if delta > 1e-15 { format!("{:.3} kHz", 1.0 / (delta * 1e3)) } else { "---".to_string() };
+        let freq = if delta > 1e-15 {
+            format!("{:.3} kHz", 1.0 / (delta * 1e3))
+        } else {
+            "---".to_string()
+        };
         col = col.push(
             container(
                 row![
@@ -112,14 +122,19 @@ pub fn view_waveform<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
 
     if let Some(ds) = &state.dataset {
         for trace in &ds.traces {
-            let is_selected = state.selected_traces.is_empty() || state.selected_traces.contains(&trace.name);
+            let is_selected =
+                state.selected_traces.is_empty() || state.selected_traces.contains(&trace.name);
             let name = trace.name.clone();
             trace_col = trace_col.push(
                 button(
                     row![
                         text(if is_selected { "●" } else { "○" })
                             .size(10)
-                            .color(if is_selected { theme_ext::accent(&ctx.tokens) } else { theme_ext::text_secondary(&ctx.tokens) }),
+                            .color(if is_selected {
+                                theme_ext::accent(&ctx.tokens)
+                            } else {
+                                theme_ext::text_secondary(&ctx.tokens)
+                            }),
                         Space::new().width(4).height(Length::Shrink),
                         text(&trace.name)
                             .size(10)

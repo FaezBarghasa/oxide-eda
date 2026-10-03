@@ -51,9 +51,9 @@ impl BoardTensorBuilder {
                     let cell_pos = Point2D::new(wx, wy);
 
                     // Feature 0: Obstacle presence
-                    let has_obs = obstacles
-                        .iter()
-                        .any(|&(op, ol)| ol == layer_u32 && op.distance_to(cell_pos) < (cell_pitch_nm as f64));
+                    let has_obs = obstacles.iter().any(|&(op, ol)| {
+                        ol == layer_u32 && op.distance_to(cell_pos) < (cell_pitch_nm as f64)
+                    });
                     if has_obs {
                         tensor[[layer_idx, gy, gx, CellFeature::Obstacle as usize]] = 1.0;
                     }

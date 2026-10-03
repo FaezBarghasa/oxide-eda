@@ -1,4 +1,4 @@
-use oxide_physics::backdrill::{calculate_backdrilling, BackdrillViaInput, ViaCoord};
+use oxide_physics::backdrill::{BackdrillViaInput, ViaCoord, calculate_backdrilling};
 use oxide_physics::stackup::LayerStackup;
 
 #[test]

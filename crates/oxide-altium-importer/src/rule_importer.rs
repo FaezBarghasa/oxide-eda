@@ -2,24 +2,32 @@
 //!
 //! Translates proprietary Altium Rule records into native [`oxide_rules::ConstraintManager`].
 
-use oxide_rules::{
-    ClearanceRule, ConstraintManager, DesignRule, HighSpeedRule,
-    RuleScope, WidthRule,
-};
 use crate::record::AltiumRecord;
+use oxide_rules::{
+    ClearanceRule, ConstraintManager, DesignRule, HighSpeedRule, RuleScope, WidthRule,
+};
 
 /// Parse Altium Design Rule records into a native [`ConstraintManager`].
 pub fn import_rules_from_records(records: &[AltiumRecord]) -> ConstraintManager {
     let mut manager = ConstraintManager::new();
 
     for rec in records {
-        let record_type = rec.get("RECORD").or_else(|| rec.get("OBJECTTYPE")).unwrap_or("");
+        let record_type = rec
+            .get("RECORD")
+            .or_else(|| rec.get("OBJECTTYPE"))
+            .unwrap_or("");
         if !record_type.eq_ignore_ascii_case("Rule") && record_type != "17" {
             continue;
         }
 
-        let rule_kind = rec.get("RULEKIND").or_else(|| rec.get("NAME")).unwrap_or("");
-        let scope_1 = rec.get("SCOPE1EXPRESSION").or_else(|| rec.get("SCOPE1")).unwrap_or("All");
+        let rule_kind = rec
+            .get("RULEKIND")
+            .or_else(|| rec.get("NAME"))
+            .unwrap_or("");
+        let scope_1 = rec
+            .get("SCOPE1EXPRESSION")
+            .or_else(|| rec.get("SCOPE1"))
+            .unwrap_or("All");
         let scope = parse_altium_scope(scope_1);
 
         if rule_kind.contains("Clearance") {
@@ -65,10 +73,16 @@ fn parse_altium_scope(expr: &str) -> RuleScope {
     if clean.eq_ignore_ascii_case("All") || clean.is_empty() {
         RuleScope::Global
     } else if clean.to_lowercase().starts_with("innet('") {
-        let net = clean.trim_start_matches("InNet('").trim_start_matches("innet('").trim_end_matches("')");
+        let net = clean
+            .trim_start_matches("InNet('")
+            .trim_start_matches("innet('")
+            .trim_end_matches("')");
         RuleScope::Net(net.to_string())
     } else if clean.to_lowercase().starts_with("innetclass('") {
-        let cls = clean.trim_start_matches("InNetClass('").trim_start_matches("innetclass('").trim_end_matches("')");
+        let cls = clean
+            .trim_start_matches("InNetClass('")
+            .trim_start_matches("innetclass('")
+            .trim_end_matches("')");
         RuleScope::NetClass(cls.to_string())
     } else {
         RuleScope::Global

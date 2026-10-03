@@ -30,8 +30,8 @@ pub use body3d::bake_body3d;
 pub use courtyard::bake_courtyard;
 pub use cutout::bake_cutouts;
 pub use ipc7351::{
-    calculate_ipc7351c_pad, synthesize_thermal_paste_panes, DensityLevel, FilletTargets,
-    Ipc7351Generator, Package3DExtruder, SolvedPadGeometry,
+    DensityLevel, FilletTargets, Ipc7351Generator, Package3DExtruder, SolvedPadGeometry,
+    calculate_ipc7351c_pad, synthesize_thermal_paste_panes,
 };
 pub use keepout::bake_keepouts;
 pub use mask::{bake_mask_excludes, bake_mask_openings, bake_paste_apertures};

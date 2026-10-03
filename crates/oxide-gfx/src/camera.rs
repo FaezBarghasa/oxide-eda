@@ -40,7 +40,8 @@ impl CameraUniform {
         let top = offset_mm[1];
         let bottom = top + height_mm;
 
-        let proj = glam::camera::rh::proj::opengl::orthographic(left, right, bottom, top, -1.0, 1.0);
+        let proj =
+            glam::camera::rh::proj::opengl::orthographic(left, right, bottom, top, -1.0, 1.0);
 
         Self {
             view_proj: proj.to_cols_array_2d(),

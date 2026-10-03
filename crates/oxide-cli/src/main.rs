@@ -1,10 +1,13 @@
 //! Headless CLI binary for Oxide EDA CI/CD and automation.
 
-use std::path::PathBuf;
 use clap::{Parser, Subcommand};
-use oxide_output::{GerberExporter, GerberOptions, ExcellonExporter, PickAndPlaceExporter, PickAndPlaceOptions, OutputJobRunner, OutputJobConfig};
+use oxide_output::{
+    ExcellonExporter, GerberExporter, GerberOptions, OutputJobConfig, OutputJobRunner,
+    PickAndPlaceExporter, PickAndPlaceOptions,
+};
 use oxide_rules::ConstraintManager;
 use oxide_types::pcb::PcbBoard;
+use std::path::PathBuf;
 
 #[derive(Parser)]
 #[command(name = "oxide")]
@@ -66,7 +69,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let cm = match rules {
                 Some(r_path) => {
                     println!("Loading rules: {}", r_path.display());
-                    ConstraintManager::from_file(r_path).map_err(|e| format!("Failed to read rules: {e}"))?
+                    ConstraintManager::from_file(r_path)
+                        .map_err(|e| format!("Failed to read rules: {e}"))?
                 }
                 None => {
                     println!("Using standard default rules");
@@ -77,8 +81,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let board_content = std::fs::read_to_string(&board)?;
             let pcb: PcbBoard = serde_json::from_str(&board_content)?;
 
-            println!("Loaded PCB with {} footprints, {} segments, {} vias",
-                pcb.footprints.len(), pcb.segments.len(), pcb.vias.len());
+            println!(
+                "Loaded PCB with {} footprints, {} segments, {} vias",
+                pcb.footprints.len(),
+                pcb.segments.len(),
+                pcb.vias.len()
+            );
 
             println!("Running DRC validation across {} rules...", cm.rules.len());
             // DRC evaluation is successful
@@ -118,7 +126,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             println!("CAM Export Completed Successfully to {}", out_dir.display());
         }
-        Commands::Outjob { job, board, out_dir } => {
+        Commands::Outjob {
+            job,
+            board,
+            out_dir,
+        } => {
             println!("Oxide EDA Output Job Runner: {}", job.display());
             std::fs::create_dir_all(&out_dir)?;
 
@@ -136,7 +148,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let pkg = OutputJobRunner::run(&config, &empty_ctx, &pcb)?;
             pkg.write_to_disk(&out_dir)?;
 
-            println!("Output Job Completed: Package written to {}", out_dir.display());
+            println!(
+                "Output Job Completed: Package written to {}",
+                out_dir.display()
+            );
         }
         Commands::Ipc2581 { board, out } => {
             println!("Oxide EDA IPC-2581C Exporter: {}", board.display());
@@ -163,7 +178,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
                 std::fs::write(&full_path, &file.content)?;
             }
-            println!("ODB++ Export Completed: {} files written to {}", pkg.files.len(), out_dir.display());
+            println!(
+                "ODB++ Export Completed: {} files written to {}",
+                pkg.files.len(),
+                out_dir.display()
+            );
         }
     }
 

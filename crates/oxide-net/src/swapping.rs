@@ -5,8 +5,8 @@
 //! - Logical equivalence groups for swappable pins and sub-part gates.
 //! - Atomic Engineering Change Order (ECO) generation back-annotating changes to the schematic capture model.
 
-use serde::{Deserialize, Serialize};
 use crate::eco::{EcoAction, EcoReport};
+use serde::{Deserialize, Serialize};
 
 /// Swappable Pin Definition within an IC package.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

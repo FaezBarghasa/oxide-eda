@@ -54,9 +54,8 @@ impl LengthTuningOptimizer {
         }
 
         // Target length is either explicitly specified or the maximum length in the bus
-        let target = target_length.unwrap_or_else(|| {
-            paths.iter().map(|p| p.total_length).max().unwrap_or(0)
-        });
+        let target = target_length
+            .unwrap_or_else(|| paths.iter().map(|p| p.total_length).max().unwrap_or(0));
 
         let mut results = Vec::new();
 
@@ -123,7 +122,7 @@ impl LengthTuningOptimizer {
 
         let last_seg = path.segments.pop().unwrap();
         let amplitude: Microns = 400; // 400µm amplitude
-        let pitch: Microns = 300;     // 300µm pitch per bump
+        let pitch: Microns = 300; // 300µm pitch per bump
         let seg_len = last_seg.length();
 
         if seg_len < pitch {

@@ -311,13 +311,11 @@ fn test_silkscreen_clearance_validation() {
 #[test]
 fn test_net_antenna_and_return_path_validation() {
     let mut cm = ConstraintManager::standard_default();
-    cm.add_rule(DesignRule::ReturnPath(
-        oxide_rules::ReturnPathRule {
-            net_class: "PCIE_GEN4".to_string(),
-            max_plane_distance_microns: 150,
-            forbid_split_crossing: true,
-        },
-    ));
+    cm.add_rule(DesignRule::ReturnPath(oxide_rules::ReturnPathRule {
+        net_class: "PCIE_GEN4".to_string(),
+        max_plane_distance_microns: 150,
+        forbid_split_crossing: true,
+    }));
 
     // Net antenna: 0 stub allowed by standard default, 50µm stub fails
     let antenna_err = cm
@@ -361,22 +359,18 @@ fn test_component_clearance_and_routing_layer_and_phase_skew_validation() {
     ));
 
     // 2. Routing layer rule for RF class (only Inner1 allowed)
-    cm.add_rule(DesignRule::RoutingLayer(
-        oxide_rules::RoutingLayerRule {
-            scope: RuleScope::NetClass("RF_50R".into()),
-            permitted_layers: vec!["Inner1".to_string()],
-            topology: "shortest".to_string(),
-        },
-    ));
+    cm.add_rule(DesignRule::RoutingLayer(oxide_rules::RoutingLayerRule {
+        scope: RuleScope::NetClass("RF_50R".into()),
+        permitted_layers: vec!["Inner1".to_string()],
+        topology: "shortest".to_string(),
+    }));
 
     // 3. Diff pair phase skew rule (25µm intra-pair, 100µm inter-pair)
-    cm.add_rule(DesignRule::DiffPairPhase(
-        oxide_rules::DiffPairPhaseRule {
-            net_class: "DDR4_DQ".to_string(),
-            max_intra_pair_skew: 25,
-            max_inter_pair_skew: 100,
-        },
-    ));
+    cm.add_rule(DesignRule::DiffPairPhase(oxide_rules::DiffPairPhaseRule {
+        net_class: "DDR4_DQ".to_string(),
+        max_intra_pair_skew: 25,
+        max_inter_pair_skew: 100,
+    }));
 
     // Horizontal component clearance: 300µm fails 500µm
     let comp_err = cm
@@ -420,24 +414,35 @@ fn test_advanced_industrial_drc_rules() {
     let ar_err = cm
         .validate_annular_ring("VIA_NET1", "NET1", None, None, 600, 400)
         .unwrap_err();
-    assert_eq!(ar_err.violation_type, RuleViolationType::AnnularRingTooSmall);
+    assert_eq!(
+        ar_err.violation_type,
+        RuleViolationType::AnnularRingTooSmall
+    );
 
     // Pad 700µm with 300µm drill -> annular ring = (700 - 300)/2 = 200µm >= 150µm (PASS)
-    assert!(cm.validate_annular_ring("VIA_NET2", "NET2", None, None, 700, 300).is_ok());
+    assert!(
+        cm.validate_annular_ring("VIA_NET2", "NET2", None, None, 700, 300)
+            .is_ok()
+    );
 
     // 2. High-Voltage Creepage: 230V mains requires 2500µm (2.5mm)
-    cm.add_rule(DesignRule::CreepageClearance(oxide_rules::CreepageClearanceRule {
-        scope: RuleScope::NetClass("HV_MAINS".into()),
-        working_voltage_v: 230.0,
-        min_clearance_microns: 2000,
-        min_creepage_microns: 2500,
-    }));
+    cm.add_rule(DesignRule::CreepageClearance(
+        oxide_rules::CreepageClearanceRule {
+            scope: RuleScope::NetClass("HV_MAINS".into()),
+            working_voltage_v: 230.0,
+            min_clearance_microns: 2000,
+            min_creepage_microns: 2500,
+        },
+    ));
 
     // 1800µm distance fails 2500µm creepage
     let creep_err = cm
         .validate_creepage("MAINS_L", Some("HV_MAINS"), "GND", None, None, 1800)
         .unwrap_err();
-    assert_eq!(creep_err.violation_type, RuleViolationType::CreepageViolation);
+    assert_eq!(
+        creep_err.violation_type,
+        RuleViolationType::CreepageViolation
+    );
 
     // 3. Hole-to-Hole spacing: minimum 300µm edge-to-edge
     cm.add_rule(DesignRule::HoleToHole(oxide_rules::HoleToHoleRule {
@@ -449,7 +454,10 @@ fn test_advanced_industrial_drc_rules() {
     let hole_err = cm
         .validate_hole_to_hole("HOLE_1", "GND", "HOLE_2", "GND", None, 200)
         .unwrap_err();
-    assert_eq!(hole_err.violation_type, RuleViolationType::HoleToHoleTooSmall);
+    assert_eq!(
+        hole_err.violation_type,
+        RuleViolationType::HoleToHoleTooSmall
+    );
 
     // 4. Room Containment: U1_CH1 must be in Room_CH1
     cm.add_rule(DesignRule::RoomPlacement(oxide_rules::RoomPlacementRule {
@@ -461,10 +469,16 @@ fn test_advanced_industrial_drc_rules() {
     let room_err = cm
         .validate_room_containment("U1_CH1", Some("Room_CH2"))
         .unwrap_err();
-    assert_eq!(room_err.violation_type, RuleViolationType::RoomPlacementViolation);
+    assert_eq!(
+        room_err.violation_type,
+        RuleViolationType::RoomPlacementViolation
+    );
 
     // Correct placement passes
-    assert!(cm.validate_room_containment("U1_CH1", Some("Room_CH1")).is_ok());
+    assert!(
+        cm.validate_room_containment("U1_CH1", Some("Room_CH1"))
+            .is_ok()
+    );
 }
 
 #[test]
@@ -505,7 +519,10 @@ fn test_batch_drc_evaluation() {
     });
 
     let violations = cm.run_drc(&board);
-    assert!(!violations.is_empty(), "DRC must detect violations on board");
+    assert!(
+        !violations.is_empty(),
+        "DRC must detect violations on board"
+    );
     assert!(
         violations
             .iter()
@@ -513,5 +530,3 @@ fn test_batch_drc_evaluation() {
         "Must flag trace width violation"
     );
 }
-
-

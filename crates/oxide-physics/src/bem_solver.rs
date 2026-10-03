@@ -61,7 +61,9 @@ impl BemFieldSolver {
     pub const C0: f64 = 299_792_458.0;
 
     /// Evaluates transmission line parameters using closed-form analytical conformal mapping / BEM formulations.
-    pub fn solve_microstrip(cross_section: &TransmissionLineCrossSection) -> ExtractedTransmissionLine {
+    pub fn solve_microstrip(
+        cross_section: &TransmissionLineCrossSection,
+    ) -> ExtractedTransmissionLine {
         let w = cross_section.trace_width_m;
         let h = cross_section.dielectric_height_m.max(1e-9);
         let t = cross_section.trace_thickness_m;
@@ -69,7 +71,8 @@ impl BemFieldSolver {
 
         // Effective width accounting for finite copper thickness (IPC-2141)
         let w_eff = if t > 0.0 {
-            w + (t / std::f64::consts::PI) * (1.0 + (4.0 * std::f64::consts::E / (t / h).hypot(1e-6)).ln())
+            w + (t / std::f64::consts::PI)
+                * (1.0 + (4.0 * std::f64::consts::E / (t / h).hypot(1e-6)).ln())
         } else {
             w
         };

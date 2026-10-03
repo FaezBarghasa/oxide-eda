@@ -4,10 +4,10 @@
 //! for automated AI agent interaction, natural-language design synthesis, DRC verification,
 //! and automated routing.
 
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use oxide_types::pcb::PcbBoard;
 use oxide_types::schematic::SchematicSheet;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 /// Standard MCP Request Envelope.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -59,7 +59,8 @@ impl McpServer {
             },
             McpToolInfo {
                 name: "read_pcb".to_string(),
-                description: "Query PCB board shape, layers, footprints, and routed segments".to_string(),
+                description: "Query PCB board shape, layers, footprints, and routed segments"
+                    .to_string(),
                 input_schema: serde_json::json!({
                     "type": "object",
                     "properties": {
@@ -69,7 +70,9 @@ impl McpServer {
             },
             McpToolInfo {
                 name: "query_design".to_string(),
-                description: "Execute structured design graph query across schematic and PCB layout".to_string(),
+                description:
+                    "Execute structured design graph query across schematic and PCB layout"
+                        .to_string(),
                 input_schema: serde_json::json!({
                     "type": "object",
                     "properties": {
@@ -80,7 +83,9 @@ impl McpServer {
             },
             McpToolInfo {
                 name: "list_violations".to_string(),
-                description: "List all active ERC and DRC violations with geometric coordinates and severity".to_string(),
+                description:
+                    "List all active ERC and DRC violations with geometric coordinates and severity"
+                        .to_string(),
                 input_schema: serde_json::json!({
                     "type": "object",
                     "properties": {
@@ -116,7 +121,8 @@ impl McpServer {
             },
             McpToolInfo {
                 name: "fix_violation".to_string(),
-                description: "Apply an automated fix strategy to resolve a DRC or ERC violation".to_string(),
+                description: "Apply an automated fix strategy to resolve a DRC or ERC violation"
+                    .to_string(),
                 input_schema: serde_json::json!({
                     "type": "object",
                     "properties": {
@@ -142,7 +148,11 @@ impl McpServer {
                 error: None,
             },
             "tools/call" => {
-                let tool_name = req.params.get("name").and_then(|v| v.as_str()).unwrap_or("");
+                let tool_name = req
+                    .params
+                    .get("name")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("");
                 let args = req.params.get("arguments").cloned().unwrap_or(Value::Null);
 
                 match tool_name {

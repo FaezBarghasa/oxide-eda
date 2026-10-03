@@ -39,8 +39,8 @@ pub use harvester::{
     BackoffConfig, ComponentHarvester, DiscoveredPin, ElectricalPinType, HarvestError,
     HarvestQuery, HarvestedRawData, HarvesterCascade, PackageDimensions, TokenBucket,
 };
-pub use symbol::{GRID_100_MIL_MM, MultiGateSymbolGenerator, PartitioningStrategy};
 pub use qa::{GateVerificationError, VerificationEngine};
+pub use symbol::{GRID_100_MIL_MM, MultiGateSymbolGenerator, PartitioningStrategy};
 
 pub use scraper::{
     ComponentScraper, PackageType, ScrapedComponent, synthesize_footprint, synthesize_symbol,

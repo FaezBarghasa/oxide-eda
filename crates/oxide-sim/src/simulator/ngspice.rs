@@ -1,9 +1,9 @@
 //! NgSpice simulator adapter operating in PSpice compatibility mode (`set ngbehavior=ps`).
 
+use oxide_types::sim::WaveformDataset;
+use std::future::Future;
 use std::path::{Path, PathBuf};
 use std::pin::Pin;
-use std::future::Future;
-use oxide_types::sim::WaveformDataset;
 
 use crate::parser::parse_spice_raw;
 use crate::simulator::{SimError, SimProgress, Simulator};
@@ -62,10 +62,12 @@ impl Simulator for NgSpiceSimulator {
             let raw_path = dir.join("simulation.raw");
 
             if let Some(tx) = &progress_tx {
-                let _ = tx.send(SimProgress {
-                    percent: Some(0.1),
-                    message: "Writing PSpice circuit deck...".to_string(),
-                }).await;
+                let _ = tx
+                    .send(SimProgress {
+                        percent: Some(0.1),
+                        message: "Writing PSpice circuit deck...".to_string(),
+                    })
+                    .await;
             }
 
             // Inject PSpice behavior directive at start of deck
@@ -81,10 +83,12 @@ impl Simulator for NgSpiceSimulator {
             let _ = tokio::fs::remove_file(&raw_path).await;
 
             if let Some(tx) = &progress_tx {
-                let _ = tx.send(SimProgress {
-                    percent: Some(0.3),
-                    message: "Starting simulation engine...".to_string(),
-                }).await;
+                let _ = tx
+                    .send(SimProgress {
+                        percent: Some(0.3),
+                        message: "Starting simulation engine...".to_string(),
+                    })
+                    .await;
             }
 
             // Execute ngspice in batch mode
@@ -100,7 +104,9 @@ impl Simulator for NgSpiceSimulator {
                     if e.kind() == std::io::ErrorKind::NotFound {
                         SimError::BinaryNotFound {
                             name: bin.display().to_string(),
-                            details: "Install ngspice (`sudo apt install ngspice` on Ubuntu/Pop!_OS)".to_string(),
+                            details:
+                                "Install ngspice (`sudo apt install ngspice` on Ubuntu/Pop!_OS)"
+                                    .to_string(),
                         }
                     } else {
                         SimError::Io(e)
@@ -119,16 +125,22 @@ impl Simulator for NgSpiceSimulator {
                 if !raw_path.exists() {
                     return Err(SimError::ExecutionFailed {
                         exit_code: output.status.code(),
-                        message: if !stderr.is_empty() { stderr.to_string() } else { stdout.to_string() },
+                        message: if !stderr.is_empty() {
+                            stderr.to_string()
+                        } else {
+                            stdout.to_string()
+                        },
                     });
                 }
             }
 
             if let Some(tx) = &progress_tx {
-                let _ = tx.send(SimProgress {
-                    percent: Some(0.8),
-                    message: "Parsing simulation waveforms...".to_string(),
-                }).await;
+                let _ = tx
+                    .send(SimProgress {
+                        percent: Some(0.8),
+                        message: "Parsing simulation waveforms...".to_string(),
+                    })
+                    .await;
             }
 
             if !raw_path.exists() {
@@ -143,10 +155,12 @@ impl Simulator for NgSpiceSimulator {
             dataset.log = log_lines;
 
             if let Some(tx) = &progress_tx {
-                let _ = tx.send(SimProgress {
-                    percent: Some(1.0),
-                    message: "Simulation completed successfully.".to_string(),
-                }).await;
+                let _ = tx
+                    .send(SimProgress {
+                        percent: Some(1.0),
+                        message: "Simulation completed successfully.".to_string(),
+                    })
+                    .await;
             }
 
             Ok(dataset)

@@ -19,7 +19,9 @@ fn create_test_git_repo() -> (TempDir, PathBuf) {
     std::fs::write(&file1, b"symbol: STM32F407").expect("write file1");
 
     let mut index = repo.index().expect("index");
-    index.add_path(Path::new("component.snxsym")).expect("add path");
+    index
+        .add_path(Path::new("component.snxsym"))
+        .expect("add path");
     index.write().expect("index write");
     let tree_id = index.write_tree().expect("write tree");
     let tree = repo.find_tree(tree_id).expect("find tree");
@@ -34,7 +36,9 @@ fn create_test_git_repo() -> (TempDir, PathBuf) {
     // Commit 2 (v1.0.0)
     let file2 = repo_path.join("library.toml");
     std::fs::write(&file2, b"schema = 1\nname = \"connectors\"").expect("write file2");
-    index.add_path(Path::new("library.toml")).expect("add path 2");
+    index
+        .add_path(Path::new("library.toml"))
+        .expect("add path 2");
     index.write().expect("index write 2");
     let tree2_id = index.write_tree().expect("write tree 2");
     let tree2 = repo.find_tree(tree2_id).expect("find tree 2");
@@ -56,7 +60,9 @@ fn create_test_git_repo() -> (TempDir, PathBuf) {
     // Commit 3 (v1.1.0)
     let file3 = repo_path.join("footprint.snxfpt");
     std::fs::write(&file3, b"footprint: LQFP-100").expect("write file3");
-    index.add_path(Path::new("footprint.snxfpt")).expect("add path 3");
+    index
+        .add_path(Path::new("footprint.snxfpt"))
+        .expect("add path 3");
     index.write().expect("index write 3");
     let tree3_id = index.write_tree().expect("write tree 3");
     let tree3 = repo.find_tree(tree3_id).expect("find tree 3");
@@ -78,7 +84,9 @@ fn create_test_git_repo() -> (TempDir, PathBuf) {
     // Commit 4 (v2.0.0 - breaking)
     let file4 = repo_path.join("v2_breaking.txt");
     std::fs::write(&file4, b"v2 breaking change").expect("write file4");
-    index.add_path(Path::new("v2_breaking.txt")).expect("add path 4");
+    index
+        .add_path(Path::new("v2_breaking.txt"))
+        .expect("add path 4");
     index.write().expect("index write 4");
     let tree4_id = index.write_tree().expect("write tree 4");
     let tree4 = repo.find_tree(tree4_id).expect("find tree 4");
@@ -134,7 +142,10 @@ fn test_dependency_resolution_semver() {
         .expect("resolve and install");
 
     assert_eq!(lockfile.version, 1);
-    let locked = lockfile.dependencies.get("connectors").expect("locked entry");
+    let locked = lockfile
+        .dependencies
+        .get("connectors")
+        .expect("locked entry");
     assert_eq!(locked.resolved_version.as_deref(), Some("1.1.0"));
     assert_eq!(locked.kind, DependencyKind::Library);
 

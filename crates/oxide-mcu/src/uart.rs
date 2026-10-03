@@ -29,7 +29,8 @@ impl VirtualUart {
         self.tx_buffer.push_back(byte);
         let ch = byte as char;
         if ch == '\n' {
-            self.history_lines.push(std::mem::take(&mut self.current_line));
+            self.history_lines
+                .push(std::mem::take(&mut self.current_line));
         } else if ch != '\r' {
             self.current_line.push(ch);
         }

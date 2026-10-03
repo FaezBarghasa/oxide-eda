@@ -160,11 +160,7 @@ impl ExcellonExporter {
         writeln!(
             out,
             "; Plating: {}",
-            if is_plated {
-                "PLATED"
-            } else {
-                "NON_PLATED"
-            }
+            if is_plated { "PLATED" } else { "NON_PLATED" }
         )?;
         writeln!(out, "METRIC,LZ")?; // Metric millimeters, Leading zeros present
 

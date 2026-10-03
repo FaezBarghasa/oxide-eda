@@ -140,33 +140,40 @@ impl SpiEeprom {
             SpiEepromState::Idle => {
                 self.cmd_buffer.push(byte);
                 match self.cmd_buffer[0] {
-                    0x06 => { // WREN: Write Enable
+                    0x06 => {
+                        // WREN: Write Enable
                         self.write_enable_latch = true;
                         self.status_register |= 0x02; // WEL bit
                         self.cmd_buffer.clear();
                         0xFF
                     }
-                    0x04 => { // WRDI: Write Disable
+                    0x04 => {
+                        // WRDI: Write Disable
                         self.write_enable_latch = false;
                         self.status_register &= !0x02;
                         self.cmd_buffer.clear();
                         0xFF
                     }
-                    0x05 => { // RDSR: Read Status Register
+                    0x05 => {
+                        // RDSR: Read Status Register
                         self.state = SpiEepromState::ReadingStatus;
                         0xFF
                     }
-                    0x03 => { // READ: Read data from memory
+                    0x03 => {
+                        // READ: Read data from memory
                         if self.cmd_buffer.len() == 3 {
-                            self.read_address = ((self.cmd_buffer[1] as usize) << 8) | (self.cmd_buffer[2] as usize);
+                            self.read_address = ((self.cmd_buffer[1] as usize) << 8)
+                                | (self.cmd_buffer[2] as usize);
                             self.read_address %= self.size_bytes;
                             self.state = SpiEepromState::ReadingData;
                         }
                         0xFF
                     }
-                    0x02 => { // WRITE: Write data to memory
+                    0x02 => {
+                        // WRITE: Write data to memory
                         if self.cmd_buffer.len() == 3 {
-                            self.write_address = ((self.cmd_buffer[1] as usize) << 8) | (self.cmd_buffer[2] as usize);
+                            self.write_address = ((self.cmd_buffer[1] as usize) << 8)
+                                | (self.cmd_buffer[2] as usize);
                             self.write_address %= self.size_bytes;
                             self.state = SpiEepromState::WritingData;
                         }
@@ -175,9 +182,7 @@ impl SpiEeprom {
                     _ => 0xFF,
                 }
             }
-            SpiEepromState::ReadingStatus => {
-                self.status_register
-            }
+            SpiEepromState::ReadingStatus => self.status_register,
             SpiEepromState::ReadingData => {
                 let val = self.memory[self.read_address];
                 self.read_address = (self.read_address + 1) % self.size_bytes;

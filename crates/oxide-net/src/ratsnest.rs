@@ -4,9 +4,9 @@
 //! pads sharing identical net IDs on a PCB layout, accounting for routed
 //! copper segments and vias.
 
-use std::collections::{HashMap, HashSet};
 use oxide_types::pcb::{PcbBoard, Point};
 use serde::{Deserialize, Serialize};
+use std::collections::{HashMap, HashSet};
 
 /// An unrouted connection between two physical points on a PCB layout.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]

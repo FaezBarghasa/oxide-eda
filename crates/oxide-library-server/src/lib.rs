@@ -152,8 +152,8 @@ where
                 .unwrap_or(false);
 
             if !authorized {
-                let response = HttpResponse::Unauthorized()
-                    .json(json!({ "error": "unauthorized" }));
+                let response =
+                    HttpResponse::Unauthorized().json(json!({ "error": "unauthorized" }));
                 return Box::pin(ready(Ok(req.into_response(response).map_into_boxed_body())));
             }
         }

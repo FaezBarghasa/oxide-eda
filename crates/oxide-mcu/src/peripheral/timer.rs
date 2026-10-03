@@ -102,7 +102,9 @@ impl TimerPeripheral {
             TimerCounterMode::Down => {
                 if self.counter <= prescaled_cycles {
                     let rem = prescaled_cycles - self.counter;
-                    self.counter = self.auto_reload.saturating_sub(rem % (self.auto_reload + 1));
+                    self.counter = self
+                        .auto_reload
+                        .saturating_sub(rem % (self.auto_reload + 1));
                     update_event = true;
                 } else {
                     self.counter -= prescaled_cycles;

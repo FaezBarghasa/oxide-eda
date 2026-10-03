@@ -7,8 +7,7 @@ use oxide_physics::Microns;
 use crate::rules::{
     AnnularRingRule, ClearanceRule, ComponentClearanceRule, CreepageClearanceRule, DesignRule,
     DiffPairPhaseRule, HighSpeedRule, HoleToHoleRule, NetAntennaRule, PolygonConnectRule,
-    ReturnPathRule, RoutingLayerRule, SilkscreenRule, SolderMaskRule,
-    ViaStyleRule, WidthRule,
+    ReturnPathRule, RoutingLayerRule, SilkscreenRule, SolderMaskRule, ViaStyleRule, WidthRule,
 };
 use crate::scope::RuleScope;
 use crate::violation::RuleViolation;
@@ -452,8 +451,16 @@ impl ConstraintManager {
 
         let required_clearance = match (rule_a, rule_b) {
             (Some(a), Some(b)) => {
-                let req_a = if is_vertical { a.min_vertical_clearance } else { a.min_horizontal_clearance };
-                let req_b = if is_vertical { b.min_vertical_clearance } else { b.min_horizontal_clearance };
+                let req_a = if is_vertical {
+                    a.min_vertical_clearance
+                } else {
+                    a.min_horizontal_clearance
+                };
+                let req_b = if is_vertical {
+                    b.min_vertical_clearance
+                } else {
+                    b.min_horizontal_clearance
+                };
                 if req_a >= req_b {
                     (req_a, a.scope.clone())
                 } else {
@@ -461,11 +468,19 @@ impl ConstraintManager {
                 }
             }
             (Some(a), None) => {
-                let req = if is_vertical { a.min_vertical_clearance } else { a.min_horizontal_clearance };
+                let req = if is_vertical {
+                    a.min_vertical_clearance
+                } else {
+                    a.min_horizontal_clearance
+                };
                 (req, a.scope.clone())
             }
             (None, Some(b)) => {
-                let req = if is_vertical { b.min_vertical_clearance } else { b.min_horizontal_clearance };
+                let req = if is_vertical {
+                    b.min_vertical_clearance
+                } else {
+                    b.min_horizontal_clearance
+                };
                 (req, b.scope.clone())
             }
             (None, None) => return Ok(()),
@@ -590,7 +605,9 @@ impl ConstraintManager {
             .rules
             .iter()
             .filter_map(|r| match r {
-                DesignRule::CreepageClearance(c) if c.scope.matches(net, net_class, room) => Some(c),
+                DesignRule::CreepageClearance(c) if c.scope.matches(net, net_class, room) => {
+                    Some(c)
+                }
                 _ => None,
             })
             .collect();
@@ -762,15 +779,20 @@ impl ConstraintManager {
 
                 if seg_a.layer == seg_b.layer && seg_a.net != seg_b.net {
                     let d = oxide_types::schematic::point_to_segment_dist(
-                        seg_a.start.x, seg_a.start.y,
-                        seg_b.start.x, seg_b.start.y,
-                        seg_b.end.x, seg_b.end.y,
+                        seg_a.start.x,
+                        seg_a.start.y,
+                        seg_b.start.x,
+                        seg_b.start.y,
+                        seg_b.end.x,
+                        seg_b.end.y,
                     );
                     let dist_microns = (d * 1000.0).round() as i64;
                     let net_a = format!("NET_{}", seg_a.net);
                     let net_b = format!("NET_{}", seg_b.net);
 
-                    if let Err(v) = self.validate_clearance(&net_a, None, &net_b, None, None, dist_microns) {
+                    if let Err(v) =
+                        self.validate_clearance(&net_a, None, &net_b, None, None, dist_microns)
+                    {
                         violations.push(v);
                     }
                 }
@@ -794,7 +816,9 @@ impl ConstraintManager {
                 let net_a = format!("NET_{}", via_a.net);
                 let net_b = format!("NET_{}", via_b.net);
 
-                if let Err(v) = self.validate_hole_to_hole(&id_a, &net_a, &id_b, &net_b, None, edge_microns) {
+                if let Err(v) =
+                    self.validate_hole_to_hole(&id_a, &net_a, &id_b, &net_b, None, edge_microns)
+                {
                     violations.push(v);
                 }
             }

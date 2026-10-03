@@ -86,7 +86,10 @@ impl MonteCarloEngine {
                         let u = prng.next_f64() * 2.0 - 1.0; // [-1.0, 1.0]
                         param.nominal_value * (1.0 + (tolerance_percent / 100.0) * u)
                     }
-                    ParameterDistribution::Gaussian { sigma_percent, num_sigmas } => {
+                    ParameterDistribution::Gaussian {
+                        sigma_percent,
+                        num_sigmas,
+                    } => {
                         let z = prng.next_gaussian().clamp(-num_sigmas, num_sigmas);
                         param.nominal_value * (1.0 + (sigma_percent / 100.0) * z)
                     }
@@ -118,12 +121,17 @@ mod tests {
             TolerancedParameter {
                 name: "R1".to_string(),
                 nominal_value: 10_000.0,
-                distribution: ParameterDistribution::Uniform { tolerance_percent: 5.0 },
+                distribution: ParameterDistribution::Uniform {
+                    tolerance_percent: 5.0,
+                },
             },
             TolerancedParameter {
                 name: "C1".to_string(),
                 nominal_value: 100e-9,
-                distribution: ParameterDistribution::Gaussian { sigma_percent: 10.0, num_sigmas: 3.0 },
+                distribution: ParameterDistribution::Gaussian {
+                    sigma_percent: 10.0,
+                    num_sigmas: 3.0,
+                },
             },
         ];
 

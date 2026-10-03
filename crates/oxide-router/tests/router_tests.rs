@@ -119,8 +119,7 @@ fn test_differential_pair_and_meander() {
 fn test_cascade_push_and_shove() {
     let board = mock_board();
     let rules = Arc::new(ConstraintManager::standard_default());
-    let router =
-        InteractiveRouter::new(Arc::clone(&rules), Arc::new(SpatialIndex::build(&board)));
+    let router = InteractiveRouter::new(Arc::clone(&rules), Arc::new(SpatialIndex::build(&board)));
 
     let start = Point2D::from_mm(10.0, 15.0);
     let end = Point2D::from_mm(20.0, 15.0);
@@ -141,7 +140,13 @@ fn test_topological_triangulation_and_autoroute() {
     let mut autorouter = TopologicalAutorouter::new(rules, spatial);
 
     let _ = autorouter.build_topological_map(&board);
-    assert!(!autorouter.topological_map.triangulation.triangles.is_empty());
+    assert!(
+        !autorouter
+            .topological_map
+            .triangulation
+            .triangles
+            .is_empty()
+    );
 
     let results = autorouter.route_board(&mut board, &[1, 2]);
     assert_eq!(results.len(), 2);
@@ -214,7 +219,8 @@ fn test_ml_guided_astar_routing() {
         1,
         200,
         Some(&mut advisor),
-    ).expect("valid route should be found");
+    )
+    .expect("valid route should be found");
 
     assert!(path.len() >= 2);
     assert_eq!(path[0], start);

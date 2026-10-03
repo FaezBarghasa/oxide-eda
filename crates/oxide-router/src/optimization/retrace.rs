@@ -34,7 +34,8 @@ impl RetraceOptimizer {
         };
 
         let width = route.segments[0].width;
-        let waypoints = match astar::find_astar_path(spatial_index, start, end, route.net_id, width) {
+        let waypoints = match astar::find_astar_path(spatial_index, start, end, route.net_id, width)
+        {
             Ok(pts) => pts,
             Err(e) => return RoutingResult::Failed(e),
         };

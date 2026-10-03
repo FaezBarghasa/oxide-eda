@@ -299,7 +299,11 @@ impl MnaSolver for InProcessMnaSolver {
         }
     }
 
-    fn solve_step(&mut self, _current_time: f64, target_dt: f64) -> Result<StepTelemetry, SimError> {
+    fn solve_step(
+        &mut self,
+        _current_time: f64,
+        target_dt: f64,
+    ) -> Result<StepTelemetry, SimError> {
         if !self.initialized {
             return Err(SimError::Uninitialized);
         }
@@ -350,7 +354,8 @@ impl MnaSolver for InProcessMnaSolver {
 
         // Update states
         for (i, &sol_val) in solution.iter().enumerate().take(n) {
-            self.prev_deriv_vector[i] = factor * (sol_val - self.prev_state_vector[i]) - self.prev_deriv_vector[i];
+            self.prev_deriv_vector[i] =
+                factor * (sol_val - self.prev_state_vector[i]) - self.prev_deriv_vector[i];
             self.prev_state_vector[i] = sol_val;
             self.state_vector[i] = sol_val;
         }

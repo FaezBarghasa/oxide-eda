@@ -5,9 +5,9 @@ use iced::widget::{Column, Space, button, container, row, scrollable, text, text
 use iced::{Element, Length};
 use oxide_widgets::theme_ext;
 
+use super::context::PanelContext;
 use super::messages::PanelMsg;
 use super::widgets::{section_title, separator};
-use super::context::PanelContext;
 
 #[allow(dead_code)]
 #[derive(Debug, Clone)]

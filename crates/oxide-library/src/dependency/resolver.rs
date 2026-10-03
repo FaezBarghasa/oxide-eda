@@ -46,25 +46,33 @@ impl GitResolver {
         tag_name: &str,
     ) -> Result<ResolvedRef, DependencyError> {
         let refname = format!("refs/tags/{}", tag_name);
-        let reference = repo.find_reference(&refname).or_else(|_| {
-            // Fallback: try direct reference or short tag lookup
-            repo.resolve_reference_from_short_name(tag_name)
-        }).map_err(|e| DependencyError::Resolution {
-            name: name.to_string(),
-            reason: format!("Tag `{tag_name}` not found in repository: {e}"),
-        })?;
+        let reference = repo
+            .find_reference(&refname)
+            .or_else(|_| {
+                // Fallback: try direct reference or short tag lookup
+                repo.resolve_reference_from_short_name(tag_name)
+            })
+            .map_err(|e| DependencyError::Resolution {
+                name: name.to_string(),
+                reason: format!("Tag `{tag_name}` not found in repository: {e}"),
+            })?;
 
-        let peeled = reference.peel_to_commit().map_err(|e| DependencyError::Resolution {
-            name: name.to_string(),
-            reason: format!("Could not peel tag `{tag_name}` to commit: {e}"),
-        })?;
+        let peeled = reference
+            .peel_to_commit()
+            .map_err(|e| DependencyError::Resolution {
+                name: name.to_string(),
+                reason: format!("Could not peel tag `{tag_name}` to commit: {e}"),
+            })?;
 
         let tree = peeled.tree().map_err(|e| DependencyError::Resolution {
             name: name.to_string(),
             reason: format!("Could not read tree for tag `{tag_name}`: {e}"),
         })?;
 
-        let clean_version = tag_name.strip_prefix('v').or_else(|| tag_name.strip_prefix('V')).unwrap_or(tag_name);
+        let clean_version = tag_name
+            .strip_prefix('v')
+            .or_else(|| tag_name.strip_prefix('V'))
+            .unwrap_or(tag_name);
 
         Ok(ResolvedRef {
             commit_oid: peeled.id(),
@@ -80,8 +88,11 @@ impl GitResolver {
         name: &str,
         branch_name: &str,
     ) -> Result<ResolvedRef, DependencyError> {
-        let branch = repo.find_branch(branch_name, git2::BranchType::Local)
-            .or_else(|_| repo.find_branch(&format!("origin/{branch_name}"), git2::BranchType::Remote))
+        let branch = repo
+            .find_branch(branch_name, git2::BranchType::Local)
+            .or_else(|_| {
+                repo.find_branch(&format!("origin/{branch_name}"), git2::BranchType::Remote)
+            })
             .or_else(|_| repo.find_branch(branch_name, git2::BranchType::Remote))
             .map_err(|e| DependencyError::Resolution {
                 name: name.to_string(),
@@ -89,10 +100,12 @@ impl GitResolver {
             })?;
 
         let reference = branch.into_reference();
-        let commit = reference.peel_to_commit().map_err(|e| DependencyError::Resolution {
-            name: name.to_string(),
-            reason: format!("Could not peel branch `{branch_name}` to commit: {e}"),
-        })?;
+        let commit = reference
+            .peel_to_commit()
+            .map_err(|e| DependencyError::Resolution {
+                name: name.to_string(),
+                reason: format!("Could not peel branch `{branch_name}` to commit: {e}"),
+            })?;
 
         let tree = commit.tree().map_err(|e| DependencyError::Resolution {
             name: name.to_string(),
@@ -113,15 +126,19 @@ impl GitResolver {
         name: &str,
         rev_str: &str,
     ) -> Result<ResolvedRef, DependencyError> {
-        let obj = repo.revparse_single(rev_str).map_err(|e| DependencyError::Resolution {
-            name: name.to_string(),
-            reason: format!("Revision `{rev_str}` could not be parsed: {e}"),
-        })?;
+        let obj = repo
+            .revparse_single(rev_str)
+            .map_err(|e| DependencyError::Resolution {
+                name: name.to_string(),
+                reason: format!("Revision `{rev_str}` could not be parsed: {e}"),
+            })?;
 
-        let commit = obj.peel_to_commit().map_err(|e| DependencyError::Resolution {
-            name: name.to_string(),
-            reason: format!("Revision `{rev_str}` is not a commit: {e}"),
-        })?;
+        let commit = obj
+            .peel_to_commit()
+            .map_err(|e| DependencyError::Resolution {
+                name: name.to_string(),
+                reason: format!("Revision `{rev_str}` is not a commit: {e}"),
+            })?;
 
         let tree = commit.tree().map_err(|e| DependencyError::Resolution {
             name: name.to_string(),
@@ -147,16 +164,21 @@ impl GitResolver {
             reason: format!("Invalid semver requirement `{req_str}`: {e}"),
         })?;
 
-        let tag_names = repo.tag_names(None).map_err(|e| DependencyError::Resolution {
-            name: name.to_string(),
-            reason: format!("Failed to read tag names: {e}"),
-        })?;
+        let tag_names = repo
+            .tag_names(None)
+            .map_err(|e| DependencyError::Resolution {
+                name: name.to_string(),
+                reason: format!("Failed to read tag names: {e}"),
+            })?;
 
         let mut matched_versions: Vec<(Version, String)> = Vec::new();
 
         for tag_res in tag_names.iter() {
             if let Ok(Some(tag_name)) = tag_res {
-                let clean = tag_name.strip_prefix('v').or_else(|| tag_name.strip_prefix('V')).unwrap_or(tag_name);
+                let clean = tag_name
+                    .strip_prefix('v')
+                    .or_else(|| tag_name.strip_prefix('V'))
+                    .unwrap_or(tag_name);
                 if let Ok(ver) = Version::parse(clean)
                     && version_req.matches(&ver)
                 {

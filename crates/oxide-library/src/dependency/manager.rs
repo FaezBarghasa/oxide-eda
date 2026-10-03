@@ -4,12 +4,13 @@ use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
 use oxide_types::project::{
-    DependencyKind, LibraryEntry, LibraryEntryKind, ProjectData,
-    ProjectDependency, ProjectLockfile,
+    DependencyKind, LibraryEntry, LibraryEntryKind, ProjectData, ProjectDependency, ProjectLockfile,
 };
 
 use super::{
-    DependencyError, installer::GitInstaller, lockfile::LockfileManager,
+    DependencyError,
+    installer::GitInstaller,
+    lockfile::LockfileManager,
     resolver::{GitResolver, ResolvedRef},
 };
 
@@ -97,7 +98,9 @@ impl GitDependencyManager {
             };
 
             let resolved = self.resolver.resolve_reference(&repo, dep)?;
-            let locked_dep = self.installer.install_or_update(project_root, dep, &resolved)?;
+            let locked_dep = self
+                .installer
+                .install_or_update(project_root, dep, &resolved)?;
             new_locked.insert(dep.name.clone(), locked_dep);
         }
 
@@ -141,7 +144,8 @@ impl GitDependencyManager {
                 resolved_version: locked.resolved_version.clone(),
             };
 
-            self.installer.install_or_update(project_root, &dep, &resolved)?;
+            self.installer
+                .install_or_update(project_root, &dep, &resolved)?;
         }
 
         Ok(())
@@ -193,7 +197,11 @@ impl GitDependencyManager {
                     };
 
                     // Only add if not already in project_data.libraries
-                    if !project_data.libraries.iter().any(|lib| lib.path == locked.install_path) {
+                    if !project_data
+                        .libraries
+                        .iter()
+                        .any(|lib| lib.path == locked.install_path)
+                    {
                         project_data.libraries.push(library_entry);
                     }
                     report.mounted_libraries.push(abs_path);

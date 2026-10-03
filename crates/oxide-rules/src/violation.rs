@@ -178,7 +178,11 @@ impl RuleViolation {
     ) -> Self {
         let req_mm = min_clearance_microns as f64 / 1000.0;
         let act_mm = actual_distance_microns as f64 / 1000.0;
-        let dim_str = if is_vertical { "vertical (Z)" } else { "horizontal (X/Y)" };
+        let dim_str = if is_vertical {
+            "vertical (Z)"
+        } else {
+            "horizontal (X/Y)"
+        };
         Self {
             violation_type: RuleViolationType::ComponentClearanceViolation,
             message: format!(
@@ -221,7 +225,11 @@ impl RuleViolation {
     ) -> Self {
         let req_mm = max_skew_microns as f64 / 1000.0;
         let act_mm = actual_skew_microns as f64 / 1000.0;
-        let skew_type = if is_intra_pair { "intra-pair phase" } else { "inter-pair bus" };
+        let skew_type = if is_intra_pair {
+            "intra-pair phase"
+        } else {
+            "inter-pair bus"
+        };
         Self {
             violation_type: RuleViolationType::PhaseSkewViolation,
             message: format!(

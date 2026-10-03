@@ -185,9 +185,7 @@ impl<'a, Message> Program<Message, Theme, Renderer> for EyeDiagramCanvas<'a> {
                 let path = builder.build();
                 frame.stroke(
                     &path,
-                    Stroke::default()
-                        .with_color(trace_color)
-                        .with_width(1.0),
+                    Stroke::default().with_color(trace_color).with_width(1.0),
                 );
             }
         } else {
@@ -267,10 +265,7 @@ impl<'a, Message> Program<Message, Theme, Renderer> for ConstellationCanvas<'a> 
                 let py = center.y - (pt.received.q as f32) * scale;
 
                 let dot = Path::circle(Point::new(px, py), 1.5);
-                frame.fill(
-                    &dot,
-                    Color::from_rgba(0.9, 0.7, 0.1, 0.6),
-                );
+                frame.fill(&dot, Color::from_rgba(0.9, 0.7, 0.1, 0.6));
 
                 // Render ideal reference targets
                 if let Some(ideal) = pt.ideal {

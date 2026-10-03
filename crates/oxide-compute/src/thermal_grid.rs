@@ -61,7 +61,13 @@ pub struct ThermalGrid3D {
 
 impl ThermalGrid3D {
     /// Creates a new 3D Thermal grid initialized to ambient temperature.
-    pub fn new(dim_x: usize, dim_y: usize, dim_z: usize, voxel_size_m: f64, ambient_temp_c: f64) -> Self {
+    pub fn new(
+        dim_x: usize,
+        dim_y: usize,
+        dim_z: usize,
+        voxel_size_m: f64,
+        ambient_temp_c: f64,
+    ) -> Self {
         let total_cells = dim_x * dim_y * dim_z;
         let ambient_k = ambient_temp_c + 273.15;
         Self {
@@ -111,9 +117,11 @@ impl ThermalGrid3D {
         let cell_volume = dx * dx * dx;
 
         // Find worst-case thermal diffusivity $\alpha = k / C_v$ across materials present
-        let max_diffusivity = self.materials.iter().map(|m| {
-            m.conductivity_w_per_mk() / m.volumetric_heat_capacity()
-        }).fold(1e-9, f64::max);
+        let max_diffusivity = self
+            .materials
+            .iter()
+            .map(|m| m.conductivity_w_per_mk() / m.volumetric_heat_capacity())
+            .fold(1e-9, f64::max);
 
         // Explicit 3D von Neumann stability limit: dt_max = dx^2 / (6 * alpha) * safety_margin
         let dt_limit = (dx2 / (6.0 * max_diffusivity)) * 0.8;
@@ -129,7 +137,13 @@ impl ThermalGrid3D {
                         let idx = self.index(x, y, z);
 
                         // Boundary conditions: Ambient heat sink at exterior edges
-                        if x == 0 || x == self.dim_x - 1 || y == 0 || y == self.dim_y - 1 || z == 0 || z == self.dim_z - 1 {
+                        if x == 0
+                            || x == self.dim_x - 1
+                            || y == 0
+                            || y == self.dim_y - 1
+                            || z == 0
+                            || z == self.dim_z - 1
+                        {
                             next_temp[idx] = self.ambient_temp_k;
                             continue;
                         }
@@ -147,7 +161,8 @@ impl ThermalGrid3D {
                         let cv = mat.volumetric_heat_capacity();
 
                         // 3D 6-point Laplacian
-                        let laplacian = (t_left + t_right + t_down + t_up + t_back + t_front - 6.0 * t_c) / dx2;
+                        let laplacian =
+                            (t_left + t_right + t_down + t_up + t_back + t_front - 6.0 * t_c) / dx2;
                         let volumetric_q = self.power_dissipation_w[idx] / cell_volume;
 
                         // Fourier diffusion update: T_new = T + sub_dt * (k * Lap + Q) / Cv
@@ -163,7 +178,11 @@ impl ThermalGrid3D {
 
     /// Evaluates maximum temperature across the board volume in Celsius.
     pub fn max_temperature_celsius(&self) -> f64 {
-        let max_k = self.temperature_k.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+        let max_k = self
+            .temperature_k
+            .iter()
+            .cloned()
+            .fold(f64::NEG_INFINITY, f64::max);
         max_k - 273.15
     }
 
@@ -184,7 +203,7 @@ mod tests {
     #[test]
     fn test_3d_thermal_joule_heating() {
         let mut grid = ThermalGrid3D::new(10, 10, 5, 1e-3, 25.0);
-        
+
         // Place a silicon power MOSFET at center (5, 5, 2)
         grid.set_material(5, 5, 2, GridThermalMaterial::SiliconDie);
         grid.inject_joule_heat(5, 5, 2, 2.0); // 2W dissipation
@@ -195,7 +214,13 @@ mod tests {
         }
 
         let max_t = grid.max_temperature_celsius();
-        assert!(max_t > 25.0, "Center temperature should rise due to Joule dissipation");
-        assert!(max_t < 200.0, "Temperature should remain within physical bounds");
+        assert!(
+            max_t > 25.0,
+            "Center temperature should rise due to Joule dissipation"
+        );
+        assert!(
+            max_t < 200.0,
+            "Temperature should remain within physical bounds"
+        );
     }
 }

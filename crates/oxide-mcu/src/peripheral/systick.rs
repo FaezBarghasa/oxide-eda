@@ -39,7 +39,9 @@ impl SysTick {
             if self.tick_interrupt {
                 fired = true;
             }
-            self.current_value = self.reload_value.saturating_sub(rem % (self.reload_value + 1));
+            self.current_value = self
+                .reload_value
+                .saturating_sub(rem % (self.reload_value + 1));
         } else {
             self.current_value -= cycles;
         }

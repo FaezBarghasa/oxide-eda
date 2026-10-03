@@ -2,8 +2,8 @@ pub mod calculator;
 pub mod extrusion_3d;
 
 pub use calculator::{
-    calculate_ipc7351c_pad, synthesize_thermal_paste_panes, DensityLevel, FilletTargets,
-    SolvedPadGeometry,
+    DensityLevel, FilletTargets, SolvedPadGeometry, calculate_ipc7351c_pad,
+    synthesize_thermal_paste_panes,
 };
 pub use extrusion_3d::Package3DExtruder;
 
@@ -17,7 +17,11 @@ pub struct Ipc7351Generator;
 
 impl Ipc7351Generator {
     /// Mathematically compiles package dimensions into an IPC-7351C compliant Footprint.
-    pub fn generate_footprint(name: &str, dims: &PackageDimensions, density: DensityLevel) -> Footprint {
+    pub fn generate_footprint(
+        name: &str,
+        dims: &PackageDimensions,
+        density: DensityLevel,
+    ) -> Footprint {
         let mut fp = Footprint::empty(name);
         let fillet = FilletTargets::for_package(&dims.package_class, density);
 
@@ -42,13 +46,7 @@ impl Ipc7351Generator {
             let inner_max = length_max - 2.0 * lead_l_min;
 
             let solved = calculate_ipc7351c_pad(
-                length_min,
-                length_max,
-                inner_min,
-                inner_max,
-                width_min,
-                width_max,
-                &fillet,
+                length_min, length_max, inner_min, inner_max, width_min, width_max, &fillet,
             );
 
             let pad_x = solved.center_to_center_c / 2.0;
@@ -180,13 +178,9 @@ impl Ipc7351Generator {
             }
 
             // Courtyard
-            let cy = (offset + solved.length_x / 2.0 + fillet.courtyard_excess).max(body_w_nom / 2.0 + 0.5);
-            fp.courtyard = Polygon::new(vec![
-                [-cy, -cy],
-                [cy, -cy],
-                [cy, cy],
-                [-cy, cy],
-            ]);
+            let cy = (offset + solved.length_x / 2.0 + fillet.courtyard_excess)
+                .max(body_w_nom / 2.0 + 0.5);
+            fp.courtyard = Polygon::new(vec![[-cy, -cy], [cy, -cy], [cy, cy], [-cy, cy]]);
 
             // Silk Outline + Pin 1 marker
             fp.silk_f.push(FpGraphic {
@@ -296,8 +290,10 @@ mod tests {
         let dims = PackageDimensions::standard_soic(8);
 
         let fp_most = Ipc7351Generator::generate_footprint("SOIC8_MOST", &dims, DensityLevel::Most);
-        let fp_nom = Ipc7351Generator::generate_footprint("SOIC8_NOM", &dims, DensityLevel::Nominal);
-        let fp_least = Ipc7351Generator::generate_footprint("SOIC8_LEAST", &dims, DensityLevel::Least);
+        let fp_nom =
+            Ipc7351Generator::generate_footprint("SOIC8_NOM", &dims, DensityLevel::Nominal);
+        let fp_least =
+            Ipc7351Generator::generate_footprint("SOIC8_LEAST", &dims, DensityLevel::Least);
 
         assert_eq!(fp_most.pads.len(), 8);
         assert_eq!(fp_nom.pads.len(), 8);

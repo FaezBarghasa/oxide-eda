@@ -121,7 +121,8 @@ impl EyeDiagramDataset {
             metrics: EyeMetrics {
                 eye_height,
                 eye_width_s,
-                eye_opening_ratio: (eye_height / (min_top - max_bot).abs().max(1.0)).clamp(0.0, 1.0),
+                eye_opening_ratio: (eye_height / (min_top - max_bot).abs().max(1.0))
+                    .clamp(0.0, 1.0),
                 jitter_rms_s,
                 jitter_p2p_s,
                 snr_eye_db,

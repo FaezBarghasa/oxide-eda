@@ -47,41 +47,35 @@ pub fn view_mcu_console<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
         row![
             section_title("MCU & Protocol Co-Sim Console", &ctx.tokens),
             Space::new().width(Length::Fill).height(Length::Shrink),
-            button(
-                text("UART Terminal")
-                    .size(10)
-                    .color(if state.active_tab == McuConsoleTab::UartTerminal {
-                        theme_ext::accent(&ctx.tokens)
-                    } else {
-                        theme_ext::text_primary(&ctx.tokens)
-                    }),
-            )
+            button(text("UART Terminal").size(10).color(
+                if state.active_tab == McuConsoleTab::UartTerminal {
+                    theme_ext::accent(&ctx.tokens)
+                } else {
+                    theme_ext::text_primary(&ctx.tokens)
+                }
+            ),)
             .padding([3, 8])
             .on_press(PanelMsg::SetMcuConsoleTab(McuConsoleTab::UartTerminal))
             .style(crate::styles::menu_item(&ctx.tokens)),
             Space::new().width(4).height(Length::Shrink),
-            button(
-                text("MQTT Broker")
-                    .size(10)
-                    .color(if state.active_tab == McuConsoleTab::MqttInspector {
-                        theme_ext::accent(&ctx.tokens)
-                    } else {
-                        theme_ext::text_primary(&ctx.tokens)
-                    }),
-            )
+            button(text("MQTT Broker").size(10).color(
+                if state.active_tab == McuConsoleTab::MqttInspector {
+                    theme_ext::accent(&ctx.tokens)
+                } else {
+                    theme_ext::text_primary(&ctx.tokens)
+                }
+            ),)
             .padding([3, 8])
             .on_press(PanelMsg::SetMcuConsoleTab(McuConsoleTab::MqttInspector))
             .style(crate::styles::menu_item(&ctx.tokens)),
             Space::new().width(4).height(Length::Shrink),
-            button(
-                text("Net/RF Links")
-                    .size(10)
-                    .color(if state.active_tab == McuConsoleTab::NetworkStatus {
-                        theme_ext::accent(&ctx.tokens)
-                    } else {
-                        theme_ext::text_primary(&ctx.tokens)
-                    }),
-            )
+            button(text("Net/RF Links").size(10).color(
+                if state.active_tab == McuConsoleTab::NetworkStatus {
+                    theme_ext::accent(&ctx.tokens)
+                } else {
+                    theme_ext::text_primary(&ctx.tokens)
+                }
+            ),)
             .padding([3, 8])
             .on_press(PanelMsg::SetMcuConsoleTab(McuConsoleTab::NetworkStatus))
             .style(crate::styles::menu_item(&ctx.tokens)),
@@ -113,9 +107,17 @@ pub fn view_mcu_console<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
 
     // Status Banner
     let status_row = row![
-        text(if state.is_qemu_running { "● QEMU Cortex-M Running" } else { "○ QEMU Idle" })
-            .size(10)
-            .color(if state.is_qemu_running { iced::Color::from_rgb(0.2, 0.8, 0.2) } else { theme_ext::text_secondary(&ctx.tokens) }),
+        text(if state.is_qemu_running {
+            "● QEMU Cortex-M Running"
+        } else {
+            "○ QEMU Idle"
+        })
+        .size(10)
+        .color(if state.is_qemu_running {
+            iced::Color::from_rgb(0.2, 0.8, 0.2)
+        } else {
+            theme_ext::text_secondary(&ctx.tokens)
+        }),
         Space::new().width(12).height(Length::Shrink),
         text(format!("GDB: :{}", state.gdb_port))
             .size(10)
@@ -136,10 +138,7 @@ pub fn view_mcu_console<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
     .align_y(iced::Alignment::Center)
     .padding([2, 6]);
 
-    col = col.push(
-        container(status_row)
-            .style(crate::styles::panel_card(&ctx.tokens)),
-    );
+    col = col.push(container(status_row).style(crate::styles::panel_card(&ctx.tokens)));
 
     // Tab Body
     let body_element: Element<'a, PanelMsg> = match state.active_tab {
@@ -185,26 +184,36 @@ pub fn view_mcu_console<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
 
         McuConsoleTab::MqttInspector => {
             let mut mqtt_col = Column::new().spacing(4).padding(6).width(Length::Fill);
-            mqtt_col = mqtt_col.push(
-                row![
-                    text("Topic").size(10).color(theme_ext::accent(&ctx.tokens)).width(Length::Fixed(160.0)),
-                    text("Payload").size(10).color(theme_ext::text_primary(&ctx.tokens)).width(Length::Fill),
-                ]
-            );
+            mqtt_col = mqtt_col.push(row![
+                text("Topic")
+                    .size(10)
+                    .color(theme_ext::accent(&ctx.tokens))
+                    .width(Length::Fixed(160.0)),
+                text("Payload")
+                    .size(10)
+                    .color(theme_ext::text_primary(&ctx.tokens))
+                    .width(Length::Fill),
+            ]);
             mqtt_col = mqtt_col.push(separator(&ctx.tokens));
 
             if state.mqtt_messages.is_empty() {
                 mqtt_col = mqtt_col.push(
-                    text("No MQTT messages published yet (In-Process Broker active)").size(10).color(theme_ext::text_secondary(&ctx.tokens))
+                    text("No MQTT messages published yet (In-Process Broker active)")
+                        .size(10)
+                        .color(theme_ext::text_secondary(&ctx.tokens)),
                 );
             } else {
                 for (topic, payload) in &state.mqtt_messages {
-                    mqtt_col = mqtt_col.push(
-                        row![
-                            text(topic).size(10).color(iced::Color::from_rgb(0.2, 0.7, 1.0)).width(Length::Fixed(160.0)),
-                            text(payload).size(10).color(theme_ext::text_primary(&ctx.tokens)).width(Length::Fill),
-                        ]
-                    );
+                    mqtt_col = mqtt_col.push(row![
+                        text(topic)
+                            .size(10)
+                            .color(iced::Color::from_rgb(0.2, 0.7, 1.0))
+                            .width(Length::Fixed(160.0)),
+                        text(payload)
+                            .size(10)
+                            .color(theme_ext::text_primary(&ctx.tokens))
+                            .width(Length::Fill),
+                    ]);
                 }
             }
             scrollable(mqtt_col).height(Length::Fill).into()

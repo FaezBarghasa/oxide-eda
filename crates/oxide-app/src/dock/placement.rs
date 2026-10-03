@@ -24,10 +24,9 @@ impl PanelPosition {
             | PanelKind::Components
             | PanelKind::Library
             | PanelKind::Signal => PanelPosition::Left,
-            PanelKind::Erc
-            | PanelKind::Waveform
-            | PanelKind::Telecom
-            | PanelKind::McuConsole => PanelPosition::Bottom,
+            PanelKind::Erc | PanelKind::Waveform | PanelKind::Telecom | PanelKind::McuConsole => {
+                PanelPosition::Bottom
+            }
             PanelKind::Navigator
             | PanelKind::Properties
             | PanelKind::Messages

@@ -11,9 +11,7 @@ use actix_web::test::{self, TestRequest};
 use actix_web::{App, web};
 use oxide_library::primitive::{Footprint, SimKind, SimModel, Symbol};
 use oxide_library_server::db::{AppState, PrimitiveSummary};
-use oxide_library_server::{
-    API_TOKEN_ENV, BearerAuth, configure_protected, default_cors,
-};
+use oxide_library_server::{API_TOKEN_ENV, BearerAuth, configure_protected, default_cors};
 use uuid::Uuid;
 
 const TEST_BEARER: &str = "test-bearer-token";
@@ -55,7 +53,10 @@ async fn primitives_migration_creates_tables() {
     let state = fresh_state().await;
     for table in ["symbols", "footprints", "sims"] {
         let resp = state.db().query(format!("SELECT * FROM {table}")).await;
-        assert!(resp.is_ok(), "table {table} should be queryable in surrealdb");
+        assert!(
+            resp.is_ok(),
+            "table {table} should be queryable in surrealdb"
+        );
     }
 }
 
@@ -170,7 +171,10 @@ async fn post_then_get_footprint_round_trip() {
     assert_eq!(resp.status(), StatusCode::CREATED);
 
     let req = TestRequest::get()
-        .uri(&format!("/footprints/{}?library_id={}", fp.uuid, library_id))
+        .uri(&format!(
+            "/footprints/{}?library_id={}",
+            fp.uuid, library_id
+        ))
         .insert_header(("authorization", bearer_header()))
         .to_request();
     let resp = test::call_service(&app, req).await;

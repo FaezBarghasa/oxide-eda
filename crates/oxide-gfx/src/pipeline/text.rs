@@ -232,12 +232,8 @@ impl GlyphonTextPipeline {
         let cache = glyphon::Cache::new(device);
         let viewport = glyphon::Viewport::new(device, &cache);
         let mut atlas = glyphon::TextAtlas::new(device, queue, &cache, target_format);
-        let text_renderer = glyphon::TextRenderer::new(
-            &mut atlas,
-            device,
-            wgpu::MultisampleState::default(),
-            None,
-        );
+        let text_renderer =
+            glyphon::TextRenderer::new(&mut atlas, device, wgpu::MultisampleState::default(), None);
 
         Self {
             swash_cache,
@@ -370,10 +366,7 @@ impl GlyphonTextPipeline {
         result
     }
 
-    pub fn draw(
-        &self,
-        render_pass: &mut wgpu::RenderPass<'_>,
-    ) -> Result<(), glyphon::RenderError> {
+    pub fn draw(&self, render_pass: &mut wgpu::RenderPass<'_>) -> Result<(), glyphon::RenderError> {
         if self.text_count == 0 {
             return Ok(());
         }
@@ -397,13 +390,13 @@ impl GlyphonTextPipeline {
 
 #[cfg(test)]
 mod tests {
-    use crate::glyphon;
     use super::TextSizePolicy;
     use super::{
         alignment_offset_px, anchored_top_left_px, attrs_for_item, normalize_rotation_radians,
         overlap_ratio_by_smaller_area, rect_from_top_left_size, rect_intersects_viewport,
         text_position_px, text_size_px, to_glyphon_color, viewport_bounds,
     };
+    use crate::glyphon;
     use crate::primitive::text::{TextHAlign, TextItem, TextVAlign};
 
     #[test]

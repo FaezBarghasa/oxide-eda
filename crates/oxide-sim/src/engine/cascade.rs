@@ -7,8 +7,8 @@
 //! - Stage 3: Dynamic Source Stepping Continuation ($\alpha \in [0.0 \to 1.0]$).
 //! - Stage 4: Pseudo-Transient Continuation (PTC) with virtual node capacitances.
 
-use serde::{Deserialize, Serialize};
 use super::ConvergenceStage;
+use serde::{Deserialize, Serialize};
 
 /// Configuration and state for the 4-stage convergence recovery cascade.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -88,7 +88,9 @@ impl ConvergenceCascade {
         residual_norm_next: f64,
         proposed_lambda: f64,
     ) -> f64 {
-        if residual_norm_next < (1.0 - self.line_search_alpha * proposed_lambda) * residual_norm_prev {
+        if residual_norm_next
+            < (1.0 - self.line_search_alpha * proposed_lambda) * residual_norm_prev
+        {
             proposed_lambda
         } else {
             (proposed_lambda * 0.5).max(0.01)
@@ -125,12 +127,27 @@ mod tests {
     #[test]
     fn test_cascade_stage_transitions() {
         let mut cascade = ConvergenceCascade::new();
-        assert_eq!(cascade.current_stage, ConvergenceStage::StandardNewtonRaphson);
+        assert_eq!(
+            cascade.current_stage,
+            ConvergenceStage::StandardNewtonRaphson
+        );
 
-        assert_eq!(cascade.advance_fallback_stage(), Some(ConvergenceStage::DampedLineSearch));
-        assert_eq!(cascade.advance_fallback_stage(), Some(ConvergenceStage::GminStepping));
-        assert_eq!(cascade.advance_fallback_stage(), Some(ConvergenceStage::SourceStepping));
-        assert_eq!(cascade.advance_fallback_stage(), Some(ConvergenceStage::PseudoTransientContinuation));
+        assert_eq!(
+            cascade.advance_fallback_stage(),
+            Some(ConvergenceStage::DampedLineSearch)
+        );
+        assert_eq!(
+            cascade.advance_fallback_stage(),
+            Some(ConvergenceStage::GminStepping)
+        );
+        assert_eq!(
+            cascade.advance_fallback_stage(),
+            Some(ConvergenceStage::SourceStepping)
+        );
+        assert_eq!(
+            cascade.advance_fallback_stage(),
+            Some(ConvergenceStage::PseudoTransientContinuation)
+        );
         assert_eq!(cascade.advance_fallback_stage(), None);
     }
 

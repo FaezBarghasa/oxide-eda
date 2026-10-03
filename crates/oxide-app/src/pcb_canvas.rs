@@ -525,8 +525,7 @@ impl canvas::Program<Message> for PcbCanvas {
                     };
 
                     return Some(
-                        canvas::Action::publish(Message::CanvasEvent(event))
-                            .and_capture(),
+                        canvas::Action::publish(Message::CanvasEvent(event)).and_capture(),
                     );
                 }
             }

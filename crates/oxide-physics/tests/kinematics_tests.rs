@@ -1,5 +1,5 @@
-use std::f64::consts::PI;
 use oxide_physics::kinematics::{BendLine, KinematicSubstrate, RigidFlexKinematicEngine};
+use std::f64::consts::PI;
 
 #[test]
 fn test_rigid_flex_forward_kinematic_folding() {
@@ -8,36 +8,21 @@ fn test_rigid_flex_forward_kinematic_folding() {
     // Zone 1: Main rigid base [0, 0] to [100, 50]
     engine.register_zone(
         1,
-        &[
-            [0.0, 0.0],
-            [100.0, 0.0],
-            [100.0, 50.0],
-            [0.0, 50.0],
-        ],
+        &[[0.0, 0.0], [100.0, 0.0], [100.0, 50.0], [0.0, 50.0]],
         1, // Rigid stackup
     );
 
     // Zone 2: Flex connector [100, 10] to [150, 40]
     engine.register_zone(
         2,
-        &[
-            [100.0, 10.0],
-            [150.0, 10.0],
-            [150.0, 40.0],
-            [100.0, 40.0],
-        ],
+        &[[100.0, 10.0], [150.0, 10.0], [150.0, 40.0], [100.0, 40.0]],
         2, // Flex polyimide stackup
     );
 
     // Zone 3: Folded rigid flap [150, 0] to [200, 50]
     engine.register_zone(
         3,
-        &[
-            [150.0, 0.0],
-            [200.0, 0.0],
-            [200.0, 50.0],
-            [150.0, 50.0],
-        ],
+        &[[150.0, 0.0], [200.0, 0.0], [200.0, 50.0], [150.0, 50.0]],
         1, // Rigid stackup
     );
 

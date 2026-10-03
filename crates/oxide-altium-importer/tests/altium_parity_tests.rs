@@ -1,22 +1,32 @@
-use oxide_altium_importer::{import_rules_from_records, verify_pcb_board, AltiumRecord};
+use oxide_altium_importer::{AltiumRecord, import_rules_from_records, verify_pcb_board};
 use oxide_types::pcb::PcbBoard;
 use uuid::Uuid;
 
 #[test]
 fn test_altium_rule_importer_clearance_and_width() {
     let mut rec1 = AltiumRecord::new();
-    rec1.properties.insert("RECORD".to_string(), "Rule".to_string());
-    rec1.properties.insert("RULEKIND".to_string(), "Clearance".to_string());
-    rec1.properties.insert("GAP".to_string(), "0.200mm".to_string());
-    rec1.properties.insert("SCOPE1".to_string(), "InNetClass('HIGH_SPEED')".to_string());
+    rec1.properties
+        .insert("RECORD".to_string(), "Rule".to_string());
+    rec1.properties
+        .insert("RULEKIND".to_string(), "Clearance".to_string());
+    rec1.properties
+        .insert("GAP".to_string(), "0.200mm".to_string());
+    rec1.properties
+        .insert("SCOPE1".to_string(), "InNetClass('HIGH_SPEED')".to_string());
 
     let mut rec2 = AltiumRecord::new();
-    rec2.properties.insert("RECORD".to_string(), "Rule".to_string());
-    rec2.properties.insert("RULEKIND".to_string(), "Width".to_string());
-    rec2.properties.insert("MINWIDTH".to_string(), "0.125mm".to_string());
-    rec2.properties.insert("FAVOREDWIDTH".to_string(), "0.254mm".to_string());
-    rec2.properties.insert("MAXWIDTH".to_string(), "0.500mm".to_string());
-    rec2.properties.insert("SCOPE1".to_string(), "All".to_string());
+    rec2.properties
+        .insert("RECORD".to_string(), "Rule".to_string());
+    rec2.properties
+        .insert("RULEKIND".to_string(), "Width".to_string());
+    rec2.properties
+        .insert("MINWIDTH".to_string(), "0.125mm".to_string());
+    rec2.properties
+        .insert("FAVOREDWIDTH".to_string(), "0.254mm".to_string());
+    rec2.properties
+        .insert("MAXWIDTH".to_string(), "0.500mm".to_string());
+    rec2.properties
+        .insert("SCOPE1".to_string(), "All".to_string());
 
     let manager = import_rules_from_records(&[rec1, rec2]);
     assert_eq!(manager.rules.len(), 2);
@@ -81,28 +91,44 @@ fn test_altium_pcb_pad_and_custom_shape_parsing() {
 
     // Pad 1: RoundRect SMD pad with 25% corner radius
     let mut rec1 = AltiumRecord::new();
-    rec1.properties.insert("RECORD".to_string(), "Pad".to_string());
+    rec1.properties
+        .insert("RECORD".to_string(), "Pad".to_string());
     rec1.properties.insert("NAME".to_string(), "1".to_string());
-    rec1.properties.insert("LOCATION.X".to_string(), "10.5mm".to_string());
-    rec1.properties.insert("LOCATION.Y".to_string(), "10.5mm".to_string());
-    rec1.properties.insert("TOPXSIZE".to_string(), "0.30mm".to_string());
-    rec1.properties.insert("TOPYSIZE".to_string(), "0.80mm".to_string());
-    rec1.properties.insert("TOPSHAPE".to_string(), "RoundedRectangle".to_string());
-    rec1.properties.insert("ROUNDRECTANGULARRADIUS".to_string(), "25".to_string());
-    rec1.properties.insert("LAYER".to_string(), "Top Layer".to_string());
+    rec1.properties
+        .insert("LOCATION.X".to_string(), "10.5mm".to_string());
+    rec1.properties
+        .insert("LOCATION.Y".to_string(), "10.5mm".to_string());
+    rec1.properties
+        .insert("TOPXSIZE".to_string(), "0.30mm".to_string());
+    rec1.properties
+        .insert("TOPYSIZE".to_string(), "0.80mm".to_string());
+    rec1.properties
+        .insert("TOPSHAPE".to_string(), "RoundedRectangle".to_string());
+    rec1.properties
+        .insert("ROUNDRECTANGULARRADIUS".to_string(), "25".to_string());
+    rec1.properties
+        .insert("LAYER".to_string(), "Top Layer".to_string());
     rec1.properties.insert("NET".to_string(), "5".to_string());
 
     // Pad 2: Through-hole circular pad with drill
     let mut rec2 = AltiumRecord::new();
-    rec2.properties.insert("RECORD".to_string(), "Pad".to_string());
+    rec2.properties
+        .insert("RECORD".to_string(), "Pad".to_string());
     rec2.properties.insert("NAME".to_string(), "EP".to_string());
-    rec2.properties.insert("LOCATION.X".to_string(), "10.0mm".to_string());
-    rec2.properties.insert("LOCATION.Y".to_string(), "10.0mm".to_string());
-    rec2.properties.insert("TOPXSIZE".to_string(), "3.5mm".to_string());
-    rec2.properties.insert("TOPYSIZE".to_string(), "3.5mm".to_string());
-    rec2.properties.insert("HOLESIZE".to_string(), "0.3mm".to_string());
-    rec2.properties.insert("TOPSHAPE".to_string(), "Round".to_string());
-    rec2.properties.insert("LAYER".to_string(), "Multi-Layer".to_string());
+    rec2.properties
+        .insert("LOCATION.X".to_string(), "10.0mm".to_string());
+    rec2.properties
+        .insert("LOCATION.Y".to_string(), "10.0mm".to_string());
+    rec2.properties
+        .insert("TOPXSIZE".to_string(), "3.5mm".to_string());
+    rec2.properties
+        .insert("TOPYSIZE".to_string(), "3.5mm".to_string());
+    rec2.properties
+        .insert("HOLESIZE".to_string(), "0.3mm".to_string());
+    rec2.properties
+        .insert("TOPSHAPE".to_string(), "Round".to_string());
+    rec2.properties
+        .insert("LAYER".to_string(), "Multi-Layer".to_string());
 
     parse_pads(&[rec1, rec2], &mut board);
 
@@ -122,4 +148,3 @@ fn test_altium_pcb_pad_and_custom_shape_parsing() {
     assert_eq!(pad2.shape, PadShape::Circle);
     assert_eq!(pad2.drill.as_ref().unwrap().diameter, 0.3);
 }
-

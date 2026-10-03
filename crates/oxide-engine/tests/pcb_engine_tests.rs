@@ -25,25 +25,31 @@ fn test_pcb_engine_footprint_lifecycle_and_undo() {
     };
 
     // 1. Place footprint
-    engine.execute(PcbCommand::PlaceFootprint { footprint: fp }).unwrap();
+    engine
+        .execute(PcbCommand::PlaceFootprint { footprint: fp })
+        .unwrap();
     assert_eq!(engine.board().footprints.len(), 1);
     assert!(engine.can_undo());
 
     // 2. Move footprint
-    engine.execute(PcbCommand::MoveFootprint {
-        uuid: fp_id,
-        dx: 5.0,
-        dy: -2.0,
-    }).unwrap();
+    engine
+        .execute(PcbCommand::MoveFootprint {
+            uuid: fp_id,
+            dx: 5.0,
+            dy: -2.0,
+        })
+        .unwrap();
     let moved_fp = &engine.board().footprints[0];
     assert_eq!(moved_fp.position.x, 15.0);
     assert_eq!(moved_fp.position.y, 18.0);
 
     // 3. Rotate footprint
-    engine.execute(PcbCommand::RotateFootprint {
-        uuid: fp_id,
-        delta_deg: 90.0,
-    }).unwrap();
+    engine
+        .execute(PcbCommand::RotateFootprint {
+            uuid: fp_id,
+            delta_deg: 90.0,
+        })
+        .unwrap();
     assert_eq!(engine.board().footprints[0].rotation, 90.0);
 
     // 4. Undo Rotate
@@ -93,14 +99,18 @@ fn test_pcb_engine_routing_segments_and_vias() {
         via_span: None,
     };
 
-    engine.execute(PcbCommand::AddSegment { segment: seg }).unwrap();
+    engine
+        .execute(PcbCommand::AddSegment { segment: seg })
+        .unwrap();
     engine.execute(PcbCommand::AddVia { via }).unwrap();
 
     assert_eq!(engine.board().segments.len(), 1);
     assert_eq!(engine.board().vias.len(), 1);
 
     // Delete segment
-    engine.execute(PcbCommand::DeleteSegment { uuid: seg_id }).unwrap();
+    engine
+        .execute(PcbCommand::DeleteSegment { uuid: seg_id })
+        .unwrap();
     assert_eq!(engine.board().segments.len(), 0);
 
     // Undo delete segment
@@ -130,7 +140,9 @@ fn test_pcb_engine_hit_test_and_move_selection() {
         pads: Vec::new(),
         graphics: Vec::new(),
     };
-    engine.execute(PcbCommand::PlaceFootprint { footprint: fp }).unwrap();
+    engine
+        .execute(PcbCommand::PlaceFootprint { footprint: fp })
+        .unwrap();
 
     // Hit test footprint
     let hit = engine.hit_test(50.5, 49.8).expect("should hit footprint");
@@ -145,11 +157,13 @@ fn test_pcb_engine_hit_test_and_move_selection() {
     assert_eq!(engine.selected_items().len(), 1);
 
     // Move selection
-    engine.execute(PcbCommand::MoveSelection {
-        items: vec![hit],
-        dx: 10.0,
-        dy: -5.0,
-    }).unwrap();
+    engine
+        .execute(PcbCommand::MoveSelection {
+            items: vec![hit],
+            dx: 10.0,
+            dy: -5.0,
+        })
+        .unwrap();
 
     let moved_fp = &engine.board().footprints[0];
     assert_eq!(moved_fp.position.x, 60.0);
@@ -161,4 +175,3 @@ fn test_pcb_engine_hit_test_and_move_selection() {
     assert_eq!(undone_fp.position.x, 50.0);
     assert_eq!(undone_fp.position.y, 50.0);
 }
-

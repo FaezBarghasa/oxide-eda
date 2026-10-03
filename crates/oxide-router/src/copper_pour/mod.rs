@@ -3,21 +3,21 @@
 //! Handles prioritized copper zone clipping, thermal relief spoke calculations (ortho/diagonal),
 //! minimum area island removal, and automated curvilinear teardrop fillet generation on tracks/vias/pads.
 
-use oxide_physics::Microns;
 use crate::geometry::Point2D;
 use crate::geometry::rtree::NetId;
 use crate::{LayerId, RouteSegment, SegmentType, ViaPlacement};
+use oxide_physics::Microns;
 use serde::{Deserialize, Serialize};
 
 /// Thermal relief connection style.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum ThermalReliefStyle {
     #[default]
-    FourSpokeOrtho,     // 4 spokes at 0°, 90°, 180°, 270°
-    FourSpokeDiagonal,  // 4 spokes at 45°, 135°, 225°, 315°
-    TwoSpoke,           // 2 spokes
-    DirectConnect,      // Solid copper fill directly touching pad
-    NoConnect,          // Anti-pad isolation gap without connection
+    FourSpokeOrtho, // 4 spokes at 0°, 90°, 180°, 270°
+    FourSpokeDiagonal, // 4 spokes at 45°, 135°, 225°, 315°
+    TwoSpoke,          // 2 spokes
+    DirectConnect,     // Solid copper fill directly touching pad
+    NoConnect,         // Anti-pad isolation gap without connection
 }
 
 /// Dynamic copper zone definition with priority and thermal relief configuration.
@@ -39,11 +39,11 @@ impl Default for CopperZoneConfig {
             net_id: 0,
             layer: 0,
             priority: 1,
-            clearance: 200,                  // 200 µm clearance (~8 mil)
+            clearance: 200,                      // 200 µm clearance (~8 mil)
             min_island_area_sq_microns: 500_000, // 0.5 mm² minimum island area
             thermal_relief: ThermalReliefStyle::FourSpokeOrtho,
-            thermal_spoke_width: 250,        // 250 µm spoke width (~10 mil)
-            thermal_gap: 300,                // 300 µm thermal relief gap
+            thermal_spoke_width: 250, // 250 µm spoke width (~10 mil)
+            thermal_gap: 300,         // 300 µm thermal relief gap
         }
     }
 }
@@ -273,14 +273,8 @@ mod tests {
     fn test_teardrop_generation() {
         let track_start = Point2D::new(0, 1000);
         let pad_center = Point2D::new(1000, 1000);
-        let td = TeardropGenerator::generate_teardrop_for_pad(
-            track_start,
-            pad_center,
-            200,
-            300,
-            1,
-            0,
-        );
+        let td =
+            TeardropGenerator::generate_teardrop_for_pad(track_start, pad_center, 200, 300, 1, 0);
 
         assert!(td.is_some());
         let segments = td.unwrap();

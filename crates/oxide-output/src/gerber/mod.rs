@@ -160,10 +160,19 @@ impl GerberExporter {
         let mut out = String::with_capacity(16 * 1024);
 
         // 1. Header & Format declaration
-        writeln!(out, "G04 ===================================================================*")?;
-        writeln!(out, "G04 Oxide EDA - Gerber RS-274X / X2 Production Output*")?;
+        writeln!(
+            out,
+            "G04 ===================================================================*"
+        )?;
+        writeln!(
+            out,
+            "G04 Oxide EDA - Gerber RS-274X / X2 Production Output*"
+        )?;
         writeln!(out, "G04 Cleanroom Engine under Apache-2.0*")?;
-        writeln!(out, "G04 ===================================================================*")?;
+        writeln!(
+            out,
+            "G04 ===================================================================*"
+        )?;
 
         if self.options.use_gerber_x2_attributes {
             writeln!(out, "%TF.GenerationSoftware,OxideEDA,Oxide,v0.16.0*%")?;
@@ -234,16 +243,16 @@ impl GerberExporter {
                                     .round() as i64,
                             },
                             PadShape::Rect | PadShape::RoundRect => ApertureDef::Rectangle {
-                                width_nm: ((pad.size.x + expansion_mm * 2.0) * 1_000_000.0)
-                                    .round() as i64,
-                                height_nm: ((pad.size.y + expansion_mm * 2.0) * 1_000_000.0)
-                                    .round() as i64,
+                                width_nm: ((pad.size.x + expansion_mm * 2.0) * 1_000_000.0).round()
+                                    as i64,
+                                height_nm: ((pad.size.y + expansion_mm * 2.0) * 1_000_000.0).round()
+                                    as i64,
                             },
                             PadShape::Oval => ApertureDef::Obround {
-                                width_nm: ((pad.size.x + expansion_mm * 2.0) * 1_000_000.0)
-                                    .round() as i64,
-                                height_nm: ((pad.size.y + expansion_mm * 2.0) * 1_000_000.0)
-                                    .round() as i64,
+                                width_nm: ((pad.size.x + expansion_mm * 2.0) * 1_000_000.0).round()
+                                    as i64,
+                                height_nm: ((pad.size.y + expansion_mm * 2.0) * 1_000_000.0).round()
+                                    as i64,
                             },
                             _ => ApertureDef::Circle {
                                 diameter_nm: ((pad.size.x + expansion_mm * 2.0) * 1_000_000.0)

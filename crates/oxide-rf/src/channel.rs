@@ -1,8 +1,8 @@
 //! RF Channel Models (AWGN, Path Loss, Rayleigh & Rician Fading).
 
+use crate::modulation::IqSymbol;
 use serde::{Deserialize, Serialize};
 use std::f64::consts::PI;
-use crate::modulation::IqSymbol;
 
 /// RF Channel Configuration.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

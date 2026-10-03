@@ -16,7 +16,9 @@ pub mod storage;
 pub mod uart;
 
 pub use arch::{ArchClass, CoreProfile, McuVendor, MemoryModel};
-pub use firmware::{ArmArch, ArmCore, FirmwareError, FirmwareImage, McuFamily, McuTarget, MemorySegment};
+pub use firmware::{
+    ArmArch, ArmCore, FirmwareError, FirmwareImage, McuFamily, McuTarget, MemorySegment,
+};
 pub use peripheral::{DisplaySimulator, DisplayType, TouchEvent, TouchType};
 pub use pin_bridge::{LogicLevel, PinBridge, PinFunction, VirtualPinState};
 pub use qemu::{QemuConfig, QemuError, QemuInstance};
@@ -77,11 +79,15 @@ mod tests {
         assert_eq!(uno_prof.bit_width, 8);
         assert_eq!(uno_prof.qemu_executable, "qemu-system-avr");
         match uno_prof.memory_model {
-            MemoryModel::HarvardSplit { flash_word_size_bytes, sram_size_bytes, eeprom_size_bytes } => {
+            MemoryModel::HarvardSplit {
+                flash_word_size_bytes,
+                sram_size_bytes,
+                eeprom_size_bytes,
+            } => {
                 assert_eq!(flash_word_size_bytes, 32768);
                 assert_eq!(sram_size_bytes, 2048);
                 assert_eq!(eeprom_size_bytes, 1024);
-            },
+            }
             _ => panic!("Expected HarvardSplit memory model for AVR"),
         }
 
@@ -208,7 +214,11 @@ mod tests {
     #[test]
     fn test_pin_bridge_logic_and_adc() {
         let mut bridge = PinBridge::new(3.3);
-        bridge.register_pin("PA0", PinFunction::AdcInput { channel: 0 }, Some("NET_SENSOR".to_string()));
+        bridge.register_pin(
+            "PA0",
+            PinFunction::AdcInput { channel: 0 },
+            Some("NET_SENSOR".to_string()),
+        );
         bridge.register_pin("PC13", PinFunction::GpioOutput, Some("NET_LED".to_string()));
 
         bridge.update_from_spice_voltage("PA0", 1.65);

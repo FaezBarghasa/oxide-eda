@@ -30,13 +30,18 @@ impl AltiumRecord {
     pub fn get_f64(&self, key: &str) -> Option<f64> {
         self.get(key).and_then(|v| {
             let s = v.trim();
-            let num_str = s.trim_end_matches(|c: char| c.is_alphabetic() || c == '%').trim();
+            let num_str = s
+                .trim_end_matches(|c: char| c.is_alphabetic() || c == '%')
+                .trim();
             num_str.parse::<f64>().ok()
         })
     }
 
     pub fn get_bool(&self, key: &str) -> bool {
-        matches!(self.get(key), Some("TRUE") | Some("true") | Some("1") | Some("T"))
+        matches!(
+            self.get(key),
+            Some("TRUE") | Some("true") | Some("1") | Some("T")
+        )
     }
 
     /// Convert Altium DXP internal coordinate (or coordinate with mm/mil/in unit) to mm.

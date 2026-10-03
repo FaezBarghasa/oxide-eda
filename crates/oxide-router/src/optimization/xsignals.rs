@@ -3,8 +3,8 @@
 //! Propagates electrical signal paths across series passives (termination resistors,
 //! AC coupling capacitors) and computes aggregate delay and length matching statistics.
 
-use oxide_physics::Microns;
 use crate::geometry::rtree::NetId;
+use oxide_physics::Microns;
 
 /// An xSignal represents a logical high-speed connection spanning across multiple sub-nets
 /// through series passives (e.g. `U1.TX -> R1 -> C1 -> J1.RX`).

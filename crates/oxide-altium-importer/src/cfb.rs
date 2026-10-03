@@ -139,32 +139,38 @@ impl CfbContainer {
                     .collect();
                 let stream_name = String::from_utf16_lossy(&utf16_chars);
 
-                let stream_content = if stream_size < 4096 && !mini_stream.is_empty() && !mini_fat.is_empty() {
-                    // Mini stream reading (64 byte mini sectors)
-                    let mini_sector_size = 64;
-                    let mut result = Vec::with_capacity(stream_size);
-                    let mut mcurr = start_sec;
-                    let mut mvisited = 0;
-                    while mcurr != ENDOFCHAIN && mcurr != FREESECT && (mcurr as usize) < mini_fat.len() {
-                        let offset = mcurr as usize * mini_sector_size;
-                        if offset >= mini_stream.len() {
-                            break;
+                let stream_content =
+                    if stream_size < 4096 && !mini_stream.is_empty() && !mini_fat.is_empty() {
+                        // Mini stream reading (64 byte mini sectors)
+                        let mini_sector_size = 64;
+                        let mut result = Vec::with_capacity(stream_size);
+                        let mut mcurr = start_sec;
+                        let mut mvisited = 0;
+                        while mcurr != ENDOFCHAIN
+                            && mcurr != FREESECT
+                            && (mcurr as usize) < mini_fat.len()
+                        {
+                            let offset = mcurr as usize * mini_sector_size;
+                            if offset >= mini_stream.len() {
+                                break;
+                            }
+                            let end = (offset + mini_sector_size).min(mini_stream.len());
+                            result.extend_from_slice(&mini_stream[offset..end]);
+                            mcurr = mini_fat[mcurr as usize];
+                            mvisited += 1;
+                            if mvisited > mini_fat.len()
+                                || result.len() >= stream_size + mini_sector_size
+                            {
+                                break;
+                            }
                         }
-                        let end = (offset + mini_sector_size).min(mini_stream.len());
-                        result.extend_from_slice(&mini_stream[offset..end]);
-                        mcurr = mini_fat[mcurr as usize];
-                        mvisited += 1;
-                        if mvisited > mini_fat.len() || result.len() >= stream_size + mini_sector_size {
-                            break;
+                        if result.len() > stream_size {
+                            result.truncate(stream_size);
                         }
-                    }
-                    if result.len() > stream_size {
-                        result.truncate(stream_size);
-                    }
-                    result
-                } else {
-                    read_chain(start_sec, stream_size)
-                };
+                        result
+                    } else {
+                        read_chain(start_sec, stream_size)
+                    };
 
                 streams.insert(stream_name, stream_content);
             }
@@ -181,7 +187,10 @@ impl CfbContainer {
             .ok_or_else(|| AltiumImportError::StreamNotFound(name.to_string()))?;
 
         // Check if stream is zlib compressed (typical zlib header: 0x78 0x9C or 0x78 0x01 or 0x78 0xDA)
-        if raw.len() > 2 && raw[0] == 0x78 && (raw[1] == 0x9C || raw[1] == 0x01 || raw[1] == 0xDA || raw[1] == 0x5E) {
+        if raw.len() > 2
+            && raw[0] == 0x78
+            && (raw[1] == 0x9C || raw[1] == 0x01 || raw[1] == 0xDA || raw[1] == 0x5E)
+        {
             let mut decoder = ZlibDecoder::new(&raw[..]);
             let mut decompressed = Vec::new();
             if decoder.read_to_end(&mut decompressed).is_ok() && !decompressed.is_empty() {

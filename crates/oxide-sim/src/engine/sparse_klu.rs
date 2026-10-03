@@ -209,12 +209,7 @@ mod tests {
 
     #[test]
     fn test_sparse_linear_solve() {
-        let triplets = vec![
-            (0, 0, 10.0),
-            (0, 1, -2.0),
-            (1, 0, -2.0),
-            (1, 1, 5.0),
-        ];
+        let triplets = vec![(0, 0, 10.0), (0, 1, -2.0), (1, 0, -2.0), (1, 1, 5.0)];
         let csc = SparseMatrixCsc::from_triplets(2, 2, &triplets);
         let rhs = vec![6.0, 8.0];
         let sol = csc.solve_dense_equivalent(&rhs).expect("linear solve");

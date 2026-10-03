@@ -24,12 +24,12 @@ impl BackoffConfig {
     pub fn calculate_delay(&self, retry: u32) -> Duration {
         let exp = 2u64.saturating_pow(retry);
         let raw_ms = (self.base_ms.saturating_mul(exp)).min(self.max_ms);
-        
+
         // Pseudo-random deterministic jitter based on timestamp
         let now_nanos = Instant::now().elapsed().as_nanos() as f64;
         let pseudo_rand = ((now_nanos.sin() + 1.0) / 2.0) * 2.0 - 1.0; // [-1.0, 1.0]
         let jitter_ms = (raw_ms as f64 * self.jitter_factor * pseudo_rand) as i64;
-        
+
         let final_ms = (raw_ms as i64 + jitter_ms).max(10) as u64;
         Duration::from_millis(final_ms)
     }

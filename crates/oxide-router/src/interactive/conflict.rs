@@ -1,7 +1,7 @@
 //! Conflict resolution modes and push-and-shove physics.
 
-use std::collections::{HashMap, HashSet};
 use oxide_physics::Microns;
+use std::collections::{HashMap, HashSet};
 
 use crate::geometry::rtree::{ObjectId, SpatialIndex, SpatialObject};
 use crate::geometry::{BoundingBox, Point2D};
@@ -106,7 +106,8 @@ impl PushAndShoveEngine {
             if visited.contains(&obstacle.id) {
                 continue;
             }
-            if let Some(push) = calculate_push(obstacle, trace_start, trace_end, required_clearance) {
+            if let Some(push) = calculate_push(obstacle, trace_start, trace_end, required_clearance)
+            {
                 visited.insert(push.object_id);
                 pushed_positions.insert(push.object_id, push.new_pos);
                 results.push(push);
@@ -142,7 +143,10 @@ impl PushAndShoveEngine {
             return;
         }
 
-        let current_pos = pushed_positions.get(&source_obs.id).copied().unwrap_or_else(|| source_obs.bbox.center());
+        let current_pos = pushed_positions
+            .get(&source_obs.id)
+            .copied()
+            .unwrap_or_else(|| source_obs.bbox.center());
         let secondary_bbox = BoundingBox::from_center_radius(current_pos, required_clearance + 200);
 
         let exclude_nets: Vec<u32> = source_obs.net_id.into_iter().collect();
@@ -155,7 +159,8 @@ impl PushAndShoveEngine {
 
             let sec_center = sec_obs.bbox.center();
             let (dx, dy) = current_pos.direction_to(sec_center);
-            let push_dist = (required_clearance as f64 * self.repulsive_spring_constant).round() as i64;
+            let push_dist =
+                (required_clearance as f64 * self.repulsive_spring_constant).round() as i64;
             let new_pos = Point2D::new(
                 sec_center.x + (dx * push_dist as f64).round() as i64,
                 sec_center.y + (dy * push_dist as f64).round() as i64,

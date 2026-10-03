@@ -193,4 +193,3 @@ pub struct PanelContext {
     /// Active DRC rule violations for the Design Rule Check panel.
     pub drc_violations: Vec<oxide_rules::RuleViolation>,
 }
-

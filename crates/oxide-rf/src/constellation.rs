@@ -1,7 +1,7 @@
 //! Constellation Diagram & Error Vector Magnitude (EVM) Calculation.
 
-use serde::{Deserialize, Serialize};
 use crate::modulation::IqSymbol;
+use serde::{Deserialize, Serialize};
 
 /// Constellation Point with ideal reference and noisy received coordinates.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
@@ -69,7 +69,11 @@ impl ConstellationDataset {
         let avg_ref_pwr = (ref_pwr_sum / n as f64).max(1e-12);
         let evm_rms_linear = (err_sq_sum / (n as f64 * avg_ref_pwr)).sqrt();
         let evm_rms_percent = evm_rms_linear * 100.0;
-        let evm_rms_db = if evm_rms_linear <= 1e-15 { -100.0 } else { 20.0 * evm_rms_linear.log10() };
+        let evm_rms_db = if evm_rms_linear <= 1e-15 {
+            -100.0
+        } else {
+            20.0 * evm_rms_linear.log10()
+        };
         let evm_peak_percent = (peak_err_sq / avg_ref_pwr).sqrt() * 100.0;
         let snr_est_db = -evm_rms_db;
 

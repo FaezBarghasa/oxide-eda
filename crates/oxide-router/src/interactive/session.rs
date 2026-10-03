@@ -46,7 +46,7 @@ impl InteractiveTuningHudState {
             target_length_microns,
             current_length_microns: 0,
             package_delay_microns: 0,
-            tolerance_microns: 50, // 50 µm (~2 mil)
+            tolerance_microns: 50,  // 50 µm (~2 mil)
             amplitude_microns: 800, // 800 µm amplitude
             pitch_microns: 600,     // 600 µm pitch
             corner_style: CornerStyle::Mitred45,

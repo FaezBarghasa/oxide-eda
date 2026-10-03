@@ -6,7 +6,9 @@ use crate::primitive::symbol::Symbol;
 
 #[derive(Error, Debug, Clone, PartialEq)]
 pub enum GateVerificationError {
-    #[error("GATE-PIN-01 Violation: Pin/Pad count mismatch. Symbol has {symbol_pins} pins, Footprint has {footprint_pads} pads")]
+    #[error(
+        "GATE-PIN-01 Violation: Pin/Pad count mismatch. Symbol has {symbol_pins} pins, Footprint has {footprint_pads} pads"
+    )]
     PinPadCountMismatch {
         symbol_pins: usize,
         footprint_pads: usize,
@@ -19,18 +21,19 @@ pub enum GateVerificationError {
     DuplicatePin(String),
     #[error("GATE-PIN-01 Violation: Duplicate footprint pad number '{0}'")]
     DuplicatePad(String),
-    #[error("GATE-IPC-02 Violation: Minimum clearance between pads {pad_a} and {pad_b} is {clearance_mm:.4} mm (required >= {required_mm:.4} mm)")]
+    #[error(
+        "GATE-IPC-02 Violation: Minimum clearance between pads {pad_a} and {pad_b} is {clearance_mm:.4} mm (required >= {required_mm:.4} mm)"
+    )]
     InsufficientClearance {
         pad_a: String,
         pad_b: String,
         clearance_mm: f64,
         required_mm: f64,
     },
-    #[error("GATE-STEP-03 Violation: 3D body height {height_mm:.4} mm is non-positive or coplanarity offset {offset_z_mm:.4} mm exceeds tolerance")]
-    Invalid3DBody {
-        height_mm: f32,
-        offset_z_mm: f32,
-    },
+    #[error(
+        "GATE-STEP-03 Violation: 3D body height {height_mm:.4} mm is non-positive or coplanarity offset {offset_z_mm:.4} mm exceeds tolerance"
+    )]
+    Invalid3DBody { height_mm: f32, offset_z_mm: f32 },
 }
 
 /// Senior QA Verification Engine enforcing Anti-Hallucination component gates.
@@ -38,7 +41,10 @@ pub struct VerificationEngine;
 
 impl VerificationEngine {
     /// Validates GATE-PIN-01: Strict bijection between Symbol pins and Footprint pads.
-    pub fn verify_gate_pin_01(symbol: &Symbol, footprint: &Footprint) -> Result<(), GateVerificationError> {
+    pub fn verify_gate_pin_01(
+        symbol: &Symbol,
+        footprint: &Footprint,
+    ) -> Result<(), GateVerificationError> {
         let mut sym_pins = HashSet::new();
         for pin in &symbol.pins {
             if !sym_pins.insert(pin.number.clone()) {
@@ -70,7 +76,10 @@ impl VerificationEngine {
     }
 
     /// Validates GATE-IPC-02: Minimum copper clearance >= 0.10 mm.
-    pub fn verify_gate_ipc_02(footprint: &Footprint, min_clearance_mm: f64) -> Result<(), GateVerificationError> {
+    pub fn verify_gate_ipc_02(
+        footprint: &Footprint,
+        min_clearance_mm: f64,
+    ) -> Result<(), GateVerificationError> {
         let pads = &footprint.pads;
         for i in 0..pads.len() {
             for j in (i + 1)..pads.len() {

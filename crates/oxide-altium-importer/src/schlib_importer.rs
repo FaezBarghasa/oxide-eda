@@ -1,17 +1,17 @@
 //! Altium Designer Schematic Symbol Library (.SchLib) importer.
 
-use std::collections::BTreeMap;
 use chrono::Utc;
+use std::collections::BTreeMap;
 use uuid::Uuid;
 
 use oxide_library::primitive::symbol::{
-    ComponentType, PinDirection, PinOrientation, PinSymbolKind, Symbol as LibSymbol,
-    SymbolGraphic, SymbolGraphicKind, SymbolPin,
+    ComponentType, PinDirection, PinOrientation, PinSymbolKind, Symbol as LibSymbol, SymbolGraphic,
+    SymbolGraphicKind, SymbolPin,
 };
 
 use crate::cfb::CfbContainer;
 use crate::error::AltiumImportError;
-use crate::record::{parse_record_stream, AltiumRecord};
+use crate::record::{AltiumRecord, parse_record_stream};
 
 /// Import all symbols from an Altium `.SchLib` file byte slice.
 pub fn import_schlib_bytes(bytes: &[u8]) -> Result<Vec<LibSymbol>, AltiumImportError> {
@@ -27,7 +27,9 @@ pub fn import_schlib_bytes(bytes: &[u8]) -> Result<Vec<LibSymbol>, AltiumImportE
 
     // Check individual storage streams (often named after the component name or index)
     for (name, stream_bytes) in &cfb.streams {
-        if name != "FileHeader" && name != "Storage" && !name.starts_with('/')
+        if name != "FileHeader"
+            && name != "Storage"
+            && !name.starts_with('/')
             && let Ok(records) = parse_record_stream(stream_bytes)
             && let Ok(parsed) = parse_symbols_from_records(&records)
         {
@@ -43,7 +45,9 @@ pub fn import_schlib_bytes(bytes: &[u8]) -> Result<Vec<LibSymbol>, AltiumImportE
 }
 
 /// Parse multiple [`LibSymbol`]s from a record slice.
-pub fn parse_symbols_from_records(records: &[AltiumRecord]) -> Result<Vec<LibSymbol>, AltiumImportError> {
+pub fn parse_symbols_from_records(
+    records: &[AltiumRecord],
+) -> Result<Vec<LibSymbol>, AltiumImportError> {
     let mut symbols = Vec::new();
     let mut current_symbol: Option<LibSymbol> = None;
 
@@ -169,7 +173,9 @@ pub fn parse_symbols_from_records(records: &[AltiumRecord]) -> Result<Vec<LibSym
                     for i in 1..=count {
                         let x_key = format!("X{i}");
                         let y_key = format!("Y{i}");
-                        if let (Some(x), Some(y)) = (rec.get_coord_mm(&x_key), rec.get_coord_mm(&y_key)) {
+                        if let (Some(x), Some(y)) =
+                            (rec.get_coord_mm(&x_key), rec.get_coord_mm(&y_key))
+                        {
                             points.push([x, y]);
                         }
                     }

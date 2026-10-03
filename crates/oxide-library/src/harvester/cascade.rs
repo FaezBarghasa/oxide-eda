@@ -1,5 +1,5 @@
-use std::sync::Arc;
 use sha2::{Digest, Sha256};
+use std::sync::Arc;
 
 use super::types::{
     ComponentHarvester, DiscoveredPin, ElectricalPinType, HarvestError, HarvestQuery,
@@ -43,7 +43,10 @@ impl HarvesterCascade {
         let mpn = &query.mpn;
         let mut raw = HarvestedRawData {
             mpn: mpn.clone(),
-            manufacturer: query.manufacturer.clone().unwrap_or_else(|| "Generic".into()),
+            manufacturer: query
+                .manufacturer
+                .clone()
+                .unwrap_or_else(|| "Generic".into()),
             description: format!("Synthesized component for {mpn}"),
             ..Default::default()
         };
@@ -63,7 +66,9 @@ impl HarvesterCascade {
                 DiscoveredPin::new("7", "OUT2").with_type(ElectricalPinType::Output),
                 DiscoveredPin::new("8", "VCC").with_type(ElectricalPinType::Power),
             ]);
-        } else if upper.starts_with('R') && (upper.contains("0805") || upper.contains("0603") || upper.contains("0402")) {
+        } else if upper.starts_with('R')
+            && (upper.contains("0805") || upper.contains("0603") || upper.contains("0402"))
+        {
             raw.description = "Chip Resistor".into();
             let (l, w, h) = if upper.contains("0805") {
                 (2.0, 1.25, 0.5)
@@ -77,7 +82,9 @@ impl HarvesterCascade {
                 DiscoveredPin::new("1", "1").with_type(ElectricalPinType::Passive),
                 DiscoveredPin::new("2", "2").with_type(ElectricalPinType::Passive),
             ]);
-        } else if upper.starts_with('C') && (upper.contains("0805") || upper.contains("0603") || upper.contains("0402")) {
+        } else if upper.starts_with('C')
+            && (upper.contains("0805") || upper.contains("0603") || upper.contains("0402"))
+        {
             raw.description = "Ceramic Capacitor".into();
             let (l, w, h) = if upper.contains("0805") {
                 (2.0, 1.25, 0.5)
@@ -94,7 +101,11 @@ impl HarvesterCascade {
         } else {
             // Default 8-pin dual inline / SOIC
             raw.direct_dimensions = Some(PackageDimensions::standard_soic(8));
-            raw.direct_pins = Some((1..=8).map(|i| DiscoveredPin::new(i.to_string(), format!("P{i}"))).collect());
+            raw.direct_pins = Some(
+                (1..=8)
+                    .map(|i| DiscoveredPin::new(i.to_string(), format!("P{i}")))
+                    .collect(),
+            );
         }
 
         raw
@@ -116,13 +127,14 @@ impl ComponentHarvester for HarvesterCascade {
                     parameters: best.parameters,
                     ..Default::default()
                 };
-                
+
                 // Populate default dimensions from footprint hint or synthesize
                 if let Some(hint) = best.footprint_hint {
                     if hint.contains("SOIC") || hint.contains("SOP") {
                         data.direct_dimensions = Some(PackageDimensions::standard_soic(8));
                     } else if hint.contains("0805") {
-                        data.direct_dimensions = Some(PackageDimensions::standard_chip(2.0, 1.25, 0.5));
+                        data.direct_dimensions =
+                            Some(PackageDimensions::standard_chip(2.0, 1.25, 0.5));
                     }
                 }
 

@@ -4,9 +4,9 @@
 //! - Global multi-sheet component parameter inspection and batch editing.
 //! - Parameter synchronization, diff generation, and batch modification.
 
-use std::collections::HashMap;
-use serde::{Deserialize, Serialize};
 use oxide_types::schematic::SchematicSheet;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 /// A single parameter entry for a component symbol.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -43,7 +43,10 @@ pub struct ParameterManager;
 
 impl ParameterManager {
     /// Extract a tabular view of all components and their parameters from a schematic sheet.
-    pub fn extract_parameters_from_sheet(sheet_name: &str, sheet: &SchematicSheet) -> Vec<ParameterTableRow> {
+    pub fn extract_parameters_from_sheet(
+        sheet_name: &str,
+        sheet: &SchematicSheet,
+    ) -> Vec<ParameterTableRow> {
         let mut rows = Vec::new();
 
         for sym in &sheet.symbols {
@@ -86,19 +89,24 @@ impl ParameterManager {
                             applied_count += 1;
                         }
                         custom => {
-                            sym.fields.insert(custom.to_string(), update.new_value.clone());
-                            if let Some(prop) = sym.custom_properties.iter_mut().find(|p| p.key == custom) {
+                            sym.fields
+                                .insert(custom.to_string(), update.new_value.clone());
+                            if let Some(prop) =
+                                sym.custom_properties.iter_mut().find(|p| p.key == custom)
+                            {
                                 prop.value = update.new_value.clone();
                             } else {
-                                sym.custom_properties.push(oxide_types::property::SchematicProperty {
-                                    key: custom.to_string(),
-                                    value: update.new_value.clone(),
-                                    id: None,
-                                    text: None,
-                                    show_name: Some(true),
-                                    do_not_autoplace: None,
-                                    variant_overrides: Default::default(),
-                                });
+                                sym.custom_properties.push(
+                                    oxide_types::property::SchematicProperty {
+                                        key: custom.to_string(),
+                                        value: update.new_value.clone(),
+                                        id: None,
+                                        text: None,
+                                        show_name: Some(true),
+                                        do_not_autoplace: None,
+                                        variant_overrides: Default::default(),
+                                    },
+                                );
                             }
                             applied_count += 1;
                         }

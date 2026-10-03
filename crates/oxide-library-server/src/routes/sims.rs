@@ -14,10 +14,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route(web::get().to(list_sims))
             .route(web::post().to(create_sim)),
     )
-    .service(
-        web::resource("/sims/{uuid}")
-            .route(web::get().to(get_sim)),
-    );
+    .service(web::resource("/sims/{uuid}").route(web::get().to(get_sim)));
 }
 
 #[derive(Debug, Deserialize, Default)]

@@ -14,10 +14,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route(web::get().to(list_footprints))
             .route(web::post().to(create_footprint)),
     )
-    .service(
-        web::resource("/footprints/{uuid}")
-            .route(web::get().to(get_footprint)),
-    );
+    .service(web::resource("/footprints/{uuid}").route(web::get().to(get_footprint)));
 }
 
 #[derive(Debug, Deserialize, Default)]

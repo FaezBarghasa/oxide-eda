@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use crate::geom::Point2D;
+use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 pub struct PlacementSuggestion {

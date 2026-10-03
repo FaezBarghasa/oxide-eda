@@ -66,23 +66,51 @@ impl SmokeAnalyzer {
         let derated_p = limits.max_power_w * limits.derating_factor;
         let derated_t = limits.max_junction_temp_c * limits.derating_factor;
 
-        let v_ratio = if derated_v > 0.0 { stress.peak_voltage_v / derated_v } else { 0.0 };
-        let i_ratio = if derated_i > 0.0 { stress.rms_current_a / derated_i } else { 0.0 };
-        let p_ratio = if derated_p > 0.0 { stress.avg_power_w / derated_p } else { 0.0 };
-        let t_ratio = if derated_t > 0.0 { stress.junction_temp_c / derated_t } else { 0.0 };
+        let v_ratio = if derated_v > 0.0 {
+            stress.peak_voltage_v / derated_v
+        } else {
+            0.0
+        };
+        let i_ratio = if derated_i > 0.0 {
+            stress.rms_current_a / derated_i
+        } else {
+            0.0
+        };
+        let p_ratio = if derated_p > 0.0 {
+            stress.avg_power_w / derated_p
+        } else {
+            0.0
+        };
+        let t_ratio = if derated_t > 0.0 {
+            stress.junction_temp_c / derated_t
+        } else {
+            0.0
+        };
 
         let max_ratio = v_ratio.max(i_ratio).max(p_ratio).max(t_ratio);
         let is_overstressed = max_ratio > 1.0;
 
         let primary_violation = if is_overstressed {
             if max_ratio == v_ratio {
-                Some(format!("Peak Voltage ({:.2}V > rated {:.2}V)", stress.peak_voltage_v, derated_v))
+                Some(format!(
+                    "Peak Voltage ({:.2}V > rated {:.2}V)",
+                    stress.peak_voltage_v, derated_v
+                ))
             } else if max_ratio == i_ratio {
-                Some(format!("RMS Current ({:.3}A > rated {:.3}A)", stress.rms_current_a, derated_i))
+                Some(format!(
+                    "RMS Current ({:.3}A > rated {:.3}A)",
+                    stress.rms_current_a, derated_i
+                ))
             } else if max_ratio == p_ratio {
-                Some(format!("Avg Power ({:.3}W > rated {:.3}W)", stress.avg_power_w, derated_p))
+                Some(format!(
+                    "Avg Power ({:.3}W > rated {:.3}W)",
+                    stress.avg_power_w, derated_p
+                ))
             } else {
-                Some(format!("Junction Temp ({:.1}°C > rated {:.1}°C)", stress.junction_temp_c, derated_t))
+                Some(format!(
+                    "Junction Temp ({:.1}°C > rated {:.1}°C)",
+                    stress.junction_temp_c, derated_t
+                ))
             }
         } else {
             None

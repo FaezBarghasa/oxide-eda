@@ -1,8 +1,8 @@
 //! PSpice simulation netlist (`.cir`) exporter.
 
-use std::collections::HashMap;
 use oxide_sim::PSpiceDeckBuilder;
 use oxide_types::sim::SimulationConfig;
+use std::collections::HashMap;
 use thiserror::Error;
 
 use crate::{ExportContext, Exporter};
@@ -22,7 +22,9 @@ pub struct PSpiceNetlistOutput {
 
 #[derive(Debug, Error)]
 pub enum PSpiceNetlistError {
-    #[error("no netlist was derived for this export — the app must attach ExportContext.netlist before exporting")]
+    #[error(
+        "no netlist was derived for this export — the app must attach ExportContext.netlist before exporting"
+    )]
     NoNetlist,
 }
 
@@ -47,7 +49,8 @@ impl Exporter for PSpiceNetlistExporter {
             }
         });
 
-        let builder = PSpiceDeckBuilder::new(netlist, &sheets, &models, &opts.config).with_title(title);
+        let builder =
+            PSpiceDeckBuilder::new(netlist, &sheets, &models, &opts.config).with_title(title);
         let deck = builder.build();
 
         Ok(PSpiceNetlistOutput {

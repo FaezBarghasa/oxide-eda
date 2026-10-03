@@ -12,11 +12,7 @@ pub enum HarnessElement {
     /// Single-ended net (e.g. `CLK`, `RESET_N`)
     Net(String),
     /// Multi-bit digital bus (e.g. `ADDR[15..0]`, `DATA[7..0]`)
-    Bus {
-        name: String,
-        msb: u32,
-        lsb: u32,
-    },
+    Bus { name: String, msb: u32, lsb: u32 },
     /// Tightly coupled differential pair (e.g. `D_P`, `D_N` or `TX_P`, `TX_N`)
     DiffPair {
         pair_name: String,
@@ -42,7 +38,8 @@ impl SignalHarness {
 
     /// Adds a single-ended net to the harness.
     pub fn add_net(&mut self, net_name: &str) {
-        self.elements.push(HarnessElement::Net(net_name.to_string()));
+        self.elements
+            .push(HarnessElement::Net(net_name.to_string()));
     }
 
     /// Adds a multi-bit bus to the harness.
@@ -76,7 +73,9 @@ impl SignalHarness {
                         nets.push(format!("{}[{}]", name, i));
                     }
                 }
-                HarnessElement::DiffPair { pos_net, neg_net, .. } => {
+                HarnessElement::DiffPair {
+                    pos_net, neg_net, ..
+                } => {
                     nets.push(pos_net.clone());
                     nets.push(neg_net.clone());
                 }
@@ -118,7 +117,12 @@ mod tests {
 
         let flat = h1.expand_nets();
         assert_eq!(flat.len(), 6);
-        assert_eq!(flat, vec!["USB_TX_P", "USB_TX_N", "USB_RX_P", "USB_RX_N", "VBUS", "GND"]);
+        assert_eq!(
+            flat,
+            vec![
+                "USB_TX_P", "USB_TX_N", "USB_RX_P", "USB_RX_N", "VBUS", "GND"
+            ]
+        );
 
         let mut h2 = SignalHarness::new("USB3_LINK_MATCH");
         h2.add_diff_pair("TX", "TX_P", "TX_N");

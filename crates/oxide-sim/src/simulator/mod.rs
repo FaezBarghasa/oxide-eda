@@ -1,8 +1,8 @@
 //! Simulator trait (port) and common error/result types.
 
+use oxide_types::sim::WaveformDataset;
 use std::path::Path;
 use thiserror::Error;
-use oxide_types::sim::WaveformDataset;
 
 pub mod ngspice;
 pub mod pspice_cli;

@@ -169,8 +169,16 @@ impl KinematicSubstrate for RigidFlexKinematicEngine {
         let mut transform = Matrix4x4::IDENTITY;
 
         while let Some(&(parent, ref bend)) = self.bends.get(&curr) {
-            let t_origin = Matrix4x4::translation(bend.axis_origin[0], bend.axis_origin[1], bend.axis_origin[2]);
-            let t_neg_origin = Matrix4x4::translation(-bend.axis_origin[0], -bend.axis_origin[1], -bend.axis_origin[2]);
+            let t_origin = Matrix4x4::translation(
+                bend.axis_origin[0],
+                bend.axis_origin[1],
+                bend.axis_origin[2],
+            );
+            let t_neg_origin = Matrix4x4::translation(
+                -bend.axis_origin[0],
+                -bend.axis_origin[1],
+                -bend.axis_origin[2],
+            );
             let rot = Matrix4x4::rotation_axis(bend.axis_direction, bend.fold_angle_radians);
 
             let local_bend = t_origin.multiply(&rot).multiply(&t_neg_origin);

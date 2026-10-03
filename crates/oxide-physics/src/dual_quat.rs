@@ -17,7 +17,12 @@ pub struct Quaternion {
 }
 
 impl Quaternion {
-    pub const IDENTITY: Self = Self { w: 1.0, x: 0.0, y: 0.0, z: 0.0 };
+    pub const IDENTITY: Self = Self {
+        w: 1.0,
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+    };
 
     pub fn new(w: f64, x: f64, y: f64, z: f64) -> Self {
         Self { w, x, y, z }
@@ -27,7 +32,9 @@ impl Quaternion {
     pub fn from_axis_angle(axis: [f64; 3], angle_rad: f64) -> Self {
         let half = angle_rad * 0.5;
         let sin_half = half.sin();
-        let len = (axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2]).sqrt().max(1e-15);
+        let len = (axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2])
+            .sqrt()
+            .max(1e-15);
         Self {
             w: half.cos(),
             x: (axis[0] / len) * sin_half,
@@ -65,7 +72,12 @@ pub struct DualQuaternion {
 impl DualQuaternion {
     pub const IDENTITY: Self = Self {
         real: Quaternion::IDENTITY,
-        dual: Quaternion { w: 0.0, x: 0.0, y: 0.0, z: 0.0 },
+        dual: Quaternion {
+            w: 0.0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        },
     };
 
     /// Constructs dual quaternion from rotation quaternion and translation vector $\vec{t} = [x, y, z]$.
@@ -83,12 +95,7 @@ impl DualQuaternion {
         let r_prod = self.real.multiply(&other.real);
         let d1 = self.real.multiply(&other.dual);
         let d2 = self.dual.multiply(&other.real);
-        let dual_prod = Quaternion::new(
-            d1.w + d2.w,
-            d1.x + d2.x,
-            d1.y + d2.y,
-            d1.z + d2.z,
-        );
+        let dual_prod = Quaternion::new(d1.w + d2.w, d1.x + d2.x, d1.y + d2.y, d1.z + d2.z);
         Self {
             real: r_prod,
             dual: dual_prod,
@@ -110,11 +117,7 @@ impl DualQuaternion {
         let p_quat = Quaternion::new(0.0, p[0], p[1], p[2]);
         let rot_p = self.real.multiply(&p_quat).multiply(&self.real.conjugate());
 
-        [
-            rot_p.x + t_quat.x,
-            rot_p.y + t_quat.y,
-            rot_p.z + t_quat.z,
-        ]
+        [rot_p.x + t_quat.x, rot_p.y + t_quat.y, rot_p.z + t_quat.z]
     }
 }
 

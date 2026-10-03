@@ -1,8 +1,8 @@
 //! SPICE raw file parser (ASCII and Binary format).
 
-use std::collections::BTreeMap;
-use oxide_types::sim::{TraceUnit, WaveformDataset, WaveformTrace};
 use crate::simulator::SimError;
+use oxide_types::sim::{TraceUnit, WaveformDataset, WaveformTrace};
+use std::collections::BTreeMap;
 
 /// Parses a SPICE raw data byte buffer into a [`WaveformDataset`].
 pub fn parse_spice_raw(bytes: &[u8]) -> Result<WaveformDataset, SimError> {
@@ -31,24 +31,39 @@ pub fn parse_spice_raw(bytes: &[u8]) -> Result<WaveformDataset, SimError> {
                 is_complex = true;
             }
         } else if trimmed.starts_with("No. Variables:") {
-            if let Ok(n) = trimmed.trim_start_matches("No. Variables:").trim().parse::<usize>() {
+            if let Ok(n) = trimmed
+                .trim_start_matches("No. Variables:")
+                .trim()
+                .parse::<usize>()
+            {
                 num_variables = n;
             }
         } else if trimmed.starts_with("No. Points:") {
-            if let Ok(n) = trimmed.trim_start_matches("No. Points:").trim().parse::<usize>() {
+            if let Ok(n) = trimmed
+                .trim_start_matches("No. Points:")
+                .trim()
+                .parse::<usize>()
+            {
                 num_points = n;
             }
         } else if trimmed.starts_with("Variables:") {
             in_variables = true;
-        } else if in_variables && (trimmed.starts_with("Values:") || trimmed.starts_with("Binary:")) {
+        } else if in_variables && (trimmed.starts_with("Values:") || trimmed.starts_with("Binary:"))
+        {
             if trimmed.starts_with("Binary:") {
                 is_binary = true;
                 // Calculate byte offset where binary data starts
                 let match_str = "Binary:\n";
                 let match_str_crlf = "Binary:\r\n";
-                if let Some(pos) = bytes.windows(match_str.len()).position(|w| w == match_str.as_bytes()) {
+                if let Some(pos) = bytes
+                    .windows(match_str.len())
+                    .position(|w| w == match_str.as_bytes())
+                {
                     binary_offset = pos + match_str.len();
-                } else if let Some(pos) = bytes.windows(match_str_crlf.len()).position(|w| w == match_str_crlf.as_bytes()) {
+                } else if let Some(pos) = bytes
+                    .windows(match_str_crlf.len())
+                    .position(|w| w == match_str_crlf.as_bytes())
+                {
                     binary_offset = pos + match_str_crlf.len();
                 }
             }
@@ -79,7 +94,9 @@ pub fn parse_spice_raw(bytes: &[u8]) -> Result<WaveformDataset, SimError> {
     }
 
     if var_names.is_empty() {
-        return Err(SimError::ParseError("No variables found in SPICE raw header".to_string()));
+        return Err(SimError::ParseError(
+            "No variables found in SPICE raw header".to_string(),
+        ));
     }
 
     let mut traces_data: Vec<Vec<f64>> = vec![Vec::with_capacity(num_points); var_names.len()];
@@ -95,7 +112,11 @@ pub fn parse_spice_raw(bytes: &[u8]) -> Result<WaveformDataset, SimError> {
         };
 
         let available_points = raw_data.len() / point_stride;
-        let points_to_read = if num_points > 0 { num_points.min(available_points) } else { available_points };
+        let points_to_read = if num_points > 0 {
+            num_points.min(available_points)
+        } else {
+            available_points
+        };
 
         for p in 0..points_to_read {
             for (v, trace) in traces_data.iter_mut().enumerate().take(var_names.len()) {
@@ -106,7 +127,9 @@ pub fn parse_spice_raw(bytes: &[u8]) -> Result<WaveformDataset, SimError> {
                 };
 
                 if offset + 8 <= raw_data.len() {
-                    let val = f64::from_le_bytes(raw_data[offset..offset + 8].try_into().unwrap_or([0; 8]));
+                    let val = f64::from_le_bytes(
+                        raw_data[offset..offset + 8].try_into().unwrap_or([0; 8]),
+                    );
                     trace.push(val);
                 }
             }
@@ -141,8 +164,15 @@ pub fn parse_spice_raw(bytes: &[u8]) -> Result<WaveformDataset, SimError> {
         }
     }
 
-    let (x_name, x_unit) = var_names.first().cloned().unwrap_or(("time".to_string(), TraceUnit::TimeSeconds));
-    let x_vals = if !traces_data.is_empty() { traces_data[0].clone() } else { Vec::new() };
+    let (x_name, x_unit) = var_names
+        .first()
+        .cloned()
+        .unwrap_or(("time".to_string(), TraceUnit::TimeSeconds));
+    let x_vals = if !traces_data.is_empty() {
+        traces_data[0].clone()
+    } else {
+        Vec::new()
+    };
 
     let mut traces = Vec::new();
     for (i, (name, unit)) in var_names.iter().enumerate().skip(1) {

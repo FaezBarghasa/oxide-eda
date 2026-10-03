@@ -19,11 +19,16 @@ mod properties_parameters;
 mod symbol_editor_properties;
 
 // v0.14.x -- domain modules split out of the former single-file panels module.
+mod ai_diff;
 mod color_field;
 mod components;
 mod context;
+mod copilot;
+mod drc;
 mod footprint_context;
+mod layer_stack;
 mod library;
+pub mod mcu_console;
 mod messages;
 mod palette;
 mod paper;
@@ -31,14 +36,9 @@ mod projects;
 mod properties;
 mod status;
 mod symbol_context;
-mod widgets;
-mod drc;
-mod layer_stack;
-mod copilot;
-mod ai_diff;
-pub mod waveform;
 pub mod telecom;
-pub mod mcu_console;
+pub mod waveform;
+mod widgets;
 
 use element_properties::{
     view_child_sheet_properties, view_drawing_properties, view_selected_element_properties,
@@ -305,4 +305,3 @@ pub fn view_panel<'a>(kind: PanelKind, ctx: &'a PanelContext) -> Element<'a, Pan
 
     scrollable(content).width(Length::Fill).into()
 }
-

@@ -323,7 +323,11 @@ impl Oxide {
     }
 
     pub(crate) fn mark_active_pcb_dirty(&mut self) {
-        if let Some(tab) = self.document_state.tabs.get_mut(self.document_state.active_tab) {
+        if let Some(tab) = self
+            .document_state
+            .tabs
+            .get_mut(self.document_state.active_tab)
+        {
             tab.dirty = true;
             self.document_state.dirty_paths.insert(tab.path.clone());
         }

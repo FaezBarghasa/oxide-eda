@@ -72,7 +72,8 @@ impl DmaController {
                 ch.current_items_remaining -= trans;
 
                 // Check half-transfer
-                if ch.current_items_remaining <= (ch.total_items / 2) && !ch.half_transfer_complete {
+                if ch.current_items_remaining <= (ch.total_items / 2) && !ch.half_transfer_complete
+                {
                     ch.half_transfer_complete = true;
                 }
 

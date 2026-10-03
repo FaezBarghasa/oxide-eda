@@ -3,12 +3,12 @@ mod error;
 mod patch;
 pub mod pcb;
 
-pub mod room;
-pub mod multi_channel;
-pub mod harness;
-pub mod parameter_manager;
 mod annotation;
+pub mod harness;
 mod history;
+pub mod multi_channel;
+pub mod parameter_manager;
+pub mod room;
 mod selection;
 mod sheet;
 mod transform;
@@ -16,8 +16,10 @@ mod transform;
 mod exec;
 
 pub use harness::{HarnessConnector, HarnessDefinition, HarnessEntry, HarnessManager};
-pub use multi_channel::{parse_and_expand_repeat, ChannelInstance};
-pub use parameter_manager::{ParameterManager, ParameterTableRow, ParameterUpdate, SymbolParameter};
+pub use multi_channel::{ChannelInstance, parse_and_expand_repeat};
+pub use parameter_manager::{
+    ParameterManager, ParameterTableRow, ParameterUpdate, SymbolParameter,
+};
 pub use room::{Room, RoomCopyOptions, RoomManager};
 
 #[cfg(test)]
@@ -30,10 +32,10 @@ pub use command::{
     TextTarget,
 };
 pub use error::EngineError;
-pub use pcb::{PcbCommand, PcbEngine, SelectedPcbItem, SelectedPcbKind};
 use history::HistoryEntry;
 use oxide_types::schematic::SchematicSheet;
 pub use patch::{CommandResult, DocumentPatch, PatchPair, SemanticPatch};
+pub use pcb::{PcbCommand, PcbEngine, SelectedPcbItem, SelectedPcbKind};
 pub use selection::{ClipboardSelection, SelectionAnchor, SelectionDetails, partition_cuttable};
 
 const JUNCTION_TOLERANCE_MM: f64 = 0.01;

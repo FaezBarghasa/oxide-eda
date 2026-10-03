@@ -37,7 +37,10 @@ impl ParallelSram {
     pub fn read_u16(&self, addr: u32) -> Option<u16> {
         if addr >= self.base_address && (addr - self.base_address + 1) < self.size_bytes as u32 {
             let offset = (addr - self.base_address) as usize;
-            Some(u16::from_le_bytes([self.memory[offset], self.memory[offset + 1]]))
+            Some(u16::from_le_bytes([
+                self.memory[offset],
+                self.memory[offset + 1],
+            ]))
         } else {
             None
         }

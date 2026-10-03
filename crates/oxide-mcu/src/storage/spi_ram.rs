@@ -57,7 +57,8 @@ impl SpiRam {
             SpiRamState::Idle => {
                 self.cmd_buffer.push(byte);
                 match self.cmd_buffer[0] {
-                    0x03 => { // READ: Normal Read (3 address bytes, no dummy)
+                    0x03 => {
+                        // READ: Normal Read (3 address bytes, no dummy)
                         if self.cmd_buffer.len() == 4 {
                             self.current_addr = ((self.cmd_buffer[1] as usize) << 16)
                                 | ((self.cmd_buffer[2] as usize) << 8)
@@ -67,7 +68,8 @@ impl SpiRam {
                         }
                         0xFF
                     }
-                    0x0B | 0xEB => { // Fast Read / Quad Fast Read (3 address bytes + 1 dummy byte)
+                    0x0B | 0xEB => {
+                        // Fast Read / Quad Fast Read (3 address bytes + 1 dummy byte)
                         if self.cmd_buffer.len() == 4 {
                             self.current_addr = ((self.cmd_buffer[1] as usize) << 16)
                                 | ((self.cmd_buffer[2] as usize) << 8)
@@ -77,7 +79,8 @@ impl SpiRam {
                         }
                         0xFF
                     }
-                    0x02 | 0x38 => { // WRITE / Quad Write (3 address bytes)
+                    0x02 | 0x38 => {
+                        // WRITE / Quad Write (3 address bytes)
                         if self.cmd_buffer.len() == 4 {
                             self.current_addr = ((self.cmd_buffer[1] as usize) << 16)
                                 | ((self.cmd_buffer[2] as usize) << 8)
@@ -87,11 +90,13 @@ impl SpiRam {
                         }
                         0xFF
                     }
-                    0x9F => { // Read ID (KGD / Manufacturer ID)
+                    0x9F => {
+                        // Read ID (KGD / Manufacturer ID)
                         self.state = SpiRamState::ReadingId { byte_idx: 0 };
                         0xFF
                     }
-                    0x66 | 0x99 => { // Reset Enable / Reset
+                    0x66 | 0x99 => {
+                        // Reset Enable / Reset
                         self.cmd_buffer.clear();
                         0xFF
                     }
@@ -107,7 +112,9 @@ impl SpiRam {
                 *byte_idx += 1;
                 id
             }
-            SpiRamState::Reading { ref mut dummy_cycles } => {
+            SpiRamState::Reading {
+                ref mut dummy_cycles,
+            } => {
                 if *dummy_cycles > 0 {
                     *dummy_cycles -= 1;
                     0xFF

@@ -1,7 +1,7 @@
 //! Git2 installer for cloning, fetching, checking out, and verifying EDA dependencies.
 
-use std::path::{Path, PathBuf};
 use oxide_types::project::{LockedDependency, ProjectDependency};
+use std::path::{Path, PathBuf};
 
 use super::{DependencyError, resolver::ResolvedRef};
 

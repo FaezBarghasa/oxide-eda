@@ -4,9 +4,9 @@
 //! and generation-tracked snapshots for PCB primitives (footprints, pads,
 //! tracks, arcs, vias, and copper zones).
 
-use std::path::PathBuf;
 use oxide_types::pcb::{Footprint, PcbBoard, Point, Segment, Via, Zone};
 use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 use uuid::Uuid;
 
 use crate::error::EngineError;
@@ -152,7 +152,11 @@ impl PcbEngine {
     pub fn hit_test(&self, x: f64, y: f64) -> Option<SelectedPcbItem> {
         // 1. Hit test Vias (topmost point primitives)
         for via in &self.board.vias {
-            let diam = if via.diameter > 0.0 { via.diameter } else { 0.6 };
+            let diam = if via.diameter > 0.0 {
+                via.diameter
+            } else {
+                0.6
+            };
             let radius = (diam / 2.0).max(0.4);
             let dx = x - via.position.x;
             let dy = y - via.position.y;
@@ -200,7 +204,8 @@ impl PcbEngine {
         // 3. Hit test Segments (tracks)
         for seg in &self.board.segments {
             let half_width = (seg.width / 2.0).max(0.2);
-            let dist_sq = point_to_segment_dist_sq(x, y, seg.start.x, seg.start.y, seg.end.x, seg.end.y);
+            let dist_sq =
+                point_to_segment_dist_sq(x, y, seg.start.x, seg.start.y, seg.end.x, seg.end.y);
             if dist_sq <= half_width * half_width {
                 return Some(SelectedPcbItem {
                     uuid: seg.uuid,
@@ -424,7 +429,12 @@ impl PcbEngine {
                 for item in &items {
                     match item.kind {
                         SelectedPcbKind::Footprint => {
-                            if let Some(fp) = self.board.footprints.iter_mut().find(|f| f.uuid == item.uuid) {
+                            if let Some(fp) = self
+                                .board
+                                .footprints
+                                .iter_mut()
+                                .find(|f| f.uuid == item.uuid)
+                            {
                                 fp.position.x += dx;
                                 fp.position.y += dy;
                                 for pad in &mut fp.pads {
@@ -434,7 +444,9 @@ impl PcbEngine {
                             }
                         }
                         SelectedPcbKind::Segment => {
-                            if let Some(seg) = self.board.segments.iter_mut().find(|s| s.uuid == item.uuid) {
+                            if let Some(seg) =
+                                self.board.segments.iter_mut().find(|s| s.uuid == item.uuid)
+                            {
                                 seg.start.x += dx;
                                 seg.start.y += dy;
                                 seg.end.x += dx;
@@ -442,13 +454,17 @@ impl PcbEngine {
                             }
                         }
                         SelectedPcbKind::Via => {
-                            if let Some(via) = self.board.vias.iter_mut().find(|v| v.uuid == item.uuid) {
+                            if let Some(via) =
+                                self.board.vias.iter_mut().find(|v| v.uuid == item.uuid)
+                            {
                                 via.position.x += dx;
                                 via.position.y += dy;
                             }
                         }
                         SelectedPcbKind::Zone => {
-                            if let Some(zone) = self.board.zones.iter_mut().find(|z| z.uuid == item.uuid) {
+                            if let Some(zone) =
+                                self.board.zones.iter_mut().find(|z| z.uuid == item.uuid)
+                            {
                                 for pt in &mut zone.outline {
                                     pt.x += dx;
                                     pt.y += dy;
@@ -490,8 +506,8 @@ fn point_in_polygon(px: f64, py: f64, poly: &[Point]) -> bool {
     for i in 0..poly.len() {
         let (xi, yi) = (poly[i].x, poly[i].y);
         let (xj, yj) = (poly[j].x, poly[j].y);
-        let intersect = ((yi > py) != (yj > py))
-            && (px < (xj - xi) * (py - yi) / (yj - yi + 1e-12) + xi);
+        let intersect =
+            ((yi > py) != (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi + 1e-12) + xi);
         if intersect {
             inside = !inside;
         }
@@ -499,4 +515,3 @@ fn point_in_polygon(px: f64, py: f64, poly: &[Point]) -> bool {
     }
     inside
 }
-

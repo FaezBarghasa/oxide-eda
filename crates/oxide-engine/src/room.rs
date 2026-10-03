@@ -156,7 +156,9 @@ impl RoomManager {
         let source_segments: Vec<Segment> = board
             .segments
             .iter()
-            .filter(|seg| source_room.contains_point(seg.start) && source_room.contains_point(seg.end))
+            .filter(|seg| {
+                source_room.contains_point(seg.start) && source_room.contains_point(seg.end)
+            })
             .cloned()
             .collect();
 
@@ -217,7 +219,8 @@ impl RoomManager {
                     };
 
                     // Only insert if both points are in target room
-                    if target_room.contains_point(new_start) || target_room.contains_point(new_end) {
+                    if target_room.contains_point(new_start) || target_room.contains_point(new_end)
+                    {
                         board.segments.push(Segment {
                             uuid: Uuid::new_v4(),
                             start: new_start,

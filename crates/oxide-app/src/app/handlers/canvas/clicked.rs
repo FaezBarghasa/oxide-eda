@@ -42,7 +42,10 @@ impl Oxide {
             }
 
             if self.interaction_state.current_tool == Tool::Component {
-                let fp_idx = self.active_pcb().map(|b| b.footprints.len() + 1).unwrap_or(1);
+                let fp_idx = self
+                    .active_pcb()
+                    .map(|b| b.footprints.len() + 1)
+                    .unwrap_or(1);
                 let fp = oxide_types::pcb::Footprint {
                     uuid: uuid::Uuid::new_v4(),
                     reference: format!("U{}", fp_idx),

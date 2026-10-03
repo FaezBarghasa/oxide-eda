@@ -1,7 +1,7 @@
 //! Lockfile manager for reading, writing, and validating `project.lock`.
 
-use std::path::{Path, PathBuf};
 use oxide_types::project::ProjectLockfile;
+use std::path::{Path, PathBuf};
 
 use super::DependencyError;
 
@@ -33,9 +33,8 @@ impl LockfileManager {
             source,
         })?;
 
-        let lockfile: ProjectLockfile = serde_json::from_slice(&bytes).map_err(|e| {
-            DependencyError::Lockfile(format!("Corrupt `{}`: {e}", path.display()))
-        })?;
+        let lockfile: ProjectLockfile = serde_json::from_slice(&bytes)
+            .map_err(|e| DependencyError::Lockfile(format!("Corrupt `{}`: {e}", path.display())))?;
 
         Ok(Some(lockfile))
     }
@@ -46,9 +45,8 @@ impl LockfileManager {
         lockfile: &ProjectLockfile,
     ) -> Result<(), DependencyError> {
         let path = Self::lockfile_path(project_root);
-        let json = serde_json::to_vec_pretty(lockfile).map_err(|e| {
-            DependencyError::Lockfile(format!("Failed to serialize lockfile: {e}"))
-        })?;
+        let json = serde_json::to_vec_pretty(lockfile)
+            .map_err(|e| DependencyError::Lockfile(format!("Failed to serialize lockfile: {e}")))?;
 
         oxide_types::atomic_io::atomic_write(&path, &json).map_err(|source| {
             DependencyError::Io {

@@ -27,7 +27,10 @@ pub struct Ipc2581Output {
 }
 
 /// Generates IPC-2581C XML content for a PCB design.
-pub fn export_ipc2581(board: &PcbBoard, _opts: &Ipc2581Options) -> Result<Ipc2581Output, Ipc2581Error> {
+pub fn export_ipc2581(
+    board: &PcbBoard,
+    _opts: &Ipc2581Options,
+) -> Result<Ipc2581Output, Ipc2581Error> {
     let mut xml = String::with_capacity(8192);
 
     xml.push_str("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
@@ -69,7 +72,10 @@ pub fn export_ipc2581(board: &PcbBoard, _opts: &Ipc2581Options) -> Result<Ipc258
     // Logical Netlist
     xml.push_str("    <LogicalNetlist>\n");
     for net in &board.nets {
-        xml.push_str(&format!("      <Net name=\"{}\" id=\"{}\" />\n", net.name, net.number));
+        xml.push_str(&format!(
+            "      <Net name=\"{}\" id=\"{}\" />\n",
+            net.name, net.number
+        ));
     }
     xml.push_str("    </LogicalNetlist>\n");
 

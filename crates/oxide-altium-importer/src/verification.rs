@@ -3,9 +3,9 @@
 //! Validates that an imported [`PcbBoard`] or [`SchematicSheet`] matches golden
 //! reference netlists, pin assignments, and geometric tolerances.
 
+use crate::error::AltiumImportError;
 use oxide_types::pcb::PcbBoard;
 use oxide_types::schematic::SchematicSheet;
-use crate::error::AltiumImportError;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct VerificationReport {

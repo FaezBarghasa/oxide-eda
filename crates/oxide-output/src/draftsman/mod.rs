@@ -9,8 +9,8 @@
 pub mod drill_table;
 pub mod gdt;
 
-use serde::{Deserialize, Serialize};
 use oxide_types::pcb::PcbBoard;
+use serde::{Deserialize, Serialize};
 
 pub use drill_table::{DrillTable, DrillTableRow, HolePlating};
 pub use gdt::{
@@ -75,9 +75,7 @@ pub enum DrawingView {
         table: DrillTable,
     },
     /// Layer Stack Legend showing copper, dielectric, core, and solder mask thicknesses
-    LayerStackLegend {
-        position_mm: [f64; 2],
-    },
+    LayerStackLegend { position_mm: [f64; 2] },
 }
 
 /// A single Draftsman drawing sheet.
@@ -121,7 +119,8 @@ impl DraftsmanDocument {
         };
 
         // Initialize with standard A3 fabrication & assembly sheets
-        let mut sheet1 = DraftsmanSheet::new(1, "Fabrication & Drill Drawing", SheetSize::A3Landscape);
+        let mut sheet1 =
+            DraftsmanSheet::new(1, "Fabrication & Drill Drawing", SheetSize::A3Landscape);
         sheet1.views.push(DrawingView::FabricationView {
             title: "BOARD FABRICATION VIEW".to_string(),
             position_mm: [150.0, 150.0],
@@ -160,8 +159,14 @@ impl DraftsmanDocument {
     }
 
     /// Render a Draftsman sheet to a standardized vector SVG engineering drawing.
-    pub fn generate_sheet_svg(&self, sheet_index: usize, board: &PcbBoard) -> Result<String, String> {
-        let sheet = self.sheets.get(sheet_index)
+    pub fn generate_sheet_svg(
+        &self,
+        sheet_index: usize,
+        board: &PcbBoard,
+    ) -> Result<String, String> {
+        let sheet = self
+            .sheets
+            .get(sheet_index)
             .ok_or_else(|| format!("Sheet index {sheet_index} out of bounds"))?;
 
         let (width_mm, height_mm) = sheet.size.dimensions_mm();
@@ -173,7 +178,9 @@ impl DraftsmanDocument {
         svg.push_str("  <style>\n");
         svg.push_str("    .border { stroke: #000; stroke-width: 0.5; fill: none; }\n");
         svg.push_str("    .title-block { stroke: #000; stroke-width: 0.35; fill: none; }\n");
-        svg.push_str("    .label { font-family: monospace, sans-serif; font-size: 3.5px; fill: #000; }\n");
+        svg.push_str(
+            "    .label { font-family: monospace, sans-serif; font-size: 3.5px; fill: #000; }\n",
+        );
         svg.push_str("    .title { font-family: sans-serif; font-size: 5.0px; font-weight: bold; fill: #000; }\n");
         svg.push_str("    .geometry { stroke: #0055aa; stroke-width: 0.25; fill: none; }\n");
         svg.push_str("    .table-cell { font-family: monospace; font-size: 2.8px; fill: #000; }\n");
@@ -194,21 +201,34 @@ impl DraftsmanDocument {
         ));
         svg.push_str(&format!(
             "  <text x=\"{:.1}\" y=\"{:.1}\" class=\"title\">{}</text>\n",
-            tb_x + 5.0, tb_y + 8.0, self.project_name
+            tb_x + 5.0,
+            tb_y + 8.0,
+            self.project_name
         ));
         svg.push_str(&format!(
             "  <text x=\"{:.1}\" y=\"{:.1}\" class=\"label\">SHEET: {} - {}</text>\n",
-            tb_x + 5.0, tb_y + 16.0, sheet.sheet_number, sheet.title
+            tb_x + 5.0,
+            tb_y + 16.0,
+            sheet.sheet_number,
+            sheet.title
         ));
         svg.push_str(&format!(
             "  <text x=\"{:.1}\" y=\"{:.1}\" class=\"label\">REV: {} | COMPANY: {}</text>\n",
-            tb_x + 5.0, tb_y + 24.0, self.revision, self.company_name
+            tb_x + 5.0,
+            tb_y + 24.0,
+            self.revision,
+            self.company_name
         ));
 
         // Views rendering
         for view in &sheet.views {
             match view {
-                DrawingView::FabricationView { title, position_mm, scale, .. } => {
+                DrawingView::FabricationView {
+                    title,
+                    position_mm,
+                    scale,
+                    ..
+                } => {
                     let cx = position_mm[0];
                     let cy = position_mm[1];
                     svg.push_str(&format!(
@@ -240,7 +260,12 @@ impl DraftsmanDocument {
                         row_y += 4.5;
                     }
                 }
-                DrawingView::AssemblyView { title, position_mm, scale, is_top_side } => {
+                DrawingView::AssemblyView {
+                    title,
+                    position_mm,
+                    scale,
+                    is_top_side,
+                } => {
                     let side_str = if *is_top_side { "TOP" } else { "BOTTOM" };
                     svg.push_str(&format!(
                         "  <!-- Assembly View -->\n  <text x=\"{:.1}\" y=\"{:.1}\" class=\"title\">{} ({side_str} SIDE, SCALE {:.1}:1)</text>\n",
@@ -308,11 +333,22 @@ mod tests {
         });
 
         doc.sync_with_board(&board);
-        let svg = doc.generate_sheet_svg(0, &board).expect("SVG generation should succeed");
+        let svg = doc
+            .generate_sheet_svg(0, &board)
+            .expect("SVG generation should succeed");
         assert!(svg.contains("<svg"), "Output must contain SVG root tag");
-        assert!(svg.contains("STM32_Industrial_Core"), "Title block must contain project name");
-        assert!(svg.contains("Fabrication &amp; Drill Drawing") || svg.contains("Fabrication & Drill Drawing"), "Title block must contain sheet title");
-        assert!(svg.contains("DRILL TABLE"), "Must render drill table legend");
+        assert!(
+            svg.contains("STM32_Industrial_Core"),
+            "Title block must contain project name"
+        );
+        assert!(
+            svg.contains("Fabrication &amp; Drill Drawing")
+                || svg.contains("Fabrication & Drill Drawing"),
+            "Title block must contain sheet title"
+        );
+        assert!(
+            svg.contains("DRILL TABLE"),
+            "Must render drill table legend"
+        );
     }
 }
-

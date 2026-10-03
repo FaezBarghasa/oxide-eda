@@ -4,7 +4,7 @@ use oxide_types::pcb::{Footprint, LayerDef, NetDef, PcbBoard, Point, Segment, Vi
 
 use crate::cfb::CfbContainer;
 use crate::error::AltiumImportError;
-use crate::record::{parse_record_stream, AltiumRecord};
+use crate::record::{AltiumRecord, parse_record_stream};
 
 /// Import an Altium `.PcbDoc` file from raw binary bytes.
 pub fn import_pcbdoc_bytes(bytes: &[u8]) -> Result<PcbBoard, AltiumImportError> {
@@ -95,10 +95,16 @@ pub fn import_pcbdoc_bytes(bytes: &[u8]) -> Result<PcbBoard, AltiumImportError> 
     Ok(board)
 }
 
-fn parse_board_metadata(records: &[AltiumRecord], board: &mut PcbBoard) -> Result<(), AltiumImportError> {
+fn parse_board_metadata(
+    records: &[AltiumRecord],
+    board: &mut PcbBoard,
+) -> Result<(), AltiumImportError> {
     for rec in records {
         if let Some(net_name) = rec.get("NETNAME").or_else(|| rec.get("NAME")) {
-            let net_id = rec.get_i64("NETID").or_else(|| rec.get_i64("ID")).unwrap_or(board.nets.len() as i64) as u32;
+            let net_id = rec
+                .get_i64("NETID")
+                .or_else(|| rec.get_i64("ID"))
+                .unwrap_or(board.nets.len() as i64) as u32;
             if !board.nets.iter().any(|n| n.name == net_name) {
                 board.nets.push(NetDef {
                     number: net_id,
@@ -112,10 +118,22 @@ fn parse_board_metadata(records: &[AltiumRecord], board: &mut PcbBoard) -> Resul
 
 fn parse_tracks(records: &[AltiumRecord], board: &mut PcbBoard) {
     for rec in records {
-        let x1 = rec.get_coord_mm("X1").or_else(|| rec.get_coord_mm("LOCATION.X")).unwrap_or(0.0);
-        let y1 = rec.get_coord_mm("Y1").or_else(|| rec.get_coord_mm("LOCATION.Y")).unwrap_or(0.0);
-        let x2 = rec.get_coord_mm("X2").or_else(|| rec.get_coord_mm("CORNER.X")).unwrap_or(x1);
-        let y2 = rec.get_coord_mm("Y2").or_else(|| rec.get_coord_mm("CORNER.Y")).unwrap_or(y1);
+        let x1 = rec
+            .get_coord_mm("X1")
+            .or_else(|| rec.get_coord_mm("LOCATION.X"))
+            .unwrap_or(0.0);
+        let y1 = rec
+            .get_coord_mm("Y1")
+            .or_else(|| rec.get_coord_mm("LOCATION.Y"))
+            .unwrap_or(0.0);
+        let x2 = rec
+            .get_coord_mm("X2")
+            .or_else(|| rec.get_coord_mm("CORNER.X"))
+            .unwrap_or(x1);
+        let y2 = rec
+            .get_coord_mm("Y2")
+            .or_else(|| rec.get_coord_mm("CORNER.Y"))
+            .unwrap_or(y1);
         let width = rec.get_coord_mm("WIDTH").unwrap_or(0.25);
         let layer = rec.get("LAYER").unwrap_or("Top Layer").to_string();
         let net = rec.get_i64("NET").unwrap_or(0) as u32;
@@ -133,8 +151,14 @@ fn parse_tracks(records: &[AltiumRecord], board: &mut PcbBoard) {
 
 fn parse_vias(records: &[AltiumRecord], board: &mut PcbBoard) {
     for rec in records {
-        let x = rec.get_coord_mm("LOCATION.X").or_else(|| rec.get_coord_mm("X")).unwrap_or(0.0);
-        let y = rec.get_coord_mm("LOCATION.Y").or_else(|| rec.get_coord_mm("Y")).unwrap_or(0.0);
+        let x = rec
+            .get_coord_mm("LOCATION.X")
+            .or_else(|| rec.get_coord_mm("X"))
+            .unwrap_or(0.0);
+        let y = rec
+            .get_coord_mm("LOCATION.Y")
+            .or_else(|| rec.get_coord_mm("Y"))
+            .unwrap_or(0.0);
         let diameter = rec.get_coord_mm("DIAMETER").unwrap_or(0.6);
         let drill = rec.get_coord_mm("HOLESIZE").unwrap_or(0.3);
         let net = rec.get_i64("NET").unwrap_or(0) as u32;
@@ -154,11 +178,21 @@ fn parse_vias(records: &[AltiumRecord], board: &mut PcbBoard) {
 
 fn parse_components(records: &[AltiumRecord], board: &mut PcbBoard) {
     for rec in records {
-        let designator = rec.get("SOURCECOMPONENTNAME").or_else(|| rec.get("NAME")).unwrap_or("").to_string();
+        let designator = rec
+            .get("SOURCECOMPONENTNAME")
+            .or_else(|| rec.get("NAME"))
+            .unwrap_or("")
+            .to_string();
         let footprint_id = rec.get("PATTERN").unwrap_or("").to_string();
         let comment = rec.get("COMMENT").unwrap_or("").to_string();
-        let x = rec.get_coord_mm("LOCATION.X").or_else(|| rec.get_coord_mm("X")).unwrap_or(0.0);
-        let y = rec.get_coord_mm("LOCATION.Y").or_else(|| rec.get_coord_mm("Y")).unwrap_or(0.0);
+        let x = rec
+            .get_coord_mm("LOCATION.X")
+            .or_else(|| rec.get_coord_mm("X"))
+            .unwrap_or(0.0);
+        let y = rec
+            .get_coord_mm("LOCATION.Y")
+            .or_else(|| rec.get_coord_mm("Y"))
+            .unwrap_or(0.0);
         let rotation = rec.get_f64("ROTATION").unwrap_or(0.0);
         let layer = rec.get("LAYER").unwrap_or("Top Layer").to_string();
 
@@ -183,16 +217,35 @@ fn parse_components(records: &[AltiumRecord], board: &mut PcbBoard) {
 /// Parse Altium Pad records and assign to footprints or board elements.
 pub fn parse_pads(records: &[AltiumRecord], board: &mut PcbBoard) {
     for rec in records {
-        let record_type = rec.get("RECORD").or_else(|| rec.get("OBJECTTYPE")).unwrap_or("");
+        let record_type = rec
+            .get("RECORD")
+            .or_else(|| rec.get("OBJECTTYPE"))
+            .unwrap_or("");
         if !record_type.eq_ignore_ascii_case("Pad") && record_type != "4" {
             continue;
         }
 
-        let name = rec.get("NAME").or_else(|| rec.get("PADNAME")).unwrap_or("1").to_string();
-        let x = rec.get_coord_mm("LOCATION.X").or_else(|| rec.get_coord_mm("X")).unwrap_or(0.0);
-        let y = rec.get_coord_mm("LOCATION.Y").or_else(|| rec.get_coord_mm("Y")).unwrap_or(0.0);
-        let size_x = rec.get_coord_mm("TOPXSIZE").or_else(|| rec.get_coord_mm("XSIZE")).unwrap_or(1.5);
-        let size_y = rec.get_coord_mm("TOPYSIZE").or_else(|| rec.get_coord_mm("YSIZE")).unwrap_or(1.5);
+        let name = rec
+            .get("NAME")
+            .or_else(|| rec.get("PADNAME"))
+            .unwrap_or("1")
+            .to_string();
+        let x = rec
+            .get_coord_mm("LOCATION.X")
+            .or_else(|| rec.get_coord_mm("X"))
+            .unwrap_or(0.0);
+        let y = rec
+            .get_coord_mm("LOCATION.Y")
+            .or_else(|| rec.get_coord_mm("Y"))
+            .unwrap_or(0.0);
+        let size_x = rec
+            .get_coord_mm("TOPXSIZE")
+            .or_else(|| rec.get_coord_mm("XSIZE"))
+            .unwrap_or(1.5);
+        let size_y = rec
+            .get_coord_mm("TOPYSIZE")
+            .or_else(|| rec.get_coord_mm("YSIZE"))
+            .unwrap_or(1.5);
         let hole_size = rec.get_coord_mm("HOLESIZE").unwrap_or(0.0);
         let layer_str = rec.get("LAYER").unwrap_or("Multi-Layer");
         let net_id = rec.get_i64("NET").unwrap_or(0) as u32;
@@ -204,7 +257,10 @@ pub fn parse_pads(records: &[AltiumRecord], board: &mut PcbBoard) {
         };
 
         // Determine shape and corner radius
-        let shape_raw = rec.get("TOPSHAPE").or_else(|| rec.get("SHAPE")).unwrap_or("Round");
+        let shape_raw = rec
+            .get("TOPSHAPE")
+            .or_else(|| rec.get("SHAPE"))
+            .unwrap_or("Round");
         let (shape, ratio) = match shape_raw {
             "0" | "Round" | "Circle" => (oxide_types::pcb::PadShape::Circle, 0.0),
             "1" | "Rectangular" | "Rectangle" => (oxide_types::pcb::PadShape::Rect, 0.0),
@@ -213,7 +269,9 @@ pub fn parse_pads(records: &[AltiumRecord], board: &mut PcbBoard) {
                 let r_pct = rec.get_f64("ROUNDRECTANGULARRADIUS").unwrap_or(25.0) / 100.0;
                 (oxide_types::pcb::PadShape::RoundRect, r_pct)
             }
-            "4" | "ChamferedRectangle" | "Custom" | "5" => (oxide_types::pcb::PadShape::Custom, 0.0),
+            "4" | "ChamferedRectangle" | "Custom" | "5" => {
+                (oxide_types::pcb::PadShape::Custom, 0.0)
+            }
             _ => (oxide_types::pcb::PadShape::Rect, 0.0),
         };
 
@@ -257,7 +315,10 @@ fn parse_all_pcb_records(records: &[AltiumRecord], board: &mut PcbBoard) {
     parse_pads(records, board);
 
     for rec in records {
-        let record_type = rec.get("RECORD").or_else(|| rec.get("OBJECTTYPE")).unwrap_or("");
+        let record_type = rec
+            .get("RECORD")
+            .or_else(|| rec.get("OBJECTTYPE"))
+            .unwrap_or("");
         if record_type.eq_ignore_ascii_case("Track") || record_type == "1" {
             if let (Some(x1), Some(y1), Some(x2), Some(y2)) = (
                 rec.get_coord_mm("X1"),
@@ -278,7 +339,12 @@ fn parse_all_pcb_records(records: &[AltiumRecord], board: &mut PcbBoard) {
                 });
             }
         } else if (record_type.eq_ignore_ascii_case("Via") || record_type == "2")
-            && let (Some(x), Some(y)) = (rec.get_coord_mm("X").or_else(|| rec.get_coord_mm("LOCATION.X")), rec.get_coord_mm("Y").or_else(|| rec.get_coord_mm("LOCATION.Y")))
+            && let (Some(x), Some(y)) = (
+                rec.get_coord_mm("X")
+                    .or_else(|| rec.get_coord_mm("LOCATION.X")),
+                rec.get_coord_mm("Y")
+                    .or_else(|| rec.get_coord_mm("LOCATION.Y")),
+            )
         {
             let diameter = rec.get_coord_mm("DIAMETER").unwrap_or(0.6);
             let drill = rec.get_coord_mm("HOLESIZE").unwrap_or(0.3);
@@ -296,4 +362,3 @@ fn parse_all_pcb_records(records: &[AltiumRecord], board: &mut PcbBoard) {
         }
     }
 }
-

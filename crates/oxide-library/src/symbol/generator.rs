@@ -15,7 +15,10 @@ pub enum PartitioningStrategy {
     /// Single unitary symbol body.
     SingleUnit,
     /// Homogeneous functional units (e.g. Dual/Quad Op-Amps, Hex Inverters).
-    HomogeneousArray { units: usize, share_power_unit: bool },
+    HomogeneousArray {
+        units: usize,
+        share_power_unit: bool,
+    },
     /// Heterogeneous bank-based partitioning (e.g. MCUs, FPGAs, SoCs).
     HeterogeneousBanked,
 }
@@ -49,7 +52,9 @@ impl MultiGateSymbolGenerator {
             || n.starts_with('/')
             || n.starts_with('\\')
             || n.starts_with('~')
-            || (n.starts_with('n') && n.len() > 1 && n.chars().nth(1).unwrap_or(' ').is_ascii_uppercase())
+            || (n.starts_with('n')
+                && n.len() > 1
+                && n.chars().nth(1).unwrap_or(' ').is_ascii_uppercase())
     }
 
     /// Automatically detects partitioning strategy based on pin count, names, and description.
@@ -57,12 +62,27 @@ impl MultiGateSymbolGenerator {
         let desc_upper = description.to_uppercase();
         let pin_count = pins.len();
 
-        if desc_upper.contains("DUAL OP") || desc_upper.contains("DUAL OPERATIONAL") || (pin_count == 8 && desc_upper.contains("OPAMP")) {
-            PartitioningStrategy::HomogeneousArray { units: 2, share_power_unit: true }
-        } else if desc_upper.contains("QUAD OP") || desc_upper.contains("QUAD OPERATIONAL") || (pin_count == 14 && desc_upper.contains("OPAMP")) {
-            PartitioningStrategy::HomogeneousArray { units: 4, share_power_unit: true }
+        if desc_upper.contains("DUAL OP")
+            || desc_upper.contains("DUAL OPERATIONAL")
+            || (pin_count == 8 && desc_upper.contains("OPAMP"))
+        {
+            PartitioningStrategy::HomogeneousArray {
+                units: 2,
+                share_power_unit: true,
+            }
+        } else if desc_upper.contains("QUAD OP")
+            || desc_upper.contains("QUAD OPERATIONAL")
+            || (pin_count == 14 && desc_upper.contains("OPAMP"))
+        {
+            PartitioningStrategy::HomogeneousArray {
+                units: 4,
+                share_power_unit: true,
+            }
         } else if desc_upper.contains("HEX INVERTER") || desc_upper.contains("HEX BUFFER") {
-            PartitioningStrategy::HomogeneousArray { units: 6, share_power_unit: true }
+            PartitioningStrategy::HomogeneousArray {
+                units: 6,
+                share_power_unit: true,
+            }
         } else if pin_count > 32 || pins.iter().any(|p| p.io_bank.is_some()) {
             PartitioningStrategy::HeterogeneousBanked
         } else {
@@ -86,7 +106,10 @@ impl MultiGateSymbolGenerator {
             PartitioningStrategy::SingleUnit => {
                 Self::build_single_unit_symbol(&mut sym, pins, 1);
             }
-            PartitioningStrategy::HomogeneousArray { units, share_power_unit: _ } => {
+            PartitioningStrategy::HomogeneousArray {
+                units,
+                share_power_unit: _,
+            } => {
                 Self::build_homogeneous_multi_gate(&mut sym, pins, units);
             }
             PartitioningStrategy::HeterogeneousBanked => {
@@ -111,9 +134,9 @@ impl MultiGateSymbolGenerator {
                 | ElectricalPinType::OpenCollector
                 | ElectricalPinType::OpenEmitter => right_pins.push(pin),
                 ElectricalPinType::Power => top_pins.push(pin),
-                ElectricalPinType::Ground | ElectricalPinType::NoConnect | ElectricalPinType::Passive => {
-                    bottom_pins.push(pin)
-                }
+                ElectricalPinType::Ground
+                | ElectricalPinType::NoConnect
+                | ElectricalPinType::Passive => bottom_pins.push(pin),
             }
         }
 
@@ -149,7 +172,8 @@ impl MultiGateSymbolGenerator {
 
         let max_vertical = left_pins.len().max(right_pins.len()).max(2);
         let body_h = (max_vertical as f64 + 1.0) * GRID_100_MIL_MM;
-        let body_w = (GRID_100_MIL_MM * 6.0).max((top_pins.len().max(bottom_pins.len()) as f64 + 2.0) * GRID_100_MIL_MM);
+        let body_w = (GRID_100_MIL_MM * 6.0)
+            .max((top_pins.len().max(bottom_pins.len()) as f64 + 2.0) * GRID_100_MIL_MM);
 
         let half_w = body_w / 2.0;
         let half_h = body_h / 2.0;
@@ -228,7 +252,9 @@ impl MultiGateSymbolGenerator {
         let mut unit_pins: Vec<Vec<DiscoveredPin>> = vec![Vec::new(); units];
 
         for pin in pins {
-            if pin.electrical_type == ElectricalPinType::Power || pin.electrical_type == ElectricalPinType::Ground {
+            if pin.electrical_type == ElectricalPinType::Power
+                || pin.electrical_type == ElectricalPinType::Ground
+            {
                 power_ground_pins.push(pin.clone());
             } else {
                 // Heuristic matching unit index from pin name (e.g. IN1+ -> unit 0, IN2+ -> unit 1)
@@ -254,9 +280,20 @@ impl MultiGateSymbolGenerator {
             let mut sp = SymbolPin::new(&pin.number, &pin.name);
             sp.electrical = Self::map_electrical_type(pin.electrical_type);
             sp.part_number = 0; // Part 0 = shared across all sub-parts
-            sp.position = [0.0, if pin.electrical_type == ElectricalPinType::Power { GRID_100_MIL_MM * 3.0 } else { -GRID_100_MIL_MM * 3.0 }];
+            sp.position = [
+                0.0,
+                if pin.electrical_type == ElectricalPinType::Power {
+                    GRID_100_MIL_MM * 3.0
+                } else {
+                    -GRID_100_MIL_MM * 3.0
+                },
+            ];
             sp.length = GRID_100_MIL_MM;
-            sp.orientation = if pin.electrical_type == ElectricalPinType::Power { PinOrientation::Down } else { PinOrientation::Up };
+            sp.orientation = if pin.electrical_type == ElectricalPinType::Power {
+                PinOrientation::Down
+            } else {
+                PinOrientation::Up
+            };
             sym.pins.push(sp);
         }
     }
@@ -269,7 +306,9 @@ impl MultiGateSymbolGenerator {
         for pin in pins {
             if let Some(bank) = pin.io_bank {
                 banks.entry(bank).or_default().push(pin.clone());
-            } else if pin.electrical_type == ElectricalPinType::Power || pin.electrical_type == ElectricalPinType::Ground {
+            } else if pin.electrical_type == ElectricalPinType::Power
+                || pin.electrical_type == ElectricalPinType::Ground
+            {
                 banks.entry(99).or_default().push(pin.clone()); // Bank 99 = Power & Ground
             } else {
                 unassigned.push(pin.clone());
@@ -312,17 +351,30 @@ mod tests {
             DiscoveredPin::new("8", "VCC").with_type(ElectricalPinType::Power),
         ];
 
-        let sym = MultiGateSymbolGenerator::synthesize("LM358", "U", "Dual Operational Amplifier", &pins);
+        let sym =
+            MultiGateSymbolGenerator::synthesize("LM358", "U", "Dual Operational Amplifier", &pins);
         assert_eq!(sym.pins.len(), 8);
 
         // Power pins should be on Part 0
-        let vcc = sym.pins.iter().find(|p| p.number == "8").expect("VCC present");
+        let vcc = sym
+            .pins
+            .iter()
+            .find(|p| p.number == "8")
+            .expect("VCC present");
         assert_eq!(vcc.part_number, 0);
 
-        let out1 = sym.pins.iter().find(|p| p.number == "1").expect("OUT1 present");
+        let out1 = sym
+            .pins
+            .iter()
+            .find(|p| p.number == "1")
+            .expect("OUT1 present");
         assert_eq!(out1.part_number, 1);
 
-        let out2 = sym.pins.iter().find(|p| p.number == "7").expect("OUT2 present");
+        let out2 = sym
+            .pins
+            .iter()
+            .find(|p| p.number == "7")
+            .expect("OUT2 present");
         assert_eq!(out2.part_number, 2);
     }
 

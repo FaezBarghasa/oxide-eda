@@ -22,14 +22,8 @@ use crate::db::AppState;
 use crate::routes::error::ApiError;
 
 pub fn configure(cfg: &mut web::ServiceConfig) {
-    cfg.service(
-        web::resource("/tables")
-            .route(web::get().to(list_tables)),
-    )
-    .service(
-        web::resource("/tables/{name}")
-            .route(web::get().to(list_rows_in_table)),
-    );
+    cfg.service(web::resource("/tables").route(web::get().to(list_tables)))
+        .service(web::resource("/tables/{name}").route(web::get().to(list_rows_in_table)));
 }
 
 #[derive(Debug, Deserialize)]

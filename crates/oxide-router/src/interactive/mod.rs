@@ -73,7 +73,11 @@ impl InteractiveRouter {
     }
 
     /// Enable interactive length tuning with a target length and optional package delay.
-    pub fn enable_length_tuning(&mut self, target_length_microns: Microns, package_delay_microns: Microns) {
+    pub fn enable_length_tuning(
+        &mut self,
+        target_length_microns: Microns,
+        package_delay_microns: Microns,
+    ) {
         if let Some(s) = &mut self.session {
             s.mode = RoutingMode::LengthTuning;
             let mut hud = session::InteractiveTuningHudState::new(target_length_microns);
@@ -256,7 +260,8 @@ impl InteractiveRouter {
         layer: LayerId,
         width: Microns,
     ) -> Vec<RouteSegment> {
-        let waypoints = match astar::find_astar_path(&self.spatial_index, start, end, net_id, width) {
+        let waypoints = match astar::find_astar_path(&self.spatial_index, start, end, net_id, width)
+        {
             Ok(pts) => pts,
             Err(_) => return self.direct_route(start, end, net_id, layer, width),
         };
@@ -306,7 +311,8 @@ impl InteractiveRouter {
         layer: LayerId,
         width: Microns,
     ) -> Vec<RouteSegment> {
-        let (segments, _) = self.push_and_shove_with_displacements(start, end, net_id, layer, width);
+        let (segments, _) =
+            self.push_and_shove_with_displacements(start, end, net_id, layer, width);
         segments
     }
 
@@ -330,10 +336,11 @@ impl InteractiveRouter {
         width: Microns,
     ) -> Vec<RouteSegment> {
         let gap = 150; // 150µm diff pair gap
-        let centerline = match astar::find_astar_path(&self.spatial_index, start, end, net_id, width) {
-            Ok(pts) => pts,
-            Err(_) => vec![start, end],
-        };
+        let centerline =
+            match astar::find_astar_path(&self.spatial_index, start, end, net_id, width) {
+                Ok(pts) => pts,
+                Err(_) => vec![start, end],
+            };
         let mut segments = Vec::new();
 
         for i in 0..centerline.len().saturating_sub(1) {
@@ -394,7 +401,9 @@ impl InteractiveRouter {
         let needed_trace_length = (target_len - pkg_delay).max(direct_dist);
         let extra_len = needed_trace_length.saturating_sub(direct_dist);
 
-        self.generate_meander_with_params(start, end, extra_len, net_id, layer, width, amplitude, pitch)
+        self.generate_meander_with_params(
+            start, end, extra_len, net_id, layer, width, amplitude, pitch,
+        )
     }
 
     /// Generate accordion / trombone meander pattern with default params
@@ -532,24 +541,50 @@ pub struct PathDeflection {
 /// Topological router contract for continuous Constrained Delaunay Triangulation and push-and-hug routing.
 pub trait TopologicalRouter: Send + Sync {
     /// Initializes Constrained Delaunay Triangulation over board boundaries and obstacle polygons.
-    fn build_triangulation(&mut self, boundaries: &[crate::geometry::Polygon2D], obstacles: &[crate::geometry::Polygon2D]);
+    fn build_triangulation(
+        &mut self,
+        boundaries: &[crate::geometry::Polygon2D],
+        obstacles: &[crate::geometry::Polygon2D],
+    );
 
     /// Computes dynamic deflection corridor for an active trace displacement.
-    fn evaluate_corridor(&mut self, start: Point2D, cursor: Point2D, net_id: u32) -> Result<Vec<Point2D>, RoutingError>;
+    fn evaluate_corridor(
+        &mut self,
+        start: Point2D,
+        cursor: Point2D,
+        net_id: u32,
+    ) -> Result<Vec<Point2D>, RoutingError>;
 
     /// Executes elastic string relaxation, deflecting movable traces away from obstacle envelopes.
-    fn push_and_hug(&mut self, active_path: &[Point2D], clearance_um: f64) -> Result<Vec<PathDeflection>, RoutingError>;
+    fn push_and_hug(
+        &mut self,
+        active_path: &[Point2D],
+        clearance_um: f64,
+    ) -> Result<Vec<PathDeflection>, RoutingError>;
 
     /// Injects phase/length compensation meanders onto single or differential nets.
-    fn apply_tuning(&mut self, path: &mut Vec<Point2D>, constraint: &TuningConstraint) -> Result<(), RoutingError>;
+    fn apply_tuning(
+        &mut self,
+        path: &mut Vec<Point2D>,
+        constraint: &TuningConstraint,
+    ) -> Result<(), RoutingError>;
 }
 
 impl TopologicalRouter for InteractiveRouter {
-    fn build_triangulation(&mut self, _boundaries: &[crate::geometry::Polygon2D], _obstacles: &[crate::geometry::Polygon2D]) {
+    fn build_triangulation(
+        &mut self,
+        _boundaries: &[crate::geometry::Polygon2D],
+        _obstacles: &[crate::geometry::Polygon2D],
+    ) {
         // Built on spatial index
     }
 
-    fn evaluate_corridor(&mut self, start: Point2D, cursor: Point2D, net_id: u32) -> Result<Vec<Point2D>, RoutingError> {
+    fn evaluate_corridor(
+        &mut self,
+        start: Point2D,
+        cursor: Point2D,
+        net_id: u32,
+    ) -> Result<Vec<Point2D>, RoutingError> {
         let route_res = self.route_net(net_id, start, cursor);
         match route_res {
             RoutingResult::Success(path) | RoutingResult::PartialSuccess { path, .. } => {
@@ -560,7 +595,11 @@ impl TopologicalRouter for InteractiveRouter {
         }
     }
 
-    fn push_and_hug(&mut self, active_path: &[Point2D], clearance_um: f64) -> Result<Vec<PathDeflection>, RoutingError> {
+    fn push_and_hug(
+        &mut self,
+        active_path: &[Point2D],
+        clearance_um: f64,
+    ) -> Result<Vec<PathDeflection>, RoutingError> {
         let mut deflections = Vec::new();
         if active_path.len() < 2 {
             return Ok(deflections);
@@ -595,7 +634,11 @@ impl TopologicalRouter for InteractiveRouter {
         Ok(deflections)
     }
 
-    fn apply_tuning(&mut self, path: &mut Vec<Point2D>, constraint: &TuningConstraint) -> Result<(), RoutingError> {
+    fn apply_tuning(
+        &mut self,
+        path: &mut Vec<Point2D>,
+        constraint: &TuningConstraint,
+    ) -> Result<(), RoutingError> {
         if path.len() < 2 {
             return Ok(());
         }
@@ -607,4 +650,3 @@ impl TopologicalRouter for InteractiveRouter {
         Ok(())
     }
 }
-

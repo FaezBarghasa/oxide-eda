@@ -91,7 +91,11 @@ impl AdcPeripheral {
     /// Performs ADC conversion for the selected channel in sequence.
     /// Returns converted integer count.
     pub fn convert_channel(&mut self, channel: u8) -> u32 {
-        let voltage = self.channels.get(channel as usize).map(|c| c.input_voltage).unwrap_or(0.0);
+        let voltage = self
+            .channels
+            .get(channel as usize)
+            .map(|c| c.input_voltage)
+            .unwrap_or(0.0);
         let max_val = self.resolution.max_value() as f64;
         let frac = (voltage / self.vref_voltage).clamp(0.0, 1.0);
         let raw = (frac * max_val).round() as u32;

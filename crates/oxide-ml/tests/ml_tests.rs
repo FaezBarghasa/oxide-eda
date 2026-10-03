@@ -1,7 +1,7 @@
-use std::collections::HashMap;
 use oxide_ml::{
     BoardTensorBuilder, MlConfig, MlEngine, Point2D, RoutingAction, RoutingAdvisorInputConfig,
 };
+use std::collections::HashMap;
 
 #[test]
 fn test_ml_routing_advisor_prediction() {
@@ -60,7 +60,10 @@ fn test_ml_placement_advisor() {
     assert_eq!(suggestions.len(), 1);
     assert_eq!(suggestions[0].component_id, 3);
     // Centroid of comp 1 (0,0) and comp 2 (2M, 2M) is (1M, 1M)
-    assert_eq!(suggestions[0].suggested_position, Point2D::new(1_000_000, 1_000_000));
+    assert_eq!(
+        suggestions[0].suggested_position,
+        Point2D::new(1_000_000, 1_000_000)
+    );
 }
 
 #[test]

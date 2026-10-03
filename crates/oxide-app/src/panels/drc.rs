@@ -4,11 +4,9 @@ use iced::widget::{Column, Space, button, row, scrollable, text};
 use iced::{Element, Length};
 use oxide_widgets::theme_ext;
 
+use super::context::PanelContext;
 use super::messages::PanelMsg;
 use super::widgets::{section_title, separator};
-use super::context::PanelContext;
-
-
 
 pub fn view_drc<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
     let mut col: Column<'a, PanelMsg> = Column::new().spacing(4).padding(6).width(Length::Fill);
@@ -54,13 +52,11 @@ pub fn view_drc<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
                 .size(10)
                 .color(theme_ext::text_secondary(&ctx.tokens)),
             Space::new().width(Length::Fill).height(Length::Shrink),
-            text(count_label)
-                .size(10)
-                .color(if count > 0 {
-                    iced::Color::from_rgb(0.95, 0.35, 0.35)
-                } else {
-                    theme_ext::text_secondary(&ctx.tokens)
-                }),
+            text(count_label).size(10).color(if count > 0 {
+                iced::Color::from_rgb(0.95, 0.35, 0.35)
+            } else {
+                theme_ext::text_secondary(&ctx.tokens)
+            }),
         ]
         .align_y(iced::Alignment::Center),
     );
@@ -90,9 +86,12 @@ pub fn view_drc<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
                             .size(10)
                             .color(iced::Color::from_rgb(0.95, 0.35, 0.35)),
                         Space::new().width(Length::Fill).height(Length::Shrink),
-                        text(format!("Req: {} | Act: {}", v.required_value, v.actual_value))
-                            .size(9)
-                            .color(theme_ext::text_secondary(&ctx.tokens)),
+                        text(format!(
+                            "Req: {} | Act: {}",
+                            v.required_value, v.actual_value
+                        ))
+                        .size(9)
+                        .color(theme_ext::text_secondary(&ctx.tokens)),
                     ]
                     .align_y(iced::Alignment::Center),
                 )

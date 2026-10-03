@@ -1,9 +1,9 @@
 //! External Cadence OrCAD PSpice / PSpice for TI CLI simulator adapter.
 
+use oxide_types::sim::WaveformDataset;
+use std::future::Future;
 use std::path::{Path, PathBuf};
 use std::pin::Pin;
-use std::future::Future;
-use oxide_types::sim::WaveformDataset;
 
 use crate::parser::parse_csdf;
 use crate::simulator::{SimError, SimProgress, Simulator};
@@ -53,19 +53,23 @@ impl Simulator for PSpiceCliSimulator {
             let csdf_path = dir.join("circuit.csd");
 
             if let Some(tx) = &progress_tx {
-                let _ = tx.send(SimProgress {
-                    percent: Some(0.1),
-                    message: "Writing PSpice circuit deck...".to_string(),
-                }).await;
+                let _ = tx
+                    .send(SimProgress {
+                        percent: Some(0.1),
+                        message: "Writing PSpice circuit deck...".to_string(),
+                    })
+                    .await;
             }
 
             tokio::fs::write(&cir_path, deck_string.as_bytes()).await?;
 
             if let Some(tx) = &progress_tx {
-                let _ = tx.send(SimProgress {
-                    percent: Some(0.3),
-                    message: "Invoking Cadence PSpice batch solver...".to_string(),
-                }).await;
+                let _ = tx
+                    .send(SimProgress {
+                        percent: Some(0.3),
+                        message: "Invoking Cadence PSpice batch solver...".to_string(),
+                    })
+                    .await;
             }
 
             let output = tokio::process::Command::new(&bin)
@@ -78,7 +82,9 @@ impl Simulator for PSpiceCliSimulator {
                     if e.kind() == std::io::ErrorKind::NotFound {
                         SimError::BinaryNotFound {
                             name: bin.display().to_string(),
-                            details: "Cadence PSpice executable not found in PATH or specified location".to_string(),
+                            details:
+                                "Cadence PSpice executable not found in PATH or specified location"
+                                    .to_string(),
                         }
                     } else {
                         SimError::Io(e)
@@ -101,14 +107,19 @@ impl Simulator for PSpiceCliSimulator {
 
             if out_path.exists() {
                 let text = tokio::fs::read_to_string(&out_path).await?;
-                let mut dataset = parse_csdf(&text).unwrap_or_else(|_| WaveformDataset::empty("PSpice Output"));
+                let mut dataset =
+                    parse_csdf(&text).unwrap_or_else(|_| WaveformDataset::empty("PSpice Output"));
                 dataset.log = log_lines;
                 return Ok(dataset);
             }
 
             Err(SimError::ExecutionFailed {
                 exit_code: output.status.code(),
-                message: if !stderr.is_empty() { stderr.to_string() } else { stdout.to_string() },
+                message: if !stderr.is_empty() {
+                    stderr.to_string()
+                } else {
+                    stdout.to_string()
+                },
             })
         })
     }

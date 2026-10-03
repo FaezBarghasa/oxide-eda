@@ -1,7 +1,7 @@
 use oxide_engine::multi_channel::parse_and_expand_repeat;
 use oxide_types::schematic::{ChildSheet, FillType, Point, SchematicSheet, Symbol};
-use uuid::Uuid;
 use std::collections::HashMap;
+use uuid::Uuid;
 
 fn empty_test_sheet() -> SchematicSheet {
     SchematicSheet {
@@ -56,7 +56,13 @@ fn test_multi_channel_repeat_expansion() {
     let instances = parse_and_expand_repeat("Repeat(Audio, 1, 4)", &child_sheet, &child_content);
     assert_eq!(instances.len(), 4);
     assert_eq!(instances[0].sheet_name, "Audio_CH1");
-    assert_eq!(instances[0].designator_map.get("R1"), Some(&"R1_CH1".to_string()));
+    assert_eq!(
+        instances[0].designator_map.get("R1"),
+        Some(&"R1_CH1".to_string())
+    );
     assert_eq!(instances[3].sheet_name, "Audio_CH4");
-    assert_eq!(instances[3].designator_map.get("R1"), Some(&"R1_CH4".to_string()));
+    assert_eq!(
+        instances[3].designator_map.get("R1"),
+        Some(&"R1_CH4".to_string())
+    );
 }

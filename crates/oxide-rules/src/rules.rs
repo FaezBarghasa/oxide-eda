@@ -244,4 +244,3 @@ pub enum DesignRule {
     HoleToHole(HoleToHoleRule),
     RoomPlacement(RoomPlacementRule),
 }
-

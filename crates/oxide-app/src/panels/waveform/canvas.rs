@@ -89,9 +89,7 @@ impl<'a, Message> Program<Message, Theme, Renderer> for WaveformCanvas<'a> {
             );
             frame.stroke(
                 &path,
-                Stroke::default()
-                    .with_color(grid_color)
-                    .with_width(1.0),
+                Stroke::default().with_color(grid_color).with_width(1.0),
             );
         }
 
@@ -103,9 +101,7 @@ impl<'a, Message> Program<Message, Theme, Renderer> for WaveformCanvas<'a> {
             );
             frame.stroke(
                 &path,
-                Stroke::default()
-                    .with_color(grid_color)
-                    .with_width(1.0),
+                Stroke::default().with_color(grid_color).with_width(1.0),
             );
         }
 
@@ -114,7 +110,8 @@ impl<'a, Message> Program<Message, Theme, Renderer> for WaveformCanvas<'a> {
             _ => {
                 // Empty state label
                 frame.fill_text(canvas::Text {
-                    content: "No simulation dataset loaded. Run simulation (F9) to view waveforms.".to_string(),
+                    content: "No simulation dataset loaded. Run simulation (F9) to view waveforms."
+                        .to_string(),
                     position: Point::new(bounds.width / 2.0, bounds.height / 2.0),
                     color: Color::from_rgba(0.6, 0.6, 0.6, 1.0),
                     size: iced::Pixels(12.0),
@@ -194,7 +191,8 @@ impl<'a, Message> Program<Message, Theme, Renderer> for WaveformCanvas<'a> {
                 }
 
                 let px = plot_rect.x + ((x_val - x_min) / x_span) as f32 * plot_rect.width;
-                let py = plot_rect.y + plot_rect.height - ((y_val - y_min) / y_span) as f32 * plot_rect.height;
+                let py = plot_rect.y + plot_rect.height
+                    - ((y_val - y_min) / y_span) as f32 * plot_rect.height;
 
                 let pt = Point::new(px, py);
                 if !started {
@@ -206,12 +204,7 @@ impl<'a, Message> Program<Message, Theme, Renderer> for WaveformCanvas<'a> {
             }
 
             let path = builder.build();
-            frame.stroke(
-                &path,
-                Stroke::default()
-                    .with_color(color)
-                    .with_width(1.5),
-            );
+            frame.stroke(&path, Stroke::default().with_color(color).with_width(1.5));
         }
 
         // 3. Render Axis Labels
@@ -256,7 +249,9 @@ impl<'a, Message> Program<Message, Theme, Renderer> for WaveformCanvas<'a> {
 
         // 4. Render Dual Measurement Cursors (Cursor A & Cursor B)
         if let Some(ca) = self.cursor_a
-            && ca >= x_min && ca <= x_max {
+            && ca >= x_min
+            && ca <= x_max
+        {
             let px = plot_rect.x + ((ca - x_min) / x_span) as f32 * plot_rect.width;
             let path = Path::line(
                 Point::new(px, plot_rect.y),
@@ -278,7 +273,9 @@ impl<'a, Message> Program<Message, Theme, Renderer> for WaveformCanvas<'a> {
         }
 
         if let Some(cb) = self.cursor_b
-            && cb >= x_min && cb <= x_max {
+            && cb >= x_min
+            && cb <= x_max
+        {
             let px = plot_rect.x + ((cb - x_min) / x_span) as f32 * plot_rect.width;
             let path = Path::line(
                 Point::new(px, plot_rect.y),

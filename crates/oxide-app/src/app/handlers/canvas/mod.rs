@@ -123,7 +123,11 @@ impl Oxide {
                         .map(|e| e.selected_items().to_vec())
                         .unwrap_or_default();
                     if !items.is_empty() && (dx.abs() > 0.001 || dy.abs() > 0.001) {
-                        self.apply_pcb_command(oxide_engine::PcbCommand::MoveSelection { items, dx, dy });
+                        self.apply_pcb_command(oxide_engine::PcbCommand::MoveSelection {
+                            items,
+                            dx,
+                            dy,
+                        });
                     }
                     return Task::none();
                 }

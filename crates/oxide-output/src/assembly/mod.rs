@@ -70,7 +70,9 @@ impl PickAndPlaceExporter {
         }
 
         for fp in &board.footprints {
-            let is_top = fp.layer.is_empty() || fp.layer.to_lowercase().contains("top") || fp.layer == "F.Cu";
+            let is_top = fp.layer.is_empty()
+                || fp.layer.to_lowercase().contains("top")
+                || fp.layer == "F.Cu";
             let layer_name = if is_top { "Top" } else { "Bottom" };
 
             // Layer filtering

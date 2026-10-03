@@ -34,8 +34,8 @@ pub use draftsman::{
 };
 pub use drill::excellon::{DrillError, DrillHole, DrillHoleType, ExcellonExporter, ExcellonOutput};
 pub use gerber::{GerberError, GerberExporter, GerberLayer, GerberLayerOutput, GerberOptions};
-pub use ipc2581::{export_ipc2581, Ipc2581Error, Ipc2581Options, Ipc2581Output};
-pub use odbpp::{export_odbpp_package, OdbError, OdbFileEntry, OdbOutputPackage};
+pub use ipc2581::{Ipc2581Error, Ipc2581Options, Ipc2581Output, export_ipc2581};
+pub use odbpp::{OdbError, OdbFileEntry, OdbOutputPackage, export_odbpp_package};
 pub use outjob::{OutJobError, OutputJobConfig, OutputJobRunner, ReleasePackage};
 
 pub use bom::{

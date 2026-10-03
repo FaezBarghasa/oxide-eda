@@ -5,9 +5,9 @@ use std::collections::{BinaryHeap, HashMap, HashSet};
 
 use oxide_physics::Microns;
 
+use crate::RoutingError;
 use crate::geometry::rtree::{NetId, SpatialIndex};
 use crate::geometry::{BoundingBox, Point2D};
-use crate::RoutingError;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 struct GridCoord {

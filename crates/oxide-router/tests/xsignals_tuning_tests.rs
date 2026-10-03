@@ -22,13 +22,13 @@ fn test_xsignals_delay_and_matched_group_evaluation() {
 
 #[test]
 fn test_via_shoving_and_multi_cycle_accordion_tuning() {
-    use std::sync::Arc;
-    use oxide_rules::ConstraintManager;
-    use oxide_router::geometry::{Point2D, BoundingBox};
     use oxide_router::geometry::rtree::{SpatialObject, SpatialObjectType};
+    use oxide_router::geometry::{BoundingBox, Point2D};
     use oxide_router::interactive::conflict::calculate_push;
     use oxide_router::optimization::length_tuning::LengthTuningOptimizer;
     use oxide_router::{RouteSegment, RoutingPath, SegmentType};
+    use oxide_rules::ConstraintManager;
+    use std::sync::Arc;
     use uuid::Uuid;
 
     // 1. Verify Via Shoving gives appropriate buffer vs track
@@ -81,8 +81,16 @@ fn test_via_shoving_and_multi_cycle_accordion_tuning() {
     };
 
     let result = optimizer.tune_differential_pair(&mut pos_path, &mut neg_path);
-    assert!(neg_path.total_length > 3500, "Negative path should have meanders inserted");
-    assert!(neg_path.segments.len() > 1, "Accordion must generate multiple segments");
-    assert!(result.length_difference < 1000, "Length difference should be significantly narrowed");
+    assert!(
+        neg_path.total_length > 3500,
+        "Negative path should have meanders inserted"
+    );
+    assert!(
+        neg_path.segments.len() > 1,
+        "Accordion must generate multiple segments"
+    );
+    assert!(
+        result.length_difference < 1000,
+        "Length difference should be significantly narrowed"
+    );
 }
-

@@ -23,16 +23,13 @@ use crate::db::AppState;
 use crate::routes::error::ApiError;
 
 pub fn configure(cfg: &mut web::ServiceConfig) {
-    cfg.service(
-        web::resource("/tables/{name}/rows")
-            .route(web::post().to(create_row)),
-    )
-    .service(
-        web::resource("/tables/{name}/rows/{row_id}")
-            .route(web::get().to(get_row))
-            .route(web::put().to(update_row))
-            .route(web::delete().to(delete_row)),
-    );
+    cfg.service(web::resource("/tables/{name}/rows").route(web::post().to(create_row)))
+        .service(
+            web::resource("/tables/{name}/rows/{row_id}")
+                .route(web::get().to(get_row))
+                .route(web::put().to(update_row))
+                .route(web::delete().to(delete_row)),
+        );
 }
 
 #[derive(Debug, Deserialize)]

@@ -1,8 +1,8 @@
 //! Cadence PSpice CSDF (Common Simulation Data Format) parser.
 
-use std::collections::BTreeMap;
-use oxide_types::sim::{TraceUnit, WaveformDataset, WaveformTrace};
 use crate::simulator::SimError;
+use oxide_types::sim::{TraceUnit, WaveformDataset, WaveformTrace};
+use std::collections::BTreeMap;
 
 /// Parse a Cadence PSpice CSDF simulation output text into a [`WaveformDataset`].
 pub fn parse_csdf(content: &str) -> Result<WaveformDataset, SimError> {
@@ -41,7 +41,9 @@ pub fn parse_csdf(content: &str) -> Result<WaveformDataset, SimError> {
                     TraceUnit::Dimensionless
                 };
 
-                if trace_defs.is_empty() && (unit == TraceUnit::TimeSeconds || unit == TraceUnit::FrequencyHertz) {
+                if trace_defs.is_empty()
+                    && (unit == TraceUnit::TimeSeconds || unit == TraceUnit::FrequencyHertz)
+                {
                     x_name = name;
                     x_unit = unit;
                 } else {

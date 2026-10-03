@@ -189,12 +189,12 @@ impl DiscoveredPin {
 pub struct PackageDimensions {
     pub package_class: String, // e.g. "SOIC", "QFP", "QFN", "DFN", "SOT23", "CHIP", "BGA"
     pub pin_count: usize,
-    pub body_length_mm: [f64; 3], // min, nom, max (D)
-    pub body_width_mm: [f64; 3],  // min, nom, max (E)
+    pub body_length_mm: [f64; 3],   // min, nom, max (D)
+    pub body_width_mm: [f64; 3],    // min, nom, max (E)
     pub seated_height_mm: [f64; 3], // min, nom, max (A)
-    pub lead_pitch_mm: f64,       // e
-    pub lead_width_mm: [f64; 3],  // min, nom, max (b)
-    pub lead_length_mm: [f64; 3], // min, nom, max (L)
+    pub lead_pitch_mm: f64,         // e
+    pub lead_width_mm: [f64; 3],    // min, nom, max (b)
+    pub lead_length_mm: [f64; 3],   // min, nom, max (L)
     #[serde(default)]
     pub thermal_pad_mm: Option<[f64; 2]>, // [width, length]
 }
@@ -234,7 +234,12 @@ impl PackageDimensions {
     }
 
     /// Creates standard QFN dimensions.
-    pub fn standard_qfn(pin_count: usize, body_size_mm: f64, pitch_mm: f64, thermal_pad_mm: Option<[f64; 2]>) -> Self {
+    pub fn standard_qfn(
+        pin_count: usize,
+        body_size_mm: f64,
+        pitch_mm: f64,
+        thermal_pad_mm: Option<[f64; 2]>,
+    ) -> Self {
         Self {
             package_class: "QFN".into(),
             pin_count,

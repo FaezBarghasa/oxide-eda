@@ -6,7 +6,7 @@ use oxide_library::primitive::footprint::{
 
 use crate::cfb::CfbContainer;
 use crate::error::AltiumImportError;
-use crate::record::{parse_record_stream, AltiumRecord};
+use crate::record::{AltiumRecord, parse_record_stream};
 
 /// Import all footprints from an Altium `.PcbLib` file byte slice.
 pub fn import_pcblib_bytes(bytes: &[u8]) -> Result<Vec<Footprint>, AltiumImportError> {
@@ -22,7 +22,9 @@ pub fn import_pcblib_bytes(bytes: &[u8]) -> Result<Vec<Footprint>, AltiumImportE
 
     // Check individual storage streams (often named after the component footprint pattern)
     for (name, stream_bytes) in &cfb.streams {
-        if name != "FileHeader" && name != "Library" && !name.starts_with('/')
+        if name != "FileHeader"
+            && name != "Library"
+            && !name.starts_with('/')
             && let Ok(records) = parse_record_stream(stream_bytes)
             && let Ok(parsed) = parse_footprints_from_records(&records)
         {
@@ -38,14 +40,22 @@ pub fn import_pcblib_bytes(bytes: &[u8]) -> Result<Vec<Footprint>, AltiumImportE
 }
 
 /// Parse multiple [`Footprint`] primitives from a record slice.
-pub fn parse_footprints_from_records(records: &[AltiumRecord]) -> Result<Vec<Footprint>, AltiumImportError> {
+pub fn parse_footprints_from_records(
+    records: &[AltiumRecord],
+) -> Result<Vec<Footprint>, AltiumImportError> {
     let mut footprints = Vec::new();
     let mut current_footprint: Option<Footprint> = None;
 
     for rec in records {
-        let record_type = rec.get("RECORD").or_else(|| rec.get("OBJECTTYPE")).unwrap_or("");
+        let record_type = rec
+            .get("RECORD")
+            .or_else(|| rec.get("OBJECTTYPE"))
+            .unwrap_or("");
 
-        if record_type.eq_ignore_ascii_case("Component") || record_type == "Component" || record_type == "1" {
+        if record_type.eq_ignore_ascii_case("Component")
+            || record_type == "Component"
+            || record_type == "1"
+        {
             if let Some(prev) = current_footprint.take() {
                 footprints.push(prev);
             }
@@ -60,20 +70,43 @@ pub fn parse_footprints_from_records(records: &[AltiumRecord]) -> Result<Vec<Foo
             let mut fp = Footprint::empty(name);
             fp.description = desc;
             current_footprint = Some(fp);
-        } else if record_type.eq_ignore_ascii_case("Pad") || record_type == "Pad" || record_type == "2" {
+        } else if record_type.eq_ignore_ascii_case("Pad")
+            || record_type == "Pad"
+            || record_type == "2"
+        {
             if let Some(fp) = current_footprint.as_mut() {
-                let number = rec.get("NAME").or_else(|| rec.get("DESIGNATOR")).unwrap_or("1").to_string();
-                let x = rec.get_coord_mm("X").or_else(|| rec.get_coord_mm("LOCATION.X")).unwrap_or(0.0);
-                let y = rec.get_coord_mm("Y").or_else(|| rec.get_coord_mm("LOCATION.Y")).unwrap_or(0.0);
-                let x_size = rec.get_coord_mm("TOPXSIZE").or_else(|| rec.get_coord_mm("XSIZE")).unwrap_or(1.5);
-                let y_size = rec.get_coord_mm("TOPYSIZE").or_else(|| rec.get_coord_mm("YSIZE")).unwrap_or(1.5);
+                let number = rec
+                    .get("NAME")
+                    .or_else(|| rec.get("DESIGNATOR"))
+                    .unwrap_or("1")
+                    .to_string();
+                let x = rec
+                    .get_coord_mm("X")
+                    .or_else(|| rec.get_coord_mm("LOCATION.X"))
+                    .unwrap_or(0.0);
+                let y = rec
+                    .get_coord_mm("Y")
+                    .or_else(|| rec.get_coord_mm("LOCATION.Y"))
+                    .unwrap_or(0.0);
+                let x_size = rec
+                    .get_coord_mm("TOPXSIZE")
+                    .or_else(|| rec.get_coord_mm("XSIZE"))
+                    .unwrap_or(1.5);
+                let y_size = rec
+                    .get_coord_mm("TOPYSIZE")
+                    .or_else(|| rec.get_coord_mm("YSIZE"))
+                    .unwrap_or(1.5);
                 let rotation = rec.get_f64("ROTATION").unwrap_or(0.0);
                 let hole_size = rec.get_coord_mm("HOLESIZE").unwrap_or(0.0);
 
                 let is_tht = hole_size > 0.0;
                 let kind = if is_tht { PadKind::Tht } else { PadKind::Smd };
 
-                let shape = match rec.get("TOPSHAPE").or_else(|| rec.get("SHAPE")).unwrap_or("Round") {
+                let shape = match rec
+                    .get("TOPSHAPE")
+                    .or_else(|| rec.get("SHAPE"))
+                    .unwrap_or("Round")
+                {
                     "Rectangular" | "Rect" => PadShape::Rect,
                     "RoundedRectangle" | "RoundRect" => PadShape::RoundRect { radius_ratio: 0.25 },
                     "Octagonal" => PadShape::Chamfered {

@@ -120,6 +120,10 @@ fn test_parameter_manager_batch_symbol_editing() {
     assert_eq!(r1.footprint, "0402");
 
     let u1 = sheet.symbols.iter().find(|s| s.reference == "U1").unwrap();
-    let mfr_prop = u1.custom_properties.iter().find(|p| p.key == "Manufacturer").unwrap();
+    let mfr_prop = u1
+        .custom_properties
+        .iter()
+        .find(|p| p.key == "Manufacturer")
+        .unwrap();
     assert_eq!(mfr_prop.value, "STMicroelectronics");
 }
