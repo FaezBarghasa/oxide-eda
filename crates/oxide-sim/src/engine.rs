@@ -89,6 +89,12 @@ pub struct InProcessMnaSolver {
     pub abstol: f64,
     pub max_iterations: u32,
     pub initialized: bool,
+    lu_workspace: Vec<f64>,
+    p_workspace: Vec<usize>,
+    y_workspace: Vec<f64>,
+    res_workspace: Vec<f64>,
+    a_workspace: Vec<f64>,
+    b_workspace: Vec<f64>,
 }
 
 impl Default for InProcessMnaSolver {
@@ -116,6 +122,12 @@ impl InProcessMnaSolver {
             abstol: 1e-6,
             max_iterations: 50,
             initialized: false,
+            lu_workspace: Vec::new(),
+            p_workspace: Vec::new(),
+            y_workspace: Vec::new(),
+            res_workspace: Vec::new(),
+            a_workspace: Vec::new(),
+            b_workspace: Vec::new(),
         }
     }
 
@@ -125,7 +137,7 @@ impl InProcessMnaSolver {
     }
 
     /// Solves linear system A * x = b via Gaussian elimination with partial pivoting.
-    fn solve_linear(&self, a: &[f64], b: &[f64]) -> Result<Vec<f64>, SimError> {
+    fn solve_linear(&mut self, a: &[f64], b: &[f64]) -> Result<Vec<f64>, SimError> {
         let n = self.total_dim;
         if a.len() != n * n || b.len() != n {
             return Err(SimError::DimensionMismatch {
@@ -134,17 +146,27 @@ impl InProcessMnaSolver {
             });
         }
 
-        let mut lu = a.to_vec();
-        let x = b;
-        let mut p: Vec<usize> = (0..n).collect();
+        if self.lu_workspace.len() != a.len() {
+            self.lu_workspace = a.to_vec();
+        } else {
+            self.lu_workspace.copy_from_slice(a);
+        }
+
+        if self.p_workspace.len() != n {
+            self.p_workspace = (0..n).collect();
+        } else {
+            for i in 0..n {
+                self.p_workspace[i] = i;
+            }
+        }
 
         // LU decomposition with partial pivoting
         for i in 0..n {
-            let mut max_val = lu[self.index(p[i], i)].abs();
+            let mut max_val = self.lu_workspace[self.index(self.p_workspace[i], i)].abs();
             let mut pivot = i;
 
             for k in (i + 1)..n {
-                let val = lu[self.index(p[k], i)].abs();
+                let val = self.lu_workspace[self.index(self.p_workspace[k], i)].abs();
                 if val > max_val {
                     max_val = val;
                     pivot = k;
@@ -155,43 +177,47 @@ impl InProcessMnaSolver {
                 return Err(SimError::SingularMatrix(format!("Node/Branch {}", i)));
             }
 
-            p.swap(i, pivot);
+            self.p_workspace.swap(i, pivot);
 
-            let pivot_row = p[i];
-            let pivot_val = lu[self.index(pivot_row, i)];
+            let pivot_row = self.p_workspace[i];
+            let pivot_val = self.lu_workspace[self.index(pivot_row, i)];
 
             for k in (i + 1)..n {
-                let row_k = p[k];
-                let factor = lu[self.index(row_k, i)] / pivot_val;
-                lu[self.index(row_k, i)] = factor;
+                let row_k = self.p_workspace[k];
+                let factor = self.lu_workspace[self.index(row_k, i)] / pivot_val;
+                self.lu_workspace[self.index(row_k, i)] = factor;
 
                 for j in (i + 1)..n {
-                    lu[self.index(row_k, j)] -= factor * lu[self.index(pivot_row, j)];
+                    self.lu_workspace[self.index(row_k, j)] -= factor * self.lu_workspace[self.index(pivot_row, j)];
                 }
             }
         }
 
         // Forward substitution with permutation
-        let mut y = vec![0.0; n];
+        if self.y_workspace.len() != n {
+            self.y_workspace = vec![0.0; n];
+        }
         for i in 0..n {
-            let mut sum = x[p[i]];
+            let mut sum = b[self.p_workspace[i]];
             for j in 0..i {
-                sum -= lu[self.index(p[i], j)] * y[j];
+                sum -= self.lu_workspace[self.index(self.p_workspace[i], j)] * self.y_workspace[j];
             }
-            y[i] = sum;
+            self.y_workspace[i] = sum;
         }
 
         // Backward substitution
-        let mut res = vec![0.0; n];
+        if self.res_workspace.len() != n {
+            self.res_workspace = vec![0.0; n];
+        }
         for i in (0..n).rev() {
-            let mut sum = y[i];
+            let mut sum = self.y_workspace[i];
             for j in (i + 1)..n {
-                sum -= lu[self.index(p[i], j)] * res[j];
+                sum -= self.lu_workspace[self.index(self.p_workspace[i], j)] * self.res_workspace[j];
             }
-            res[i] = sum / lu[self.index(p[i], i)];
+            self.res_workspace[i] = sum / self.lu_workspace[self.index(self.p_workspace[i], i)];
         }
 
-        Ok(res)
+        Ok(self.res_workspace.clone())
     }
 }
 
@@ -207,6 +233,12 @@ impl MnaSolver for InProcessMnaSolver {
         self.state_vector = vec![0.0; self.total_dim];
         self.prev_state_vector = vec![0.0; self.total_dim];
         self.prev_deriv_vector = vec![0.0; self.total_dim];
+        self.lu_workspace = vec![0.0; sz];
+        self.p_workspace = (0..self.total_dim).collect();
+        self.y_workspace = vec![0.0; self.total_dim];
+        self.res_workspace = vec![0.0; self.total_dim];
+        self.a_workspace = vec![0.0; sz];
+        self.b_workspace = vec![0.0; self.total_dim];
         self.initialized = true;
         Ok(())
     }
@@ -276,25 +308,31 @@ impl MnaSolver for InProcessMnaSolver {
         let n = self.total_dim;
         // Companion matrix: A = G + (2.0 / dt) * C (Trapezoidal rule)
         let factor = 2.0 / target_dt;
-        let mut a_matrix = vec![0.0; n * n];
+        if self.a_workspace.len() != n * n {
+            self.a_workspace = vec![0.0; n * n];
+        }
         for i in 0..n {
             for j in 0..n {
                 let idx = self.index(i, j);
-                a_matrix[idx] = self.g_matrix[idx] + factor * self.c_matrix[idx];
+                self.a_workspace[idx] = self.g_matrix[idx] + factor * self.c_matrix[idx];
             }
         }
 
         // Companion RHS: b = (2.0 / dt) * C * x_prev + C * (dx/dt)_prev + I_sources
-        let mut b_vec = vec![0.0; n];
+        if self.b_workspace.len() != n {
+            self.b_workspace = vec![0.0; n];
+        }
         for i in 0..n {
             let mut c_dot_x = 0.0;
             for j in 0..n {
                 c_dot_x += self.c_matrix[self.index(i, j)] * self.prev_state_vector[j];
             }
-            b_vec[i] = factor * c_dot_x + self.rhs_vector[i] * self.source_factor;
+            self.b_workspace[i] = factor * c_dot_x + self.rhs_vector[i] * self.source_factor;
         }
 
-        let solution = self.solve_linear(&a_matrix, &b_vec)?;
+        let a_slice = self.a_workspace.clone();
+        let b_slice = self.b_workspace.clone();
+        let solution = self.solve_linear(&a_slice, &b_slice)?;
 
         // Compute LTE error estimate
         let mut max_lte = 0.0;

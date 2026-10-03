@@ -214,7 +214,7 @@ fn test_ml_guided_astar_routing() {
         1,
         200,
         Some(&mut advisor),
-    );
+    ).expect("valid route should be found");
 
     assert!(path.len() >= 2);
     assert_eq!(path[0], start);

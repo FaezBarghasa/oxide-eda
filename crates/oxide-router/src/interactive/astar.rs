@@ -7,6 +7,7 @@ use oxide_physics::Microns;
 
 use crate::geometry::rtree::{NetId, SpatialIndex};
 use crate::geometry::{BoundingBox, Point2D};
+use crate::RoutingError;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 struct GridCoord {
@@ -15,25 +16,39 @@ struct GridCoord {
 }
 
 /// Find a clear path from `start` to `target` using weighted A* on a routing grid.
+///
+/// Returns `Ok(path)` if a DRC-compliant trajectory reaches `target`, or `Err(RoutingError::NoPathFound)`.
 pub fn find_astar_path(
     spatial_index: &SpatialIndex,
     start: Point2D,
     target: Point2D,
     net_id: NetId,
     width: Microns,
-) -> Vec<Point2D> {
+) -> Result<Vec<Point2D>, RoutingError> {
+    find_astar_path_with_grid(spatial_index, start, target, net_id, width, 100)
+}
+
+/// Find a clear path with explicit grid step resolution.
+pub fn find_astar_path_with_grid(
+    spatial_index: &SpatialIndex,
+    start: Point2D,
+    target: Point2D,
+    net_id: NetId,
+    width: Microns,
+    grid_step_microns: Microns,
+) -> Result<Vec<Point2D>, RoutingError> {
     if start == target {
-        return vec![start];
+        return Ok(vec![start]);
     }
 
-    let grid_step = 250i64; // 250 µm resolution (0.25mm)
+    let grid_step = grid_step_microns.max(10);
     let start_coord = GridCoord {
-        x: (start.x / grid_step),
-        y: (start.y / grid_step),
+        x: start.x / grid_step,
+        y: start.y / grid_step,
     };
     let target_coord = GridCoord {
-        x: (target.x / grid_step),
-        y: (target.y / grid_step),
+        x: target.x / grid_step,
+        y: target.y / grid_step,
     };
 
     let mut open_set = BinaryHeap::new();
@@ -57,11 +72,16 @@ pub fn find_astar_path(
     ];
 
     let mut iterations = 0;
-    let max_iterations = 2000;
+    let max_iterations = 8000;
+    let mut target_reached = false;
 
     while let Some(Reverse((_, current_g, current))) = open_set.pop() {
         iterations += 1;
-        if iterations > max_iterations || current == target_coord {
+        if current == target_coord {
+            target_reached = true;
+            break;
+        }
+        if iterations > max_iterations {
             break;
         }
 
@@ -82,18 +102,15 @@ pub fn find_astar_path(
 
             // Check collision with spatial index
             let pt = Point2D::new(neighbor.x * grid_step, neighbor.y * grid_step);
-            let half_w = width / 2 + 100;
+            let half_w = width / 2 + 50;
             let check_bbox = BoundingBox::from_center_radius(pt, half_w);
             let collisions = spatial_index.check_collision(&check_bbox, &[net_id]);
 
-            let penalty = if !collisions.is_empty() {
-                // High obstacle penalty
-                100_000
-            } else {
-                0
-            };
+            if !collisions.is_empty() {
+                continue;
+            }
 
-            let tentative_g = current_g + cost + penalty;
+            let tentative_g = current_g + cost;
             if tentative_g < *g_score.get(&neighbor).unwrap_or(&i64::MAX) {
                 came_from.insert(neighbor, current);
                 g_score.insert(neighbor, tentative_g);
@@ -101,6 +118,10 @@ pub fn find_astar_path(
                 open_set.push(Reverse((tentative_g + h, tentative_g, neighbor)));
             }
         }
+    }
+
+    if !target_reached && !came_from.contains_key(&target_coord) {
+        return Err(RoutingError::NoPathFound);
     }
 
     // Reconstruct path
@@ -117,7 +138,7 @@ pub fn find_astar_path(
     path.reverse();
 
     // Simplify collinear points
-    simplify_path(&path)
+    Ok(simplify_path(&path))
 }
 
 /// Find a clear path using ML-guided A* heuristics while maintaining 100% deterministic DRC enforcement.
@@ -128,19 +149,19 @@ pub fn find_astar_path_with_ml(
     net_id: NetId,
     width: Microns,
     advisor: Option<&mut oxide_ml::RoutingAdvisor>,
-) -> Vec<Point2D> {
+) -> Result<Vec<Point2D>, RoutingError> {
     if start == target {
-        return vec![start];
+        return Ok(vec![start]);
     }
 
-    let grid_step = 250i64; // 250 µm resolution (0.25mm)
+    let grid_step = 100i64; // 100 µm grid resolution
     let start_coord = GridCoord {
-        x: (start.x / grid_step),
-        y: (start.y / grid_step),
+        x: start.x / grid_step,
+        y: start.y / grid_step,
     };
     let target_coord = GridCoord {
-        x: (target.x / grid_step),
-        y: (target.y / grid_step),
+        x: target.x / grid_step,
+        y: target.y / grid_step,
     };
 
     let mut open_set = BinaryHeap::new();
@@ -164,13 +185,18 @@ pub fn find_astar_path_with_ml(
     ];
 
     let mut iterations = 0;
-    let max_iterations = 2500;
+    let max_iterations = 25000;
+    let mut target_reached = false;
 
     let mut advisor_ref = advisor;
 
     while let Some(Reverse((_, current_g, current))) = open_set.pop() {
         iterations += 1;
-        if iterations > max_iterations || current == target_coord {
+        if current == target_coord {
+            target_reached = true;
+            break;
+        }
+        if iterations > max_iterations {
             break;
         }
 
@@ -198,7 +224,7 @@ pub fn find_astar_path_with_ml(
 
             // Check collision with spatial index (100% deterministic gate)
             let pt = Point2D::new(neighbor.x * grid_step, neighbor.y * grid_step);
-            let half_w = width / 2 + 100;
+            let half_w = width / 2 + 50;
             let check_bbox = BoundingBox::from_center_radius(pt, half_w);
             let collisions = spatial_index.check_collision(&check_bbox, &[net_id]);
 
@@ -207,12 +233,12 @@ pub fn find_astar_path_with_ml(
                 continue;
             }
 
-            // Learned ML bias: discount cost for high-scoring policy moves
+            // Learned ML bias: slight discount for high-scoring policy moves while preserving admissibility
             let mut move_cost = base_cost;
             if let Some(ref out) = ml_output {
                 let score = out.action_scores[action_idx];
-                let discount = (score * out.confidence * 400.0) as i64;
-                move_cost = (move_cost - discount).max(100);
+                let discount = (score * out.confidence * 150.0) as i64;
+                move_cost = (move_cost - discount).max(850);
             }
 
             let tentative_g = current_g + move_cost;
@@ -223,6 +249,10 @@ pub fn find_astar_path_with_ml(
                 open_set.push(Reverse((tentative_g + h, tentative_g, neighbor)));
             }
         }
+    }
+
+    if !target_reached && !came_from.contains_key(&target_coord) {
+        return Err(RoutingError::NoPathFound);
     }
 
     // Reconstruct path
@@ -238,7 +268,7 @@ pub fn find_astar_path_with_ml(
     path.push(start);
     path.reverse();
 
-    simplify_path(&path)
+    Ok(simplify_path(&path))
 }
 
 fn heuristic(a: GridCoord, b: GridCoord) -> i64 {

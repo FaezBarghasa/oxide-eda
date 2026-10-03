@@ -708,16 +708,15 @@ impl ConstraintManager {
         actual_room: Option<&str>,
     ) -> Result<(), RuleViolation> {
         for rule in &self.rules {
-            if let DesignRule::RoomPlacement(rp) = rule {
-                if rp.component_designators.iter().any(|d| d == designator) {
-                    if actual_room != Some(&rp.room_name) {
-                        return Err(RuleViolation::room_placement_violation(
-                            designator,
-                            &rp.room_name,
-                            actual_room,
-                        ));
-                    }
-                }
+            if let DesignRule::RoomPlacement(rp) = rule
+                && rp.component_designators.iter().any(|d| d == designator)
+                && actual_room != Some(&rp.room_name)
+            {
+                return Err(RuleViolation::room_placement_violation(
+                    designator,
+                    &rp.room_name,
+                    actual_room,
+                ));
             }
         }
         Ok(())

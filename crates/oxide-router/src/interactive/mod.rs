@@ -256,7 +256,10 @@ impl InteractiveRouter {
         layer: LayerId,
         width: Microns,
     ) -> Vec<RouteSegment> {
-        let waypoints = astar::find_astar_path(&self.spatial_index, start, end, net_id, width);
+        let waypoints = match astar::find_astar_path(&self.spatial_index, start, end, net_id, width) {
+            Ok(pts) => pts,
+            Err(_) => return self.direct_route(start, end, net_id, layer, width),
+        };
         let mut segments = Vec::new();
 
         for i in 0..waypoints.len().saturating_sub(1) {
@@ -327,7 +330,10 @@ impl InteractiveRouter {
         width: Microns,
     ) -> Vec<RouteSegment> {
         let gap = 150; // 150µm diff pair gap
-        let centerline = astar::find_astar_path(&self.spatial_index, start, end, net_id, width);
+        let centerline = match astar::find_astar_path(&self.spatial_index, start, end, net_id, width) {
+            Ok(pts) => pts,
+            Err(_) => vec![start, end],
+        };
         let mut segments = Vec::new();
 
         for i in 0..centerline.len().saturating_sub(1) {
