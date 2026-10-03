@@ -98,6 +98,7 @@ pub struct PcbEngine {
     history: Vec<PcbHistoryEntry>,
     redo_stack: Vec<PcbHistoryEntry>,
     generation: u64,
+    selected_items: Vec<SelectedPcbItem>,
 }
 
 impl PcbEngine {
@@ -108,6 +109,7 @@ impl PcbEngine {
             history: Vec::new(),
             redo_stack: Vec::new(),
             generation: 1,
+            selected_items: Vec::new(),
         }
     }
 
@@ -118,7 +120,112 @@ impl PcbEngine {
             history: Vec::new(),
             redo_stack: Vec::new(),
             generation: 1,
+            selected_items: Vec::new(),
         }
+    }
+
+    pub fn selected_items(&self) -> &[SelectedPcbItem] {
+        &self.selected_items
+    }
+
+    pub fn selected_items_mut(&mut self) -> &mut Vec<SelectedPcbItem> {
+        &mut self.selected_items
+    }
+
+    pub fn clear_selection(&mut self) {
+        self.selected_items.clear();
+    }
+
+    pub fn set_selection(&mut self, items: Vec<SelectedPcbItem>) {
+        self.selected_items = items;
+    }
+
+    pub fn toggle_selection(&mut self, item: SelectedPcbItem) {
+        if let Some(pos) = self.selected_items.iter().position(|s| s.uuid == item.uuid) {
+            self.selected_items.remove(pos);
+        } else {
+            self.selected_items.push(item);
+        }
+    }
+
+    /// Fast geometric hit-test for PCB primitives at the given world coordinates (in mm).
+    pub fn hit_test(&self, x: f64, y: f64) -> Option<SelectedPcbItem> {
+        // 1. Hit test Vias (topmost point primitives)
+        for via in &self.board.vias {
+            let diam = if via.diameter > 0.0 { via.diameter } else { 0.6 };
+            let radius = (diam / 2.0).max(0.4);
+            let dx = x - via.position.x;
+            let dy = y - via.position.y;
+            if dx * dx + dy * dy <= radius * radius {
+                return Some(SelectedPcbItem {
+                    uuid: via.uuid,
+                    kind: SelectedPcbKind::Via,
+                    name: Some(format!("Net {}", via.net)),
+                });
+            }
+        }
+
+        // 2. Hit test Footprints & their Pads
+        for fp in &self.board.footprints {
+            // Check pads
+            for pad in &fp.pads {
+                let (w, h) = if pad.size.x > 0.0 && pad.size.y > 0.0 {
+                    (pad.size.x, pad.size.y)
+                } else {
+                    (1.0, 1.0)
+                };
+                let dx = (x - pad.position.x).abs();
+                let dy = (y - pad.position.y).abs();
+                if dx <= w / 2.0 + 0.2 && dy <= h / 2.0 + 0.2 {
+                    return Some(SelectedPcbItem {
+                        uuid: fp.uuid,
+                        kind: SelectedPcbKind::Footprint,
+                        name: Some(format!("{}:{}", fp.reference, pad.number)),
+                    });
+                }
+            }
+
+            // Check footprint origin/body proximity
+            let dx = x - fp.position.x;
+            let dy = y - fp.position.y;
+            if dx * dx + dy * dy <= 2.5 * 2.5 {
+                return Some(SelectedPcbItem {
+                    uuid: fp.uuid,
+                    kind: SelectedPcbKind::Footprint,
+                    name: Some(fp.reference.clone()),
+                });
+            }
+        }
+
+        // 3. Hit test Segments (tracks)
+        for seg in &self.board.segments {
+            let half_width = (seg.width / 2.0).max(0.2);
+            let dist_sq = point_to_segment_dist_sq(x, y, seg.start.x, seg.start.y, seg.end.x, seg.end.y);
+            if dist_sq <= half_width * half_width {
+                return Some(SelectedPcbItem {
+                    uuid: seg.uuid,
+                    kind: SelectedPcbKind::Segment,
+                    name: Some(format!("Net {}", seg.net)),
+                });
+            }
+        }
+
+        // 4. Hit test Zones
+        for zone in &self.board.zones {
+            if point_in_polygon(x, y, &zone.outline) {
+                return Some(SelectedPcbItem {
+                    uuid: zone.uuid,
+                    kind: SelectedPcbKind::Zone,
+                    name: if zone.net_name.is_empty() {
+                        Some(format!("Net {}", zone.net))
+                    } else {
+                        Some(zone.net_name.clone())
+                    },
+                });
+            }
+        }
+
+        None
     }
 
     pub fn path(&self) -> Option<&std::path::Path> {
@@ -313,6 +420,83 @@ impl PcbEngine {
                     Ok(None)
                 }
             }
+            PcbCommand::MoveSelection { items, dx, dy } => {
+                for item in &items {
+                    match item.kind {
+                        SelectedPcbKind::Footprint => {
+                            if let Some(fp) = self.board.footprints.iter_mut().find(|f| f.uuid == item.uuid) {
+                                fp.position.x += dx;
+                                fp.position.y += dy;
+                                for pad in &mut fp.pads {
+                                    pad.position.x += dx;
+                                    pad.position.y += dy;
+                                }
+                            }
+                        }
+                        SelectedPcbKind::Segment => {
+                            if let Some(seg) = self.board.segments.iter_mut().find(|s| s.uuid == item.uuid) {
+                                seg.start.x += dx;
+                                seg.start.y += dy;
+                                seg.end.x += dx;
+                                seg.end.y += dy;
+                            }
+                        }
+                        SelectedPcbKind::Via => {
+                            if let Some(via) = self.board.vias.iter_mut().find(|v| v.uuid == item.uuid) {
+                                via.position.x += dx;
+                                via.position.y += dy;
+                            }
+                        }
+                        SelectedPcbKind::Zone => {
+                            if let Some(zone) = self.board.zones.iter_mut().find(|z| z.uuid == item.uuid) {
+                                for pt in &mut zone.outline {
+                                    pt.x += dx;
+                                    pt.y += dy;
+                                }
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+                Ok(Some(PcbCommand::MoveSelection {
+                    items,
+                    dx: -dx,
+                    dy: -dy,
+                }))
+            }
         }
     }
 }
+
+fn point_to_segment_dist_sq(px: f64, py: f64, ax: f64, ay: f64, bx: f64, by: f64) -> f64 {
+    let dx = bx - ax;
+    let dy = by - ay;
+    let len_sq = dx * dx + dy * dy;
+    if len_sq <= 1e-9 {
+        return (px - ax) * (px - ax) + (py - ay) * (py - ay);
+    }
+    let t = (((px - ax) * dx + (py - ay) * dy) / len_sq).clamp(0.0, 1.0);
+    let proj_x = ax + t * dx;
+    let proj_y = ay + t * dy;
+    (px - proj_x) * (px - proj_x) + (py - proj_y) * (py - proj_y)
+}
+
+fn point_in_polygon(px: f64, py: f64, poly: &[Point]) -> bool {
+    if poly.len() < 3 {
+        return false;
+    }
+    let mut inside = false;
+    let mut j = poly.len() - 1;
+    for i in 0..poly.len() {
+        let (xi, yi) = (poly[i].x, poly[i].y);
+        let (xj, yj) = (poly[j].x, poly[j].y);
+        let intersect = ((yi > py) != (yj > py))
+            && (px < (xj - xi) * (py - yi) / (yj - yi + 1e-12) + xi);
+        if intersect {
+            inside = !inside;
+        }
+        j = i;
+    }
+    inside
+}
+

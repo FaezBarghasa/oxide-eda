@@ -108,3 +108,57 @@ fn test_pcb_engine_routing_segments_and_vias() {
     assert_eq!(engine.board().segments.len(), 1);
     assert_eq!(engine.board().segments[0].uuid, seg_id);
 }
+
+#[test]
+fn test_pcb_engine_hit_test_and_move_selection() {
+    use oxide_engine::pcb::SelectedPcbKind;
+
+    let board = PcbBoard::default();
+    let mut engine = PcbEngine::new(board);
+
+    let fp_id = Uuid::new_v4();
+    let fp = Footprint {
+        uuid: fp_id,
+        reference: "U1".to_string(),
+        value: "MCU".to_string(),
+        footprint_id: "QFP:LQFP-48".to_string(),
+        position: Point::new(50.0, 50.0),
+        rotation: 0.0,
+        layer: "F.Cu".to_string(),
+        locked: false,
+        properties: Vec::new(),
+        pads: Vec::new(),
+        graphics: Vec::new(),
+    };
+    engine.execute(PcbCommand::PlaceFootprint { footprint: fp }).unwrap();
+
+    // Hit test footprint
+    let hit = engine.hit_test(50.5, 49.8).expect("should hit footprint");
+    assert_eq!(hit.uuid, fp_id);
+    assert_eq!(hit.kind, SelectedPcbKind::Footprint);
+
+    // Hit test empty space
+    assert!(engine.hit_test(100.0, 100.0).is_none());
+
+    // Selection tracking
+    engine.set_selection(vec![hit.clone()]);
+    assert_eq!(engine.selected_items().len(), 1);
+
+    // Move selection
+    engine.execute(PcbCommand::MoveSelection {
+        items: vec![hit],
+        dx: 10.0,
+        dy: -5.0,
+    }).unwrap();
+
+    let moved_fp = &engine.board().footprints[0];
+    assert_eq!(moved_fp.position.x, 60.0);
+    assert_eq!(moved_fp.position.y, 45.0);
+
+    // Undo move selection
+    engine.undo().unwrap();
+    let undone_fp = &engine.board().footprints[0];
+    assert_eq!(undone_fp.position.x, 50.0);
+    assert_eq!(undone_fp.position.y, 50.0);
+}
+

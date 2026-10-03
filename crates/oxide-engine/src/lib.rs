@@ -30,7 +30,7 @@ pub use command::{
     TextTarget,
 };
 pub use error::EngineError;
-pub use pcb::{PcbCommand, PcbEngine};
+pub use pcb::{PcbCommand, PcbEngine, SelectedPcbItem, SelectedPcbKind};
 use history::HistoryEntry;
 use oxide_types::schematic::SchematicSheet;
 pub use patch::{CommandResult, DocumentPatch, PatchPair, SemanticPatch};

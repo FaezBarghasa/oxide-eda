@@ -20,6 +20,13 @@ pub struct PcbCanvasState {
     panning: bool,
     last_pan_pos: Option<iced::Point>,
     pub pending_fit: Option<Rectangle>,
+    pub click_start: Option<(f64, f64)>,
+    pub move_origin: Option<(f64, f64)>,
+    pub move_dragging: bool,
+    pub last_click_time: Option<std::time::Instant>,
+    pub last_click_world: Option<(f64, f64)>,
+    pub ctrl_held: bool,
+    pub shift_held: bool,
 }
 
 pub struct PcbCanvas {
