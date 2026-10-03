@@ -3,6 +3,7 @@
 //! Searches online distributor/component endpoints, parses specifications, downloads and hash-pins
 //! datasheets, synthesizes schematic Symbols and IPC-compliant Footprints, and ingests them into
 //! the local project library (`.snxlib`).
+#![allow(unused_imports, dead_code)]
 
 use std::collections::BTreeMap;
 use std::fs;

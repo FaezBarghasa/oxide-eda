@@ -105,38 +105,38 @@ impl ComponentHarvester for HarvesterCascade {
     fn harvest_part(&self, query: &HarvestQuery) -> Result<HarvestedRawData, HarvestError> {
         // Tier 2: Authenticated Distributor REST APIs
         for adapter in &self.distributor_adapters {
-            if let Ok(parts) = adapter.lookup_by_mpn(&query.mpn) {
-                if let Some(best) = parts.into_iter().next() {
-                    let mut data = HarvestedRawData {
-                        mpn: best.mpn,
-                        manufacturer: best.manufacturer,
-                        description: best.description,
-                        datasheet_url: best.datasheet_url.map(|u| u.to_string()),
-                        parameters: best.parameters,
-                        ..Default::default()
-                    };
-                    
-                    // Populate default dimensions from footprint hint or synthesize
-                    if let Some(hint) = best.footprint_hint {
-                        if hint.contains("SOIC") || hint.contains("SOP") {
-                            data.direct_dimensions = Some(PackageDimensions::standard_soic(8));
-                        } else if hint.contains("0805") {
-                            data.direct_dimensions = Some(PackageDimensions::standard_chip(2.0, 1.25, 0.5));
-                        }
+            if let Ok(parts) = adapter.lookup_by_mpn(&query.mpn)
+                && let Some(best) = parts.into_iter().next()
+            {
+                let mut data = HarvestedRawData {
+                    mpn: best.mpn,
+                    manufacturer: best.manufacturer,
+                    description: best.description,
+                    datasheet_url: best.datasheet_url.map(|u| u.to_string()),
+                    parameters: best.parameters,
+                    ..Default::default()
+                };
+                
+                // Populate default dimensions from footprint hint or synthesize
+                if let Some(hint) = best.footprint_hint {
+                    if hint.contains("SOIC") || hint.contains("SOP") {
+                        data.direct_dimensions = Some(PackageDimensions::standard_soic(8));
+                    } else if hint.contains("0805") {
+                        data.direct_dimensions = Some(PackageDimensions::standard_chip(2.0, 1.25, 0.5));
                     }
-
-                    if data.direct_pins.is_none() || data.direct_dimensions.is_none() {
-                        let fallback = self.synthesize_fallback(query);
-                        if data.direct_pins.is_none() {
-                            data.direct_pins = fallback.direct_pins;
-                        }
-                        if data.direct_dimensions.is_none() {
-                            data.direct_dimensions = fallback.direct_dimensions;
-                        }
-                    }
-
-                    return Ok(data);
                 }
+
+                if data.direct_pins.is_none() || data.direct_dimensions.is_none() {
+                    let fallback = self.synthesize_fallback(query);
+                    if data.direct_pins.is_none() {
+                        data.direct_pins = fallback.direct_pins;
+                    }
+                    if data.direct_dimensions.is_none() {
+                        data.direct_dimensions = fallback.direct_dimensions;
+                    }
+                }
+
+                return Ok(data);
             }
         }
 

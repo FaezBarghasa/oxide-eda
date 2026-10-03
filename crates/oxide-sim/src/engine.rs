@@ -162,11 +162,11 @@ impl InProcessMnaSolver {
 
         // LU decomposition with partial pivoting
         for i in 0..n {
-            let mut max_val = self.lu_workspace[self.index(self.p_workspace[i], i)].abs();
+            let mut max_val = self.lu_workspace[self.p_workspace[i] * n + i].abs();
             let mut pivot = i;
 
             for k in (i + 1)..n {
-                let val = self.lu_workspace[self.index(self.p_workspace[k], i)].abs();
+                let val = self.lu_workspace[self.p_workspace[k] * n + i].abs();
                 if val > max_val {
                     max_val = val;
                     pivot = k;
@@ -180,15 +180,18 @@ impl InProcessMnaSolver {
             self.p_workspace.swap(i, pivot);
 
             let pivot_row = self.p_workspace[i];
-            let pivot_val = self.lu_workspace[self.index(pivot_row, i)];
+            let pivot_val = self.lu_workspace[pivot_row * n + i];
 
             for k in (i + 1)..n {
                 let row_k = self.p_workspace[k];
-                let factor = self.lu_workspace[self.index(row_k, i)] / pivot_val;
-                self.lu_workspace[self.index(row_k, i)] = factor;
+                let factor = self.lu_workspace[row_k * n + i] / pivot_val;
+                let idx_ki = row_k * n + i;
+                self.lu_workspace[idx_ki] = factor;
 
                 for j in (i + 1)..n {
-                    self.lu_workspace[self.index(row_k, j)] -= factor * self.lu_workspace[self.index(pivot_row, j)];
+                    let term = factor * self.lu_workspace[pivot_row * n + j];
+                    let idx_kj = row_k * n + j;
+                    self.lu_workspace[idx_kj] -= term;
                 }
             }
         }
@@ -200,7 +203,7 @@ impl InProcessMnaSolver {
         for i in 0..n {
             let mut sum = b[self.p_workspace[i]];
             for j in 0..i {
-                sum -= self.lu_workspace[self.index(self.p_workspace[i], j)] * self.y_workspace[j];
+                sum -= self.lu_workspace[self.p_workspace[i] * n + j] * self.y_workspace[j];
             }
             self.y_workspace[i] = sum;
         }
@@ -212,9 +215,9 @@ impl InProcessMnaSolver {
         for i in (0..n).rev() {
             let mut sum = self.y_workspace[i];
             for j in (i + 1)..n {
-                sum -= self.lu_workspace[self.index(self.p_workspace[i], j)] * self.res_workspace[j];
+                sum -= self.lu_workspace[self.p_workspace[i] * n + j] * self.res_workspace[j];
             }
-            self.res_workspace[i] = sum / self.lu_workspace[self.index(self.p_workspace[i], i)];
+            self.res_workspace[i] = sum / self.lu_workspace[self.p_workspace[i] * n + i];
         }
 
         Ok(self.res_workspace.clone())

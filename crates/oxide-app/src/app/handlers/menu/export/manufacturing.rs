@@ -19,28 +19,15 @@ impl Oxide {
         if let Some((_, engine)) = self.document_state.pcb_engines.iter().next() {
             return Some(engine.board().clone());
         }
-        // If schematic is active, try to derive an initial board from components
-        if let Some((ctx, _)) = super::build_export_scope(&self.document_state) {
-            let mut board = PcbBoard::default();
-            let mut components = Vec::new();
-            for sheet in &ctx.sheets {
-                for sym in &sheet.schematic.symbols {
-                    components.push((sym.reference.clone(), sym.value.clone(), sym.footprint.clone()));
-                }
-            }
-            if let Some(netlist) = &ctx.netlist {
-                let report = oxide_net::EcoEngine::diff_schematic_to_pcb(netlist, &board, &components);
-                oxide_net::EcoEngine::apply_eco(&mut board, &report);
-            }
-            return Some(board);
-        }
         None
     }
 
     /// Export Gerber RS-274X / X2 layer archive.
     pub(crate) fn handle_export_gerber(&mut self) -> Task<Message> {
         let Some(board) = self.resolve_pcb_board() else {
-            crate::diagnostics::log_warning("Export Gerber: No PCB layout or schematic found to export.");
+            crate::diagnostics::log_warning(
+                "Export Gerber: No active PCB layout found. Please open a .snxpcb layout or run 'Update PCB from Schematic' first."
+            );
             return Task::none();
         };
 
@@ -60,11 +47,11 @@ impl Oxide {
                 let layers = exporter.export_board(&board).map_err(|e| e.to_string())?;
 
                 let mut written = 0;
-                for layer in layers {
+                for layer in &layers {
                     let out_path = dir.join(&layer.filename);
-                    if std::fs::write(&out_path, &layer.content).is_ok() {
-                        written += 1;
-                    }
+                    std::fs::write(&out_path, &layer.content)
+                        .map_err(|e| format!("Failed to write layer '{}': {}", layer.filename, e))?;
+                    written += 1;
                 }
 
                 Ok((dir, written))

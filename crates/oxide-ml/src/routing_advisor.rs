@@ -53,24 +53,22 @@ impl RoutingAdvisor {
             let tract_tensor = tract_onnx::prelude::Tensor::from(tensor_data);
             let mut inputs: TVec<tract_onnx::prelude::Tensor> = TVec::new();
             inputs.push(tract_tensor);
-            if let Ok(results) = engine.run(inputs) {
-                if let Some(first) = results.first() {
-                    if let Ok(view) = first.to_plain_array_view::<f32>() {
-                        if view.len() >= 11 {
-                            let mut action_scores = [0.0f32; 10];
-                            for (i, v) in view.iter().take(10).enumerate() {
-                                action_scores[i] = *v;
-                            }
-                            let confidence = view[10];
-                            let out = RoutingAdvisorOutput {
-                                action_scores,
-                                confidence,
-                            };
-                            self.cache.insert(key, out.clone());
-                            return out;
-                        }
-                    }
+            if let Ok(results) = engine.run(inputs)
+                && let Some(first) = results.first()
+                && let Ok(view) = first.to_plain_array_view::<f32>()
+                && view.len() >= 11
+            {
+                let mut action_scores = [0.0f32; 10];
+                for (i, v) in view.iter().take(10).enumerate() {
+                    action_scores[i] = *v;
                 }
+                let confidence = view[10];
+                let out = RoutingAdvisorOutput {
+                    action_scores,
+                    confidence,
+                };
+                self.cache.insert(key, out.clone());
+                return out;
             }
         }
 
