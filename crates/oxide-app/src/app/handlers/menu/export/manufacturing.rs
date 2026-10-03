@@ -245,8 +245,7 @@ impl Oxide {
 
                 let mut draftsman = DraftsmanDocument::new(&project_title);
                 draftsman.sync_with_board(&board);
-                let svg_content = draftsman.generate_sheet_svg(0, &board)
-                    .map_err(|e| e)?;
+                let svg_content = draftsman.generate_sheet_svg(0, &board)?;
 
                 std::fs::write(&path, svg_content).map_err(|e| e.to_string())?;
                 Ok(path)

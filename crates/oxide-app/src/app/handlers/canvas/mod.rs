@@ -212,11 +212,11 @@ impl Oxide {
             }
             CanvasEvent::CtrlClicked { world_x, world_y } => {
                 if self.has_active_pcb() {
-                    if let Some(pcb_engine) = self.active_pcb_engine_mut() {
-                        if let Some(hit) = pcb_engine.hit_test(world_x, world_y) {
-                            pcb_engine.toggle_selection(hit);
-                            self.interaction_state.pcb_canvas.clear_content_cache();
-                        }
+                    if let Some(pcb_engine) = self.active_pcb_engine_mut()
+                        && let Some(hit) = pcb_engine.hit_test(world_x, world_y)
+                    {
+                        pcb_engine.toggle_selection(hit);
+                        self.interaction_state.pcb_canvas.clear_content_cache();
                     }
                     return Task::none();
                 }
