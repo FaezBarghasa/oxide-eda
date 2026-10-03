@@ -72,6 +72,7 @@ impl InteractiveRouter {
             track_width,
             tuning_hud: None,
             corner_style: session::CornerStyle::default(),
+            corner_mode: CornerMode::default(),
         });
         Ok(())
     }
@@ -123,6 +124,16 @@ impl InteractiveRouter {
             && let Some(hud) = &mut s.tuning_hud
         {
             hud.adjust_pitch(-100);
+        }
+    }
+
+    /// Hotkey 'Shift+Space': Cycle corner routing mode (45° Bevel -> 45° Arc -> 90° -> Any Angle)
+    pub fn hotkey_cycle_corner_mode(&mut self) -> CornerMode {
+        if let Some(s) = &mut self.session {
+            s.corner_mode = s.corner_mode.cycle_forward();
+            s.corner_mode
+        } else {
+            CornerMode::default()
         }
     }
 

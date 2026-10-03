@@ -151,3 +151,21 @@ fn test_hdi_via_validation() {
         Err(HdiError::BuriedViaTouchesOuterSurface { .. })
     ));
 }
+
+#[test]
+fn test_coplanar_waveguide_and_grounded_cpw() {
+    // 50 Ohm CPW on FR-4 (Er = 4.4): w = 300 µm, g = 150 µm, h = 800 µm
+    let z0_cpw = ImpedanceCalculator::calculate_coplanar_waveguide(300, 150, 800, 4.4);
+    assert!(
+        z0_cpw > 40.0 && z0_cpw < 70.0,
+        "Expected CPW Z0 between 40Ω and 70Ω, got {z0_cpw:.2}Ω"
+    );
+
+    // Grounded Coplanar Waveguide (GCPWG): w = 250 µm, g = 150 µm, h = 200 µm
+    let z0_gcpw = ImpedanceCalculator::calculate_grounded_coplanar_waveguide(250, 150, 200, 4.4);
+    assert!(
+        z0_gcpw > 40.0 && z0_gcpw < 65.0,
+        "Expected Grounded CPW Z0 between 40Ω and 65Ω, got {z0_gcpw:.2}Ω"
+    );
+}
+

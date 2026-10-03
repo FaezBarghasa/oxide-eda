@@ -91,6 +91,7 @@ pub struct RoutingSession {
     pub track_width: Microns,
     pub tuning_hud: Option<InteractiveTuningHudState>,
     pub corner_style: CornerStyle,
+    pub corner_mode: super::corner_modes::CornerMode,
 }
 
 impl RoutingSession {

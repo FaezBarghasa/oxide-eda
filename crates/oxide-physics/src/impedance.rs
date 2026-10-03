@@ -227,4 +227,74 @@ impl ImpedanceCalculator {
             ))
         }
     }
+
+    /// Calculate characteristic impedance (Z0 in Ohms) for a Coplanar Waveguide (CPW)
+    /// using closed-form conformal mapping elliptic integral approximations.
+    ///
+    /// $$k = \frac{w}{w + 2g}, \quad k' = \sqrt{1 - k^2}$$
+    /// $$Z_0 = \frac{30\pi}{\sqrt{\varepsilon_{r,\text{eff}}}} \frac{K(k')}{K(k)}$$
+    pub fn calculate_coplanar_waveguide(
+        trace_width: Microns,
+        ground_gap: Microns,
+        dielectric_height: Microns,
+        er: f64,
+    ) -> f64 {
+        let w = trace_width as f64;
+        let g = ground_gap as f64;
+        let h = dielectric_height as f64;
+
+        if w <= 0.0 || g <= 0.0 || h <= 0.0 || er <= 1.0 {
+            return 0.0;
+        }
+
+        let k = w / (w + 2.0 * g);
+        let k_prime = (1.0 - k * k).max(1e-12).sqrt();
+
+        let eps_eff = (er + 1.0) / 2.0;
+        let k_ratio = Self::elliptic_integral_ratio(k, k_prime);
+
+        (30.0 * std::f64::consts::PI / eps_eff.sqrt()) * k_ratio
+    }
+
+    /// Calculate characteristic impedance (Z0 in Ohms) for a Conductor-Backed Coplanar Waveguide (CBCPW / GCPWG).
+    pub fn calculate_grounded_coplanar_waveguide(
+        trace_width: Microns,
+        ground_gap: Microns,
+        dielectric_height: Microns,
+        er: f64,
+    ) -> f64 {
+        let w = trace_width as f64;
+        let g = ground_gap as f64;
+        let h = dielectric_height as f64;
+
+        if w <= 0.0 || g <= 0.0 || h <= 0.0 || er <= 1.0 {
+            return 0.0;
+        }
+
+        let k1 = w / (w + 2.0 * g);
+        let k1_prime = (1.0 - k1 * k1).max(1e-12).sqrt();
+
+        let pi = std::f64::consts::PI;
+        let k2 = (pi * w / (4.0 * h)).tanh() / (pi * (w + 2.0 * g) / (4.0 * h)).tanh();
+        let k2_prime = (1.0 - k2 * k2).max(1e-12).sqrt();
+
+        let ratio1 = Self::elliptic_integral_ratio(k1, k1_prime);
+        let ratio2 = Self::elliptic_integral_ratio(k2, k2_prime);
+
+        let eps_eff = (1.0 + er * (ratio2 / ratio1)) / (1.0 + (ratio2 / ratio1));
+        (60.0 * pi / eps_eff.sqrt()) / ((1.0 / ratio1) + (1.0 / ratio2))
+    }
+
+    /// Hilberg approximation for complete elliptic integral ratio K(k') / K(k).
+    fn elliptic_integral_ratio(k: f64, k_prime: f64) -> f64 {
+        let pi = std::f64::consts::PI;
+        if k * k <= 0.5 {
+            let num = ((1.0 + k_prime.sqrt()) / (1.0 - k_prime.sqrt())).ln();
+            pi / num
+        } else {
+            let num = ((1.0 + k.sqrt()) / (1.0 - k.sqrt())).ln();
+            num / pi
+        }
+    }
 }
+
