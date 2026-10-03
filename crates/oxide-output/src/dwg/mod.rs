@@ -195,10 +195,8 @@ impl DwgExporter {
                     }
                 }
 
-                if let Some(ref drill) = pad.drill {
-                    if drill.diameter > 0.0 {
-                        write_binary_circle(&mut buf, "DRILL", cx, cy, drill.diameter / 2.0)?;
-                    }
+                if let Some(ref drill) = pad.drill.as_ref().filter(|d| d.diameter > 0.0) {
+                    write_binary_circle(&mut buf, "DRILL", cx, cy, drill.diameter / 2.0)?;
                 }
             }
 
@@ -236,10 +234,8 @@ impl DwgExporter {
                 if let (Some(first), Some(last)) = (bg.points.first(), bg.points.last()) {
                     write_binary_line(&mut buf, "BOARD_OUTLINE", last.x, last.y, first.x, first.y)?;
                 }
-            } else if let Some(c) = bg.center {
-                if bg.radius > 0.0 {
-                    write_binary_circle(&mut buf, "BOARD_OUTLINE", c.x, c.y, bg.radius)?;
-                }
+            } else if let Some(c) = bg.center.filter(|_| bg.radius > 0.0) {
+                write_binary_circle(&mut buf, "BOARD_OUTLINE", c.x, c.y, bg.radius)?;
             }
         }
 

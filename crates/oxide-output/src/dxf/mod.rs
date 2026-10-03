@@ -131,17 +131,17 @@ impl DxfExporter {
     }
 
     fn collect_active_layers(&self, board: &PcbBoard) -> Vec<DxfLayerConfig> {
-        let mut known_layers = Vec::new();
-
         // Standard layer palette with industrial ACI color assignments
-        known_layers.push(DxfLayerConfig::new("BOARD_OUTLINE", AciColor::WhiteOrBlack, "Board Boundary"));
-        known_layers.push(DxfLayerConfig::new("F_CU", AciColor::Red, "Top Copper Layer"));
-        known_layers.push(DxfLayerConfig::new("B_CU", AciColor::Blue, "Bottom Copper Layer"));
-        known_layers.push(DxfLayerConfig::new("F_SILK", AciColor::Yellow, "Top Silkscreen"));
-        known_layers.push(DxfLayerConfig::new("B_SILK", AciColor::Magenta, "Bottom Silkscreen"));
-        known_layers.push(DxfLayerConfig::new("F_MASK", AciColor::DarkGray, "Top Solder Mask"));
-        known_layers.push(DxfLayerConfig::new("B_MASK", AciColor::LightGray, "Bottom Solder Mask"));
-        known_layers.push(DxfLayerConfig::new("DRILL", AciColor::Cyan, "Through-hole and Via Drills"));
+        let mut known_layers = vec![
+            DxfLayerConfig::new("BOARD_OUTLINE", AciColor::WhiteOrBlack, "Board Boundary"),
+            DxfLayerConfig::new("F_CU", AciColor::Red, "Top Copper Layer"),
+            DxfLayerConfig::new("B_CU", AciColor::Blue, "Bottom Copper Layer"),
+            DxfLayerConfig::new("F_SILK", AciColor::Yellow, "Top Silkscreen"),
+            DxfLayerConfig::new("B_SILK", AciColor::Magenta, "Bottom Silkscreen"),
+            DxfLayerConfig::new("F_MASK", AciColor::DarkGray, "Top Solder Mask"),
+            DxfLayerConfig::new("B_MASK", AciColor::LightGray, "Bottom Solder Mask"),
+            DxfLayerConfig::new("DRILL", AciColor::Cyan, "Through-hole and Via Drills"),
+        ];
 
         // Add custom inner layers if declared
         for l in &board.layers {
@@ -339,10 +339,8 @@ impl DxfExporter {
                 }
 
                 // Drill hole
-                if let Some(ref drill) = pad.drill {
-                    if self.should_include_layer("DRILL") && drill.diameter > 0.0 {
-                        self.write_circle(out, "DRILL", center_x, center_y, drill.diameter / 2.0)?;
-                    }
+                if let Some(ref drill) = pad.drill.as_ref().filter(|d| self.should_include_layer("DRILL") && d.diameter > 0.0) {
+                    self.write_circle(out, "DRILL", center_x, center_y, drill.diameter / 2.0)?;
                 }
             }
 
@@ -416,10 +414,8 @@ impl DxfExporter {
             } else if !bg.points.is_empty() {
                 let pts: Vec<(f64, f64)> = bg.points.iter().map(|p| (p.x, p.y)).collect();
                 self.write_closed_polyline(out, "BOARD_OUTLINE", &pts)?;
-            } else if let Some(c) = bg.center {
-                if bg.radius > 0.0 {
-                    self.write_circle(out, "BOARD_OUTLINE", c.x, c.y, bg.radius)?;
-                }
+            } else if let Some(c) = bg.center.filter(|_| bg.radius > 0.0) {
+                self.write_circle(out, "BOARD_OUTLINE", c.x, c.y, bg.radius)?;
             }
         }
         Ok(())

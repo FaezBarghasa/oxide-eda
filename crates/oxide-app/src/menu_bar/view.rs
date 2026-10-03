@@ -93,6 +93,31 @@ pub fn view(tokens: &ThemeTokens, ctx: MenuContext) -> Element<'static, MenuMess
             ),
             separator(mc),
             leaf_if(
+                "AutoCAD DXF R12 (.dxf)…",
+                None,
+                MenuMessage::ExportDxf,
+                ctx.has_pcb || ctx.has_schematic,
+            ),
+            leaf_if(
+                "AutoCAD DWG R12 (.dwg)…",
+                None,
+                MenuMessage::ExportDwg,
+                ctx.has_pcb || ctx.has_schematic,
+            ),
+            leaf_if(
+                "AutoCAD Template (.dwt)…",
+                None,
+                MenuMessage::ExportDwt,
+                ctx.has_pcb || ctx.has_schematic,
+            ),
+            leaf_if(
+                "Copper Bottom Routing (.cbr)…",
+                None,
+                MenuMessage::ExportCbr,
+                ctx.has_pcb || ctx.has_schematic,
+            ),
+            separator(mc),
+            leaf_if(
                 "Draftsman Drawing (.svg)…",
                 None,
                 MenuMessage::ExportDraftsman,

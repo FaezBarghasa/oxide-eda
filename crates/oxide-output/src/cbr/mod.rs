@@ -64,8 +64,8 @@ impl CbrExporter {
         for seg in &board.segments {
             if is_bottom_copper_layer(&seg.layer) {
                 let w_nm = (seg.width * 1000.0).round() as i64;
-                if !trace_apertures.contains_key(&w_nm) {
-                    trace_apertures.insert(w_nm, next_dcode);
+                if let std::collections::btree_map::Entry::Vacant(e) = trace_apertures.entry(w_nm) {
+                    e.insert(next_dcode);
                     apertures.insert(next_dcode, ApertureDef::Circle(seg.width));
                     next_dcode += 1;
                 }
@@ -83,8 +83,8 @@ impl CbrExporter {
 
                 if on_bottom {
                     let key = pad_aperture_key(pad);
-                    if !pad_apertures.contains_key(&key) {
-                        pad_apertures.insert(key.clone(), next_dcode);
+                    if let std::collections::btree_map::Entry::Vacant(e) = pad_apertures.entry(key) {
+                        e.insert(next_dcode);
                         let ap = match pad.shape {
                             PadShape::Circle => ApertureDef::Circle(pad.size.x.max(pad.size.y)),
                             PadShape::Rect | PadShape::RoundRect | PadShape::Custom => ApertureDef::Rect(pad.size.x, pad.size.y),
@@ -184,17 +184,15 @@ impl CbrExporter {
         }
 
         // 6. Emit Vias (D03 Flash)
-        if self.options.include_vias {
-            if let Some(via_dc) = via_aperture {
-                if current_dcode != via_dc {
-                    writeln!(out, "D{via_dc}*")?;
-                }
+        if let (true, Some(via_dc)) = (self.options.include_vias, via_aperture) {
+            if current_dcode != via_dc {
+                writeln!(out, "D{via_dc}*")?;
+            }
 
-                for via in &board.vias {
-                    let x = self.format_coord(via.position.x);
-                    let y = self.format_coord(via.position.y);
-                    writeln!(out, "X{x}Y{y}D03*")?; // Flash via
-                }
+            for via in &board.vias {
+                let x = self.format_coord(via.position.x);
+                let y = self.format_coord(via.position.y);
+                writeln!(out, "X{x}Y{y}D03*")?; // Flash via
             }
         }
 

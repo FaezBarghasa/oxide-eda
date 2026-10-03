@@ -272,6 +272,194 @@ impl Oxide {
         )
     }
 
+    /// Export AutoCAD Release 12 (AC1009) ASCII DXF file.
+    pub(crate) fn handle_export_dxf(&mut self) -> Task<Message> {
+        let Some(board) = self.resolve_pcb_board() else {
+            crate::diagnostics::log_warning("Export DXF: No active PCB layout found.");
+            return Task::none();
+        };
+
+        Task::perform(
+            async move {
+                let file = rfd::AsyncFileDialog::new()
+                    .set_title("Export AutoCAD R12 DXF")
+                    .set_file_name("board_layout.dxf")
+                    .add_filter("AutoCAD R12 DXF (*.dxf)", &["dxf"])
+                    .save_file()
+                    .await
+                    .map(|f| f.path().to_path_buf());
+
+                let Some(path) = file else {
+                    return Err("Cancelled by user".to_string());
+                };
+
+                let exporter = DxfExporter::new(DxfOptions::default());
+                let dxf_content = exporter.export_board(&board).map_err(|e| e.to_string())?;
+
+                std::fs::write(&path, dxf_content).map_err(|e| e.to_string())?;
+                Ok(path)
+            },
+            |res| match res {
+                Ok(path) => {
+                    crate::diagnostics::log_info(format!(
+                        "Export DXF: Successfully generated AutoCAD R12 DXF drawing at {}",
+                        path.display()
+                    ));
+                    Message::Noop
+                }
+                Err(e) => {
+                    if e != "Cancelled by user" {
+                        crate::diagnostics::log_warning(format!("Export DXF failed: {e}"));
+                    }
+                    Message::Noop
+                }
+            },
+        )
+    }
+
+    /// Export binary AutoCAD Release 12 DWG (`.dwg`) file.
+    pub(crate) fn handle_export_dwg(&mut self) -> Task<Message> {
+        let Some(board) = self.resolve_pcb_board() else {
+            crate::diagnostics::log_warning("Export DWG: No active PCB layout found.");
+            return Task::none();
+        };
+
+        Task::perform(
+            async move {
+                let file = rfd::AsyncFileDialog::new()
+                    .set_title("Export AutoCAD DWG")
+                    .set_file_name("board_layout.dwg")
+                    .add_filter("AutoCAD Drawing (*.dwg)", &["dwg"])
+                    .save_file()
+                    .await
+                    .map(|f| f.path().to_path_buf());
+
+                let Some(path) = file else {
+                    return Err("Cancelled by user".to_string());
+                };
+
+                let exporter = DwgExporter::new(DwgOptions {
+                    version: DwgVersion::R12Ac1009,
+                    ..Default::default()
+                });
+                let dwg_bytes = exporter.export_dwg(&board).map_err(|e| e.to_string())?;
+
+                std::fs::write(&path, dwg_bytes).map_err(|e| e.to_string())?;
+                Ok(path)
+            },
+            |res| match res {
+                Ok(path) => {
+                    crate::diagnostics::log_info(format!(
+                        "Export DWG: Successfully generated AutoCAD DWG binary drawing at {}",
+                        path.display()
+                    ));
+                    Message::Noop
+                }
+                Err(e) => {
+                    if e != "Cancelled by user" {
+                        crate::diagnostics::log_warning(format!("Export DWG failed: {e}"));
+                    }
+                    Message::Noop
+                }
+            },
+        )
+    }
+
+    /// Export binary AutoCAD Drawing Template (`.dwt`) file with fabrication title block.
+    pub(crate) fn handle_export_dwt(&mut self) -> Task<Message> {
+        let Some(board) = self.resolve_pcb_board() else {
+            crate::diagnostics::log_warning("Export DWT: No active PCB layout found.");
+            return Task::none();
+        };
+
+        Task::perform(
+            async move {
+                let file = rfd::AsyncFileDialog::new()
+                    .set_title("Export AutoCAD Drawing Template (DWT)")
+                    .set_file_name("board_template.dwt")
+                    .add_filter("AutoCAD Drawing Template (*.dwt)", &["dwt"])
+                    .save_file()
+                    .await
+                    .map(|f| f.path().to_path_buf());
+
+                let Some(path) = file else {
+                    return Err("Cancelled by user".to_string());
+                };
+
+                let exporter = DwgExporter::new(DwgOptions {
+                    version: DwgVersion::R12Ac1009,
+                    is_template: true,
+                    include_border: true,
+                    ..Default::default()
+                });
+                let dwt_bytes = exporter.export_dwt(&board).map_err(|e| e.to_string())?;
+
+                std::fs::write(&path, dwt_bytes).map_err(|e| e.to_string())?;
+                Ok(path)
+            },
+            |res| match res {
+                Ok(path) => {
+                    crate::diagnostics::log_info(format!(
+                        "Export DWT: Successfully generated AutoCAD Drawing Template at {}",
+                        path.display()
+                    ));
+                    Message::Noop
+                }
+                Err(e) => {
+                    if e != "Cancelled by user" {
+                        crate::diagnostics::log_warning(format!("Export DWT failed: {e}"));
+                    }
+                    Message::Noop
+                }
+            },
+        )
+    }
+
+    /// Export Copper Bottom Routing (`.cbr`) legacy CAM file.
+    pub(crate) fn handle_export_cbr(&mut self) -> Task<Message> {
+        let Some(board) = self.resolve_pcb_board() else {
+            crate::diagnostics::log_warning("Export CBR: No active PCB layout found.");
+            return Task::none();
+        };
+
+        Task::perform(
+            async move {
+                let file = rfd::AsyncFileDialog::new()
+                    .set_title("Export Copper Bottom Routing (.cbr)")
+                    .set_file_name("board_bottom.cbr")
+                    .add_filter("Copper Bottom Routing (*.cbr)", &["cbr"])
+                    .save_file()
+                    .await
+                    .map(|f| f.path().to_path_buf());
+
+                let Some(path) = file else {
+                    return Err("Cancelled by user".to_string());
+                };
+
+                let exporter = CbrExporter::new(CbrOptions::default());
+                let cbr_content = exporter.export_bottom_copper(&board).map_err(|e| e.to_string())?;
+
+                std::fs::write(&path, cbr_content).map_err(|e| e.to_string())?;
+                Ok(path)
+            },
+            |res| match res {
+                Ok(path) => {
+                    crate::diagnostics::log_info(format!(
+                        "Export CBR: Successfully generated Copper Bottom Routing file at {}",
+                        path.display()
+                    ));
+                    Message::Noop
+                }
+                Err(e) => {
+                    if e != "Cancelled by user" {
+                        crate::diagnostics::log_warning(format!("Export CBR failed: {e}"));
+                    }
+                    Message::Noop
+                }
+            },
+        )
+    }
+
     /// Handle Forward ECO: Update PCB from Schematic Netlist & Components.
     pub(crate) fn handle_update_pcb_from_schematic(&mut self) -> Task<Message> {
         let (ctx, issues) = match super::build_export_scope(&self.document_state) {

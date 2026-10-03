@@ -57,6 +57,10 @@ impl Oxide {
             MenuMessage::ExportPnP => Some(self.handle_export_pnp()),
             MenuMessage::ExportIpc2581 => Some(self.handle_export_ipc2581()),
             MenuMessage::ExportDraftsman => Some(self.handle_export_draftsman()),
+            MenuMessage::ExportDxf => Some(self.handle_export_dxf()),
+            MenuMessage::ExportDwg => Some(self.handle_export_dwg()),
+            MenuMessage::ExportDwt => Some(self.handle_export_dwt()),
+            MenuMessage::ExportCbr => Some(self.handle_export_cbr()),
             MenuMessage::UpdatePcbFromSchematic => Some(self.handle_update_pcb_from_schematic()),
             MenuMessage::RunDrc => Some(self.update(Message::Dock(
                 crate::dock::DockMessage::Panel(crate::panels::PanelMsg::RunDrc),
