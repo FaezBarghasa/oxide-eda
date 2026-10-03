@@ -134,6 +134,13 @@ formats one-way. Run it once against your project; open the resulting
   GD&T feature control frames, datum reference frames, live-updating grouped drill tables, and `.snxdraft` documents
 - **Multi-Stackup Rigid-Flex Kinematics (`oxide-physics`)** — Homogeneous $4 \times 4$ forward-kinematic
   transformation chains across flexible bending lines with GJK / EPA 3D enclosure collision detection
+- **Cleanroom Altium Designer Binary Importer (`oxide-altium-importer`, `oxide-cli`)** — Cleanroom
+  OLE2/CFB binary container importer translating `.SchDoc`, `.PcbDoc`, `.SchLib`, `.PcbLib`, and `.IntLib`
+  into native Oxide types via GUI and the headless `oxide import-altium` CLI command
+- **Crash-Resistant Atomic IO Durability (`oxide-types::atomic_io`)** — Sibling `.tmp` renaming
+  and directory fsync ensuring zero data loss across user documents and background CAM exports
+- **Multi-Layer Dynamic Trace Retracing (`oxide-router`)** — Single-layer partitioning preserving
+  via transitions, push-and-shove outline barriers, and bounded routing advisor cache
 - **Power Delivery Network (PDN) Impedance Field Solver (`oxide-rf`)** — $Z_{\text{target}}$ synthesis,
   planar cavity resonance modeling (DC to 10 GHz), and multi-decap RLC optimization
 

@@ -18,6 +18,35 @@ Each release section is authored **before** the `vX.Y.Z` tag is created, so the 
 
 ## [Unreleased]
 
+### Added — Cleanroom Altium Designer Binary Importer CLI (`oxide-cli`, `oxide-altium-importer`)
+
+- **Headless Altium Importer Subcommand (`oxide import-altium`)** — Added CLI command to ingest proprietary Altium OLE2/CFB binary containers (`.SchDoc`, `.PcbDoc`, `.SchLib`, `.PcbLib`, `.IntLib`) and convert to native Oxide EDA types, with support for JSON export and conversion summary reporting.
+- **Extracted Library Serialization** — Implemented `serde::Serialize` and `serde::Deserialize` derives for `ExtractedIntLib` in `oxide-altium-importer`.
+
+### Added — Atomic IO File Persistence & Durability (`oxide-types`, `oxide-app`)
+
+- **Fsync Durability & Sibling Temp Replacement (`oxide_types::atomic_io`)** — Implemented `atomic_write_stream` ensuring write durability and directory-level fsync to prevent 0-byte file truncation upon process crash or power loss.
+- **Background Manufacturing CAM Exports** — Offloaded all 10 CAM export pipelines (`Gerber`, `Excellon`, `PickAndPlace`, `IPC-2581`, `DXF`, `DWG`, `DWT`, `CBR`, `CDR`, `Draftsman`) to `tokio::task::spawn_blocking` with atomic writes to guarantee responsive UI threads.
+
+### Fixed — Multi-Layer Route Retracing & Push-and-Shove Boundary Preservation (`oxide-router`, `oxide-ml`)
+
+- **Multi-Layer Route Retracing (`oxide_router::optimization::retrace`)** — Fixed multi-layer trace retracing by partitioning complex routes into contiguous single-layer runs, preserving layer transitions and via structures while maintaining original segments on blocked A* searches.
+- **Push-and-Shove Barrier Invariant** — Added obstacle collision guards in `oxide-router::conflict` preventing displacement of fixed board outlines and keepout zones.
+- **Bounded Routing Advisor Cache (`oxide_ml::routing_advisor`)** — Added bounded FIFO cache eviction (`MAX_CACHE_SIZE = 10_000`) preventing unbounded memory growth during long interactive routing sessions.
+
+### Fixed — Discrete-Event Delta-Cycle Simulation (`oxide-cosim`)
+
+- **Monotonic Logic Event Ordering (`LogicEvent`)** — Added `sequence_id: u64` and enforced complete equivalence between `PartialEq`, `Eq`, and `Ord` (`total_cmp` on timestamp -> `sequence_id` -> `signal_id` -> `new_state`), fixing `BinaryHeap` ordering violations during delta-cycle simulation.
+
+### Fixed — In-Process Circuit Simulation Engine & Dedicated Copilot State (`oxide-app`)
+
+- **In-Process MNA Simulation** — Replaced mock simulation runs with real in-process `InProcessMnaSolver` transient analysis with honest component connectivity diagnostics.
+- **Prompt State Separation** — Added dedicated `copilot_prompt_input` state field in `DocumentState` / `PanelContext` preventing corruption of the persistent `component_filter`.
+
+### Added — Interactive Menu Bar Action Wiring (`oxide-app`)
+
+- **Active Navigation & Placement Commands** — Wired previously stubbed menu entries to live app handlers including `ZoomIn`, `ZoomOut`, `PlacePowerPort`, `PlaceText`, `PlaceNoConnect`, `PlaceSheetEntry`, `CloseAllDocuments`, and `About`.
+
 ### Added — Autonomous Component Harvester, Generative Ingest & IPC-7351C Synthesis (`oxide-library`, `oxide-bake`)
 
 - **Multi-Tier Harvester & Scraper Cascade (`oxide-library::harvester`)** — Autonomous discovery cascade with local SQLite caching, distributor REST APIs (DigiKey, Mouser, LCSC, JLCPCB), open hub connectors, web crawlers, and generative fallbacks. Features token bucket rate limiting (`TokenBucket`), jittered exponential backoff (`BackoffConfig`), and SHA-256 artifact deduplication.

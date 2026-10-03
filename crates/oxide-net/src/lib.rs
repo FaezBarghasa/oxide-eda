@@ -35,3 +35,6 @@ pub use swapping::{PinSwapAssignment, PinSwappingEngine, SwappableGate, Swappabl
 
 pub mod ratsnest;
 pub use ratsnest::{RatsnestEngine, RatsnestLine};
+
+pub mod scoping;
+pub use scoping::{NetScope, is_canonical_global_power_rail, prune_wire_redundancies, resolve_scoped_net_name};
