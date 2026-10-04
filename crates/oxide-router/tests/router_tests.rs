@@ -226,3 +226,27 @@ fn test_ml_guided_astar_routing() {
     assert_eq!(path[0], start);
     assert_eq!(*path.last().unwrap(), target);
 }
+
+#[test]
+fn test_interactive_corner_mode_routing() {
+    let board = mock_board();
+    let rules = Arc::new(ConstraintManager::standard_default());
+    let mut router =
+        InteractiveRouter::new(Arc::clone(&rules), Arc::new(SpatialIndex::build(&board)));
+
+    let start = Point2D::from_mm(10.0, 10.0);
+    let target = Point2D::from_mm(20.0, 20.0);
+
+    router.start_routing(start, 1, 0).expect("start routing");
+    let segments = router.on_mouse_move(target);
+    assert!(!segments.is_empty());
+
+    // Cycle corner mode
+    let next_mode = router.hotkey_cycle_corner_mode();
+    assert_eq!(
+        next_mode,
+        oxide_router::interactive::CornerMode::FortyFiveArc
+    );
+    let segments_arc = router.on_mouse_move(target);
+    assert!(!segments_arc.is_empty());
+}
