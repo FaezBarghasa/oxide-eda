@@ -488,6 +488,7 @@ impl Oxide {
             child_sheet_stroke_width_buf,
             component_filter,
             copilot_prompt_input: self.document_state.panel_ctx.copilot_prompt_input.clone(),
+            copilot_messages: self.document_state.panel_ctx.copilot_messages.clone(),
             collapsed_sections,
             pre_placement,
             erc_diagnostics,

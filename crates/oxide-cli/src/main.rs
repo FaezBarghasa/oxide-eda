@@ -288,6 +288,39 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
         }
+        Commands::Mcp => {
+            use tokio::io::AsyncBufReadExt;
+            eprintln!("[oxide-mcp] Oxide EDA MCP stdio server listening...");
+            let stdin = tokio::io::BufReader::new(tokio::io::stdin());
+            let mut lines = stdin.lines();
+            while let Some(line) = lines.next_line().await? {
+                let trimmed = line.trim();
+                if trimmed.is_empty() {
+                    continue;
+                }
+                match serde_json::from_str::<oxide_ai::McpRequest>(trimmed) {
+                    Ok(req) => {
+                        let resp = oxide_ai::McpServer::handle_request(&req, None, None);
+                        println!("{}", serde_json::to_string(&resp)?);
+                    }
+                    Err(e) => {
+                        let err_resp = oxide_ai::McpResponse {
+                            id: "null".to_string(),
+                            result: None,
+                            error: Some(oxide_ai::McpError {
+                                code: -32700,
+                                message: format!("Parse error: {e}"),
+                            }),
+                        };
+                        println!("{}", serde_json::to_string(&err_resp)?);
+                    }
+                }
+            }
+        }
+        Commands::Utcp => {
+            let manifest = oxide_ai::utcp_manifest();
+            println!("{}", serde_json::to_string_pretty(&manifest)?);
+        }
     }
 
     Ok(())

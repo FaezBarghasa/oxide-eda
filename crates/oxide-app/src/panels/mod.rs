@@ -23,7 +23,7 @@ mod ai_diff;
 mod color_field;
 mod components;
 mod context;
-mod copilot;
+pub mod copilot;
 mod drc;
 mod footprint_context;
 mod layer_stack;

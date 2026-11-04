@@ -74,6 +74,35 @@ pub fn view_copilot<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
         .style(crate::styles::panel_card(&ctx.tokens)),
     );
 
+    for msg in &ctx.copilot_messages {
+        let sender = if msg.is_user { "You:" } else { "Oxide Copilot:" };
+        let sender_color = if msg.is_user {
+            theme_ext::text_secondary(&ctx.tokens)
+        } else {
+            theme_ext::accent(&ctx.tokens)
+        };
+        let mut msg_box = Column::new()
+            .spacing(2)
+            .push(text(sender).size(10).color(sender_color))
+            .push(
+                text(&msg.content)
+                    .size(10)
+                    .color(theme_ext::text_primary(&ctx.tokens)),
+            );
+        if !msg.verified_parts.is_empty() {
+            msg_box = msg_box.push(
+                text(format!("Verified parts: {}", msg.verified_parts.join(", ")))
+                    .size(9)
+                    .color(theme_ext::accent(&ctx.tokens)),
+            );
+        }
+        chat_col = chat_col.push(
+            container(msg_box)
+                .padding(6)
+                .style(crate::styles::panel_card(&ctx.tokens)),
+        );
+    }
+
     col = col.push(scrollable(chat_col).height(Length::Fill));
 
     // Prompt input bar

@@ -128,6 +128,8 @@ pub struct PanelContext {
     pub component_filter: String,
     /// AI Copilot prompt input buffer.
     pub copilot_prompt_input: String,
+    /// AI Copilot conversation history.
+    pub copilot_messages: Vec<super::copilot::CopilotMessageEntry>,
     /// Which sections are collapsed (by section name key).
     pub collapsed_sections: CollapsedSections,
     /// Pre-placement configuration (shown when Tab pressed during placement tool).
