@@ -24,6 +24,107 @@ impl Vec3 {
         let dz = self.z - other.z;
         (dx * dx + dy * dy + dz * dz).sqrt()
     }
+
+    pub fn sub(&self, other: &Self) -> Self {
+        Self {
+            x: self.x - other.x,
+            y: self.y - other.y,
+            z: self.z - other.z,
+        }
+    }
+
+    pub fn add(&self, other: &Self) -> Self {
+        Self {
+            x: self.x + other.x,
+            y: self.y + other.y,
+            z: self.z + other.z,
+        }
+    }
+
+    pub fn dot(&self, other: &Self) -> f64 {
+        self.x * other.x + self.y * other.y + self.z * other.z
+    }
+
+    pub fn cross(&self, other: &Self) -> Self {
+        Self {
+            x: self.y * other.z - self.z * other.y,
+            y: self.z * other.x - self.x * other.z,
+            z: self.x * other.y - self.y * other.x,
+        }
+    }
+
+    pub fn length_squared(&self) -> f64 {
+        self.x * self.x + self.y * self.y + self.z * self.z
+    }
+}
+
+/// 3D Triangle primitive for solid mesh boundary clearance checking.
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub struct Triangle3d {
+    pub a: Vec3,
+    pub b: Vec3,
+    pub c: Vec3,
+}
+
+impl Triangle3d {
+    pub const fn new(a: Vec3, b: Vec3, c: Vec3) -> Self {
+        Self { a, b, c }
+    }
+
+    /// Check if two 3D triangles intersect using Separating Axis Theorem (SAT).
+    pub fn intersects(&self, other: &Self) -> bool {
+        let n1 = self.normal();
+        let d1 = -n1.dot(&self.a);
+        let da0 = n1.dot(&other.a) + d1;
+        let da1 = n1.dot(&other.b) + d1;
+        let da2 = n1.dot(&other.c) + d1;
+        if (da0 > 1e-6 && da1 > 1e-6 && da2 > 1e-6) || (da0 < -1e-6 && da1 < -1e-6 && da2 < -1e-6) {
+            return false;
+        }
+
+        let n2 = other.normal();
+        let d2 = -n2.dot(&other.a);
+        let db0 = n2.dot(&self.a) + d2;
+        let db1 = n2.dot(&self.b) + d2;
+        let db2 = n2.dot(&self.c) + d2;
+        if (db0 > 1e-6 && db1 > 1e-6 && db2 > 1e-6) || (db0 < -1e-6 && db1 < -1e-6 && db2 < -1e-6) {
+            return false;
+        }
+
+        let edges1 = [self.b.sub(&self.a), self.c.sub(&self.b), self.a.sub(&self.c)];
+        let edges2 = [other.b.sub(&other.a), other.c.sub(&other.b), other.a.sub(&other.c)];
+
+        for e1 in &edges1 {
+            for e2 in &edges2 {
+                let axis = e1.cross(e2);
+                if axis.length_squared() < 1e-8 {
+                    continue;
+                }
+                let (min1, max1) = self.project_onto(&axis);
+                let (min2, max2) = other.project_onto(&axis);
+                if min1 > max2 || min2 > max1 {
+                    return false;
+                }
+            }
+        }
+
+        true
+    }
+
+    pub fn normal(&self) -> Vec3 {
+        let ab = self.b.sub(&self.a);
+        let ac = self.c.sub(&self.a);
+        ab.cross(&ac)
+    }
+
+    pub fn project_onto(&self, axis: &Vec3) -> (f64, f64) {
+        let d0 = self.a.dot(axis);
+        let d1 = self.b.dot(axis);
+        let d2 = self.c.dot(axis);
+        let min = d0.min(d1).min(d2);
+        let max = d0.max(d1).max(d2);
+        (min, max)
+    }
 }
 
 /// Axis-Aligned Bounding Box (AABB) in 3D space.
@@ -102,6 +203,8 @@ pub struct Body3d {
     pub reference: String,
     pub aabb: Aabb3d,
     pub height_mm: f64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mesh: Option<Vec<Triangle3d>>,
 }
 
 /// 3D Clearance and Collision violation report.
@@ -133,13 +236,32 @@ impl ClearanceEngine3d {
                 let b = &bodies[j];
 
                 if a.aabb.intersects(&b.aabb) {
-                    violations.push(ClearanceViolation3d {
-                        item_a: a.reference.clone(),
-                        item_b: b.reference.clone(),
-                        actual_clearance_mm: 0.0,
-                        required_clearance_mm: min_clearance_mm,
-                        is_collision: true,
-                    });
+                    // Check narrow-phase mesh collision if solid meshes are attached
+                    let is_mesh_collision = match (&a.mesh, &b.mesh) {
+                        (Some(m_a), Some(m_b)) => {
+                            let mut hit = false;
+                            'outer: for t_a in m_a {
+                                for t_b in m_b {
+                                    if t_a.intersects(t_b) {
+                                        hit = true;
+                                        break 'outer;
+                                    }
+                                }
+                            }
+                            hit
+                        }
+                        _ => true, // Fallback to AABB intersection
+                    };
+
+                    if is_mesh_collision {
+                        violations.push(ClearanceViolation3d {
+                            item_a: a.reference.clone(),
+                            item_b: b.reference.clone(),
+                            actual_clearance_mm: 0.0,
+                            required_clearance_mm: min_clearance_mm,
+                            is_collision: true,
+                        });
+                    }
                 } else {
                     let dist = a.aabb.distance_to(&b.aabb);
                     if dist < min_clearance_mm {
@@ -185,6 +307,7 @@ mod tests {
             reference: "U1".to_string(),
             aabb: Aabb3d::new(Vec3::new(0.0, 0.0, 0.0), Vec3::new(10.0, 10.0, 3.0)),
             height_mm: 3.0,
+            mesh: None,
         };
 
         let c1 = Body3d {
@@ -192,6 +315,7 @@ mod tests {
             reference: "C1".to_string(),
             aabb: Aabb3d::new(Vec3::new(10.2, 0.0, 0.0), Vec3::new(12.0, 2.0, 1.0)),
             height_mm: 1.0,
+            mesh: None,
         };
 
         let c2 = Body3d {
@@ -199,6 +323,7 @@ mod tests {
             reference: "C2".to_string(),
             aabb: Aabb3d::new(Vec3::new(9.0, 5.0, 0.0), Vec3::new(12.0, 8.0, 1.0)),
             height_mm: 1.0,
+            mesh: None,
         };
 
         // U1 and C1 are 0.2mm apart (violates 0.5mm clearance)
@@ -229,5 +354,29 @@ mod tests {
             .find(|v| v.item_b == "Enclosure_Ceiling")
             .unwrap();
         assert_eq!(enc.item_a, "U1");
+    }
+
+    #[test]
+    fn test_triangle3d_mesh_collision() {
+        // Two intersecting triangles
+        let t1 = Triangle3d::new(
+            Vec3::new(0.0, 0.0, 0.0),
+            Vec3::new(5.0, 0.0, 0.0),
+            Vec3::new(0.0, 5.0, 0.0),
+        );
+        let t2 = Triangle3d::new(
+            Vec3::new(2.0, 2.0, -1.0),
+            Vec3::new(2.0, 2.0, 1.0),
+            Vec3::new(2.0, -1.0, 0.0),
+        );
+        assert!(t1.intersects(&t2));
+
+        // Separated triangle
+        let t3 = Triangle3d::new(
+            Vec3::new(10.0, 10.0, 10.0),
+            Vec3::new(15.0, 10.0, 10.0),
+            Vec3::new(10.0, 15.0, 10.0),
+        );
+        assert!(!t1.intersects(&t3));
     }
 }

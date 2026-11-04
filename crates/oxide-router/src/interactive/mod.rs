@@ -11,12 +11,14 @@ use crate::geometry::rtree::{NetId, SpatialIndex};
 use crate::{LayerId, RouteSegment, RoutingError, RoutingPath, RoutingResult, SegmentType};
 
 pub mod astar;
+pub mod async_solver;
 pub mod conflict;
 pub mod corner_modes;
 pub mod elastic_shove;
 pub mod session;
 
 use conflict::{PushAndShoveEngine, PushResult};
+pub use async_solver::{AsyncRoutingSolver, SolverRequest, SolverResponse};
 pub use corner_modes::{CornerMode, generate_corner_waypoints};
 pub use elastic_shove::{ElasticShoveEngine, ElasticShoveResult, ShoveContext, ShoveError};
 

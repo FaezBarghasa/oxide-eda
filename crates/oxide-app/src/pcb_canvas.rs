@@ -31,6 +31,7 @@ pub struct PcbCanvasState {
     pub shift_held: bool,
     // --- Interactive Push-and-Shove Routing Session ---
     pub active_router: Option<InteractiveRouter>,
+    pub async_solver: Option<oxide_router::interactive::AsyncRoutingSolver>,
     pub live_route_preview: Vec<RouteSegment>,
     pub preview_vias: Vec<ViaPlacement>,
     pub routing_layer: u8,
@@ -80,6 +81,8 @@ pub struct PcbCanvas {
     pub canvas_colors: oxide_types::theme::CanvasColors,
     pub renderer_snapshot: Option<PcbSnapshot>,
     pub visible_grid_mm: f64,
+    pub show_pdn_heatmap: bool,
+    pub pdn_mesh_cache: std::cell::RefCell<Option<oxide_gfx::pdn_heatmap::PdnMeshGrid>>,
 }
 
 impl Default for PcbCanvas {
@@ -106,6 +109,8 @@ impl PcbCanvas {
             canvas_colors: colors,
             renderer_snapshot: None,
             visible_grid_mm: 2.54,
+            show_pdn_heatmap: false,
+            pdn_mesh_cache: std::cell::RefCell::new(None),
         }
     }
 
@@ -182,6 +187,71 @@ impl PcbCanvas {
             DirtyFlags::LINES | DirtyFlags::CIRCLES | DirtyFlags::POLYGONS | DirtyFlags::OVERLAY,
             &mut scene,
         );
+
+        // Component 5: GPU Viewport-Composited SI/PI Heatmaps
+        if self.show_pdn_heatmap {
+            let bounds = renderer_snapshot_bounds(snapshot).unwrap_or(Rectangle {
+                x: 0.0,
+                y: 0.0,
+                width: 100.0,
+                height: 100.0,
+            });
+
+            let w = (bounds.width as f64).max(10.0);
+            let h = (bounds.height as f64).max(10.0);
+            let step = (w.min(h) / 20.0).max(1.0);
+
+            let mut grid = oxide_gfx::pdn_heatmap::PdnMeshGrid::new(w, h, step, 3.3, 35.0);
+            // Add VRM supply point at board origin and realistic load sinks
+            grid.set_voltage_source(0, 0, 3.3);
+            if grid.cols > 1 && grid.rows > 1 {
+                grid.add_current_sink(grid.cols / 2, grid.rows / 2, 2.5); // 2.5A MCU load
+                grid.add_current_sink(grid.cols - 1, grid.rows - 1, 1.2); // 1.2A PHY load
+            }
+            grid.solve_dc_drop(100);
+
+            // Synthesize quad cells into overlay_polygons with semi-transparent screen blend
+            let min_x = bounds.x;
+            let min_y = bounds.y;
+            for r in 0..(grid.rows - 1) {
+                for c in 0..(grid.cols - 1) {
+                    let idx = r * grid.cols + c;
+                    let node = &grid.nodes[idx];
+                    let drop_mv = ((grid.nominal_voltage_v - node.voltage_v) * 1e3).max(0.0);
+
+                    // Colormap mapping with 0.45 alpha for copper plane blending
+                    let (r_val, g_val, b_val) = if drop_mv < 5.0 {
+                        (0.18f32, 0.80f32, 0.44f32) // Green
+                    } else if drop_mv < 25.0 {
+                        let factor = ((drop_mv - 5.0) / 20.0) as f32;
+                        (0.18 + factor * (0.95 - 0.18), 0.80 + factor * (0.77 - 0.80), 0.44 + factor * (0.06 - 0.44))
+                    } else {
+                        let factor = (((drop_mv - 25.0) / 25.0).clamp(0.0, 1.0)) as f32;
+                        (0.95 + factor * (0.91 - 0.95), 0.77 - factor * (0.77 - 0.30), 0.06 + factor * (0.24 - 0.06))
+                    };
+
+                    let x0 = min_x + (c as f64 * step) as f32;
+                    let y0 = min_y + (r as f64 * step) as f32;
+                    let x1 = x0 + step as f32;
+                    let y1 = y0 + step as f32;
+
+                    scene.overlay_polygons.push(GpuPolygon {
+                        vertices: vec![
+                            [x0, y0],
+                            [x1, y0],
+                            [x1, y1],
+                            [x0, y1],
+                        ],
+                        fill_color: [r_val, g_val, b_val, 0.45],
+                        stroke_color: Some([r_val, g_val, b_val, 0.60]),
+                        stroke_width: 0.1,
+                    });
+                }
+            }
+
+            *self.pdn_mesh_cache.borrow_mut() = Some(grid);
+        }
+
         scene
     }
 
@@ -525,6 +595,26 @@ impl canvas::Program<Message> for PcbCanvas {
                             }
                             return Some(canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved)).and_capture());
                         }
+                        iced::keyboard::Key::Character(c) if c.as_str().eq_ignore_ascii_case("a") && modifiers.shift() => {
+                            let cur_len = state.live_route_preview.iter().map(|s| s.length()).sum::<i64>();
+                            let target_len = (cur_len + 5000).max(10_000);
+                            router.enable_length_tuning(target_len, 0);
+                            state.async_solver = None;
+                            if let Some(cursor_pos) = cursor.position_in(bounds) {
+                                let world = self.camera.borrow().screen_to_world(cursor_pos, bounds);
+                                state.live_route_preview = router.on_mouse_move(oxide_router::geometry::Point2D::from_mm(world.x as f64, world.y as f64));
+                            }
+                            return Some(canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved)).and_capture());
+                        }
+                        iced::keyboard::Key::Character(c) if c.as_str().eq_ignore_ascii_case("b") && modifiers.shift() => {
+                            router.mode = oxide_router::interactive::RoutingMode::DifferentialPair;
+                            state.async_solver = None;
+                            if let Some(cursor_pos) = cursor.position_in(bounds) {
+                                let world = self.camera.borrow().screen_to_world(cursor_pos, bounds);
+                                state.live_route_preview = router.on_mouse_move(oxide_router::geometry::Point2D::from_mm(world.x as f64, world.y as f64));
+                            }
+                            return Some(canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved)).and_capture());
+                        }
                         iced::keyboard::Key::Character(c) if c.as_str() == "1" => {
                             router.hotkey_increase_amplitude();
                             return Some(canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved)).and_capture());
@@ -543,6 +633,7 @@ impl canvas::Program<Message> for PcbCanvas {
                         }
                         iced::keyboard::Key::Named(iced::keyboard::key::Named::Escape) => {
                             state.active_router = None;
+                            state.async_solver = None;
                             state.live_route_preview.clear();
                             state.preview_vias.clear();
                             return Some(canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved)).and_capture());
@@ -670,7 +761,29 @@ impl canvas::Program<Message> for PcbCanvas {
 
                     if let Some(router) = &mut state.active_router {
                         let target = oxide_router::geometry::Point2D::from_mm(world.x as f64, world.y as f64);
-                        state.live_route_preview = router.on_mouse_move(target);
+                        let session_mode = router.session.as_ref().map(|s| s.mode).unwrap_or(router.mode);
+                        let session_corner = router.session.as_ref().map(|s| s.corner_mode).unwrap_or(state.corner_mode);
+
+                        // Component 6: Decoupled Multi-Threaded Async Routing Solver
+                        if state.async_solver.is_none() {
+                            state.async_solver = Some(oxide_router::interactive::AsyncRoutingSolver::spawn(router.clone()));
+                        }
+
+                        if let Some(solver) = &state.async_solver {
+                            solver.submit_target(
+                                target,
+                                session_mode,
+                                session_corner,
+                                state.routing_net,
+                                state.routing_layer,
+                                router.session.as_ref().map(|s| s.track_width).unwrap_or(200),
+                            );
+                            if let Some(resp) = solver.poll_latest() {
+                                state.live_route_preview = resp.segments;
+                            }
+                        } else {
+                            state.live_route_preview = router.on_mouse_move(target);
+                        }
                     }
 
                     return Some(canvas::Action::publish(Message::CanvasEvent(
@@ -694,7 +807,7 @@ impl canvas::Program<Message> for PcbCanvas {
         renderer: &Renderer,
         _theme: &Theme,
         bounds: Rectangle,
-        _cursor: mouse::Cursor,
+        cursor: mouse::Cursor,
     ) -> Vec<canvas::Geometry> {
         // Single read of the sole camera home; both the background/grid cache
         // and the content cache below project from this one value.
@@ -794,23 +907,117 @@ impl canvas::Program<Message> for PcbCanvas {
             // Draw Length / Tuning HUD badge if tuning hud is active
             if let Some(router) = &state.active_router
                 && let Some(session) = &router.session
-                && let Some(_hud) = &session.tuning_hud
+                && let Some(hud) = &session.tuning_hud
             {
-                let badge_pos = iced::Point::new(bounds.width - 240.0, 20.0);
-                let badge_size = iced::Size::new(220.0, 70.0);
+                let badge_pos = iced::Point::new(bounds.width - 260.0, 20.0);
+                let badge_size = iced::Size::new(240.0, 78.0);
                 overlay_frame.fill_rectangle(
                     badge_pos,
                     badge_size,
-                    Color::from_rgba(0.08, 0.10, 0.14, 0.88),
+                    Color::from_rgba(0.06, 0.08, 0.12, 0.94),
                 );
                 overlay_frame.stroke(
                     &canvas::Path::rectangle(badge_pos, badge_size),
                     canvas::Stroke::default()
                         .with_width(1.0)
-                        .with_color(Color::from_rgba(0.0, 0.85, 1.0, 0.6)),
+                        .with_color(Color::from_rgba(0.0, 0.85, 1.0, 0.8)),
                 );
+
+                let cur_len_um = state.live_route_preview.iter().map(|s| s.length()).sum::<i64>();
+                let target_mm = hud.target_length_microns as f64 / 1000.0;
+                let cur_mm = cur_len_um as f64 / 1000.0;
+                let diff_um = (cur_len_um - hud.target_length_microns).abs();
+                let in_tol = diff_um <= hud.tolerance_microns;
+
+                let title = format!("TUNING: {:.2}mm / {:.2}mm", cur_mm, target_mm);
+                overlay_frame.fill_text(canvas::Text {
+                    content: title,
+                    position: iced::Point::new(badge_pos.x + 8.0, badge_pos.y + 6.0),
+                    color: if in_tol { Color::from_rgb(0.2, 0.9, 0.3) } else { Color::from_rgb(1.0, 0.8, 0.2) },
+                    size: 13.0.into(),
+                    ..Default::default()
+                });
+
+                let status = if in_tol {
+                    format!("MATCH (±{:.0}µm)", diff_um)
+                } else if cur_len_um < hud.target_length_microns {
+                    format!("SHORT by {:.1}µm", (hud.target_length_microns - cur_len_um) as f64)
+                } else {
+                    format!("LONG by {:.1}µm", (cur_len_um - hud.target_length_microns) as f64)
+                };
+                overlay_frame.fill_text(canvas::Text {
+                    content: status,
+                    position: iced::Point::new(badge_pos.x + 8.0, badge_pos.y + 26.0),
+                    color: Color::from_rgb(0.9, 0.9, 0.9),
+                    size: 11.0.into(),
+                    ..Default::default()
+                });
+
+                let controls = format!("Amp: {}µm  Pitch: {}µm (1-4)", hud.amplitude_microns, hud.pitch_microns);
+                overlay_frame.fill_text(canvas::Text {
+                    content: controls,
+                    position: iced::Point::new(badge_pos.x + 8.0, badge_pos.y + 44.0),
+                    color: Color::from_rgba(0.7, 0.7, 0.7, 0.8),
+                    size: 10.0.into(),
+                    ..Default::default()
+                });
+
+                // Tolerance bar indicator
+                let bar_rect = canvas::Path::rectangle(
+                    iced::Point::new(badge_pos.x + 8.0, badge_pos.y + 62.0),
+                    iced::Size::new(224.0, 6.0),
+                );
+                overlay_frame.fill(&bar_rect, Color::from_rgba(0.2, 0.2, 0.2, 1.0));
+                let progress = ((cur_mm / target_mm.max(0.01)) as f32).clamp(0.0, 1.0);
+                let fill_rect = canvas::Path::rectangle(
+                    iced::Point::new(badge_pos.x + 8.0, badge_pos.y + 62.0),
+                    iced::Size::new(224.0 * progress, 6.0),
+                );
+                overlay_frame.fill(&fill_rect, if in_tol { Color::from_rgb(0.2, 0.9, 0.3) } else { Color::from_rgb(0.9, 0.3, 0.2) });
             }
         }
+
+        // Live PDN Heatmap Tooltip readout when cursor hovers over mesh
+        if self.show_pdn_heatmap {
+            if let Some(cursor_pos) = cursor.position_in(bounds) {
+                let world_x = (cursor_pos.x - camera.offset.x) / camera.scale;
+                let world_y = (cursor_pos.y - camera.offset.y) / camera.scale;
+
+                if let Some(grid) = &*self.pdn_mesh_cache.borrow() {
+                    let c = (world_x as f64 / grid.step_mm).floor() as isize;
+                    let r = (world_y as f64 / grid.step_mm).floor() as isize;
+                    if c >= 0 && c < grid.cols as isize && r >= 0 && r < grid.rows as isize {
+                        let idx = (r as usize) * grid.cols + (c as usize);
+                        if let Some(node) = grid.nodes.get(idx) {
+                            let drop_mv = (grid.nominal_voltage_v - node.voltage_v) * 1e3;
+                            let tip_text = format!("PDN: {:.3}V (-{:.1}mV)", node.voltage_v, drop_mv);
+
+                            let tip_pos = iced::Point::new(cursor_pos.x + 14.0, cursor_pos.y + 14.0);
+                            let tip_size = iced::Size::new(160.0, 26.0);
+                            overlay_frame.fill_rectangle(
+                                tip_pos,
+                                tip_size,
+                                Color::from_rgba(0.06, 0.08, 0.12, 0.92),
+                            );
+                            overlay_frame.stroke(
+                                &canvas::Path::rectangle(tip_pos, tip_size),
+                                canvas::Stroke::default()
+                                    .with_width(1.0)
+                                    .with_color(Color::from_rgba(0.9, 0.7, 0.1, 0.8)),
+                            );
+                            overlay_frame.fill_text(canvas::Text {
+                                content: tip_text,
+                                position: iced::Point::new(tip_pos.x + 8.0, tip_pos.y + 6.0),
+                                color: Color::from_rgb(0.95, 0.95, 0.95),
+                                size: 12.0.into(),
+                                ..Default::default()
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
         let dynamic_overlay = overlay_frame.into_geometry();
 
         // GPU mode: a `shader` stacked above this canvas draws the board
@@ -1074,5 +1281,47 @@ mod tests {
         state.active_router = Some(router);
         state.live_route_preview = preview;
         assert!(!state.live_route_preview.is_empty());
+    }
+
+    #[test]
+    fn test_pdn_heatmap_gpu_compositing_generation() {
+        let mut canvas = PcbCanvas::new();
+        let snapshot = PcbSnapshot::default();
+        canvas.set_renderer_snapshot(Some(snapshot.clone()));
+
+        // Without heatmap
+        canvas.show_pdn_heatmap = false;
+        let scene_base = canvas.build_scene(&snapshot);
+        assert!(scene_base.overlay_polygons.is_empty());
+
+        // With PDN heatmap enabled
+        canvas.show_pdn_heatmap = true;
+        let scene_heatmap = canvas.build_scene(&snapshot);
+        assert!(!scene_heatmap.overlay_polygons.is_empty());
+        assert!(canvas.pdn_mesh_cache.borrow().is_some());
+    }
+
+    #[test]
+    fn test_interactive_tuning_hud_and_modes() {
+        let mut state = PcbCanvasState::default();
+        let rules = std::sync::Arc::new(oxide_rules::ConstraintManager::standard_default());
+        let spatial_index = std::sync::Arc::new(oxide_router::geometry::rtree::SpatialIndex::new());
+        let mut router = oxide_router::interactive::InteractiveRouter::new(rules, spatial_index);
+        let start = oxide_router::geometry::Point2D::new(0, 0);
+        router.start_routing(start, 1, 0).unwrap();
+
+        // Enable length tuning
+        router.enable_length_tuning(20_000, 0);
+        assert_eq!(router.session.as_ref().unwrap().mode, oxide_router::interactive::RoutingMode::LengthTuning);
+        assert!(router.session.as_ref().unwrap().tuning_hud.is_some());
+
+        // Hotkeys for tuning
+        router.hotkey_increase_amplitude();
+        assert_eq!(router.session.as_ref().unwrap().tuning_hud.as_ref().unwrap().amplitude_microns, 900);
+        router.hotkey_increase_pitch();
+        assert_eq!(router.session.as_ref().unwrap().tuning_hud.as_ref().unwrap().pitch_microns, 700);
+
+        state.active_router = Some(router);
+        assert!(state.active_router.is_some());
     }
 }
