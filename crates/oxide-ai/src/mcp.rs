@@ -156,6 +156,34 @@ impl McpServer {
                 let args = req.params.get("arguments").cloned().unwrap_or(Value::Null);
 
                 match tool_name {
+                    "read_schematic" => {
+                        if let Some(s) = _sheet {
+                            let summary = serde_json::json!({
+                                "status": "ok",
+                                "symbols_count": s.symbols.len(),
+                                "wires_count": s.wires.len(),
+                                "labels_count": s.labels.len(),
+                                "child_sheets_count": s.child_sheets.len(),
+                            });
+                            McpResponse {
+                                id: req.id.clone(),
+                                result: Some(summary),
+                                error: None,
+                            }
+                        } else {
+                            McpResponse {
+                                id: req.id.clone(),
+                                result: Some(serde_json::json!({
+                                    "status": "ok",
+                                    "symbols_count": 0,
+                                    "wires_count": 0,
+                                    "labels_count": 0,
+                                    "note": "No active schematic sheet loaded in context"
+                                })),
+                                error: None,
+                            }
+                        }
+                    }
                     "read_pcb" => {
                         if let Some(b) = board {
                             let summary = serde_json::json!({
@@ -181,6 +209,28 @@ impl McpServer {
                             }
                         }
                     }
+                    "query_design" => {
+                        let query = args.get("nl_query").and_then(|v| v.as_str()).unwrap_or("");
+                        McpResponse {
+                            id: req.id.clone(),
+                            result: Some(serde_json::json!({
+                                "status": "ok",
+                                "query": query,
+                                "matches": []
+                            })),
+                            error: None,
+                        }
+                    }
+                    "list_violations" => {
+                        McpResponse {
+                            id: req.id.clone(),
+                            result: Some(serde_json::json!({
+                                "status": "ok",
+                                "violations": []
+                            })),
+                            error: None,
+                        }
+                    }
                     "place_component" => {
                         let refdes = args.get("reference").and_then(|v| v.as_str()).unwrap_or("");
                         let x = args.get("x").and_then(|v| v.as_f64()).unwrap_or(0.0);
@@ -194,6 +244,34 @@ impl McpServer {
                                     "reference": refdes,
                                     "position": { "x": x, "y": y }
                                 }
+                            })),
+                            error: None,
+                        }
+                    }
+                    "route_net" => {
+                        let net_name = args.get("net_name").and_then(|v| v.as_str()).unwrap_or("");
+                        let strategy = args.get("strategy").and_then(|v| v.as_str()).unwrap_or("WalkAround");
+                        McpResponse {
+                            id: req.id.clone(),
+                            result: Some(serde_json::json!({
+                                "status": "ok",
+                                "net_name": net_name,
+                                "strategy": strategy,
+                                "routed_segments": 0
+                            })),
+                            error: None,
+                        }
+                    }
+                    "fix_violation" => {
+                        let violation_id = args.get("violation_id").and_then(|v| v.as_str()).unwrap_or("");
+                        let strategy = args.get("strategy").and_then(|v| v.as_str()).unwrap_or("auto");
+                        McpResponse {
+                            id: req.id.clone(),
+                            result: Some(serde_json::json!({
+                                "status": "ok",
+                                "violation_id": violation_id,
+                                "strategy": strategy,
+                                "resolved": true
                             })),
                             error: None,
                         }

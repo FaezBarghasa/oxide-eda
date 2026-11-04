@@ -63,6 +63,10 @@ enum Commands {
         #[arg(short, long)]
         out: Option<PathBuf>,
     },
+    /// Start Oxide EDA Model Context Protocol (MCP) server over stdio for agent interaction
+    Mcp,
+    /// Print Universal Tool Call Protocol (UTCP) discovery manifest
+    Utcp,
 }
 
 #[tokio::main]
@@ -96,8 +100,32 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             );
 
             println!("Running DRC validation across {} rules...", cm.rules.len());
-            // DRC evaluation is successful
-            println!("DRC Check Passed: 0 violations found.");
+            let violations = cm.run_drc(&pcb);
+
+            if violations.is_empty() {
+                println!("DRC Check Passed: 0 violations found.");
+            } else {
+                eprintln!("\n=======================================================");
+                eprintln!("DRC FAILED: {} violation(s) detected", violations.len());
+                eprintln!("=======================================================");
+                for (idx, v) in violations.iter().enumerate() {
+                    eprintln!(
+                        "[{}] {:?}: {} (Required: {}, Actual: {})",
+                        idx + 1,
+                        v.violation_type,
+                        v.message,
+                        v.required_value,
+                        v.actual_value
+                    );
+                    if let Some((x, y)) = v.location {
+                        eprintln!("    Location: ({:.3} mm, {:.3} mm)", x, y);
+                    }
+                    if !v.object_ids.is_empty() {
+                        eprintln!("    Objects: {}", v.object_ids.join(", "));
+                    }
+                }
+                std::process::exit(1);
+            }
         }
         Commands::Cam { board, out_dir } => {
             println!("Oxide EDA CAM Release Exporter");
