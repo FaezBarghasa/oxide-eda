@@ -30,8 +30,9 @@ pub use optimization::OptimizationEngine;
 pub use topology::{CdtError, DynamicCdt, TopologicalAutorouter, TransversalCorridor};
 pub use tuning::{
     BalancedPairResult, MeanderConstraint, PhaseSkewBudget, TuningError,
-    balance_differential_phase, compute_coupled_delay_ps, fit_biarc_corner,
-    synthesize_coupled_accordion,
+    balance_differential_phase, compute_analytical_safe_amplitude, compute_coupled_delay_ps,
+    fillet_meander_path, fit_biarc_corner, fit_clothoid_fillet, synthesize_coupled_accordion,
+    synthesize_coupled_accordion_filleted,
 };
 pub use workflow::{RoutingWorkflow, WorkflowResult};
 

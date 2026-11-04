@@ -138,6 +138,68 @@ pub fn synthesize_coupled_accordion(
     Ok(points)
 }
 
+/// Continuously and analytically computes safe meander amplitude against obstacles
+/// within the lobe's corridor envelope without iterative step-sampling.
+#[allow(clippy::too_many_arguments)]
+pub fn compute_analytical_safe_amplitude(
+    si: &SpatialIndex,
+    net_id: NetId,
+    p_base1: Point2D,
+    p_base2: Point2D,
+    perp_x: f64,
+    perp_y: f64,
+    sign: f64,
+    max_amplitude_um: f64,
+    clearance_um: f64,
+    trace_width_um: f64,
+) -> f64 {
+    let p_peak1 = Point2D::new(
+        (p_base1.x as f64 + perp_x * max_amplitude_um * sign).round() as i64,
+        (p_base1.y as f64 + perp_y * max_amplitude_um * sign).round() as i64,
+    );
+    let p_peak2 = Point2D::new(
+        (p_base2.x as f64 + perp_x * max_amplitude_um * sign).round() as i64,
+        (p_base2.y as f64 + perp_y * max_amplitude_um * sign).round() as i64,
+    );
+
+    let required_margin = ((trace_width_um / 2.0) + clearance_um).round() as i64;
+    let envelope_bbox = BoundingBox::from_points(&[p_base1, p_base2, p_peak1, p_peak2])
+        .expand(required_margin);
+
+    let obstacles = si.check_collision(&envelope_bbox, &[net_id]);
+    if obstacles.is_empty() {
+        return max_amplitude_um;
+    }
+
+    let mut min_allowable_amp = max_amplitude_um;
+    let eff_perp_x = perp_x * sign;
+    let eff_perp_y = perp_y * sign;
+
+    for obs in obstacles {
+        let b = obs.bbox;
+        let corners = [
+            Point2D::new(b.min.x, b.min.y),
+            Point2D::new(b.min.x, b.max.y),
+            Point2D::new(b.max.x, b.min.y),
+            Point2D::new(b.max.x, b.max.y),
+        ];
+
+        for c in corners {
+            let dx = (c.x - p_base1.x) as f64;
+            let dy = (c.y - p_base1.y) as f64;
+            let perp_dist = dx * eff_perp_x + dy * eff_perp_y;
+            if perp_dist > 0.0 {
+                let safe_limit = (perp_dist - (trace_width_um / 2.0 + clearance_um)).max(0.0);
+                if safe_limit < min_allowable_amp {
+                    min_allowable_amp = safe_limit;
+                }
+            }
+        }
+    }
+
+    min_allowable_amp
+}
+
 /// Synthesizes an obstacle-aware accordion meander that dynamically clamps lateral amplitude
 /// against neighboring obstacles in the SpatialIndex or switches to trombone jogging.
 #[allow(clippy::too_many_arguments)]
@@ -189,45 +251,32 @@ pub fn synthesize_obstacle_aware_accordion(
     for i in 0..num_ripples {
         let preferred_sign = if i % 2 == 0 { 1.0 } else { -1.0 };
 
-        // Dynamic spatial query for safe amplitude on specified side
+        let p_base1 = Point2D::new(
+            (start.x as f64 + dir_x * current_pos).round() as i64,
+            (start.y as f64 + dir_y * current_pos).round() as i64,
+        );
+        let p_base2 = Point2D::new(
+            (p_base1.x as f64 + dir_x * (pitch * 0.5)).round() as i64,
+            (p_base1.y as f64 + dir_y * (pitch * 0.5)).round() as i64,
+        );
+
+        // Continuous analytical spatial query for safe amplitude on specified side
         let find_safe_amp = |sign: f64| -> f64 {
             let Some(si) = spatial_index else {
                 return initial_amplitude;
             };
-
-            let mut safe = 0.0;
-            let step_div = (initial_amplitude / 10.0).max(25.0);
-            let mut test_amp = step_div;
-            while test_amp <= initial_amplitude {
-                let p1 = Point2D::new(
-                    (start.x as f64 + dir_x * current_pos).round() as i64,
-                    (start.y as f64 + dir_y * current_pos).round() as i64,
-                );
-                let p2 = Point2D::new(
-                    (p1.x as f64 + perp_x * test_amp * sign).round() as i64,
-                    (p1.y as f64 + perp_y * test_amp * sign).round() as i64,
-                );
-                let p3 = Point2D::new(
-                    (p2.x as f64 + dir_x * (pitch * 0.5)).round() as i64,
-                    (p2.y as f64 + dir_y * (pitch * 0.5)).round() as i64,
-                );
-                let p4 = Point2D::new(
-                    (p3.x as f64 - perp_x * test_amp * sign).round() as i64,
-                    (p3.y as f64 - perp_y * test_amp * sign).round() as i64,
-                );
-
-                let bbox = BoundingBox::from_points(&[p1, p2, p3, p4])
-                    .expand(((constraint.trace_width_um / 2.0) + clearance_um).round() as i64);
-
-                let obstacles = si.check_collision(&bbox, &[net_id]);
-                if obstacles.is_empty() {
-                    safe = test_amp;
-                } else {
-                    break;
-                }
-                test_amp += step_div;
-            }
-            safe
+            compute_analytical_safe_amplitude(
+                si,
+                net_id,
+                p_base1,
+                p_base2,
+                perp_x,
+                perp_y,
+                sign,
+                initial_amplitude,
+                clearance_um,
+                constraint.trace_width_um,
+            )
         };
 
         let mut offset_sign = preferred_sign;
@@ -281,6 +330,33 @@ pub fn synthesize_obstacle_aware_accordion(
 
     points.push(end);
     Ok(points)
+}
+
+/// Synthesizes an obstacle-aware accordion meander with rounded bi-arc or clothoid fillets.
+#[allow(clippy::too_many_arguments)]
+pub fn synthesize_coupled_accordion_filleted(
+    start: Point2D,
+    end: Point2D,
+    constraint: &MeanderConstraint,
+    forward_coupling_k: f64,
+    spatial_index: Option<&SpatialIndex>,
+    net_id: NetId,
+    layer: LayerId,
+    clearance_um: f64,
+    fillet_radius_um: f64,
+    use_clothoid: bool,
+) -> Result<Vec<Point2D>, TuningError> {
+    let raw_pts = synthesize_obstacle_aware_accordion(
+        start,
+        end,
+        constraint,
+        forward_coupling_k,
+        spatial_index,
+        net_id,
+        layer,
+        clearance_um,
+    )?;
+    Ok(super::clothoid::fillet_meander_path(&raw_pts, fillet_radius_um, use_clothoid))
 }
 
 #[cfg(test)]
@@ -358,5 +434,50 @@ mod tests {
                 );
             }
         }
+    }
+
+    #[test]
+    fn test_analytical_1d_interval_clamping() {
+        let mut spatial_index = SpatialIndex::new();
+        // Obstacle at Y = 400
+        let obstacle_bbox = BoundingBox::new(Point2D::new(500, 400), Point2D::new(1500, 800));
+        spatial_index.insert(SpatialObject {
+            id: Uuid::new_v4(),
+            bbox: obstacle_bbox,
+            object_type: SpatialObjectType::Track,
+            net_id: Some(99),
+            layer: 0,
+        });
+
+        let p_base1 = Point2D::new(600, 0);
+        let p_base2 = Point2D::new(900, 0);
+        let perp_x = 0.0;
+        let perp_y = 1.0;
+        let sign = 1.0;
+        let max_amplitude_um = 600.0;
+        let clearance_um = 100.0;
+        let trace_width_um = 150.0;
+
+        let safe_amp = compute_analytical_safe_amplitude(
+            &spatial_index,
+            1,
+            p_base1,
+            p_base2,
+            perp_x,
+            perp_y,
+            sign,
+            max_amplitude_um,
+            clearance_um,
+            trace_width_um,
+        );
+
+        // Required clearance margin is trace_width/2 + clearance = 75 + 100 = 175um.
+        // Obstacle is at Y=400, so safe amplitude must be <= 400 - 175 = 225um.
+        assert!(
+            safe_amp <= 225.0,
+            "analytical safe amplitude must be clamped to 225, got {}",
+            safe_amp
+        );
+        assert!(safe_amp > 0.0);
     }
 }

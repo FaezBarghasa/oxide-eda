@@ -6213,6 +6213,7 @@ dependencies = [
  "pdf-writer",
  "rust_xlsxwriter",
  "serde",
+ "serde_json",
  "thiserror 2.0.18",
  "tiny-skia 0.12.0",
  "ttf-parser",

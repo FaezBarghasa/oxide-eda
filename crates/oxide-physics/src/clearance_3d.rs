@@ -240,6 +240,14 @@ impl Aabb3d {
             ),
         }
     }
+
+    /// Compute total surface area of the 3D bounding box.
+    pub fn surface_area(&self) -> f64 {
+        let dx = (self.max.x - self.min.x).max(0.0);
+        let dy = (self.max.y - self.min.y).max(0.0);
+        let dz = (self.max.z - self.min.z).max(0.0);
+        2.0 * (dx * dy + dy * dz + dz * dx)
+    }
 }
 
 /// Node in a hierarchical 3D Bounding Volume Hierarchy.
@@ -264,6 +272,14 @@ impl TriangleBvhNode {
         }
     }
 
+    pub fn max_depth(&self) -> usize {
+        match self {
+            Self::Leaf { .. } => 1,
+            Self::Internal { left, right, .. } => 1 + left.max_depth().max(right.max_depth()),
+        }
+    }
+
+    /// Construct a BVH node using 16-bin Surface Area Heuristic (SAH) partitioning.
     pub fn build(mut triangles: Vec<Triangle3d>) -> Self {
         if triangles.is_empty() {
             return Self::Leaf {
@@ -272,7 +288,8 @@ impl TriangleBvhNode {
             };
         }
 
-        if triangles.len() <= 4 {
+        let n = triangles.len();
+        if n <= 4 {
             let mut aabb = triangles[0].aabb();
             for t in &triangles[1..] {
                 aabb = aabb.union(&t.aabb());
@@ -284,38 +301,175 @@ impl TriangleBvhNode {
         for t in &triangles[1..] {
             total_aabb = total_aabb.union(&t.aabb());
         }
+        let total_sa = total_aabb.surface_area();
 
-        let extent_x = total_aabb.max.x - total_aabb.min.x;
-        let extent_y = total_aabb.max.y - total_aabb.min.y;
-        let extent_z = total_aabb.max.z - total_aabb.min.z;
+        const NUM_BINS: usize = 16;
+        const C_TRAV: f64 = 1.0;
+        const C_ISECT: f64 = 1.5;
+        let c_leaf = n as f64 * C_ISECT;
 
-        let axis = if extent_x >= extent_y && extent_x >= extent_z {
-            0
-        } else if extent_y >= extent_x && extent_y >= extent_z {
-            1
+        let mut best_cost = f64::MAX;
+        let mut best_axis = 0;
+        let mut best_split_val = 0.0;
+
+        for axis in 0..3 {
+            let mut c_min = f64::MAX;
+            let mut c_max = f64::MIN;
+            for t in &triangles {
+                let c = t.centroid();
+                let v = match axis {
+                    0 => c.x,
+                    1 => c.y,
+                    _ => c.z,
+                };
+                if v < c_min {
+                    c_min = v;
+                }
+                if v > c_max {
+                    c_max = v;
+                }
+            }
+
+            let span = c_max - c_min;
+            if span < 1e-6 {
+                continue;
+            }
+
+            let mut bin_counts = [0usize; NUM_BINS];
+            let mut bin_aabbs: [Option<Aabb3d>; NUM_BINS] = [None; NUM_BINS];
+
+            for t in &triangles {
+                let c = t.centroid();
+                let v = match axis {
+                    0 => c.x,
+                    1 => c.y,
+                    _ => c.z,
+                };
+                let mut bin_idx = ((v - c_min) / span * (NUM_BINS as f64)).floor() as usize;
+                if bin_idx >= NUM_BINS {
+                    bin_idx = NUM_BINS - 1;
+                }
+                bin_counts[bin_idx] += 1;
+                let t_box = t.aabb();
+                bin_aabbs[bin_idx] = Some(match bin_aabbs[bin_idx] {
+                    Some(b) => b.union(&t_box),
+                    None => t_box,
+                });
+            }
+
+            // Prefix bounds & counts
+            let mut prefix_aabbs: [Option<Aabb3d>; NUM_BINS] = [None; NUM_BINS];
+            let mut prefix_counts = [0usize; NUM_BINS];
+            let mut running_aabb: Option<Aabb3d> = None;
+            let mut running_count = 0;
+            for i in 0..NUM_BINS {
+                running_count += bin_counts[i];
+                if let Some(b) = bin_aabbs[i] {
+                    running_aabb = Some(match running_aabb {
+                        Some(ra) => ra.union(&b),
+                        None => b,
+                    });
+                }
+                prefix_counts[i] = running_count;
+                prefix_aabbs[i] = running_aabb;
+            }
+
+            // Suffix bounds & counts
+            let mut suffix_aabbs: [Option<Aabb3d>; NUM_BINS] = [None; NUM_BINS];
+            let mut suffix_counts = [0usize; NUM_BINS];
+            running_aabb = None;
+            running_count = 0;
+            for i in (0..NUM_BINS).rev() {
+                running_count += bin_counts[i];
+                if let Some(b) = bin_aabbs[i] {
+                    running_aabb = Some(match running_aabb {
+                        Some(ra) => ra.union(&b),
+                        None => b,
+                    });
+                }
+                suffix_counts[i] = running_count;
+                suffix_aabbs[i] = running_aabb;
+            }
+
+            for p in 0..NUM_BINS - 1 {
+                let n_a = prefix_counts[p];
+                let n_b = suffix_counts[p + 1];
+                if n_a == 0 || n_b == 0 {
+                    continue;
+                }
+                let sa_a = prefix_aabbs[p].map(|b| b.surface_area()).unwrap_or(0.0);
+                let sa_b = suffix_aabbs[p + 1].map(|b| b.surface_area()).unwrap_or(0.0);
+
+                let cost = C_TRAV
+                    + (sa_a / total_sa.max(1e-9)) * (n_a as f64) * C_ISECT
+                    + (sa_b / total_sa.max(1e-9)) * (n_b as f64) * C_ISECT;
+                if cost < best_cost {
+                    best_cost = cost;
+                    best_axis = axis;
+                    best_split_val = c_min + ((p + 1) as f64 / NUM_BINS as f64) * span;
+                }
+            }
+        }
+
+        // Partition by best SAH split if beneficial or required
+        let (left_tris, right_tris) = if best_cost < f64::MAX && (best_cost < c_leaf || n > 8) {
+            let mut left = Vec::new();
+            let mut right = Vec::new();
+            for t in triangles {
+                let c = t.centroid();
+                let v = match best_axis {
+                    0 => c.x,
+                    1 => c.y,
+                    _ => c.z,
+                };
+                if v < best_split_val {
+                    left.push(t);
+                } else {
+                    right.push(t);
+                }
+            }
+            if left.is_empty() || right.is_empty() {
+                // Fall back to median split along best_axis
+                let mut all = left;
+                all.extend(right);
+                all.sort_by(|t1, t2| {
+                    let v1 = match best_axis {
+                        0 => t1.centroid().x,
+                        1 => t1.centroid().y,
+                        _ => t1.centroid().z,
+                    };
+                    let v2 = match best_axis {
+                        0 => t2.centroid().x,
+                        1 => t2.centroid().y,
+                        _ => t2.centroid().z,
+                    };
+                    v1.partial_cmp(&v2).unwrap_or(std::cmp::Ordering::Equal)
+                });
+                let mid = all.len() / 2;
+                let r = all.split_off(mid);
+                (all, r)
+            } else {
+                (left, right)
+            }
         } else {
-            2
+            // Median split fallback
+            triangles.sort_by(|t1, t2| {
+                let v1 = match best_axis {
+                    0 => t1.centroid().x,
+                    1 => t1.centroid().y,
+                    _ => t1.centroid().z,
+                };
+                let v2 = match best_axis {
+                    0 => t2.centroid().x,
+                    1 => t2.centroid().y,
+                    _ => t2.centroid().z,
+                };
+                v1.partial_cmp(&v2).unwrap_or(std::cmp::Ordering::Equal)
+            });
+            let mid = triangles.len() / 2;
+            let r = triangles.split_off(mid);
+            (triangles, r)
         };
-
-        triangles.sort_by(|t1, t2| {
-            let c1 = t1.centroid();
-            let c2 = t2.centroid();
-            let v1 = match axis {
-                0 => c1.x,
-                1 => c1.y,
-                _ => c1.z,
-            };
-            let v2 = match axis {
-                0 => c2.x,
-                1 => c2.y,
-                _ => c2.z,
-            };
-            v1.partial_cmp(&v2).unwrap_or(std::cmp::Ordering::Equal)
-        });
-
-        let mid = triangles.len() / 2;
-        let right_tris = triangles.split_off(mid);
-        let left_tris = triangles;
 
         let left = Box::new(Self::build(left_tris));
         let right = Box::new(Self::build(right_tris));
@@ -332,10 +486,15 @@ pub struct TriangleBvh {
 }
 
 impl TriangleBvh {
-    /// Construct a top-down BVH tree from a collection of 3D triangles.
+    /// Construct a top-down BVH tree from a collection of 3D triangles using SAH partitioning.
     pub fn build(triangles: Vec<Triangle3d>) -> Self {
         let root = TriangleBvhNode::build(triangles);
         Self { root }
+    }
+
+    /// Maximum tree depth from root to deepest leaf.
+    pub fn max_depth(&self) -> usize {
+        self.root.max_depth()
     }
 
     /// Check if two BVH trees have any intersecting triangles using recursive dual-tree traversal.
@@ -676,6 +835,62 @@ mod tests {
             bvh_disjoint_us < 2000,
             "BVH disjoint query took too long: {} us",
             bvh_disjoint_us
+        );
+    }
+
+    #[test]
+    fn test_sah_bvh_partitioning_high_aspect_ratio_mesh() {
+        // High-aspect ratio mesh: 120 triangles along a 1000mm x 10mm x 1mm sheet metal rail
+        let mut mesh = Vec::new();
+        for i in 0..60 {
+            let x0 = i as f64 * (1000.0 / 60.0);
+            let x1 = (i + 1) as f64 * (1000.0 / 60.0);
+            let t1 = Triangle3d::new(
+                Vec3::new(x0, 0.0, 0.0),
+                Vec3::new(x1, 0.0, 0.0),
+                Vec3::new(x0, 10.0, 0.0),
+            );
+            let t2 = Triangle3d::new(
+                Vec3::new(x1, 0.0, 0.0),
+                Vec3::new(x1, 10.0, 0.0),
+                Vec3::new(x0, 10.0, 0.0),
+            );
+            mesh.push(t1);
+            mesh.push(t2);
+        }
+
+        assert_eq!(mesh.len(), 120);
+        let bvh = TriangleBvh::build(mesh);
+
+        // O(log N) depth check: for N=120, ceil(log2(120/4)) + 1 = 6-8 levels max
+        let depth = bvh.max_depth();
+        assert!(
+            depth <= 10,
+            "SAH BVH max depth {} must be O(log N) <= 10 for N=120",
+            depth
+        );
+
+        // Verification with intersecting and non-intersecting probes
+        let hit_tri = Triangle3d::new(
+            Vec3::new(500.0, 5.0, -1.0),
+            Vec3::new(510.0, 5.0, 1.0),
+            Vec3::new(505.0, 12.0, 0.0),
+        );
+        let hit_bvh = TriangleBvh::build(vec![hit_tri]);
+        assert!(
+            bvh.intersects(&hit_bvh),
+            "SAH BVH must detect collision on middle rail triangle"
+        );
+
+        let miss_tri = Triangle3d::new(
+            Vec3::new(500.0, 50.0, 0.0),
+            Vec3::new(510.0, 50.0, 0.0),
+            Vec3::new(505.0, 60.0, 0.0),
+        );
+        let miss_bvh = TriangleBvh::build(vec![miss_tri]);
+        assert!(
+            !bvh.intersects(&miss_bvh),
+            "SAH BVH must not report collision on disjoint triangle"
         );
     }
 }

@@ -1,10 +1,11 @@
 //! Visual Diff Review panel implementation for Oxide EDA.
-//! Side-by-side visual comparison and explicit engineer approval for AI-proposed changes.
+//! Side-by-side visual comparison and explicit engineer approval for Git/AI-proposed changes.
 
 use iced::widget::{Column, Space, button, container, row, scrollable, text};
 use iced::{Element, Length};
 use oxide_widgets::theme_ext;
 
+use crate::diff::DiffClassification;
 use super::context::PanelContext;
 use super::messages::PanelMsg;
 use super::widgets::{section_title, separator};
@@ -14,10 +15,10 @@ pub fn view_ai_diff<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
 
     col = col.push(
         row![
-            section_title("Visual Diff Review: AI Proposal", &ctx.tokens),
+            section_title("Visual Diff & Revision Merge Review", &ctx.tokens),
             Space::new().width(Length::Fill).height(Length::Shrink),
             button(
-                text("Accept & Apply Proposal")
+                text("Accept & Apply Merge")
                     .size(11)
                     .color(theme_ext::text_primary(&ctx.tokens)),
             )
@@ -39,14 +40,14 @@ pub fn view_ai_diff<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
 
     col = col.push(separator(&ctx.tokens));
 
-    // Proposed changes table
+    // Proposed changes table header
     col = col.push(
         row![
-            text("Proposed Circuit Modifications")
+            text("Classified Geometric & Topological Changes")
                 .size(10)
                 .color(theme_ext::text_secondary(&ctx.tokens)),
             Space::new().width(Length::Fill).height(Length::Shrink),
-            text("3 Components | 5 Nets | 100% Validated Parts")
+            text("Fail-Closed Release Gate: Active | Mode: Unified Overlay")
                 .size(10)
                 .color(theme_ext::accent(&ctx.tokens)),
         ]
@@ -55,46 +56,57 @@ pub fn view_ai_diff<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
 
     let changes = [
         (
+            DiffClassification::Added,
             "+ Add Component",
             "U1 (TI TPS7A4700RGWR)",
             "Low-Noise LDO Regulator",
             "Verified (DigiKey #296-30232-1-ND)",
         ),
         (
+            DiffClassification::Added,
             "+ Add Component",
             "C1 (Murata GRM188R61E106MA73D)",
             "10µF 25V X5R 0603",
             "Verified (Mouser #81-GRM188R61E106MA73)",
         ),
         (
-            "+ Add Component",
-            "C2 (Murata GRM188R61E106MA73D)",
-            "10µF 25V X5R 0603",
-            "Verified (Mouser #81-GRM188R61E106MA73)",
-        ),
-        (
-            "+ Add Connection",
+            DiffClassification::Modified,
+            "~ Mod Routing",
             "VIN -> U1.IN, C1.1",
-            "Power Input Net",
-            "Clearance: 250µm rule verified",
+            "Coupled Accordion Filleted",
+            "Clearance: 250µm verified | Clothoid G2",
         ),
         (
-            "+ Add Connection",
+            DiffClassification::Modified,
+            "~ Mod Routing",
             "VOUT -> U1.OUT, C2.1",
-            "Regulated 3.3V Net",
-            "Width: 400µm rule applied",
+            "Regulated 3.3V Power Net",
+            "Width: 400µm rule applied | SAH BVH Pass",
+        ),
+        (
+            DiffClassification::Removed,
+            "- Del Component",
+            "R_OLD (Legacy Pullup)",
+            "Redundant 0805 Resistor",
+            "Hungarian Pin-Swap Re-routed",
         ),
     ];
 
     let mut diff_col = Column::new().spacing(4);
 
-    for (action, target, desc, validation) in changes {
+    for (classification, action, target, desc, validation) in changes {
+        let tag_color = match classification {
+            DiffClassification::Added => iced::Color::from_rgb(0.15, 0.85, 0.30),
+            DiffClassification::Removed => iced::Color::from_rgb(0.90, 0.20, 0.20),
+            DiffClassification::Modified => iced::Color::from_rgb(1.00, 0.75, 0.10),
+        };
+
         diff_col = diff_col.push(
             container(
                 row![
                     text(action)
                         .size(10)
-                        .color(theme_ext::accent(&ctx.tokens))
+                        .color(tag_color)
                         .width(Length::FillPortion(2)),
                     text(target)
                         .size(10)

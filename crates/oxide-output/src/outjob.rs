@@ -44,12 +44,16 @@ pub struct OutputJobConfig {
     pub generate_bom: bool,
     pub generate_pdf: bool,
     pub target_folder: PathBuf,
-    #[serde(default)]
+    #[serde(default = "default_enforce_active_bom_gate")]
     pub enforce_active_bom_gate: bool,
     #[serde(default)]
     pub allow_stale_bom: bool,
     #[serde(default = "default_max_bom_stale_hours")]
     pub max_bom_stale_hours: u32,
+}
+
+fn default_enforce_active_bom_gate() -> bool {
+    true
 }
 
 fn default_max_bom_stale_hours() -> u32 {
@@ -66,9 +70,26 @@ impl Default for OutputJobConfig {
             generate_bom: true,
             generate_pdf: true,
             target_folder: PathBuf::from("dist/manufacturing"),
-            enforce_active_bom_gate: false,
+            enforce_active_bom_gate: true,
             allow_stale_bom: false,
             max_bom_stale_hours: 24,
+        }
+    }
+}
+
+impl OutputJobConfig {
+    /// Factory constructor for official, fail-closed manufacturing release packages.
+    pub fn manufacturing_release_preset() -> Self {
+        Self::default()
+    }
+
+    /// Factory constructor for un-gated, rapid local fabrication testing (explicit opt-out).
+    pub fn quick_check_preset() -> Self {
+        Self {
+            name: "Quick_Fabrication_Check".to_string(),
+            enforce_active_bom_gate: false,
+            allow_stale_bom: true,
+            ..Self::default()
         }
     }
 }
@@ -277,5 +298,37 @@ mod tests {
         let fresh_result =
             OutputJobRunner::run_with_stock_audit(&config, &ctx, &board, Some(&fresh_statuses));
         assert!(fresh_result.is_ok(), "fresh verified BOM must pass gate");
+    }
+
+    #[test]
+    fn test_fail_closed_production_preset_defaults() {
+        // 1. Default config must enforce ActiveBOM gate with zero tolerance for stale data
+        let default_config = OutputJobConfig::default();
+        assert!(
+            default_config.enforce_active_bom_gate,
+            "Default release preset must fail-closed on unverified BOM"
+        );
+        assert!(
+            !default_config.allow_stale_bom,
+            "Default release preset must not allow stale BOM without explicit override"
+        );
+
+        // 2. Manufacturing preset must match fail-closed security
+        let mfg_preset = OutputJobConfig::manufacturing_release_preset();
+        assert!(mfg_preset.enforce_active_bom_gate);
+        assert!(!mfg_preset.allow_stale_bom);
+
+        // 3. Quick check preset is explicitly permissive
+        let quick = OutputJobConfig::quick_check_preset();
+        assert!(!quick.enforce_active_bom_gate);
+        assert!(quick.allow_stale_bom);
+
+        // 4. Deserialization from JSON without enforce_active_bom_gate defaults to true
+        let json_str = r#"{"name": "Custom", "generate_gerber": true, "generate_drills": true, "generate_pick_and_place": false, "generate_bom": true, "generate_pdf": false, "target_folder": "out"}"#;
+        let parsed: OutputJobConfig = serde_json::from_str(json_str).expect("deserialize config");
+        assert!(
+            parsed.enforce_active_bom_gate,
+            "Deserialized config must fail closed by default"
+        );
     }
 }

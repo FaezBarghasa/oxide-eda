@@ -27,6 +27,7 @@ pub mod canvas;
 pub mod chrome;
 pub mod config_root;
 pub mod diagnostics;
+pub mod diff;
 pub mod dock;
 pub mod feature_flags;
 pub mod find_replace;
