@@ -111,7 +111,7 @@ impl Oxide {
                     text: iced::Color::from_rgb(0.941, 0.965, 0.988),
                     primary: iced::Color::from_rgb(0.000, 0.824, 1.000),
                     success: iced::Color::from_rgb(0.247, 0.725, 0.314),
-                    danger: iced::Color::from_rgb(0.973, 0.318, 0.286),
+                    danger: iced::Color::from_rgb(0.973, 0.320, 0.286),
                     warning: iced::Color::from_rgb(0.824, 0.600, 0.133),
                 },
             ),

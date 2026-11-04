@@ -221,16 +221,14 @@ impl McpServer {
                             error: None,
                         }
                     }
-                    "list_violations" => {
-                        McpResponse {
-                            id: req.id.clone(),
-                            result: Some(serde_json::json!({
-                                "status": "ok",
-                                "violations": []
-                            })),
-                            error: None,
-                        }
-                    }
+                    "list_violations" => McpResponse {
+                        id: req.id.clone(),
+                        result: Some(serde_json::json!({
+                            "status": "ok",
+                            "violations": []
+                        })),
+                        error: None,
+                    },
                     "place_component" => {
                         let refdes = args.get("reference").and_then(|v| v.as_str()).unwrap_or("");
                         let x = args.get("x").and_then(|v| v.as_f64()).unwrap_or(0.0);
@@ -250,7 +248,10 @@ impl McpServer {
                     }
                     "route_net" => {
                         let net_name = args.get("net_name").and_then(|v| v.as_str()).unwrap_or("");
-                        let strategy = args.get("strategy").and_then(|v| v.as_str()).unwrap_or("WalkAround");
+                        let strategy = args
+                            .get("strategy")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("WalkAround");
                         McpResponse {
                             id: req.id.clone(),
                             result: Some(serde_json::json!({
@@ -263,8 +264,14 @@ impl McpServer {
                         }
                     }
                     "fix_violation" => {
-                        let violation_id = args.get("violation_id").and_then(|v| v.as_str()).unwrap_or("");
-                        let strategy = args.get("strategy").and_then(|v| v.as_str()).unwrap_or("auto");
+                        let violation_id = args
+                            .get("violation_id")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("");
+                        let strategy = args
+                            .get("strategy")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("auto");
                         McpResponse {
                             id: req.id.clone(),
                             result: Some(serde_json::json!({

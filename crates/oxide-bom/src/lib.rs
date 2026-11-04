@@ -211,7 +211,6 @@ pub fn build_table_with_variant(
     }
 }
 
-
 /// Build a BOM table from a normalized BOM context.
 pub fn build_table(ctx: &BomContext, opts: &BomEngineOptions) -> BomTable {
     let mut components = ctx
@@ -433,6 +432,7 @@ impl Default for DistributorConfig {
 pub enum ComponentLifecycle {
     Active,
     NotRecommendedForNewDesigns,
+    EndOfLife,
     EndOfWeek,
     Obsolete,
     Unknown,
@@ -450,15 +450,34 @@ pub struct BomStockStatus {
     pub lifecycle: ComponentLifecycle,
     pub currency: String,
     pub verified_at_utc: Option<String>,
+    #[serde(default)]
+    pub is_stale: bool,
+    #[serde(default)]
+    pub cache_age_hours: u32,
+}
+
+impl BomStockStatus {
+    pub fn unverified(mpn: String, distributor: String) -> Self {
+        Self {
+            mpn,
+            distributor,
+            in_stock_qty: 0,
+            min_order_qty: 1,
+            unit_price_usd: None,
+            lead_time_weeks: None,
+            lifecycle: ComponentLifecycle::Unknown,
+            currency: "USD".to_string(),
+            verified_at_utc: None,
+            is_stale: true,
+            cache_age_hours: 0,
+        }
+    }
 }
 
 /// Evaluates live stock status for BOM table rows across configured distributors synchronously.
 /// Authentic query pipeline: returns genuine stock when verified, or `Unknown` / 0 with `verified_at_utc: None`
 /// if credentials are not provided or part is unverified. Zero mock or synthetic numbers.
-pub fn check_stock(
-    table: &BomTable,
-    distributors: &[DistributorConfig],
-) -> Vec<BomStockStatus> {
+pub fn check_stock(table: &BomTable, distributors: &[DistributorConfig]) -> Vec<BomStockStatus> {
     let mut results = Vec::new();
 
     for row in &table.rows {
@@ -472,88 +491,20 @@ pub fn check_stock(
 
         for dist in distributors.iter().filter(|d| d.enabled) {
             // Authentic distributor inspection without fake random data
-            let status = match dist.provider {
-                DistributorProvider::Lcsc => {
-                    // If no API key or offline, report genuine unverified state
-                    BomStockStatus {
-                        mpn: mpn.clone(),
-                        distributor: "LCSC".to_string(),
-                        in_stock_qty: 0,
-                        min_order_qty: 1,
-                        unit_price_usd: None,
-                        lead_time_weeks: None,
-                        lifecycle: ComponentLifecycle::Unknown,
-                        currency: "USD".to_string(),
-                        verified_at_utc: None,
-                    }
-                }
+            let dist_name = match dist.provider {
+                DistributorProvider::Lcsc => "LCSC".to_string(),
                 DistributorProvider::Nexar | DistributorProvider::Octopart => {
                     if dist.api_key.is_some() || std::env::var("NEXAR_TOKEN").is_ok() {
-                        BomStockStatus {
-                            mpn: mpn.clone(),
-                            distributor: "Nexar/Octopart".to_string(),
-                            in_stock_qty: 0,
-                            min_order_qty: 1,
-                            unit_price_usd: None,
-                            lead_time_weeks: None,
-                            lifecycle: ComponentLifecycle::Unknown,
-                            currency: "USD".to_string(),
-                            verified_at_utc: None,
-                        }
+                        "Nexar/Octopart".to_string()
                     } else {
-                        BomStockStatus {
-                            mpn: mpn.clone(),
-                            distributor: "Nexar (No API Key)".to_string(),
-                            in_stock_qty: 0,
-                            min_order_qty: 1,
-                            unit_price_usd: None,
-                            lead_time_weeks: None,
-                            lifecycle: ComponentLifecycle::Unknown,
-                            currency: "USD".to_string(),
-                            verified_at_utc: None,
-                        }
+                        "Nexar (No API Key)".to_string()
                     }
                 }
-                DistributorProvider::DigiKey => {
-                    BomStockStatus {
-                        mpn: mpn.clone(),
-                        distributor: "DigiKey".to_string(),
-                        in_stock_qty: 0,
-                        min_order_qty: 1,
-                        unit_price_usd: None,
-                        lead_time_weeks: None,
-                        lifecycle: ComponentLifecycle::Unknown,
-                        currency: "USD".to_string(),
-                        verified_at_utc: None,
-                    }
-                }
-                DistributorProvider::Mouser => {
-                    BomStockStatus {
-                        mpn: mpn.clone(),
-                        distributor: "Mouser".to_string(),
-                        in_stock_qty: 0,
-                        min_order_qty: 1,
-                        unit_price_usd: None,
-                        lead_time_weeks: None,
-                        lifecycle: ComponentLifecycle::Unknown,
-                        currency: "USD".to_string(),
-                        verified_at_utc: None,
-                    }
-                }
-                DistributorProvider::Custom(ref name) => {
-                    BomStockStatus {
-                        mpn: mpn.clone(),
-                        distributor: name.clone(),
-                        in_stock_qty: 0,
-                        min_order_qty: 1,
-                        unit_price_usd: None,
-                        lead_time_weeks: None,
-                        lifecycle: ComponentLifecycle::Unknown,
-                        currency: "USD".to_string(),
-                        verified_at_utc: None,
-                    }
-                }
+                DistributorProvider::DigiKey => "DigiKey".to_string(),
+                DistributorProvider::Mouser => "Mouser".to_string(),
+                DistributorProvider::Custom(ref name) => name.clone(),
             };
+            let status = BomStockStatus::unverified(mpn.clone(), dist_name);
 
             results.push(status);
         }
@@ -563,6 +514,7 @@ pub fn check_stock(
 }
 
 /// Asynchronous live stock query querying real distributor APIs.
+#[allow(clippy::collapsible_if)]
 pub async fn check_stock_async(
     client: &reqwest::Client,
     table: &BomTable,
@@ -582,29 +534,33 @@ pub async fn check_stock_async(
         for dist in distributors.iter().filter(|d| d.enabled) {
             match dist.provider {
                 DistributorProvider::Lcsc => {
-                    let mut status = BomStockStatus {
-                        mpn: mpn.clone(),
-                        distributor: "LCSC".to_string(),
-                        in_stock_qty: 0,
-                        min_order_qty: 1,
-                        unit_price_usd: None,
-                        lead_time_weeks: None,
-                        lifecycle: ComponentLifecycle::Unknown,
-                        currency: "USD".to_string(),
-                        verified_at_utc: None,
-                    };
+                    let mut status = BomStockStatus::unverified(mpn.clone(), "LCSC".to_string());
 
                     // Anonymous public catalogue query to LCSC
-                    let url = format!("https://wmsc.lcsc.com/wmsc/product/detail?productCode={}", mpn);
+                    let url = format!(
+                        "https://wmsc.lcsc.com/wmsc/product/detail?productCode={}",
+                        mpn
+                    );
                     if let Ok(resp) = client.get(&url).send().await {
                         if resp.status().is_success() {
                             if let Ok(body) = resp.json::<serde_json::Value>().await {
-                                if let Some(stock) = body.pointer("/result/stockNumber").and_then(|v| v.as_u64()) {
+                                if let Some(stock) =
+                                    body.pointer("/result/stockNumber").and_then(|v| v.as_u64())
+                                {
                                     status.in_stock_qty = stock;
-                                    status.lifecycle = if stock > 0 { ComponentLifecycle::Active } else { ComponentLifecycle::Obsolete };
+                                    status.lifecycle = if stock > 0 {
+                                        ComponentLifecycle::Active
+                                    } else {
+                                        ComponentLifecycle::Obsolete
+                                    };
                                     status.verified_at_utc = Some(chrono_now_utc());
+                                    status.is_stale = false;
+                                    status.cache_age_hours = 0;
                                 }
-                                if let Some(price) = body.pointer("/result/productPriceList/0/productPrice").and_then(|v| v.as_f64()) {
+                                if let Some(price) = body
+                                    .pointer("/result/productPriceList/0/productPrice")
+                                    .and_then(|v| v.as_f64())
+                                {
                                     status.unit_price_usd = Some(price);
                                 }
                             }
@@ -613,18 +569,12 @@ pub async fn check_stock_async(
                     results.push(status);
                 }
                 DistributorProvider::Nexar | DistributorProvider::Octopart => {
-                    let token = dist.api_key.clone().or_else(|| std::env::var("NEXAR_TOKEN").ok());
-                    let mut status = BomStockStatus {
-                        mpn: mpn.clone(),
-                        distributor: "Nexar/Octopart".to_string(),
-                        in_stock_qty: 0,
-                        min_order_qty: 1,
-                        unit_price_usd: None,
-                        lead_time_weeks: None,
-                        lifecycle: ComponentLifecycle::Unknown,
-                        currency: "USD".to_string(),
-                        verified_at_utc: None,
-                    };
+                    let token = dist
+                        .api_key
+                        .clone()
+                        .or_else(|| std::env::var("NEXAR_TOKEN").ok());
+                    let mut status =
+                        BomStockStatus::unverified(mpn.clone(), "Nexar/Octopart".to_string());
 
                     if let Some(tok) = token {
                         // Nexar GraphQL query
@@ -632,7 +582,8 @@ pub async fn check_stock_async(
                             "query": "query Search($q: String!) { supSearch(q: $q, limit: 1) { results { part { mpn totalAvail bestDatasheet { url } } } } }",
                             "variables": { "q": mpn }
                         });
-                        if let Ok(resp) = client.post(&dist.api_endpoint)
+                        if let Ok(resp) = client
+                            .post(&dist.api_endpoint)
                             .header("token", tok)
                             .json(&gql)
                             .send()
@@ -640,10 +591,19 @@ pub async fn check_stock_async(
                         {
                             if resp.status().is_success() {
                                 if let Ok(val) = resp.json::<serde_json::Value>().await {
-                                    if let Some(avail) = val.pointer("/data/supSearch/results/0/part/totalAvail").and_then(|v| v.as_u64()) {
+                                    if let Some(avail) = val
+                                        .pointer("/data/supSearch/results/0/part/totalAvail")
+                                        .and_then(|v| v.as_u64())
+                                    {
                                         status.in_stock_qty = avail;
-                                        status.lifecycle = if avail > 0 { ComponentLifecycle::Active } else { ComponentLifecycle::NotRecommendedForNewDesigns };
+                                        status.lifecycle = if avail > 0 {
+                                            ComponentLifecycle::Active
+                                        } else {
+                                            ComponentLifecycle::NotRecommendedForNewDesigns
+                                        };
                                         status.verified_at_utc = Some(chrono_now_utc());
+                                        status.is_stale = false;
+                                        status.cache_age_hours = 0;
                                     }
                                 }
                             }
@@ -652,32 +612,33 @@ pub async fn check_stock_async(
                     results.push(status);
                 }
                 _ => {
-                    results.push(BomStockStatus {
-                        mpn: mpn.clone(),
-                        distributor: format!("{:?}", dist.provider),
-                        in_stock_qty: 0,
-                        min_order_qty: 1,
-                        unit_price_usd: None,
-                        lead_time_weeks: None,
-                        lifecycle: ComponentLifecycle::Unknown,
-                        currency: "USD".to_string(),
-                        verified_at_utc: None,
-                    });
+                    results.push(BomStockStatus::unverified(
+                        mpn.clone(),
+                        format!("{:?}", dist.provider),
+                    ));
                 }
             }
 
             // Component 9: Local-First Offline ActiveBOM Cache & Vault fallback
             if let Some(status) = results.last_mut() {
                 if status.verified_at_utc.is_none() {
-                    if let Ok(cache) = oxide_library::distributors::cache::DistributorCache::default_root() {
+                    if let Ok(cache) =
+                        oxide_library::distributors::cache::DistributorCache::default_root()
+                    {
                         let provider_key = match dist.provider {
                             DistributorProvider::Lcsc => "lcsc",
-                            DistributorProvider::Nexar | DistributorProvider::Octopart => "octopart",
+                            DistributorProvider::Nexar | DistributorProvider::Octopart => {
+                                "octopart"
+                            }
                             DistributorProvider::DigiKey => "digikey",
                             DistributorProvider::Mouser => "mouser",
                             _ => "generic",
                         };
-                        if let Ok(Some(cached_part)) = cache.get(provider_key, &mpn, std::time::Duration::from_secs(60 * 60 * 24 * 30)) {
+                        if let Ok(Some(cached_part)) = cache.get(
+                            provider_key,
+                            &mpn,
+                            std::time::Duration::from_secs(60 * 60 * 24 * 30),
+                        ) {
                             status.in_stock_qty = cached_part.stock.unwrap_or(0) as u64;
                             if let Some(pricing) = &cached_part.pricing {
                                 if let Some(breaks) = pricing.by_distributor.values().next() {
@@ -686,9 +647,18 @@ pub async fn check_stock_async(
                                     }
                                 }
                             }
-                            status.lifecycle = if status.in_stock_qty > 0 { ComponentLifecycle::Active } else { ComponentLifecycle::NotRecommendedForNewDesigns };
+                            status.lifecycle = if status.in_stock_qty > 0 {
+                                ComponentLifecycle::Active
+                            } else {
+                                ComponentLifecycle::NotRecommendedForNewDesigns
+                            };
                             status.verified_at_utc = Some(cached_part.captured_at.to_rfc3339());
                             status.distributor = format!("{} (Offline Cache)", status.distributor);
+                            let age_hours = (chrono::Utc::now() - cached_part.captured_at)
+                                .num_hours()
+                                .max(0) as u32;
+                            status.cache_age_hours = age_hours;
+                            status.is_stale = age_hours > 24;
                         }
                     }
                 }
@@ -700,6 +670,7 @@ pub async fn check_stock_async(
 }
 
 /// Query local offline ActiveBOM cache without network requests.
+#[allow(clippy::collapsible_if)]
 pub fn check_stock_from_cache(
     table: &BomTable,
     distributors: &[DistributorConfig],
@@ -725,19 +696,16 @@ pub fn check_stock_from_cache(
                 _ => "generic",
             };
 
-            let mut status = BomStockStatus {
-                mpn: mpn.clone(),
-                distributor: format!("{:?} (Offline Cache)", dist.provider),
-                in_stock_qty: 0,
-                min_order_qty: 1,
-                unit_price_usd: None,
-                lead_time_weeks: None,
-                lifecycle: ComponentLifecycle::Unknown,
-                currency: "USD".to_string(),
-                verified_at_utc: None,
-            };
+            let mut status = BomStockStatus::unverified(
+                mpn.clone(),
+                format!("{:?} (Offline Cache)", dist.provider),
+            );
 
-            if let Ok(Some(cached_part)) = cache.get(provider_key, &mpn, std::time::Duration::from_secs(60 * 60 * 24 * 30)) {
+            if let Ok(Some(cached_part)) = cache.get(
+                provider_key,
+                &mpn,
+                std::time::Duration::from_secs(60 * 60 * 24 * 30),
+            ) {
                 status.in_stock_qty = cached_part.stock.unwrap_or(0) as u64;
                 if let Some(pricing) = &cached_part.pricing {
                     if let Some(breaks) = pricing.by_distributor.values().next() {
@@ -746,8 +714,17 @@ pub fn check_stock_from_cache(
                         }
                     }
                 }
-                status.lifecycle = if status.in_stock_qty > 0 { ComponentLifecycle::Active } else { ComponentLifecycle::NotRecommendedForNewDesigns };
+                status.lifecycle = if status.in_stock_qty > 0 {
+                    ComponentLifecycle::Active
+                } else {
+                    ComponentLifecycle::NotRecommendedForNewDesigns
+                };
                 status.verified_at_utc = Some(cached_part.captured_at.to_rfc3339());
+                let age_hours = (chrono::Utc::now() - cached_part.captured_at)
+                    .num_hours()
+                    .max(0) as u32;
+                status.cache_age_hours = age_hours;
+                status.is_stale = age_hours > 24;
             }
 
             results.push(status);
@@ -757,6 +734,86 @@ pub fn check_stock_from_cache(
     results
 }
 
+/// Audits stock and sourcing freshness for a production manufacturing release.
+/// Rejects the release (returns Err with descriptive error messages) if:
+/// - Any component's verified pricing/stock is stale (cache_age_hours > max_stale_hours).
+/// - Any component has zero available in-stock quantity across authorized distributors.
+/// - Any component lifecycle is Obsolete or EndOfLife.
+/// - Any component has no verified distributor data (unverified / missing MPN).
+pub fn audit_production_bom(
+    statuses: &[BomStockStatus],
+    max_stale_hours: u32,
+) -> Result<(), Vec<String>> {
+    let mut errors = Vec::new();
+
+    if statuses.is_empty() {
+        errors.push(
+            "BOM is empty: cannot release production fabrication package without components."
+                .to_string(),
+        );
+        return Err(errors);
+    }
+
+    for status in statuses {
+        // 1. Check verification
+        let Some(verified_at) = &status.verified_at_utc else {
+            errors.push(format!(
+                "Component '{}': unverified distributor data (no verified timestamp). Live distributor query or fresh vault cache required.",
+                status.mpn
+            ));
+            continue;
+        };
+
+        // 2. Check staleness
+        let is_stale = status.is_stale || status.cache_age_hours > max_stale_hours;
+        if is_stale {
+            errors.push(format!(
+                "Component '{}': cached sourcing data is stale ({} hours old, max allowed: {} hours). Captured at: {}",
+                status.mpn, status.cache_age_hours, max_stale_hours, verified_at
+            ));
+        }
+
+        // 3. Check stock availability
+        if status.in_stock_qty == 0 {
+            errors.push(format!(
+                "Component '{}': zero in-stock inventory reported by distributor '{}'.",
+                status.mpn, status.distributor
+            ));
+        }
+
+        // 4. Check lifecycle
+        match status.lifecycle {
+            ComponentLifecycle::Obsolete => {
+                errors.push(format!(
+                    "Component '{}': lifecycle state is Obsolete. Part must be substituted before fabrication release.",
+                    status.mpn
+                ));
+            }
+            ComponentLifecycle::EndOfLife => {
+                errors.push(format!(
+                    "Component '{}': lifecycle state is EndOfLife. Part cannot be procured for production run.",
+                    status.mpn
+                ));
+            }
+            _ => {}
+        }
+
+        // 5. Check pricing
+        if status.unit_price_usd.is_none() {
+            errors.push(format!(
+                "Component '{}': missing unit pricing from distributor '{}'.",
+                status.mpn, status.distributor
+            ));
+        }
+    }
+
+    if errors.is_empty() {
+        Ok(())
+    } else {
+        Err(errors)
+    }
+}
+
 fn chrono_now_utc() -> String {
     // RFC 3339 formatted ISO timestamp string
     let d = std::time::SystemTime::now()
@@ -764,7 +821,6 @@ fn chrono_now_utc() -> String {
         .unwrap_or_default();
     format!("{}.{}Z", d.as_secs(), d.subsec_millis())
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -1068,7 +1124,9 @@ mod tests {
     #[test]
     fn test_offline_activebom_cache_retrieval() {
         let temp_dir = tempfile::tempdir().unwrap();
-        let cache = oxide_library::distributors::cache::DistributorCache::with_root(temp_dir.path()).unwrap();
+        let cache =
+            oxide_library::distributors::cache::DistributorCache::with_root(temp_dir.path())
+                .unwrap();
 
         // Populate cache with a known part
         let part = oxide_library::distributor::DistributorPart {
@@ -1082,7 +1140,10 @@ mod tests {
                 captured_at: chrono::Utc::now(),
                 by_distributor: std::collections::BTreeMap::from([(
                     "LCSC".to_string(),
-                    vec![oxide_library::distributor::PriceBreak { qty: 1, unit_price_usd: 2.45 }],
+                    vec![oxide_library::distributor::PriceBreak {
+                        qty: 1,
+                        unit_price_usd: 2.45,
+                    }],
                 )]),
             }),
             stock: Some(4250),
@@ -1093,7 +1154,8 @@ mod tests {
         cache.put("lcsc", &part).unwrap();
 
         let mut comp = component("U1", "STM32F401CCU6", "QFN-48");
-        comp.custom.insert("MPN".to_string(), "STM32F401CCU6".to_string());
+        comp.custom
+            .insert("MPN".to_string(), "STM32F401CCU6".to_string());
         let ctx = BomContext {
             components: vec![comp],
             metadata: BomMetadata::default(),
@@ -1115,5 +1177,57 @@ mod tests {
         assert_eq!(res.lifecycle, ComponentLifecycle::Active);
         assert!(res.verified_at_utc.is_some());
     }
-}
 
+    #[test]
+    fn test_audit_production_bom_rejects_stale_data_zero_stock_and_obsolete() {
+        // 1. Fresh, fully in-stock BOM passes
+        let valid_status = BomStockStatus {
+            mpn: "STM32F401CCU6".to_string(),
+            distributor: "LCSC".to_string(),
+            in_stock_qty: 1200,
+            min_order_qty: 1,
+            unit_price_usd: Some(2.10),
+            lead_time_weeks: Some(2),
+            lifecycle: ComponentLifecycle::Active,
+            currency: "USD".to_string(),
+            verified_at_utc: Some("2026-11-04T12:00:00Z".to_string()),
+            is_stale: false,
+            cache_age_hours: 6,
+        };
+
+        assert!(audit_production_bom(&[valid_status.clone()], 24).is_ok());
+
+        // 2. Stale data (48 hours old) fails release audit
+        let stale_status = BomStockStatus {
+            cache_age_hours: 48,
+            is_stale: true,
+            ..valid_status.clone()
+        };
+        let stale_err = audit_production_bom(&[stale_status], 24).unwrap_err();
+        assert!(stale_err.iter().any(|e| e.contains("stale")));
+
+        // 3. Zero stock fails release audit
+        let zero_stock = BomStockStatus {
+            in_stock_qty: 0,
+            ..valid_status.clone()
+        };
+        let zero_err = audit_production_bom(&[zero_stock], 24).unwrap_err();
+        assert!(zero_err.iter().any(|e| e.contains("zero in-stock")));
+
+        // 4. Obsolete component fails release audit
+        let obsolete = BomStockStatus {
+            lifecycle: ComponentLifecycle::Obsolete,
+            ..valid_status.clone()
+        };
+        let obs_err = audit_production_bom(&[obsolete], 24).unwrap_err();
+        assert!(obs_err.iter().any(|e| e.contains("Obsolete")));
+
+        // 5. Unverified component fails release audit
+        let unverified = BomStockStatus {
+            verified_at_utc: None,
+            ..valid_status
+        };
+        let unv_err = audit_production_bom(&[unverified], 24).unwrap_err();
+        assert!(unv_err.iter().any(|e| e.contains("unverified")));
+    }
+}

@@ -481,13 +481,11 @@ impl Oxide {
                     ));
                     Message::Noop
                 }
-                Err(err) => {
-                    Message::File(FileMsg::SchematicOpenFinished {
-                        path: path.clone(),
-                        title: title.clone(),
-                        result: Err(err),
-                    })
-                }
+                Err(err) => Message::File(FileMsg::SchematicOpenFinished {
+                    path: path.clone(),
+                    title: title.clone(),
+                    result: Err(err),
+                }),
             },
         ))
     }
@@ -501,8 +499,7 @@ impl Oxide {
             .unwrap_or("AltiumProject")
             .to_string();
 
-        let content = std::fs::read_to_string(&prj_path)
-            .unwrap_or_default();
+        let content = std::fs::read_to_string(&prj_path).unwrap_or_default();
 
         let mut doc_paths = Vec::new();
         for line in content.lines() {
@@ -514,16 +511,20 @@ impl Oxide {
         }
 
         // If no explicit DocumentPath keys found (e.g. empty or non-standard), scan directory
-        if doc_paths.is_empty() {
-            if let Ok(entries) = std::fs::read_dir(dir) {
-                for entry in entries.flatten() {
-                    let p = entry.path();
-                    let ext = p.extension().and_then(|e| e.to_str()).unwrap_or("").to_ascii_lowercase();
-                    if matches!(ext.as_str(), "schdoc" | "pcbdoc") {
-                        if let Some(name) = p.file_name().and_then(|n| n.to_str()) {
-                            doc_paths.push(name.to_string());
-                        }
-                    }
+        if doc_paths.is_empty()
+            && let Ok(entries) = std::fs::read_dir(dir)
+        {
+            for entry in entries.flatten() {
+                let p = entry.path();
+                let ext = p
+                    .extension()
+                    .and_then(|e| e.to_str())
+                    .unwrap_or("")
+                    .to_ascii_lowercase();
+                if matches!(ext.as_str(), "schdoc" | "pcbdoc")
+                    && let Some(name) = p.file_name().and_then(|n| n.to_str())
+                {
+                    doc_paths.push(name.to_string());
                 }
             }
         }
@@ -564,12 +565,14 @@ impl Oxide {
         };
 
         let id = self.document_state.mint_project_id();
-        self.document_state.projects.push(crate::app::state::LoadedProject {
-            id,
-            path: prj_path.clone(),
-            data: project_data,
-            pending_libraries: std::collections::HashMap::new(),
-        });
+        self.document_state
+            .projects
+            .push(crate::app::state::LoadedProject {
+                id,
+                path: prj_path.clone(),
+                data: project_data,
+                pending_libraries: std::collections::HashMap::new(),
+            });
         self.document_state.active_project = Some(id);
         self.refresh_panel_ctx();
 
@@ -577,17 +580,17 @@ impl Oxide {
         let mut tasks = Vec::new();
         if let Some(first_sch) = schematic_root {
             let sch_full = dir.join(first_sch);
-            if sch_full.exists() {
-                if let Ok(t) = self.open_altium_file(sch_full) {
-                    tasks.push(t);
-                }
+            if sch_full.exists()
+                && let Ok(t) = self.open_altium_file(sch_full)
+            {
+                tasks.push(t);
             }
         } else if let Some(pcb_name) = pcb_file {
             let pcb_full = dir.join(pcb_name);
-            if pcb_full.exists() {
-                if let Ok(t) = self.open_altium_file(pcb_full) {
-                    tasks.push(t);
-                }
+            if pcb_full.exists()
+                && let Ok(t) = self.open_altium_file(pcb_full)
+            {
+                tasks.push(t);
             }
         }
 

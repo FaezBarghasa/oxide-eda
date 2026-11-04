@@ -65,7 +65,10 @@ pub struct VariantManagerState {
 impl Default for VariantManagerState {
     fn default() -> Self {
         let base = AssemblyVariant::new("Base Configuration", "Default fitted bill of materials");
-        let mut low_cost = AssemblyVariant::new("Economy / Cost Down", "Unpopulated optional sensors & debug headers");
+        let mut low_cost = AssemblyVariant::new(
+            "Economy / Cost Down",
+            "Unpopulated optional sensors & debug headers",
+        );
         low_cost.dnp_refs.insert("J1".to_string());
         low_cost.dnp_refs.insert("U5".to_string());
 
@@ -94,17 +97,16 @@ impl VariantManagerState {
     }
 }
 
-pub fn view<'a>(
-    state: &'a VariantManagerState,
-    tokens: &ThemeTokens,
-) -> Element<'a, PanelMsg> {
+pub fn view<'a>(state: &'a VariantManagerState, tokens: &ThemeTokens) -> Element<'a, PanelMsg> {
     let title = text("Assembly Variant Manager")
         .size(14)
         .color(styles::ti(tokens.accent));
 
     let active_name = &state.active_variant().name;
     let variant_header = row![
-        text("Variant:").size(12).color(styles::ti(tokens.text_secondary)),
+        text("Variant:")
+            .size(12)
+            .color(styles::ti(tokens.text_secondary)),
         text(active_name).size(12).color(styles::ti(tokens.text)),
     ]
     .spacing(8)
@@ -136,9 +138,15 @@ pub fn view<'a>(
     } else {
         let refs: Vec<&String> = state.active_variant().dnp_refs.iter().collect();
         dnp_list = dnp_list.push(
-            text(format!("DNP List: {}", refs.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", ")))
-                .size(11)
-                .color(styles::ti(tokens.accent)),
+            text(format!(
+                "DNP List: {}",
+                refs.iter()
+                    .map(|s| s.as_str())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            ))
+            .size(11)
+            .color(styles::ti(tokens.accent)),
         );
     }
 
@@ -162,15 +170,9 @@ pub fn view<'a>(
     ]
     .spacing(8);
 
-    let content = column![
-        title,
-        variant_header,
-        details_col,
-        dnp_list,
-        actions,
-    ]
-    .spacing(10)
-    .padding(12);
+    let content = column![title, variant_header, details_col, dnp_list, actions,]
+        .spacing(10)
+        .padding(12);
 
     container(content)
         .width(Length::Fill)

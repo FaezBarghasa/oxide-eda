@@ -9,8 +9,8 @@ use std::sync::mpsc::{Receiver, Sender, channel};
 use std::sync::{Arc, Mutex};
 use std::thread::{self, JoinHandle};
 
-use oxide_physics::Microns;
 use crate::LayerId;
+use oxide_physics::Microns;
 
 use crate::geometry::Point2D;
 use crate::geometry::rtree::NetId;
@@ -52,7 +52,10 @@ pub struct AsyncRoutingSolver {
 impl std::fmt::Debug for AsyncRoutingSolver {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("AsyncRoutingSolver")
-            .field("requests_issued", &self.request_counter.load(Ordering::Relaxed))
+            .field(
+                "requests_issued",
+                &self.request_counter.load(Ordering::Relaxed),
+            )
             .finish()
     }
 }
@@ -74,7 +77,8 @@ impl AsyncRoutingSolver {
 
                 while !shutdown_clone.load(Ordering::Relaxed) {
                     // Wait for requests with timeout so shutdown flag is periodically checked
-                    let first_req = match req_rx.recv_timeout(std::time::Duration::from_millis(50)) {
+                    let first_req = match req_rx.recv_timeout(std::time::Duration::from_millis(50))
+                    {
                         Ok(req) => req,
                         Err(std::sync::mpsc::RecvTimeoutError::Timeout) => continue,
                         Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => break,
@@ -131,6 +135,7 @@ impl AsyncRoutingSolver {
     }
 
     /// Submit a new mouse target to the solver with an epoch fence token.
+    #[allow(clippy::too_many_arguments)]
     pub fn submit_target(
         &self,
         target: Point2D,
@@ -173,10 +178,10 @@ impl AsyncRoutingSolver {
             Some(resp)
         } else {
             let guard = self.latest_response.lock().unwrap();
-            if let Some(resp) = &*guard {
-                if resp.epoch >= current_epoch {
-                    return Some(resp.clone());
-                }
+            if let Some(resp) = &*guard
+                && resp.epoch >= current_epoch
+            {
+                return Some(resp.clone());
             }
             None
         }
@@ -259,7 +264,10 @@ mod tests {
 
         // When polling with newer epoch 2, old epoch 1 solutions should be ignored
         let res_stale = solver.poll_latest(2);
-        assert!(res_stale.is_none(), "stale epoch 1 response must be fenced off");
+        assert!(
+            res_stale.is_none(),
+            "stale epoch 1 response must be fenced off"
+        );
 
         // Now submit with epoch 2
         solver.submit_target(

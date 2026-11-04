@@ -73,14 +73,20 @@ impl FootprintWizardState {
             WizardPackageType::Chip => {
                 PackageDimensions::standard_chip(self.body_length_mm, self.body_width_mm, 0.8)
             }
-            WizardPackageType::Soic => {
-                PackageDimensions::standard_soic(self.pin_count as usize)
-            }
-            WizardPackageType::Qfp => {
-                PackageDimensions::standard_qfn(self.pin_count as usize, self.body_width_mm, self.pitch_mm, None)
-            }
+            WizardPackageType::Soic => PackageDimensions::standard_soic(self.pin_count as usize),
+            WizardPackageType::Qfp => PackageDimensions::standard_qfn(
+                self.pin_count as usize,
+                self.body_width_mm,
+                self.pitch_mm,
+                None,
+            ),
             WizardPackageType::Bga => {
-                let mut bga = PackageDimensions::standard_qfn(self.pin_count as usize, self.body_width_mm, self.pitch_mm, None);
+                let mut bga = PackageDimensions::standard_qfn(
+                    self.pin_count as usize,
+                    self.body_width_mm,
+                    self.pitch_mm,
+                    None,
+                );
                 bga.package_class = "BGA".to_string();
                 bga
             }
@@ -109,26 +115,21 @@ impl FootprintWizardState {
         dims.lead_pitch_mm = self.pitch_mm;
 
         let fp = Ipc7351Generator::generate_footprint(&self.name, &dims, self.density);
-        self.status = format!(
-            "Generated '{}' with {} pads",
-            fp.name,
-            fp.pads.len()
-        );
+        self.status = format!("Generated '{}' with {} pads", fp.name, fp.pads.len());
         self.last_generated = Some(fp.clone());
         Ok(fp)
     }
 }
 
-pub fn view<'a>(
-    state: &'a FootprintWizardState,
-    tokens: &ThemeTokens,
-) -> Element<'a, PanelMsg> {
+pub fn view<'a>(state: &'a FootprintWizardState, tokens: &ThemeTokens) -> Element<'a, PanelMsg> {
     let title = text("IPC-7351 Footprint Wizard")
         .size(14)
         .color(styles::ti(tokens.accent));
 
     let pkg_type_row = row![
-        text("Type:").size(12).color(styles::ti(tokens.text_secondary)),
+        text("Type:")
+            .size(12)
+            .color(styles::ti(tokens.text_secondary)),
         text(state.package_type.label())
             .size(12)
             .color(styles::ti(tokens.text)),
@@ -143,20 +144,27 @@ pub fn view<'a>(
     };
 
     let density_row = row![
-        text("Density:").size(12).color(styles::ti(tokens.text_secondary)),
-        text(density_label)
+        text("Density:")
             .size(12)
-            .color(styles::ti(tokens.text)),
+            .color(styles::ti(tokens.text_secondary)),
+        text(density_label).size(12).color(styles::ti(tokens.text)),
     ]
     .spacing(8)
     .align_y(Alignment::Center);
 
     let stats_col = column![
-        text(format!("Pins: {}", state.pin_count)).size(11).color(styles::ti(tokens.text)),
-        text(format!("Pitch: {:.2} mm", state.pitch_mm)).size(11).color(styles::ti(tokens.text)),
-        text(format!("Body: {:.2} x {:.2} mm", state.body_width_mm, state.body_length_mm))
+        text(format!("Pins: {}", state.pin_count))
             .size(11)
             .color(styles::ti(tokens.text)),
+        text(format!("Pitch: {:.2} mm", state.pitch_mm))
+            .size(11)
+            .color(styles::ti(tokens.text)),
+        text(format!(
+            "Body: {:.2} x {:.2} mm",
+            state.body_width_mm, state.body_length_mm
+        ))
+        .size(11)
+        .color(styles::ti(tokens.text)),
     ]
     .spacing(4);
 

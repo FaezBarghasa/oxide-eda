@@ -120,9 +120,7 @@ fn test_interactive_router_obstacle_aware_meander_clamping() {
     let start = Point2D::new(0, 0);
     let end = Point2D::new(5000, 0);
 
-    let segments = router.generate_meander_with_params(
-        start, end, 3000, 1, 0, 200, 800, 400,
-    );
+    let segments = router.generate_meander_with_params(start, end, 3000, 1, 0, 200, 800, 400);
 
     assert!(!segments.is_empty(), "meander segments must be synthesized");
 

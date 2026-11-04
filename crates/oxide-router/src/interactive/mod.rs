@@ -17,8 +17,8 @@ pub mod corner_modes;
 pub mod elastic_shove;
 pub mod session;
 
-use conflict::{PushAndShoveEngine, PushResult};
 pub use async_solver::{AsyncRoutingSolver, SolverRequest, SolverResponse};
+use conflict::{PushAndShoveEngine, PushResult};
 pub use corner_modes::{CornerMode, generate_corner_waypoints};
 pub use elastic_shove::{ElasticShoveEngine, ElasticShoveResult, ShoveContext, ShoveError};
 
@@ -510,8 +510,9 @@ impl InteractiveRouter {
                         next_base.x + (perp_x * test_amp as f64 * sign).round() as i64,
                         next_base.y + (perp_y * test_amp as f64 * sign).round() as i64,
                     );
-                    let bbox = crate::geometry::BoundingBox::from_points(&[current, p1, p2, next_base])
-                        .expand((width / 2) + clearance);
+                    let bbox =
+                        crate::geometry::BoundingBox::from_points(&[current, p1, p2, next_base])
+                            .expand((width / 2) + clearance);
 
                     let obstacles = self.spatial_index.check_collision(&bbox, &[net_id]);
                     if obstacles.is_empty() {

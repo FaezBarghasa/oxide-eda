@@ -75,7 +75,11 @@ pub fn view_copilot<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
     );
 
     for msg in &ctx.copilot_messages {
-        let sender = if msg.is_user { "You:" } else { "Oxide Copilot:" };
+        let sender = if msg.is_user {
+            "You:"
+        } else {
+            "Oxide Copilot:"
+        };
         let sender_color = if msg.is_user {
             theme_ext::text_secondary(&ctx.tokens)
         } else {

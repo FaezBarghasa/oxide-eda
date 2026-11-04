@@ -91,8 +91,16 @@ impl Triangle3d {
             return false;
         }
 
-        let edges1 = [self.b.sub(&self.a), self.c.sub(&self.b), self.a.sub(&self.c)];
-        let edges2 = [other.b.sub(&other.a), other.c.sub(&other.b), other.a.sub(&other.c)];
+        let edges1 = [
+            self.b.sub(&self.a),
+            self.c.sub(&self.b),
+            self.a.sub(&self.c),
+        ];
+        let edges2 = [
+            other.b.sub(&other.a),
+            other.c.sub(&other.b),
+            other.a.sub(&other.c),
+        ];
 
         for e1 in &edges1 {
             for e2 in &edges2 {
@@ -342,8 +350,12 @@ impl TriangleBvh {
 
         match (node_a, node_b) {
             (
-                TriangleBvhNode::Leaf { triangles: tris_a, .. },
-                TriangleBvhNode::Leaf { triangles: tris_b, .. },
+                TriangleBvhNode::Leaf {
+                    triangles: tris_a, ..
+                },
+                TriangleBvhNode::Leaf {
+                    triangles: tris_b, ..
+                },
             ) => {
                 for ta in tris_a {
                     for tb in tris_b {
@@ -361,8 +373,16 @@ impl TriangleBvh {
                 Self::collide_nodes(node_a, left) || Self::collide_nodes(node_a, right)
             }
             (
-                TriangleBvhNode::Internal { left: la, right: ra, .. },
-                TriangleBvhNode::Internal { left: lb, right: rb, .. },
+                TriangleBvhNode::Internal {
+                    left: la,
+                    right: ra,
+                    ..
+                },
+                TriangleBvhNode::Internal {
+                    left: lb,
+                    right: rb,
+                    ..
+                },
             ) => {
                 let vol_a = (node_a.aabb().max.x - node_a.aabb().min.x)
                     * (node_a.aabb().max.y - node_a.aabb().min.y)
@@ -436,8 +456,14 @@ impl ClearanceEngine3d {
                             if let (Some(bvh_a), Some(bvh_b)) = (&a.bvh, &b.bvh) {
                                 bvh_a.intersects(bvh_b)
                             } else if m_a.len() > 8 || m_b.len() > 8 {
-                                let bvh_a = a.bvh.clone().unwrap_or_else(|| TriangleBvh::build(m_a.clone()));
-                                let bvh_b = b.bvh.clone().unwrap_or_else(|| TriangleBvh::build(m_b.clone()));
+                                let bvh_a = a
+                                    .bvh
+                                    .clone()
+                                    .unwrap_or_else(|| TriangleBvh::build(m_a.clone()));
+                                let bvh_b = b
+                                    .bvh
+                                    .clone()
+                                    .unwrap_or_else(|| TriangleBvh::build(m_b.clone()));
                                 bvh_a.intersects(&bvh_b)
                             } else {
                                 let mut hit = false;
@@ -646,6 +672,10 @@ mod tests {
         let violations = ClearanceEngine3d::check_clearances(&[body_a, body_b], 1.0, None);
         assert_eq!(violations.len(), 1);
         assert!(violations[0].is_collision);
-        assert!(bvh_disjoint_us < 2000, "BVH disjoint query took too long: {} us", bvh_disjoint_us);
+        assert!(
+            bvh_disjoint_us < 2000,
+            "BVH disjoint query took too long: {} us",
+            bvh_disjoint_us
+        );
     }
 }

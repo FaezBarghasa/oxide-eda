@@ -286,7 +286,10 @@ mod tests {
         assert_eq!(panel.v_score_lines.len(), 3); // 1 vertical + 2 horizontal
 
         let violations = panel.validate();
-        assert!(violations.is_empty(), "Standard panel should have 0 violations");
+        assert!(
+            violations.is_empty(),
+            "Standard panel should have 0 violations"
+        );
     }
 
     #[test]
@@ -300,8 +303,15 @@ mod tests {
         });
 
         let violations = panel.validate();
-        assert!(violations.iter().any(|v| v.kind == PanelViolationKind::RailTooNarrow));
-        assert!(violations.iter().any(|v| v.kind == PanelViolationKind::VScoreWebTooThin));
+        assert!(
+            violations
+                .iter()
+                .any(|v| v.kind == PanelViolationKind::RailTooNarrow)
+        );
+        assert!(
+            violations
+                .iter()
+                .any(|v| v.kind == PanelViolationKind::VScoreWebTooThin)
+        );
     }
 }
-

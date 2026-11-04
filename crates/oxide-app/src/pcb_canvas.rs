@@ -225,10 +225,18 @@ impl PcbCanvas {
                         (0.18f32, 0.80f32, 0.44f32) // Green
                     } else if drop_mv < 25.0 {
                         let factor = ((drop_mv - 5.0) / 20.0) as f32;
-                        (0.18 + factor * (0.95 - 0.18), 0.80 + factor * (0.77 - 0.80), 0.44 + factor * (0.06 - 0.44))
+                        (
+                            0.18 + factor * (0.95 - 0.18),
+                            0.80 + factor * (0.77 - 0.80),
+                            0.44 + factor * (0.06 - 0.44),
+                        )
                     } else {
                         let factor = (((drop_mv - 25.0) / 25.0).clamp(0.0, 1.0)) as f32;
-                        (0.95 + factor * (0.91 - 0.95), 0.77 - factor * (0.77 - 0.30), 0.06 + factor * (0.24 - 0.06))
+                        (
+                            0.95 + factor * (0.91 - 0.95),
+                            0.77 - factor * (0.77 - 0.30),
+                            0.06 + factor * (0.24 - 0.06),
+                        )
                     };
 
                     let x0 = min_x + (c as f64 * step) as f32;
@@ -237,12 +245,7 @@ impl PcbCanvas {
                     let y1 = y0 + step as f32;
 
                     scene.overlay_polygons.push(GpuPolygon {
-                        vertices: vec![
-                            [x0, y0],
-                            [x1, y0],
-                            [x1, y1],
-                            [x0, y1],
-                        ],
+                        vertices: vec![[x0, y0], [x1, y0], [x1, y1], [x0, y1]],
                         fill_color: [r_val, g_val, b_val, 0.45],
                         stroke_color: Some([r_val, g_val, b_val, 0.60]),
                         stroke_width: 0.1,
@@ -580,68 +583,145 @@ impl canvas::Program<Message> for PcbCanvas {
                                 router.hotkey_cycle_corner_style();
                             }
                             if let Some(cursor_pos) = cursor.position_in(bounds) {
-                                let world = self.camera.borrow().screen_to_world(cursor_pos, bounds);
-                                state.live_route_preview = router.on_mouse_move(oxide_router::geometry::Point2D::from_mm(world.x as f64, world.y as f64));
+                                let world =
+                                    self.camera.borrow().screen_to_world(cursor_pos, bounds);
+                                state.live_route_preview =
+                                    router.on_mouse_move(oxide_router::geometry::Point2D::from_mm(
+                                        world.x as f64,
+                                        world.y as f64,
+                                    ));
                             }
-                            return Some(canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved)).and_capture());
+                            return Some(
+                                canvas::Action::publish(Message::CanvasEvent(
+                                    CanvasEvent::CursorMoved,
+                                ))
+                                .and_capture(),
+                            );
                         }
-                        iced::keyboard::Key::Character(c) if c.as_str() == "*" || c.as_str().eq_ignore_ascii_case("v") => {
+                        iced::keyboard::Key::Character(c)
+                            if c.as_str() == "*" || c.as_str().eq_ignore_ascii_case("v") =>
+                        {
                             state.routing_epoch += 1;
                             let next_layer = if state.routing_layer == 0 { 1 } else { 0 };
-                            if let Some(via) = router.hotkey_drop_via_and_switch_layer(next_layer, 600, 300) {
+                            if let Some(via) =
+                                router.hotkey_drop_via_and_switch_layer(next_layer, 600, 300)
+                            {
                                 state.preview_vias.push(via);
                                 state.routing_layer = next_layer;
                             }
                             if let Some(cursor_pos) = cursor.position_in(bounds) {
-                                let world = self.camera.borrow().screen_to_world(cursor_pos, bounds);
-                                state.live_route_preview = router.on_mouse_move(oxide_router::geometry::Point2D::from_mm(world.x as f64, world.y as f64));
+                                let world =
+                                    self.camera.borrow().screen_to_world(cursor_pos, bounds);
+                                state.live_route_preview =
+                                    router.on_mouse_move(oxide_router::geometry::Point2D::from_mm(
+                                        world.x as f64,
+                                        world.y as f64,
+                                    ));
                             }
-                            return Some(canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved)).and_capture());
+                            return Some(
+                                canvas::Action::publish(Message::CanvasEvent(
+                                    CanvasEvent::CursorMoved,
+                                ))
+                                .and_capture(),
+                            );
                         }
-                        iced::keyboard::Key::Character(c) if c.as_str().eq_ignore_ascii_case("a") && modifiers.shift() => {
+                        iced::keyboard::Key::Character(c)
+                            if c.as_str().eq_ignore_ascii_case("a") && modifiers.shift() =>
+                        {
                             state.routing_epoch += 1;
-                            let cur_len = state.live_route_preview.iter().map(|s| s.length()).sum::<i64>();
+                            let cur_len = state
+                                .live_route_preview
+                                .iter()
+                                .map(|s| s.length())
+                                .sum::<i64>();
                             let target_len = (cur_len + 5000).max(10_000);
                             router.enable_length_tuning(target_len, 0);
                             state.async_solver = None;
                             if let Some(cursor_pos) = cursor.position_in(bounds) {
-                                let world = self.camera.borrow().screen_to_world(cursor_pos, bounds);
-                                state.live_route_preview = router.on_mouse_move(oxide_router::geometry::Point2D::from_mm(world.x as f64, world.y as f64));
+                                let world =
+                                    self.camera.borrow().screen_to_world(cursor_pos, bounds);
+                                state.live_route_preview =
+                                    router.on_mouse_move(oxide_router::geometry::Point2D::from_mm(
+                                        world.x as f64,
+                                        world.y as f64,
+                                    ));
                             }
-                            return Some(canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved)).and_capture());
+                            return Some(
+                                canvas::Action::publish(Message::CanvasEvent(
+                                    CanvasEvent::CursorMoved,
+                                ))
+                                .and_capture(),
+                            );
                         }
-                        iced::keyboard::Key::Character(c) if c.as_str().eq_ignore_ascii_case("b") && modifiers.shift() => {
+                        iced::keyboard::Key::Character(c)
+                            if c.as_str().eq_ignore_ascii_case("b") && modifiers.shift() =>
+                        {
                             state.routing_epoch += 1;
                             router.mode = oxide_router::interactive::RoutingMode::DifferentialPair;
                             state.async_solver = None;
                             if let Some(cursor_pos) = cursor.position_in(bounds) {
-                                let world = self.camera.borrow().screen_to_world(cursor_pos, bounds);
-                                state.live_route_preview = router.on_mouse_move(oxide_router::geometry::Point2D::from_mm(world.x as f64, world.y as f64));
+                                let world =
+                                    self.camera.borrow().screen_to_world(cursor_pos, bounds);
+                                state.live_route_preview =
+                                    router.on_mouse_move(oxide_router::geometry::Point2D::from_mm(
+                                        world.x as f64,
+                                        world.y as f64,
+                                    ));
                             }
-                            return Some(canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved)).and_capture());
+                            return Some(
+                                canvas::Action::publish(Message::CanvasEvent(
+                                    CanvasEvent::CursorMoved,
+                                ))
+                                .and_capture(),
+                            );
                         }
                         iced::keyboard::Key::Character(c) if c.as_str() == "1" => {
                             router.hotkey_increase_amplitude();
-                            return Some(canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved)).and_capture());
+                            return Some(
+                                canvas::Action::publish(Message::CanvasEvent(
+                                    CanvasEvent::CursorMoved,
+                                ))
+                                .and_capture(),
+                            );
                         }
                         iced::keyboard::Key::Character(c) if c.as_str() == "2" => {
                             router.hotkey_decrease_amplitude();
-                            return Some(canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved)).and_capture());
+                            return Some(
+                                canvas::Action::publish(Message::CanvasEvent(
+                                    CanvasEvent::CursorMoved,
+                                ))
+                                .and_capture(),
+                            );
                         }
                         iced::keyboard::Key::Character(c) if c.as_str() == "3" => {
                             router.hotkey_increase_pitch();
-                            return Some(canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved)).and_capture());
+                            return Some(
+                                canvas::Action::publish(Message::CanvasEvent(
+                                    CanvasEvent::CursorMoved,
+                                ))
+                                .and_capture(),
+                            );
                         }
                         iced::keyboard::Key::Character(c) if c.as_str() == "4" => {
                             router.hotkey_decrease_pitch();
-                            return Some(canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved)).and_capture());
+                            return Some(
+                                canvas::Action::publish(Message::CanvasEvent(
+                                    CanvasEvent::CursorMoved,
+                                ))
+                                .and_capture(),
+                            );
                         }
                         iced::keyboard::Key::Named(iced::keyboard::key::Named::Escape) => {
                             state.active_router = None;
                             state.async_solver = None;
                             state.live_route_preview.clear();
                             state.preview_vias.clear();
-                            return Some(canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved)).and_capture());
+                            return Some(
+                                canvas::Action::publish(Message::CanvasEvent(
+                                    CanvasEvent::CursorMoved,
+                                ))
+                                .and_capture(),
+                            );
                         }
                         _ => {}
                     }
@@ -769,13 +849,27 @@ impl canvas::Program<Message> for PcbCanvas {
                     }
 
                     if let Some(router) = &mut state.active_router {
-                        let target = oxide_router::geometry::Point2D::from_mm(world.x as f64, world.y as f64);
-                        let session_mode = router.session.as_ref().map(|s| s.mode).unwrap_or(router.mode);
-                        let session_corner = router.session.as_ref().map(|s| s.corner_mode).unwrap_or(state.corner_mode);
+                        let target = oxide_router::geometry::Point2D::from_mm(
+                            world.x as f64,
+                            world.y as f64,
+                        );
+                        let session_mode = router
+                            .session
+                            .as_ref()
+                            .map(|s| s.mode)
+                            .unwrap_or(router.mode);
+                        let session_corner = router
+                            .session
+                            .as_ref()
+                            .map(|s| s.corner_mode)
+                            .unwrap_or(state.corner_mode);
 
                         // Component 6: Decoupled Multi-Threaded Async Routing Solver
                         if state.async_solver.is_none() {
-                            state.async_solver = Some(oxide_router::interactive::AsyncRoutingSolver::spawn(router.clone()));
+                            state.async_solver =
+                                Some(oxide_router::interactive::AsyncRoutingSolver::spawn(
+                                    router.clone(),
+                                ));
                         }
 
                         if let Some(solver) = &state.async_solver {
@@ -785,7 +879,11 @@ impl canvas::Program<Message> for PcbCanvas {
                                 session_corner,
                                 state.routing_net,
                                 state.routing_layer,
-                                router.session.as_ref().map(|s| s.track_width).unwrap_or(200),
+                                router
+                                    .session
+                                    .as_ref()
+                                    .map(|s| s.track_width)
+                                    .unwrap_or(200),
                                 state.routing_epoch,
                             );
                             if let Some(resp) = solver.poll_latest(state.routing_epoch) {
@@ -870,8 +968,22 @@ impl canvas::Program<Message> for PcbCanvas {
         if !state.live_route_preview.is_empty() || !state.preview_vias.is_empty() {
             // Draw clearance halos first (under preview tracks)
             for seg in &state.live_route_preview {
-                let p0 = world_to_screen(&camera, bounds, [seg.start_point.to_mm().0 as f32, seg.start_point.to_mm().1 as f32]);
-                let p1 = world_to_screen(&camera, bounds, [seg.end_point.to_mm().0 as f32, seg.end_point.to_mm().1 as f32]);
+                let p0 = world_to_screen(
+                    &camera,
+                    bounds,
+                    [
+                        seg.start_point.to_mm().0 as f32,
+                        seg.start_point.to_mm().1 as f32,
+                    ],
+                );
+                let p1 = world_to_screen(
+                    &camera,
+                    bounds,
+                    [
+                        seg.end_point.to_mm().0 as f32,
+                        seg.end_point.to_mm().1 as f32,
+                    ],
+                );
                 let halo_width = ((seg.width as f32 / 1000.0 + 0.4) * camera.scale).max(1.0);
                 let path = canvas::Path::line(p0, p1);
                 overlay_frame.stroke(
@@ -884,8 +996,22 @@ impl canvas::Program<Message> for PcbCanvas {
 
             // Draw preview track segments
             for seg in &state.live_route_preview {
-                let p0 = world_to_screen(&camera, bounds, [seg.start_point.to_mm().0 as f32, seg.start_point.to_mm().1 as f32]);
-                let p1 = world_to_screen(&camera, bounds, [seg.end_point.to_mm().0 as f32, seg.end_point.to_mm().1 as f32]);
+                let p0 = world_to_screen(
+                    &camera,
+                    bounds,
+                    [
+                        seg.start_point.to_mm().0 as f32,
+                        seg.start_point.to_mm().1 as f32,
+                    ],
+                );
+                let p1 = world_to_screen(
+                    &camera,
+                    bounds,
+                    [
+                        seg.end_point.to_mm().0 as f32,
+                        seg.end_point.to_mm().1 as f32,
+                    ],
+                );
                 let track_width = ((seg.width as f32 / 1000.0) * camera.scale).max(1.0);
                 let path = canvas::Path::line(p0, p1);
                 let seg_color = if seg.layer == 0 {
@@ -903,7 +1029,11 @@ impl canvas::Program<Message> for PcbCanvas {
 
             // Draw preview vias
             for via in &state.preview_vias {
-                let center = world_to_screen(&camera, bounds, [via.position.to_mm().0 as f32, via.position.to_mm().1 as f32]);
+                let center = world_to_screen(
+                    &camera,
+                    bounds,
+                    [via.position.to_mm().0 as f32, via.position.to_mm().1 as f32],
+                );
                 let pad_r = ((via.pad_diameter as f32 / 2000.0) * camera.scale).max(1.0);
                 let drill_r = ((via.drill_size as f32 / 2000.0) * camera.scale).max(0.5);
 
@@ -933,7 +1063,11 @@ impl canvas::Program<Message> for PcbCanvas {
                         .with_color(Color::from_rgba(0.0, 0.85, 1.0, 0.8)),
                 );
 
-                let cur_len_um = state.live_route_preview.iter().map(|s| s.length()).sum::<i64>();
+                let cur_len_um = state
+                    .live_route_preview
+                    .iter()
+                    .map(|s| s.length())
+                    .sum::<i64>();
                 let target_mm = hud.target_length_microns as f64 / 1000.0;
                 let cur_mm = cur_len_um as f64 / 1000.0;
                 let diff_um = (cur_len_um - hud.target_length_microns).abs();
@@ -943,7 +1077,11 @@ impl canvas::Program<Message> for PcbCanvas {
                 overlay_frame.fill_text(canvas::Text {
                     content: title,
                     position: iced::Point::new(badge_pos.x + 8.0, badge_pos.y + 6.0),
-                    color: if in_tol { Color::from_rgb(0.2, 0.9, 0.3) } else { Color::from_rgb(1.0, 0.8, 0.2) },
+                    color: if in_tol {
+                        Color::from_rgb(0.2, 0.9, 0.3)
+                    } else {
+                        Color::from_rgb(1.0, 0.8, 0.2)
+                    },
                     size: 13.0.into(),
                     ..Default::default()
                 });
@@ -951,9 +1089,15 @@ impl canvas::Program<Message> for PcbCanvas {
                 let status = if in_tol {
                     format!("MATCH (±{:.0}µm)", diff_um)
                 } else if cur_len_um < hud.target_length_microns {
-                    format!("SHORT by {:.1}µm", (hud.target_length_microns - cur_len_um) as f64)
+                    format!(
+                        "SHORT by {:.1}µm",
+                        (hud.target_length_microns - cur_len_um) as f64
+                    )
                 } else {
-                    format!("LONG by {:.1}µm", (cur_len_um - hud.target_length_microns) as f64)
+                    format!(
+                        "LONG by {:.1}µm",
+                        (cur_len_um - hud.target_length_microns) as f64
+                    )
                 };
                 overlay_frame.fill_text(canvas::Text {
                     content: status,
@@ -963,7 +1107,10 @@ impl canvas::Program<Message> for PcbCanvas {
                     ..Default::default()
                 });
 
-                let controls = format!("Amp: {}µm  Pitch: {}µm (1-4)", hud.amplitude_microns, hud.pitch_microns);
+                let controls = format!(
+                    "Amp: {}µm  Pitch: {}µm (1-4)",
+                    hud.amplitude_microns, hud.pitch_microns
+                );
                 overlay_frame.fill_text(canvas::Text {
                     content: controls,
                     position: iced::Point::new(badge_pos.x + 8.0, badge_pos.y + 44.0),
@@ -983,14 +1130,22 @@ impl canvas::Program<Message> for PcbCanvas {
                     iced::Point::new(badge_pos.x + 8.0, badge_pos.y + 62.0),
                     iced::Size::new(224.0 * progress, 6.0),
                 );
-                overlay_frame.fill(&fill_rect, if in_tol { Color::from_rgb(0.2, 0.9, 0.3) } else { Color::from_rgb(0.9, 0.3, 0.2) });
+                overlay_frame.fill(
+                    &fill_rect,
+                    if in_tol {
+                        Color::from_rgb(0.2, 0.9, 0.3)
+                    } else {
+                        Color::from_rgb(0.9, 0.3, 0.2)
+                    },
+                );
             }
         }
 
         // Live PDN Heatmap Tooltip readout when cursor hovers over mesh
-        if self.show_pdn_heatmap {
-            if let Some(cursor_pos) = cursor.position_in(bounds) {
-                let world_x = (cursor_pos.x - camera.offset.x) / camera.scale;
+        if self.show_pdn_heatmap
+            && let Some(cursor_pos) = cursor.position_in(bounds)
+        {
+            let world_x = (cursor_pos.x - camera.offset.x) / camera.scale;
                 let world_y = (cursor_pos.y - camera.offset.y) / camera.scale;
 
                 if let Some(grid) = &*self.pdn_mesh_cache.borrow() {
@@ -1000,9 +1155,11 @@ impl canvas::Program<Message> for PcbCanvas {
                         let idx = (r as usize) * grid.cols + (c as usize);
                         if let Some(node) = grid.nodes.get(idx) {
                             let drop_mv = (grid.nominal_voltage_v - node.voltage_v) * 1e3;
-                            let tip_text = format!("PDN: {:.3}V (-{:.1}mV)", node.voltage_v, drop_mv);
+                            let tip_text =
+                                format!("PDN: {:.3}V (-{:.1}mV)", node.voltage_v, drop_mv);
 
-                            let tip_pos = iced::Point::new(cursor_pos.x + 14.0, cursor_pos.y + 14.0);
+                            let tip_pos =
+                                iced::Point::new(cursor_pos.x + 14.0, cursor_pos.y + 14.0);
                             let tip_size = iced::Size::new(160.0, 26.0);
                             overlay_frame.fill_rectangle(
                                 tip_pos,
@@ -1322,14 +1479,37 @@ mod tests {
 
         // Enable length tuning
         router.enable_length_tuning(20_000, 0);
-        assert_eq!(router.session.as_ref().unwrap().mode, oxide_router::interactive::RoutingMode::LengthTuning);
+        assert_eq!(
+            router.session.as_ref().unwrap().mode,
+            oxide_router::interactive::RoutingMode::LengthTuning
+        );
         assert!(router.session.as_ref().unwrap().tuning_hud.is_some());
 
         // Hotkeys for tuning
         router.hotkey_increase_amplitude();
-        assert_eq!(router.session.as_ref().unwrap().tuning_hud.as_ref().unwrap().amplitude_microns, 900);
+        assert_eq!(
+            router
+                .session
+                .as_ref()
+                .unwrap()
+                .tuning_hud
+                .as_ref()
+                .unwrap()
+                .amplitude_microns,
+            900
+        );
         router.hotkey_increase_pitch();
-        assert_eq!(router.session.as_ref().unwrap().tuning_hud.as_ref().unwrap().pitch_microns, 700);
+        assert_eq!(
+            router
+                .session
+                .as_ref()
+                .unwrap()
+                .tuning_hud
+                .as_ref()
+                .unwrap()
+                .pitch_microns,
+            700
+        );
 
         state.active_router = Some(router);
         assert!(state.active_router.is_some());

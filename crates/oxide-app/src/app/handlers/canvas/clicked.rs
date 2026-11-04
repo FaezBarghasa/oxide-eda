@@ -18,12 +18,15 @@ impl Oxide {
                     let maybe_board = self.active_pcb().cloned();
 
                     if let Some(board) = maybe_board {
-                        let rules = std::sync::Arc::new(oxide_rules::ConstraintManager::standard_default());
-                        let spatial = std::sync::Arc::new(oxide_router::SpatialIndex::build(&board));
-                        let mut router = oxide_router::interactive::InteractiveRouter::new(rules, spatial);
+                        let rules =
+                            std::sync::Arc::new(oxide_rules::ConstraintManager::standard_default());
+                        let spatial =
+                            std::sync::Arc::new(oxide_router::SpatialIndex::build(&board));
+                        let mut router =
+                            oxide_router::interactive::InteractiveRouter::new(rules, spatial);
                         router.mode = oxide_router::RoutingMode::PushAndShove;
                         let start_pt = oxide_router::geometry::Point2D::from_mm(anchor.x, anchor.y);
-                        let _ = router.start_routing(start_pt, 1, 0);
+                        let _res = router.start_routing(start_pt, 1, 0);
                         let route_segments = router.on_mouse_move(pt_microns);
 
                         if !route_segments.is_empty() {
@@ -35,7 +38,11 @@ impl Oxide {
                                     start: oxide_types::pcb::Point::new(p0_x, p0_y),
                                     end: oxide_types::pcb::Point::new(p1_x, p1_y),
                                     width: (r_seg.width as f64) / 1000.0,
-                                    layer: if r_seg.layer == 0 { "F.Cu".to_string() } else { "B.Cu".to_string() },
+                                    layer: if r_seg.layer == 0 {
+                                        "F.Cu".to_string()
+                                    } else {
+                                        "B.Cu".to_string()
+                                    },
                                     net: r_seg.net_id,
                                 });
                             }
@@ -54,7 +61,9 @@ impl Oxide {
                     }
 
                     for seg in segments_to_commit {
-                        self.apply_pcb_command(oxide_engine::PcbCommand::AddSegment { segment: seg });
+                        self.apply_pcb_command(oxide_engine::PcbCommand::AddSegment {
+                            segment: seg,
+                        });
                     }
                     for via in vias_to_commit {
                         self.apply_pcb_command(oxide_engine::PcbCommand::AddVia { via });

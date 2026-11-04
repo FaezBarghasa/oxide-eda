@@ -21,18 +21,34 @@ fn test_headless_wgpu_canvas_scene_and_pdn_overlay() {
     // Verify baseline scene
     canvas.show_pdn_heatmap = false;
     let base_scene = canvas.build_scene(&snapshot);
-    assert!(base_scene.overlay_polygons.is_empty(), "baseline scene has no overlay polygons");
+    assert!(
+        base_scene.overlay_polygons.is_empty(),
+        "baseline scene has no overlay polygons"
+    );
 
     // Enable PDN Heatmap and verify GPU composite scene generation
     canvas.show_pdn_heatmap = true;
     let heatmap_scene = canvas.build_scene(&snapshot);
-    assert!(!heatmap_scene.overlay_polygons.is_empty(), "PDN heatmap must generate overlay polygons");
-    assert!(canvas.pdn_mesh_cache.borrow().is_some(), "PDN mesh grid must be cached");
+    assert!(
+        !heatmap_scene.overlay_polygons.is_empty(),
+        "PDN heatmap must generate overlay polygons"
+    );
+    assert!(
+        canvas.pdn_mesh_cache.borrow().is_some(),
+        "PDN mesh grid must be cached"
+    );
 
     // Verify alpha compositing values on overlay polygons
     for poly in &heatmap_scene.overlay_polygons {
-        assert_eq!(poly.vertices.len(), 4, "PDN heatmap quads must have 4 vertices");
-        assert_eq!(poly.fill_color[3], 0.45, "Overlay fill alpha must be 0.45 for copper blending");
+        assert_eq!(
+            poly.vertices.len(),
+            4,
+            "PDN heatmap quads must have 4 vertices"
+        );
+        assert_eq!(
+            poly.fill_color[3], 0.45,
+            "Overlay fill alpha must be 0.45 for copper blending"
+        );
     }
 }
 
@@ -44,7 +60,9 @@ fn test_headless_async_routing_gesture_simulation() {
     let mut router = InteractiveRouter::new(rules, spatial_index);
 
     let start = Point2D::new(0, 0);
-    router.start_routing(start, 1, 0).expect("start routing on net 1, layer 0");
+    router
+        .start_routing(start, 1, 0)
+        .expect("start routing on net 1, layer 0");
 
     let solver = AsyncRoutingSolver::spawn(router.clone());
 
@@ -57,20 +75,40 @@ fn test_headless_async_routing_gesture_simulation() {
     ];
 
     for pt in &drag_points {
-        solver.submit_target(*pt, RoutingMode::WalkAround, CornerMode::default(), 1, 0, 200, 1);
+        solver.submit_target(
+            *pt,
+            RoutingMode::WalkAround,
+            CornerMode::default(),
+            1,
+            0,
+            200,
+            1,
+        );
     }
 
     // Wait briefly for background solver thread to process
     std::thread::sleep(std::time::Duration::from_millis(50));
 
     let latest = solver.poll_latest(1);
-    assert!(latest.is_some(), "async solver must yield solved route segments");
+    assert!(
+        latest.is_some(),
+        "async solver must yield solved route segments"
+    );
     let resp = latest.unwrap();
-    assert!(!resp.segments.is_empty(), "solved route must contain segments");
-    assert!(resp.computation_time_us > 0, "computation time must be measured");
+    assert!(
+        !resp.segments.is_empty(),
+        "solved route must contain segments"
+    );
+    assert!(
+        resp.computation_time_us > 0,
+        "computation time must be measured"
+    );
 
     state.live_route_preview = resp.segments;
-    assert!(!state.live_route_preview.is_empty(), "canvas state must reflect latest route preview");
+    assert!(
+        !state.live_route_preview.is_empty(),
+        "canvas state must reflect latest route preview"
+    );
 }
 
 #[test]

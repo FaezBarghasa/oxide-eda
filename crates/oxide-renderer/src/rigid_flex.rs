@@ -40,7 +40,11 @@ impl FlexBendZone {
                 self.name,
                 r_over_t,
                 min_required,
-                if self.is_dynamic { "dynamic flexing" } else { "static installation" }
+                if self.is_dynamic {
+                    "dynamic flexing"
+                } else {
+                    "static installation"
+                }
             ))
         } else {
             Ok(())
@@ -88,7 +92,10 @@ impl RigidFlexViewerEngine {
             let x_orig = (i as f32) * dx;
 
             // Check if within any bend zone
-            let in_zone = self.bend_zones.iter().find(|z| x_orig >= z.x_start_mm && x_orig <= z.x_end_mm);
+            let in_zone = self
+                .bend_zones
+                .iter()
+                .find(|z| x_orig >= z.x_start_mm && x_orig <= z.x_end_mm);
             let strain = if let Some(zone) = in_zone {
                 let zone_len = zone.x_end_mm - zone.x_start_mm;
                 if zone_len > 0.0 {
@@ -165,7 +172,9 @@ mod tests {
         assert!(!mesh.is_empty());
         // End point should have rotated into positive Z
         let last = mesh.last().unwrap();
-        assert!(last.position[2] > 0.0, "Folded end should deviate from flat Z plane");
+        assert!(
+            last.position[2] > 0.0,
+            "Folded end should deviate from flat Z plane"
+        );
     }
 }
-

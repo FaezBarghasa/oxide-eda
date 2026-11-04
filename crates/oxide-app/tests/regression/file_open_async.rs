@@ -358,4 +358,3 @@ DocumentPath=Layout.PcbDoc
     assert_eq!(p.data.pcb_file.as_deref(), Some("Layout.PcbDoc"));
     assert_eq!(p.data.sheets.len(), 1);
 }
-

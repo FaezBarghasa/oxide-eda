@@ -615,13 +615,15 @@ fn test_acid_trap_and_copper_sliver_validation() {
 #[test]
 fn test_drc_3d_component_and_enclosure_clearance() {
     let mut cm = ConstraintManager::default();
-    cm.add_rule(DesignRule::ComponentClearance(oxide_rules::rules::ComponentClearanceRule {
-        scope: oxide_rules::scope::RuleScope::Global,
-        min_horizontal_clearance: 500, // 0.5mm
-        min_vertical_clearance: 500,
-        min_height: None,
-        max_height: Some(3000), // 3.0mm max enclosure ceiling
-    }));
+    cm.add_rule(DesignRule::ComponentClearance(
+        oxide_rules::rules::ComponentClearanceRule {
+            scope: oxide_rules::scope::RuleScope::Global,
+            min_horizontal_clearance: 500, // 0.5mm
+            min_vertical_clearance: 500,
+            min_height: None,
+            max_height: Some(3000), // 3.0mm max enclosure ceiling
+        },
+    ));
 
     let mut board = oxide_types::pcb::PcbBoard::default();
     board.footprints.push(oxide_types::pcb::Footprint {
@@ -658,7 +660,9 @@ fn test_drc_3d_component_and_enclosure_clearance() {
     let violations = cm.run_drc(&board);
     assert!(!violations.is_empty());
     assert!(
-        violations.iter().any(|v| v.violation_type == RuleViolationType::ComponentClearanceViolation),
+        violations
+            .iter()
+            .any(|v| v.violation_type == RuleViolationType::ComponentClearanceViolation),
         "Must flag 3D component clearance / collision violation"
     );
 }

@@ -140,6 +140,7 @@ pub fn synthesize_coupled_accordion(
 
 /// Synthesizes an obstacle-aware accordion meander that dynamically clamps lateral amplitude
 /// against neighboring obstacles in the SpatialIndex or switches to trombone jogging.
+#[allow(clippy::too_many_arguments)]
 pub fn synthesize_obstacle_aware_accordion(
     start: Point2D,
     end: Point2D,

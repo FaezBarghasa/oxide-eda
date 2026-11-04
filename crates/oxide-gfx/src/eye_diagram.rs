@@ -29,13 +29,15 @@ impl EyeDiagramHeatmap {
     /// `time_norm`: [0.0, 2.0] representing 2 UI periods.
     /// `voltage_norm`: [-1.0, 1.0] representing differential voltage range.
     pub fn accumulate_sample(&mut self, time_norm: f64, voltage_norm: f64) {
-        if time_norm < 0.0 || time_norm > 2.0 || voltage_norm < -1.0 || voltage_norm > 1.0 {
+        if !(0.0..=2.0).contains(&time_norm) || !(-1.0..=1.0).contains(&voltage_norm) {
             return;
         }
 
-        let px = ((time_norm / 2.0) * (self.width as f64 - 1.0)).clamp(0.0, (self.width - 1) as f64) as usize;
+        let px = ((time_norm / 2.0) * (self.width as f64 - 1.0)).clamp(0.0, (self.width - 1) as f64)
+            as usize;
         // Invert Y: 1.0 (top) -> 0, -1.0 (bottom) -> height - 1
-        let py = (((1.0 - voltage_norm) / 2.0) * (self.height as f64 - 1.0)).clamp(0.0, (self.height - 1) as f64) as usize;
+        let py = (((1.0 - voltage_norm) / 2.0) * (self.height as f64 - 1.0))
+            .clamp(0.0, (self.height - 1) as f64) as usize;
 
         let idx = py * self.width + px;
         self.data[idx] = self.data[idx].saturating_add(1);

@@ -360,7 +360,8 @@ impl Oxide {
                     mcu_console_state: crate::panels::mcu_console::McuConsolePanelState::default(),
                     drc_violations: Vec::new(),
                     variant_state: crate::panels::variants::VariantManagerState::default(),
-                    footprint_wizard_state: crate::panels::footprint_wizard::FootprintWizardState::default(),
+                    footprint_wizard_state:
+                        crate::panels::footprint_wizard::FootprintWizardState::default(),
                     pin_swap_state: crate::panels::pin_swap::PinSwapState::default(),
                 },
                 history: crate::panels::history::HistoryPanelState::default(),

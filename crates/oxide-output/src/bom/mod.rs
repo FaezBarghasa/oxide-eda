@@ -170,7 +170,7 @@ fn engine_options_from_opts(opts: &BomOptions) -> BomEngineOptions {
     }
 }
 
-fn build_bom_context(ctx: &ExportContext, opts: &BomOptions) -> BomContext {
+pub(crate) fn build_bom_context(ctx: &ExportContext, opts: &BomOptions) -> BomContext {
     let mut components = Vec::new();
 
     for sheet_snap in &ctx.sheets {

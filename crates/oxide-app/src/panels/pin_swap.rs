@@ -54,11 +54,8 @@ impl PinSwapState {
             return;
         }
 
-        let (swaps, eco) = PinSwappingEngine::optimize_pin_swaps(
-            component_ref,
-            pins,
-            target_positions,
-        );
+        let (swaps, eco) =
+            PinSwappingEngine::optimize_pin_swaps(component_ref, pins, target_positions);
 
         self.proposed_swaps = swaps;
         self.eco_report = Some(eco);
@@ -69,10 +66,7 @@ impl PinSwapState {
     }
 }
 
-pub fn view<'a>(
-    state: &'a PinSwapState,
-    tokens: &ThemeTokens,
-) -> Element<'a, PanelMsg> {
+pub fn view<'a>(state: &'a PinSwapState, tokens: &ThemeTokens) -> Element<'a, PanelMsg> {
     let title = text(format!("Pin / Gate Swap: {}", state.target_component))
         .size(14)
         .color(styles::ti(tokens.accent));
@@ -124,14 +118,9 @@ pub fn view<'a>(
     ]
     .spacing(8);
 
-    let content = column![
-        title,
-        status,
-        swap_rows,
-        actions,
-    ]
-    .spacing(10)
-    .padding(12);
+    let content = column![title, status, swap_rows, actions,]
+        .spacing(10)
+        .padding(12);
 
     container(content)
         .width(Length::Fill)

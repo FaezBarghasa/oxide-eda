@@ -1,7 +1,7 @@
 //! Universal Tool Call Protocol (UTCP) discovery and manifest definition.
 
-use serde_json::Value;
 use crate::mcp::McpServer;
+use serde_json::Value;
 
 /// Produce the UTCP manifest describing the Oxide EDA tool capabilities.
 pub fn utcp_manifest() -> Value {
@@ -25,4 +25,3 @@ pub fn utcp_manifest() -> Value {
         }).collect::<Vec<_>>()
     })
 }
-
