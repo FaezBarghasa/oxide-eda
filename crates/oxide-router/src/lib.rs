@@ -21,8 +21,9 @@ pub use copper_pour::{
 pub use geometry::rtree::{NetId, ObjectId, SpatialIndex, SpatialObject, SpatialObjectType};
 pub use geometry::{BoundingBox, Point2D, Polygon2D, Vector2D};
 pub use interactive::{
-    CornerMode, ElasticShoveEngine, ElasticShoveResult, InteractiveRouter, PathDeflection,
-    RoutingMode, ShoveContext, ShoveError, TopologicalRouter, TuningConstraint, TuningStyle,
+    CascadeObstacle, CascadeShoveEngine, CascadeShoveResult, CornerMode, ElasticShoveEngine,
+    ElasticShoveResult, InteractiveRouter, PathDeflection, RoutingMode, ShoveContext, ShoveError,
+    ShovePropagationStep, TopologicalRouter, TuningConstraint, TuningStyle,
     generate_corner_waypoints,
 };
 pub use optimization::OptimizationEngine;

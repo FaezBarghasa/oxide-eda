@@ -5,10 +5,10 @@
 //! - Visited net bitset tracking to eliminate cycle loops.
 //! - Quadratic deflection energy minimization with walkaround fallback.
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet, VecDeque};
 use thiserror::Error;
 
-use crate::geometry::Point2D;
+use crate::geometry::{Point2D, Vector2D};
 use oxide_physics::Microns;
 
 pub const MAX_SHOVE_RECURSION_DEPTH: usize = 16;
@@ -189,6 +189,228 @@ impl ElasticShoveEngine {
     }
 }
 
+/// Single hop record in a multi-obstacle cascade shove propagation.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ShovePropagationStep {
+    pub source_net: u32,
+    pub target_net: u32,
+    pub deflection_vector: Vector2D,
+    pub hop_index: usize,
+    pub contact_point: Point2D,
+}
+
+/// Representation of an obstacle for cascade shoving (trace, pad, or boundary).
+#[derive(Debug, Clone, PartialEq)]
+pub struct CascadeObstacle {
+    pub net_id: u32,
+    pub points: Vec<Point2D>,
+    pub is_fixed: bool,
+}
+
+/// Outcome of a multi-obstacle topological cascade shove.
+#[derive(Debug, Clone, PartialEq)]
+pub struct CascadeShoveResult {
+    pub primary_deflected_path: Vec<Point2D>,
+    pub displaced_obstacles: Vec<(u32, Vec<Point2D>)>,
+    pub propagation_steps: Vec<ShovePropagationStep>,
+    pub max_hop_reached: usize,
+    pub deflected_around_fixed: bool,
+}
+
+/// Topological Multi-Obstacle Cascade Shove Engine.
+///
+/// Propagates transverse deflection across successive obstacles with attenuation,
+/// cycle detection, and fallback to convex-boundary walkaround on fixed boundaries.
+#[derive(Debug, Clone)]
+pub struct CascadeShoveEngine {
+    pub max_cascade_hops: usize,
+    pub attenuation_factor: f64,
+    pub clearance_microns: Microns,
+    pub elastic_engine: ElasticShoveEngine,
+}
+
+impl Default for CascadeShoveEngine {
+    fn default() -> Self {
+        Self {
+            max_cascade_hops: 5,
+            attenuation_factor: 0.85,
+            clearance_microns: 150,
+            elastic_engine: ElasticShoveEngine::default(),
+        }
+    }
+}
+
+impl CascadeShoveEngine {
+    pub fn new(max_cascade_hops: usize, clearance_microns: Microns) -> Self {
+        Self {
+            max_cascade_hops,
+            attenuation_factor: 0.85,
+            clearance_microns,
+            elastic_engine: ElasticShoveEngine::default(),
+        }
+    }
+
+    /// Propagates cascade deflection through a collection of obstacles.
+    pub fn propagate_cascade(
+        &self,
+        primary_path: &[Point2D],
+        primary_net: u32,
+        obstacles: &[CascadeObstacle],
+    ) -> CascadeShoveResult {
+        let mut displaced_map: HashMap<u32, Vec<Point2D>> = obstacles
+            .iter()
+            .map(|obs| (obs.net_id, obs.points.clone()))
+            .collect();
+        let fixed_map: HashMap<u32, bool> = obstacles
+            .iter()
+            .map(|obs| (obs.net_id, obs.is_fixed))
+            .collect();
+
+        let mut queue: VecDeque<(u32, Vector2D, usize, Point2D)> = VecDeque::new();
+        let mut visited_nets = HashSet::new();
+        visited_nets.insert(primary_net);
+
+        let mut propagation_steps = Vec::new();
+        let mut max_hop_reached = 0;
+        let mut deflected_around_fixed = false;
+
+        // Step 1: Detect direct collision of primary path with obstacles
+        let mut initial_colliding_obstacles = Vec::new();
+        for obs in obstacles {
+            if obs.net_id == primary_net {
+                continue;
+            }
+            for pt in &obs.points {
+                for prim_pt in primary_path {
+                    let dist = prim_pt.distance_to(*pt);
+                    if dist < self.clearance_microns {
+                        let dir = Vector2D::from_points(*prim_pt, *pt).normalize();
+                        let push_mag = (self.clearance_microns - dist) as f64 + 10.0;
+                        let push_vec = Vector2D::new(dir.dx * push_mag, dir.dy * push_mag);
+                        initial_colliding_obstacles.push((obs.net_id, push_vec, *pt));
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Enqueue initial hops
+        for (obs_net, push_vec, contact_pt) in initial_colliding_obstacles {
+            if *fixed_map.get(&obs_net).unwrap_or(&false) {
+                deflected_around_fixed = true;
+            } else if !visited_nets.contains(&obs_net) {
+                visited_nets.insert(obs_net);
+                queue.push_back((obs_net, push_vec, 1, contact_pt));
+                propagation_steps.push(ShovePropagationStep {
+                    source_net: primary_net,
+                    target_net: obs_net,
+                    deflection_vector: push_vec,
+                    hop_index: 1,
+                    contact_point: contact_pt,
+                });
+            }
+        }
+
+        // Step 2: Propagate cascade through queue
+        while let Some((curr_net, push_vec, hop, _contact_pt)) = queue.pop_front() {
+            max_hop_reached = max_hop_reached.max(hop);
+
+            // Displace target obstacle points
+            if let Some(pts) = displaced_map.get_mut(&curr_net) {
+                for p in pts.iter_mut() {
+                    p.x += push_vec.dx.round() as i64;
+                    p.y += push_vec.dy.round() as i64;
+                }
+            }
+
+            if hop >= self.max_cascade_hops {
+                continue;
+            }
+
+            // Check if displaced points collide with any other obstacle
+            let curr_pts = displaced_map.get(&curr_net).cloned().unwrap_or_default();
+            for obs in obstacles {
+                let other_net = obs.net_id;
+                if other_net == curr_net || other_net == primary_net {
+                    continue;
+                }
+
+                let other_pts = displaced_map.get(&other_net).cloned().unwrap_or_default();
+                for pt_curr in &curr_pts {
+                    for pt_other in &other_pts {
+                        let dist = pt_curr.distance_to(*pt_other);
+                        if dist < self.clearance_microns {
+                            let is_other_fixed = *fixed_map.get(&other_net).unwrap_or(&false);
+                            if is_other_fixed {
+                                deflected_around_fixed = true;
+                            } else if !visited_nets.contains(&other_net) {
+                                visited_nets.insert(other_net);
+                                let mut dir = Vector2D::from_points(*pt_curr, *pt_other).normalize();
+                                if dir.length() < 1e-6 {
+                                    dir = push_vec.normalize();
+                                }
+                                let next_mag = ((self.clearance_microns - dist) as f64 + 10.0)
+                                    * self.attenuation_factor;
+                                let next_vec = Vector2D::new(dir.dx * next_mag, dir.dy * next_mag);
+
+                                propagation_steps.push(ShovePropagationStep {
+                                    source_net: curr_net,
+                                    target_net: other_net,
+                                    deflection_vector: next_vec,
+                                    hop_index: hop + 1,
+                                    contact_point: *pt_other,
+                                });
+
+                                queue.push_back((other_net, next_vec, hop + 1, *pt_other));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Deflect primary path around obstacles or relax
+        let all_obstacle_points: Vec<Point2D> = displaced_map
+            .values()
+            .flat_map(|pts| pts.iter().copied())
+            .collect();
+
+        let primary_deflected_path = if deflected_around_fixed {
+            // Deflect primary path cleanly along boundary around fixed obstacles
+            let mut deflected = primary_path.to_vec();
+            for pt in &mut deflected {
+                for obs in obstacles.iter().filter(|o| o.is_fixed) {
+                    for obs_pt in &obs.points {
+                        let dist = pt.distance_to(*obs_pt);
+                        if dist < self.clearance_microns {
+                            let push = (self.clearance_microns - dist) + 50;
+                            let dir = Vector2D::from_points(*obs_pt, *pt).normalize();
+                            pt.x += (dir.dx * push as f64).round() as i64;
+                            pt.y += (dir.dy * push as f64).round() as i64;
+                        }
+                    }
+                }
+            }
+            deflected
+        } else {
+            let relax_res = self.elastic_engine.relax_path(
+                primary_path,
+                &all_obstacle_points,
+                self.clearance_microns,
+            );
+            relax_res.deflected_points
+        };
+
+        CascadeShoveResult {
+            primary_deflected_path,
+            displaced_obstacles: displaced_map.into_iter().collect(),
+            propagation_steps,
+            max_hop_reached,
+            deflected_around_fixed,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -227,5 +449,84 @@ mod tests {
         assert_eq!(result.deflected_points.len(), 3);
         // Middle point must have been deflected away from obstacle
         assert!(result.deflected_points[1].y != 0);
+    }
+
+    #[test]
+    fn test_multi_obstacle_cascade_shove_propagation() {
+        let cascade_engine = CascadeShoveEngine::new(5, 100);
+        let primary_path = vec![
+            Point2D::new(0, 0),
+            Point2D::new(500, 0),
+            Point2D::new(1000, 0),
+        ];
+
+        // Obstacle 1 at (500, 50) is movable (distance to path = 50 < clearance 100)
+        let obs1 = CascadeObstacle {
+            net_id: 10,
+            points: vec![Point2D::new(500, 50)],
+            is_fixed: false,
+        };
+        // Obstacle 2 at (500, 110) is also movable (when obs1 is shoved to y ~ 110, obs1 hits obs2)
+        let obs2 = CascadeObstacle {
+            net_id: 20,
+            points: vec![Point2D::new(500, 110)],
+            is_fixed: false,
+        };
+
+        let result = cascade_engine.propagate_cascade(&primary_path, 1, &[obs1, obs2]);
+
+        assert!(
+            result.max_hop_reached >= 2,
+            "cascade must propagate at least 2 hops, got {}",
+            result.max_hop_reached
+        );
+        assert!(
+            result.propagation_steps.len() >= 2,
+            "must have at least 2 propagation steps"
+        );
+        assert_eq!(result.propagation_steps[0].source_net, 1);
+        assert_eq!(result.propagation_steps[0].target_net, 10);
+        assert_eq!(result.propagation_steps[1].source_net, 10);
+        assert_eq!(result.propagation_steps[1].target_net, 20);
+
+        // Displaced obstacle coordinates must have moved upwards
+        let displaced_obs2 = result
+            .displaced_obstacles
+            .iter()
+            .find(|(net, _)| *net == 20)
+            .unwrap();
+        assert!(
+            displaced_obs2.1[0].y > 110,
+            "obstacle 2 must be displaced upwards by cascade"
+        );
+    }
+
+    #[test]
+    fn test_cascade_shove_deflects_on_fixed_boundary() {
+        let cascade_engine = CascadeShoveEngine::new(5, 100);
+        let primary_path = vec![
+            Point2D::new(0, 0),
+            Point2D::new(500, 0),
+            Point2D::new(1000, 0),
+        ];
+
+        // Fixed obstacle directly colliding with primary path
+        let fixed_obs = CascadeObstacle {
+            net_id: 99,
+            points: vec![Point2D::new(500, 30)],
+            is_fixed: true,
+        };
+
+        let result = cascade_engine.propagate_cascade(&primary_path, 1, &[fixed_obs]);
+
+        assert!(
+            result.deflected_around_fixed,
+            "must flag deflected_around_fixed"
+        );
+        // Primary path at middle point must be deflected away from fixed obstacle
+        assert!(
+            result.primary_deflected_path[1].y != 0,
+            "primary path must deflect around fixed boundary"
+        );
     }
 }

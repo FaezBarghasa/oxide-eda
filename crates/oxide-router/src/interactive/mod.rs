@@ -20,7 +20,10 @@ pub mod session;
 pub use async_solver::{AsyncRoutingSolver, SolverRequest, SolverResponse};
 use conflict::{PushAndShoveEngine, PushResult};
 pub use corner_modes::{CornerMode, generate_corner_waypoints};
-pub use elastic_shove::{ElasticShoveEngine, ElasticShoveResult, ShoveContext, ShoveError};
+pub use elastic_shove::{
+    CascadeObstacle, CascadeShoveEngine, CascadeShoveResult, ElasticShoveEngine,
+    ElasticShoveResult, ShoveContext, ShoveError, ShovePropagationStep,
+};
 
 /// Modes supported during interactive routing gestures.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
