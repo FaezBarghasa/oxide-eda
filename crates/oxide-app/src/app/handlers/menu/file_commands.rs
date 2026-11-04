@@ -8,10 +8,17 @@ impl Oxide {
             MenuMessage::OpenProject => Some(Task::perform(
                 async {
                     rfd::AsyncFileDialog::new()
-                        .set_title("Open Project or Schematic")
-                        .add_filter("Oxide Project", &["snxprj"])
-                        .add_filter("Oxide Schematic", &["snxsch"])
-                        .add_filter("All Supported", &["snxprj", "snxsch"])
+                        .set_title("Open Project, Schematic or Altium Document")
+                        .add_filter("All Supported (*.snxprj, *.snxsch, *.snxpcb, *.PrjPcb, *.SchDoc, *.PcbDoc)", &[
+                            "snxprj", "snxsch", "snxpcb", "prjpcb", "schdoc", "pcbdoc", "schlib", "pcblib", "intlib"
+                        ])
+                        .add_filter("Oxide Project (*.snxprj)", &["snxprj"])
+                        .add_filter("Oxide Schematic (*.snxsch)", &["snxsch"])
+                        .add_filter("Oxide PCB (*.snxpcb)", &["snxpcb"])
+                        .add_filter("Altium Designer Project (*.PrjPcb)", &["prjpcb"])
+                        .add_filter("Altium Schematic (*.SchDoc)", &["schdoc"])
+                        .add_filter("Altium PCB (*.PcbDoc)", &["pcbdoc"])
+                        .add_filter("Altium Libraries (*.SchLib, *.PcbLib, *.IntLib)", &["schlib", "pcblib", "intlib"])
                         .add_filter("All files", &["*"])
                         .pick_file()
                         .await

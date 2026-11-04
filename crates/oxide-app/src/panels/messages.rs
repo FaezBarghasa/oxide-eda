@@ -1005,6 +1005,12 @@ pub enum PanelMsg {
     RunPinSwapOptimization,
     /// Apply back-annotated pin swap ECO to schematic
     ApplyPinSwapEco,
+    /// Toggle DNP status for selected components in active variant
+    VariantToggleDnpSelected,
+    /// Export Bill of Materials for active assembly variant
+    VariantExportBom,
+    /// Select active assembly variant by index
+    VariantSelect(usize),
     /// No-op placeholder for unimplemented UI controls.
     Noop,
 }

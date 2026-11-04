@@ -513,6 +513,9 @@ impl Oxide {
             telecom_state: self.document_state.panel_ctx.telecom_state.clone(),
             mcu_console_state: self.document_state.panel_ctx.mcu_console_state.clone(),
             drc_violations: self.document_state.panel_ctx.drc_violations.clone(),
+            variant_state: self.document_state.panel_ctx.variant_state.clone(),
+            footprint_wizard_state: self.document_state.panel_ctx.footprint_wizard_state.clone(),
+            pin_swap_state: self.document_state.panel_ctx.pin_swap_state.clone(),
         };
         self.document_state.panel_ctx.project_tree =
             crate::panels::build_project_tree(&self.document_state.panel_ctx);

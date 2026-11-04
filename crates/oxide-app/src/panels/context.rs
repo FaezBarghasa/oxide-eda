@@ -196,4 +196,10 @@ pub struct PanelContext {
     pub mcu_console_state: super::mcu_console::McuConsolePanelState,
     /// Active DRC rule violations for the Design Rule Check panel.
     pub drc_violations: Vec<oxide_rules::RuleViolation>,
+    /// Assembly Variant and DNP manager state.
+    pub variant_state: super::variants::VariantManagerState,
+    /// IPC-7351 Footprint Wizard state.
+    pub footprint_wizard_state: super::footprint_wizard::FootprintWizardState,
+    /// Topological Pin & Gate Swapping state.
+    pub pin_swap_state: super::pin_swap::PinSwapState,
 }

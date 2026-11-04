@@ -285,7 +285,7 @@ pub fn view_panel<'a>(kind: PanelKind, ctx: &'a PanelContext) -> Element<'a, Pan
         PanelKind::Telecom => return telecom::view_telecom(ctx),
         PanelKind::McuConsole => return mcu_console::view_mcu_console(ctx),
         PanelKind::NetClasses => view_stub("Net Classes", "Define net classes and rules", ctx),
-        PanelKind::Variants => view_stub("Variants", "Design variant management", ctx),
+        PanelKind::Variants => variants::view(&ctx.variant_state, &ctx.tokens),
         PanelKind::OutputJobs => view_stub("Output Jobs", "Manufacturing output config", ctx),
         PanelKind::SchFilter => view_stub("SCH Filter", "Schematic object filter", ctx),
         PanelKind::SchList => view_stub("SCH List", "Schematic object list inspector", ctx),

@@ -150,7 +150,7 @@ pub fn view<'a>(
         )
         .padding([4, 8])
         .style(button::primary)
-        .on_press(PanelMsg::Noop),
+        .on_press(PanelMsg::VariantToggleDnpSelected),
         button(
             text("Export Variant BOM")
                 .size(11)
@@ -158,7 +158,7 @@ pub fn view<'a>(
         )
         .padding([4, 8])
         .style(button::secondary)
-        .on_press(PanelMsg::Noop),
+        .on_press(PanelMsg::VariantExportBom),
     ]
     .spacing(8);
 

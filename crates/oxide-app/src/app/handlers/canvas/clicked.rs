@@ -10,15 +10,55 @@ impl Oxide {
             if self.interaction_state.current_tool == Tool::Wire {
                 let pt = oxide_types::pcb::Point::new(world_x, world_y);
                 if let Some(anchor) = self.interaction_state.shape_anchor.take() {
-                    let seg = oxide_types::pcb::Segment {
-                        uuid: uuid::Uuid::new_v4(),
-                        start: anchor,
-                        end: pt,
-                        width: 0.25,
-                        layer: "F.Cu".to_string(),
-                        net: 1,
-                    };
-                    self.apply_pcb_command(oxide_engine::PcbCommand::AddSegment { segment: seg });
+                    // Check if we have an active interactive routing session
+                    let pt_microns = oxide_router::geometry::Point2D::from_mm(world_x, world_y);
+                    let mut segments_to_commit: Vec<oxide_types::pcb::Segment> = Vec::new();
+                    let vias_to_commit: Vec<oxide_types::pcb::Via> = Vec::new();
+
+                    let maybe_board = self.active_pcb().cloned();
+
+                    if let Some(board) = maybe_board {
+                        let rules = std::sync::Arc::new(oxide_rules::ConstraintManager::standard_default());
+                        let spatial = std::sync::Arc::new(oxide_router::SpatialIndex::build(&board));
+                        let mut router = oxide_router::interactive::InteractiveRouter::new(rules, spatial);
+                        router.mode = oxide_router::RoutingMode::PushAndShove;
+                        let start_pt = oxide_router::geometry::Point2D::from_mm(anchor.x, anchor.y);
+                        let _ = router.start_routing(start_pt, 1, 0);
+                        let route_segments = router.on_mouse_move(pt_microns);
+
+                        if !route_segments.is_empty() {
+                            for r_seg in route_segments {
+                                let (p0_x, p0_y) = r_seg.start_point.to_mm();
+                                let (p1_x, p1_y) = r_seg.end_point.to_mm();
+                                segments_to_commit.push(oxide_types::pcb::Segment {
+                                    uuid: uuid::Uuid::new_v4(),
+                                    start: oxide_types::pcb::Point::new(p0_x, p0_y),
+                                    end: oxide_types::pcb::Point::new(p1_x, p1_y),
+                                    width: (r_seg.width as f64) / 1000.0,
+                                    layer: if r_seg.layer == 0 { "F.Cu".to_string() } else { "B.Cu".to_string() },
+                                    net: r_seg.net_id,
+                                });
+                            }
+                        }
+                    }
+
+                    if segments_to_commit.is_empty() {
+                        segments_to_commit.push(oxide_types::pcb::Segment {
+                            uuid: uuid::Uuid::new_v4(),
+                            start: anchor,
+                            end: pt,
+                            width: 0.25,
+                            layer: "F.Cu".to_string(),
+                            net: 1,
+                        });
+                    }
+
+                    for seg in segments_to_commit {
+                        self.apply_pcb_command(oxide_engine::PcbCommand::AddSegment { segment: seg });
+                    }
+                    for via in vias_to_commit {
+                        self.apply_pcb_command(oxide_engine::PcbCommand::AddVia { via });
+                    }
                     self.interaction_state.shape_anchor = Some(pt);
                 } else {
                     self.interaction_state.shape_anchor = Some(pt);

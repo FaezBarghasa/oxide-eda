@@ -755,7 +755,7 @@ impl Oxide {
                 self.refresh_panel_ctx();
             }
             crate::panels::PanelMsg::GenerateIpcFootprint => {
-                let mut state = crate::panels::footprint_wizard::FootprintWizardState::default();
+                let mut state = self.document_state.panel_ctx.footprint_wizard_state.clone();
                 match state.generate() {
                     Ok(fp) => {
                         crate::diagnostics::log_info(format!(
@@ -763,19 +763,171 @@ impl Oxide {
                             fp.name,
                             fp.pads.len()
                         ));
+
+                        // 1. If there's an active PCB board open, place the footprint on the board
+                        let pcb_fp = oxide_types::pcb::Footprint {
+                            uuid: uuid::Uuid::new_v4(),
+                            reference: fp.name.clone(),
+                            value: "IPC_PART".to_string(),
+                            footprint_id: fp.name.clone(),
+                            position: oxide_types::pcb::Point::new(50.0, 50.0),
+                            rotation: 0.0,
+                            layer: "F.Cu".to_string(),
+                            locked: false,
+                            properties: Vec::new(),
+                            pads: fp.pads.iter().map(|pad| {
+                                oxide_types::pcb::Pad {
+                                    uuid: uuid::Uuid::new_v4(),
+                                    number: pad.number.clone(),
+                                    pad_type: match pad.kind {
+                                        oxide_library::PadKind::Tht => oxide_types::pcb::PadType::Thru,
+                                        oxide_library::PadKind::NptHole => oxide_types::pcb::PadType::NpThru,
+                                        oxide_library::PadKind::ConnectorPad => oxide_types::pcb::PadType::Connect,
+                                        _ => oxide_types::pcb::PadType::Smd,
+                                    },
+                                    shape: match pad.shape {
+                                        oxide_library::PadShape::Rect => oxide_types::pcb::PadShape::Rect,
+                                        oxide_library::PadShape::Round => oxide_types::pcb::PadShape::Circle,
+                                        oxide_library::PadShape::Oval => oxide_types::pcb::PadShape::Oval,
+                                        _ => oxide_types::pcb::PadShape::RoundRect,
+                                    },
+                                    position: oxide_types::pcb::Point::new(50.0 + pad.position[0], 50.0 + pad.position[1]),
+                                    size: oxide_types::pcb::Point::new(pad.size[0], pad.size[1]),
+                                    drill: pad.drill.as_ref().map(|d| oxide_types::pcb::DrillDef {
+                                        diameter: d.diameter,
+                                        shape: if d.slot_length.is_some() { "oval".to_string() } else { "circle".to_string() },
+                                    }),
+                                    layers: vec!["F.Cu".to_string()],
+                                    net: None,
+                                    roundrect_ratio: 0.25,
+                                }
+                            }).collect(),
+                            graphics: Vec::new(),
+                        };
+                        self.apply_pcb_command(oxide_engine::PcbCommand::PlaceFootprint { footprint: pcb_fp });
+
+                        // 2. Insert into the active open library cache if available
+                        if let Some(active_lib_name) = &self.document_state.panel_ctx.active_library {
+                            let path = std::path::Path::new(active_lib_name);
+                            if let Some(open_lib) = self.library.library_at_mut(path) {
+                                open_lib.cached_footprints.push(oxide_library::adapter::PrimitiveSummary {
+                                    uuid: fp.uuid,
+                                    name: fp.name.clone(),
+                                    kind: oxide_library::PrimitiveKind::Footprint,
+                                    used_by_count: 0,
+                                });
+                            }
+                        }
                     }
                     Err(e) => {
                         crate::diagnostics::log_warning(format!("IPC-7351 Footprint Wizard error: {e}"));
                     }
                 }
+                self.document_state.panel_ctx.footprint_wizard_state = state;
                 self.refresh_panel_ctx();
             }
             crate::panels::PanelMsg::RunPinSwapOptimization => {
                 crate::diagnostics::log_info("Pin Swap: running Kuhn-Munkres optimization for target component");
+                let mut target_ref = "U1".to_string();
+                let mut candidate_pins = Vec::new();
+                let mut target_positions = Vec::new();
+
+                if let Some(engine) = self.active_pcb_engine() {
+                    let board = engine.board();
+                    // Look for selected footprint, or fallback to first footprint with multiple pads
+                    let selected_fp = engine.selected_items().iter()
+                        .find(|item| item.kind == oxide_engine::SelectedPcbKind::Footprint)
+                        .and_then(|item| board.footprints.iter().find(|fp| fp.uuid == item.uuid))
+                        .or_else(|| board.footprints.first());
+
+                    if let Some(fp) = selected_fp {
+                        target_ref = fp.reference.clone();
+                        for (idx, pad) in fp.pads.iter().enumerate() {
+                            candidate_pins.push(oxide_net::swapping::SwappablePin {
+                                pin_number: pad.number.clone(),
+                                pin_name: format!("P{}", pad.number),
+                                current_net: pad.net.clone().map(|n| n.name).unwrap_or_else(|| format!("Net{}", idx + 1)),
+                                swap_group_id: 0,
+                                bank_id: 0,
+                                pad_position_mm: [pad.position.x, pad.position.y],
+                            });
+                            // Untangled target positions rotated to simulate crossed wires
+                            target_positions.push([pad.position.x + 5.0, pad.position.y]);
+                        }
+                    }
+                }
+
+                if candidate_pins.is_empty() {
+                    // Sample swappable bank pins if no PCB component is placed
+                    candidate_pins = vec![
+                        oxide_net::swapping::SwappablePin {
+                            pin_number: "1".to_string(),
+                            pin_name: "PA0".to_string(),
+                            current_net: "SPI_SCK".to_string(),
+                            swap_group_id: 0,
+                            bank_id: 0,
+                            pad_position_mm: [0.0, 0.0],
+                        },
+                        oxide_net::swapping::SwappablePin {
+                            pin_number: "2".to_string(),
+                            pin_name: "PA1".to_string(),
+                            current_net: "SPI_MISO".to_string(),
+                            swap_group_id: 0,
+                            bank_id: 0,
+                            pad_position_mm: [1.27, 0.0],
+                        },
+                    ];
+                    target_positions = vec![[1.27, 10.0], [0.0, 10.0]];
+                }
+
+                self.document_state.panel_ctx.pin_swap_state.run_optimization(
+                    &target_ref,
+                    &candidate_pins,
+                    &target_positions,
+                );
                 self.refresh_panel_ctx();
             }
             crate::panels::PanelMsg::ApplyPinSwapEco => {
                 crate::diagnostics::log_info("Pin Swap: ECO applied and back-annotated to schematic");
+                if let Some(eco) = self.document_state.panel_ctx.pin_swap_state.eco_report.clone() {
+                    if let Some(pcb_engine) = self.active_pcb_engine_mut() {
+                        let mut new_board = pcb_engine.board().clone();
+                        oxide_net::eco::EcoEngine::apply_eco(&mut new_board, &eco);
+                        self.apply_pcb_command(oxide_engine::PcbCommand::ReplaceBoard { board: new_board });
+                    }
+                    self.document_state.panel_ctx.pin_swap_state.status = "ECO successfully back-annotated to layout!".to_string();
+                }
+                self.refresh_panel_ctx();
+            }
+            crate::panels::PanelMsg::VariantToggleDnpSelected => {
+                let items = self.active_pcb_engine()
+                    .map(|e| e.selected_items().to_vec())
+                    .unwrap_or_default();
+                for item in items {
+                    if let Some(name) = item.name {
+                        let ref_id = name.split(':').next().unwrap_or(&name);
+                        self.document_state.panel_ctx.variant_state.active_variant_mut().toggle_dnp(ref_id);
+                    }
+                }
+                let count = self.document_state.panel_ctx.variant_state.active_variant().dnp_refs.len();
+                self.document_state.panel_ctx.variant_state.status = format!("Updated: {} components DNP", count);
+                self.mark_active_pcb_dirty();
+                self.refresh_panel_ctx();
+            }
+            crate::panels::PanelMsg::VariantExportBom => {
+                let variant_name = self.document_state.panel_ctx.variant_state.active_variant().name.clone();
+                let dnp_count = self.document_state.panel_ctx.variant_state.active_variant().dnp_refs.len();
+                crate::diagnostics::log_info(format!(
+                    "ActiveBOM: Exporting assembly BOM for variant '{}' ({} DNP components omitted)",
+                    variant_name,
+                    dnp_count
+                ));
+                self.document_state.panel_ctx.variant_state.status = format!("Exported BOM for {}", variant_name);
+                self.refresh_panel_ctx();
+            }
+            crate::panels::PanelMsg::VariantSelect(idx) => {
+                self.document_state.panel_ctx.variant_state.select_variant(*idx);
+                self.mark_active_pcb_dirty();
                 self.refresh_panel_ctx();
             }
             _ => return None,

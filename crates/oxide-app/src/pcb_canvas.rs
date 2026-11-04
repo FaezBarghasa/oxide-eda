@@ -11,6 +11,8 @@ use oxide_gfx::scene::{CPU_PCB_DRAW_ORDER, DirtyFlags, Scene, SceneBucket};
 use oxide_renderer::pcb::{PcbRenderer, PcbSnapshot};
 use oxide_renderer::schematic::ViewRenderer;
 use oxide_renderer::theme::ResolvedTheme;
+use oxide_router::interactive::InteractiveRouter;
+use oxide_router::{CornerMode, RouteSegment, ViaPlacement};
 
 use crate::app::Message;
 use crate::canvas::{Camera, CanvasEvent};
@@ -27,6 +29,13 @@ pub struct PcbCanvasState {
     pub last_click_world: Option<(f64, f64)>,
     pub ctrl_held: bool,
     pub shift_held: bool,
+    // --- Interactive Push-and-Shove Routing Session ---
+    pub active_router: Option<InteractiveRouter>,
+    pub live_route_preview: Vec<RouteSegment>,
+    pub preview_vias: Vec<ViaPlacement>,
+    pub routing_layer: u8,
+    pub routing_net: u32,
+    pub corner_mode: CornerMode,
 }
 
 pub struct PcbCanvas {
@@ -489,6 +498,59 @@ impl canvas::Program<Message> for PcbCanvas {
                 state.ctrl_held = mods.control();
                 state.shift_held = mods.shift();
             }
+            Event::Keyboard(iced::keyboard::Event::KeyPressed { key, modifiers, .. }) => {
+                if let Some(router) = &mut state.active_router {
+                    match key {
+                        iced::keyboard::Key::Named(iced::keyboard::key::Named::Space) => {
+                            if modifiers.shift() {
+                                state.corner_mode = router.hotkey_cycle_corner_mode();
+                            } else {
+                                router.hotkey_cycle_corner_style();
+                            }
+                            if let Some(cursor_pos) = cursor.position_in(bounds) {
+                                let world = self.camera.borrow().screen_to_world(cursor_pos, bounds);
+                                state.live_route_preview = router.on_mouse_move(oxide_router::geometry::Point2D::from_mm(world.x as f64, world.y as f64));
+                            }
+                            return Some(canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved)).and_capture());
+                        }
+                        iced::keyboard::Key::Character(c) if c.as_str() == "*" || c.as_str().eq_ignore_ascii_case("v") => {
+                            let next_layer = if state.routing_layer == 0 { 1 } else { 0 };
+                            if let Some(via) = router.hotkey_drop_via_and_switch_layer(next_layer, 600, 300) {
+                                state.preview_vias.push(via);
+                                state.routing_layer = next_layer;
+                            }
+                            if let Some(cursor_pos) = cursor.position_in(bounds) {
+                                let world = self.camera.borrow().screen_to_world(cursor_pos, bounds);
+                                state.live_route_preview = router.on_mouse_move(oxide_router::geometry::Point2D::from_mm(world.x as f64, world.y as f64));
+                            }
+                            return Some(canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved)).and_capture());
+                        }
+                        iced::keyboard::Key::Character(c) if c.as_str() == "1" => {
+                            router.hotkey_increase_amplitude();
+                            return Some(canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved)).and_capture());
+                        }
+                        iced::keyboard::Key::Character(c) if c.as_str() == "2" => {
+                            router.hotkey_decrease_amplitude();
+                            return Some(canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved)).and_capture());
+                        }
+                        iced::keyboard::Key::Character(c) if c.as_str() == "3" => {
+                            router.hotkey_increase_pitch();
+                            return Some(canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved)).and_capture());
+                        }
+                        iced::keyboard::Key::Character(c) if c.as_str() == "4" => {
+                            router.hotkey_decrease_pitch();
+                            return Some(canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved)).and_capture());
+                        }
+                        iced::keyboard::Key::Named(iced::keyboard::key::Named::Escape) => {
+                            state.active_router = None;
+                            state.live_route_preview.clear();
+                            state.preview_vias.clear();
+                            return Some(canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved)).and_capture());
+                        }
+                        _ => {}
+                    }
+                }
+            }
             Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left)) => {
                 if let Some(cursor_pos) = cursor.position_in(bounds) {
                     let world = self.camera.borrow().screen_to_world(cursor_pos, bounds);
@@ -606,6 +668,11 @@ impl canvas::Program<Message> for PcbCanvas {
                         }
                     }
 
+                    if let Some(router) = &mut state.active_router {
+                        let target = oxide_router::geometry::Point2D::from_mm(world.x as f64, world.y as f64);
+                        state.live_route_preview = router.on_mouse_move(target);
+                    }
+
                     return Some(canvas::Action::publish(Message::CanvasEvent(
                         CanvasEvent::CursorAt {
                             x: world.x,
@@ -623,7 +690,7 @@ impl canvas::Program<Message> for PcbCanvas {
 
     fn draw(
         &self,
-        _state: &Self::State,
+        state: &Self::State,
         renderer: &Renderer,
         _theme: &Theme,
         bounds: Rectangle,
@@ -675,13 +742,84 @@ impl canvas::Program<Message> for PcbCanvas {
             }
         });
 
+        // Dynamic routing overlay frame (always rendered un-cached for 60 FPS feedback)
+        let mut overlay_frame = canvas::Frame::new(renderer, bounds.size());
+        if !state.live_route_preview.is_empty() || !state.preview_vias.is_empty() {
+            // Draw clearance halos first (under preview tracks)
+            for seg in &state.live_route_preview {
+                let p0 = world_to_screen(&camera, bounds, [seg.start_point.to_mm().0 as f32, seg.start_point.to_mm().1 as f32]);
+                let p1 = world_to_screen(&camera, bounds, [seg.end_point.to_mm().0 as f32, seg.end_point.to_mm().1 as f32]);
+                let halo_width = ((seg.width as f32 / 1000.0 + 0.4) * camera.scale).max(1.0);
+                let path = canvas::Path::line(p0, p1);
+                overlay_frame.stroke(
+                    &path,
+                    canvas::Stroke::default()
+                        .with_width(halo_width)
+                        .with_color(Color::from_rgba(0.0, 0.9, 1.0, 0.15)),
+                );
+            }
+
+            // Draw preview track segments
+            for seg in &state.live_route_preview {
+                let p0 = world_to_screen(&camera, bounds, [seg.start_point.to_mm().0 as f32, seg.start_point.to_mm().1 as f32]);
+                let p1 = world_to_screen(&camera, bounds, [seg.end_point.to_mm().0 as f32, seg.end_point.to_mm().1 as f32]);
+                let track_width = ((seg.width as f32 / 1000.0) * camera.scale).max(1.0);
+                let path = canvas::Path::line(p0, p1);
+                let seg_color = if seg.layer == 0 {
+                    Color::from_rgba(0.9, 0.2, 0.2, 0.85) // F.Cu
+                } else {
+                    Color::from_rgba(0.2, 0.5, 0.9, 0.85) // B.Cu
+                };
+                overlay_frame.stroke(
+                    &path,
+                    canvas::Stroke::default()
+                        .with_width(track_width)
+                        .with_color(seg_color),
+                );
+            }
+
+            // Draw preview vias
+            for via in &state.preview_vias {
+                let center = world_to_screen(&camera, bounds, [via.position.to_mm().0 as f32, via.position.to_mm().1 as f32]);
+                let pad_r = ((via.pad_diameter as f32 / 2000.0) * camera.scale).max(1.0);
+                let drill_r = ((via.drill_size as f32 / 2000.0) * camera.scale).max(0.5);
+
+                let pad_path = canvas::Path::circle(center, pad_r);
+                overlay_frame.fill(&pad_path, Color::from_rgba(0.85, 0.85, 0.2, 0.9));
+
+                let drill_path = canvas::Path::circle(center, drill_r);
+                overlay_frame.fill(&drill_path, Color::from_rgba(0.1, 0.1, 0.1, 1.0));
+            }
+
+            // Draw Length / Tuning HUD badge if tuning hud is active
+            if let Some(router) = &state.active_router
+                && let Some(session) = &router.session
+                && let Some(_hud) = &session.tuning_hud
+            {
+                let badge_pos = iced::Point::new(bounds.width - 240.0, 20.0);
+                let badge_size = iced::Size::new(220.0, 70.0);
+                overlay_frame.fill_rectangle(
+                    badge_pos,
+                    badge_size,
+                    Color::from_rgba(0.08, 0.10, 0.14, 0.88),
+                );
+                overlay_frame.stroke(
+                    &canvas::Path::rectangle(badge_pos, badge_size),
+                    canvas::Stroke::default()
+                        .with_width(1.0)
+                        .with_color(Color::from_rgba(0.0, 0.85, 1.0, 0.6)),
+                );
+            }
+        }
+        let dynamic_overlay = overlay_frame.into_geometry();
+
         // GPU mode: a `shader` stacked above this canvas draws the board
         // content on the GPU (see `Self::gpu_render` / `Self::gpu_scene`). The
         // CPU canvas then contributes only the background + grid (`bg`), which
         // sits *behind* the shader — iced's shader primitive composites over
         // whatever is already there and never clears its own region.
         if self.gpu_render {
-            return vec![bg];
+            return vec![bg, dynamic_overlay];
         }
 
         let (cached_offset_x, cached_offset_y, cached_scale) = self.content_cache_camera.get();
@@ -700,7 +838,7 @@ impl canvas::Program<Message> for PcbCanvas {
             }
         });
 
-        vec![bg, content]
+        vec![bg, content, dynamic_overlay]
     }
 
     fn mouse_interaction(
@@ -900,5 +1038,41 @@ mod tests {
             "gpu_scene must keep the overlay polygon in its own bucket"
         );
         assert_eq!(gpu_scene.overlay_polygons[0].fill_color, overlay_fill_color);
+    }
+
+    #[test]
+    fn test_interactive_routing_state_transitions() {
+        let mut state = PcbCanvasState::default();
+        assert!(state.active_router.is_none());
+        assert!(state.live_route_preview.is_empty());
+        assert!(state.preview_vias.is_empty());
+
+        let rules = std::sync::Arc::new(oxide_rules::ConstraintManager::standard_default());
+        let board = oxide_types::pcb::PcbBoard {
+            uuid: uuid::Uuid::new_v4(),
+            version: 1,
+            generator: "oxide".to_string(),
+            thickness: 1.6,
+            outline: Vec::new(),
+            layers: Vec::new(),
+            setup: None,
+            nets: Vec::new(),
+            footprints: Vec::new(),
+            segments: Vec::new(),
+            vias: Vec::new(),
+            zones: Vec::new(),
+            graphics: Vec::new(),
+            texts: Vec::new(),
+        };
+        let spatial = std::sync::Arc::new(oxide_router::SpatialIndex::build(&board));
+        let mut router = oxide_router::interactive::InteractiveRouter::new(rules, spatial);
+        let start = oxide_router::geometry::Point2D::from_mm(10.0, 10.0);
+        let _ = router.start_routing(start, 1, 0);
+
+        let preview = router.on_mouse_move(oxide_router::geometry::Point2D::from_mm(20.0, 15.0));
+        assert!(!preview.is_empty());
+        state.active_router = Some(router);
+        state.live_route_preview = preview;
+        assert!(!state.live_route_preview.is_empty());
     }
 }

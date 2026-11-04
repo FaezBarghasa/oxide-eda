@@ -330,3 +330,32 @@ fn pcb_open_finished_err_opens_no_tab_and_does_not_panic() {
         "a failed async PCB parse must not open a tab either"
     );
 }
+
+#[test]
+fn opening_an_altium_prjpcb_loads_project_and_dispatches_tabs() {
+    let tmp = TempDir::new().expect("tempdir");
+    let prj_path = tmp.path().join("MCU_Board.PrjPcb");
+    let content = r#"
+[Design]
+Version=1.0
+
+[Document1]
+DocumentPath=Sensor.SchDoc
+
+[Document2]
+DocumentPath=Layout.PcbDoc
+"#;
+    fs::write(&prj_path, content).expect("write PrjPcb");
+
+    let (mut app, _t) = Oxide::new();
+    let _ = app.update(Message::File(FileMsg::Opened(Some(prj_path.clone()))));
+
+    assert_eq!(app.document_state.projects.len(), 1);
+    let p = &app.document_state.projects[0];
+    assert_eq!(p.path, prj_path);
+    assert_eq!(p.data.name, "MCU_Board");
+    assert_eq!(p.data.schematic_root.as_deref(), Some("Sensor.SchDoc"));
+    assert_eq!(p.data.pcb_file.as_deref(), Some("Layout.PcbDoc"));
+    assert_eq!(p.data.sheets.len(), 1);
+}
+

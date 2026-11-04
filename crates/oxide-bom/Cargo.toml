@@ -10,7 +10,10 @@ description = "BOM engine for Oxide EDA"
 
 [dependencies]
 serde = { workspace = true }
+serde_json = { workspace = true }
 oxide-types = { path = "../oxide-types" }
+reqwest = { workspace = true }
+tokio = { workspace = true }
 
 # GH #548 — inherit [workspace.lints.rust] (unused_must_use = deny).
 [lints]

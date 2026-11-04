@@ -144,8 +144,9 @@ impl Oxide {
         let ext = path
             .extension()
             .and_then(|extension| extension.to_str())
-            .unwrap_or("");
-        let task = match ext {
+            .unwrap_or("")
+            .to_ascii_lowercase();
+        let task = match ext.as_str() {
             // Returns the project's cold `.snxlib` mount preparations
             // (#99 part 2c) — must be propagated, not dropped. Dropping
             // it leaves every library recorded as pending and never
@@ -161,6 +162,10 @@ impl Oxide {
             // (or activates it if a tab for the same library is
             // already open).
             "snxlib" => self.handle_open_library_browser(path),
+            // 1-Click Altium Designer Importer (Component 3)
+            "schdoc" | "pcbdoc" | "schlib" | "pcblib" | "intlib" | "prjpcb" => {
+                self.open_altium_file(path)?
+            }
             _ => anyhow::bail!("unsupported file type: .{ext}"),
         };
 
@@ -404,6 +409,189 @@ impl Oxide {
                 },
             ),
         ]))
+    }
+
+    /// Import and open an Altium Designer file (.SchDoc, .PcbDoc, .PrjPcb, .SchLib, .PcbLib, .IntLib).
+    pub(crate) fn open_altium_file(&mut self, path: PathBuf) -> Result<iced::Task<Message>> {
+        if self.activate_or_skip_duplicate_open(&path) {
+            return Ok(iced::Task::none());
+        }
+
+        let ext = path
+            .extension()
+            .and_then(|e| e.to_str())
+            .unwrap_or("")
+            .to_ascii_lowercase();
+
+        if ext == "prjpcb" {
+            return self.open_altium_project_file(path);
+        }
+
+        let title = path
+            .file_stem()
+            .map(|stem| stem.to_string_lossy().to_string())
+            .unwrap_or_else(|| "Altium Design".to_string());
+
+        let read_path = path.clone();
+        self.document_state.pending_opens.insert(path.clone());
+
+        Ok(iced::Task::perform(
+            async move {
+                tokio::task::spawn_blocking(move || {
+                    oxide_altium_importer::import_altium_file(&read_path)
+                        .map_err(|e| format!("Altium import error: {e}"))
+                })
+                .await
+                .unwrap_or_else(|e| Err(format!("spawn_blocking: {e}")))
+            },
+            move |result| match result {
+                Ok(oxide_altium_importer::AltiumImportResult::Schematic(sheet)) => {
+                    Message::File(FileMsg::SchematicOpenFinished {
+                        path: path.clone(),
+                        title: title.clone(),
+                        result: Ok(Box::new(sheet)),
+                    })
+                }
+                Ok(oxide_altium_importer::AltiumImportResult::Pcb(board)) => {
+                    Message::File(FileMsg::PcbOpenFinished {
+                        path: path.clone(),
+                        title: title.clone(),
+                        result: Ok(Box::new(board)),
+                    })
+                }
+                Ok(oxide_altium_importer::AltiumImportResult::SymbolLibrary(symbols)) => {
+                    crate::diagnostics::log_info(format!(
+                        "Imported Altium SchLib with {} symbols",
+                        symbols.len()
+                    ));
+                    Message::Noop
+                }
+                Ok(oxide_altium_importer::AltiumImportResult::FootprintLibrary(fps)) => {
+                    crate::diagnostics::log_info(format!(
+                        "Imported Altium PcbLib with {} footprints",
+                        fps.len()
+                    ));
+                    Message::Noop
+                }
+                Ok(oxide_altium_importer::AltiumImportResult::IntegratedLibrary(intlib)) => {
+                    crate::diagnostics::log_info(format!(
+                        "Imported Altium IntLib with {} symbols, {} footprints",
+                        intlib.symbols.len(),
+                        intlib.footprints.len()
+                    ));
+                    Message::Noop
+                }
+                Err(err) => {
+                    Message::File(FileMsg::SchematicOpenFinished {
+                        path: path.clone(),
+                        title: title.clone(),
+                        result: Err(err),
+                    })
+                }
+            },
+        ))
+    }
+
+    /// Import and activate an Altium `.PrjPcb` project container.
+    fn open_altium_project_file(&mut self, prj_path: PathBuf) -> Result<iced::Task<Message>> {
+        let dir = prj_path.parent().unwrap_or(std::path::Path::new("."));
+        let prj_stem = prj_path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or("AltiumProject")
+            .to_string();
+
+        let content = std::fs::read_to_string(&prj_path)
+            .unwrap_or_default();
+
+        let mut doc_paths = Vec::new();
+        for line in content.lines() {
+            let trimmed = line.trim();
+            if let Some(doc_path) = trimmed.strip_prefix("DocumentPath=") {
+                let clean_path = doc_path.trim().replace('\\', "/");
+                doc_paths.push(clean_path);
+            }
+        }
+
+        // If no explicit DocumentPath keys found (e.g. empty or non-standard), scan directory
+        if doc_paths.is_empty() {
+            if let Ok(entries) = std::fs::read_dir(dir) {
+                for entry in entries.flatten() {
+                    let p = entry.path();
+                    let ext = p.extension().and_then(|e| e.to_str()).unwrap_or("").to_ascii_lowercase();
+                    if matches!(ext.as_str(), "schdoc" | "pcbdoc") {
+                        if let Some(name) = p.file_name().and_then(|n| n.to_str()) {
+                            doc_paths.push(name.to_string());
+                        }
+                    }
+                }
+            }
+        }
+
+        let mut schematic_root = None;
+        let mut pcb_file = None;
+        let mut sheets = Vec::new();
+
+        for rel_doc in &doc_paths {
+            let lower = rel_doc.to_ascii_lowercase();
+            if lower.ends_with(".schdoc") {
+                if schematic_root.is_none() {
+                    schematic_root = Some(rel_doc.clone());
+                }
+                sheets.push(oxide_types::project::SheetEntry {
+                    name: rel_doc.clone(),
+                    filename: rel_doc.clone(),
+                    symbols_count: 0,
+                    wires_count: 0,
+                    labels_count: 0,
+                });
+            } else if lower.ends_with(".pcbdoc") && pcb_file.is_none() {
+                pcb_file = Some(rel_doc.clone());
+            }
+        }
+
+        let project_data = oxide_types::project::ProjectData {
+            name: prj_stem.clone(),
+            dir: dir.to_string_lossy().to_string(),
+            schematic_root: schematic_root.clone(),
+            pcb_file: pcb_file.clone(),
+            sheets,
+            variant_definitions: Vec::new(),
+            active_variant: None,
+            libraries: Vec::new(),
+            dependencies: Vec::new(),
+            enable_git: false,
+        };
+
+        let id = self.document_state.mint_project_id();
+        self.document_state.projects.push(crate::app::state::LoadedProject {
+            id,
+            path: prj_path.clone(),
+            data: project_data,
+            pending_libraries: std::collections::HashMap::new(),
+        });
+        self.document_state.active_project = Some(id);
+        self.refresh_panel_ctx();
+
+        // If schematic exists, open it as active tab; otherwise if PCB exists open PCB
+        let mut tasks = Vec::new();
+        if let Some(first_sch) = schematic_root {
+            let sch_full = dir.join(first_sch);
+            if sch_full.exists() {
+                if let Ok(t) = self.open_altium_file(sch_full) {
+                    tasks.push(t);
+                }
+            }
+        } else if let Some(pcb_name) = pcb_file {
+            let pcb_full = dir.join(pcb_name);
+            if pcb_full.exists() {
+                if let Ok(t) = self.open_altium_file(pcb_full) {
+                    tasks.push(t);
+                }
+            }
+        }
+
+        Ok(iced::Task::batch(tasks))
     }
 }
 

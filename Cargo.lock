@@ -5941,6 +5941,7 @@ dependencies = [
  "log",
  "num-traits",
  "oxide-ai",
+ "oxide-altium-importer",
  "oxide-app",
  "oxide-bake",
  "oxide-engine",
@@ -5996,7 +5997,10 @@ name = "oxide-bom"
 version = "1.5.0"
 dependencies = [
  "oxide-types",
+ "reqwest 0.13.5",
  "serde",
+ "serde_json",
+ "tokio",
 ]
 
 [[package]]
