@@ -50,10 +50,13 @@ context = "global"
 "Ctrl+R" = "rubber_stamp_copy"
 "Ctrl+Shift+V" = "smart_paste"
 "Ctrl+Q" = "cycle_unit"
+"Q" = "cycle_unit"
+"Ctrl+K" = "open_command_palette"
+"F9" = "run_drc"
+
 "Alt+A" = "annotate_schematic_quietly"
 "Shift+Alt+A" = "force_annotate_all_schematics"
 "F8" = "run_erc"
-"F9" = "toggle_auto_focus"
 "F5" = "open_net_color_palette"
 
 [[keyboard_shortcuts.sections]]

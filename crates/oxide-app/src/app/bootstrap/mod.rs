@@ -104,6 +104,17 @@ impl Oxide {
                     warning: iced::Color::from_rgb(0.91, 0.57, 0.18),
                 },
             ),
+            ThemeId::OxideDarkV2 => Theme::custom(
+                "Oxide Dark v2".to_string(),
+                iced::theme::Palette {
+                    background: iced::Color::from_rgb(0.051, 0.067, 0.090),
+                    text: iced::Color::from_rgb(0.941, 0.965, 0.988),
+                    primary: iced::Color::from_rgb(0.000, 0.824, 1.000),
+                    success: iced::Color::from_rgb(0.247, 0.725, 0.314),
+                    danger: iced::Color::from_rgb(0.973, 0.318, 0.286),
+                    warning: iced::Color::from_rgb(0.824, 0.600, 0.133),
+                },
+            ),
             ThemeId::Alplab => Theme::custom(
                 "Alp Lab".to_string(),
                 iced::theme::Palette {

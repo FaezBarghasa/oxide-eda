@@ -67,6 +67,8 @@ pub enum ThemeId {
     CatppuccinMocha,
     VsCodeDark,
     Oxide,
+    /// Next-generation deep obsidian theme with vibrant cyan accent and high-contrast typography.
+    OxideDarkV2,
     /// Alp Lab brand theme — clones the Oxide chrome palette and swaps
     /// the accent (and any visually-linked iconography) to cyan
     /// `#0891b2`. Used for co-branded or white-labelled builds.
@@ -81,6 +83,7 @@ pub enum ThemeId {
 impl ThemeId {
     /// All built-in themes (excludes Custom).
     pub const BUILTINS: &[ThemeId] = &[
+        ThemeId::OxideDarkV2,
         ThemeId::Oxide,
         ThemeId::Alplab,
         ThemeId::VsCodeDark,
@@ -97,7 +100,8 @@ impl ThemeId {
         match self {
             ThemeId::CatppuccinMocha => "Catppuccin Mocha",
             ThemeId::VsCodeDark => "VS Code Dark",
-            ThemeId::Oxide => "Oxide",
+            ThemeId::Oxide => "Oxide (Altium Classic)",
+            ThemeId::OxideDarkV2 => "Oxide Dark v2 (Next-Gen)",
             ThemeId::Alplab => "Alp Lab",
             ThemeId::GitHubDark => "GitHub Dark",
             ThemeId::SolarizedLight => "Solarized Light",
@@ -302,6 +306,46 @@ const OXIDE_CANVAS: CanvasColors = CanvasColors {
     cursor: c(0x00, 0x00, 0x00),     // Black cursor crosshair
 };
 
+// ===== Oxide Dark v2 (Next-Gen Obsidian + Electric Cyan) =====
+
+const OXIDE_DARK_V2_TOKENS: ThemeTokens = ThemeTokens {
+    bg: c(0x0D, 0x11, 0x17),
+    paper: c(0x16, 0x1B, 0x22),
+    text: c(0xF0, 0xF6, 0xFC),
+    text_secondary: c(0x8B, 0x94, 0x9E),
+    accent: c(0x00, 0xD2, 0xFF),
+    border: c(0x30, 0x36, 0x3D),
+    panel_bg: c(0x11, 0x14, 0x1B),
+    toolbar_bg: c(0x16, 0x1B, 0x22),
+    statusbar_bg: c(0x0A, 0x0E, 0x14),
+    selection: c(0x1F, 0x6F, 0xEB),
+    hover: c(0x21, 0x26, 0x2D),
+    error: c(0xF8, 0x51, 0x49),
+    warning: c(0xD2, 0x99, 0x22),
+    success: c(0x3F, 0xB9, 0x50),
+};
+
+const OXIDE_DARK_V2_CANVAS: CanvasColors = CanvasColors {
+    background: c(0x0D, 0x11, 0x17),
+    paper: c(0x16, 0x1B, 0x22),
+    wire: c(0x00, 0xD2, 0xFF),
+    junction: c(0x00, 0xD2, 0xFF),
+    body: c(0x58, 0xA6, 0xFF),
+    body_fill: c(0x1F, 0x24, 0x2C),
+    pin: c(0xE6, 0xED, 0xF3),
+    reference: c(0xF0, 0x88, 0x3E),
+    value: c(0x7E, 0xE7, 0x87),
+    net_label: c(0xA5, 0xD6, 0xFF),
+    global_label: c(0xD2, 0xA8, 0xFF),
+    hier_label: c(0xFF, 0xA6, 0x57),
+    no_connect: c(0xF8, 0x51, 0x49),
+    power: c(0xFF, 0x7B, 0x72),
+    selection: c(0x58, 0xA6, 0xFF),
+    bus: c(0x38, 0x8B, 0xFD),
+    grid: c(0x21, 0x26, 0x2D),
+    cursor: c(0x00, 0xD2, 0xFF),
+};
+
 // ===== Alp Lab =====
 //
 // Clone of the Oxide chrome tokens with the accent swapped to the Alp
@@ -457,6 +501,7 @@ pub fn theme_tokens(id: ThemeId) -> ThemeTokens {
         ThemeId::CatppuccinMocha => CATPPUCCIN_MOCHA_TOKENS,
         ThemeId::VsCodeDark => VSCODE_DARK_TOKENS,
         ThemeId::Oxide => OXIDE_TOKENS,
+        ThemeId::OxideDarkV2 => OXIDE_DARK_V2_TOKENS,
         ThemeId::Alplab => ALPLAB_TOKENS,
         ThemeId::GitHubDark => GITHUB_DARK_TOKENS,
         ThemeId::SolarizedLight => SOLARIZED_LIGHT_TOKENS,
@@ -470,6 +515,7 @@ pub fn canvas_colors(id: ThemeId) -> CanvasColors {
         ThemeId::CatppuccinMocha => CATPPUCCIN_MOCHA_CANVAS,
         ThemeId::VsCodeDark => VSCODE_DARK_CANVAS,
         ThemeId::Oxide => OXIDE_CANVAS,
+        ThemeId::OxideDarkV2 => OXIDE_DARK_V2_CANVAS,
         // Alp Lab reuses the Altium-style cream schematic palette; only
         // the chrome accent differs.
         ThemeId::Alplab => OXIDE_CANVAS,

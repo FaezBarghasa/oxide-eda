@@ -112,7 +112,7 @@ pub fn view_ai_diff<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
                 .align_y(iced::Alignment::Center)
                 .padding([4, 6]),
             )
-            .style(crate::styles::panel_card(&ctx.tokens)),
+            .style(crate::styles::panel_card_elevated(&ctx.tokens)),
         );
     }
 

@@ -242,6 +242,10 @@ pub fn modal_card(tokens: &ThemeTokens) -> impl Fn(&Theme) -> container::Style +
     }
 }
 
+/// Physics-based spring micro-interaction constants (Emil Kowalski / Apple standard).
+pub const SPRING_EASE: (f64, f64, f64, f64) = (0.16, 1.0, 0.3, 1.0);
+pub const SPRING_DURATION_MS: u64 = 200;
+
 /// Panel card / section card container with a subtle background and rounded border
 pub fn panel_card(tokens: &ThemeTokens) -> impl Fn(&Theme) -> container::Style + 'static {
     let bg = ti(tokens.paper);
@@ -254,6 +258,50 @@ pub fn panel_card(tokens: &ThemeTokens) -> impl Fn(&Theme) -> container::Style +
             width: 1.0,
             radius: 4.0.into(),
             color: border,
+        },
+        ..container::Style::default()
+    }
+}
+
+/// Elevated glassmorphic panel card with subtle translucent depth and border illumination
+pub fn panel_card_elevated(tokens: &ThemeTokens) -> impl Fn(&Theme) -> container::Style + 'static {
+    let bg = ti(tokens.paper);
+    let text = ti(tokens.text);
+    let border = ti(tokens.border);
+    move |_| container::Style {
+        background: Some(Background::Color(Color { a: 0.90, ..bg })),
+        text_color: Some(text),
+        border: Border {
+            width: 1.0,
+            radius: 6.0.into(),
+            color: Color { a: 0.65, ..border },
+        },
+        shadow: iced::Shadow {
+            color: Color::from_rgba(0.0, 0.0, 0.0, 0.45),
+            offset: iced::Vector::new(0.0, 4.0),
+            blur_radius: 16.0,
+        },
+        ..container::Style::default()
+    }
+}
+
+/// HUD overlay card for in-canvas telemetry metrics
+pub fn hud_overlay_card(tokens: &ThemeTokens) -> impl Fn(&Theme) -> container::Style + 'static {
+    let bg = ti(tokens.panel_bg);
+    let text = ti(tokens.text);
+    let accent = ti(tokens.accent);
+    move |_| container::Style {
+        background: Some(Background::Color(Color { a: 0.85, ..bg })),
+        text_color: Some(text),
+        border: Border {
+            width: 1.0,
+            radius: 4.0.into(),
+            color: Color { a: 0.45, ..accent },
+        },
+        shadow: iced::Shadow {
+            color: Color::from_rgba(0.0, 0.0, 0.0, 0.5),
+            offset: iced::Vector::new(0.0, 2.0),
+            blur_radius: 10.0,
         },
         ..container::Style::default()
     }
