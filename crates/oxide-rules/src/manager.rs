@@ -978,7 +978,7 @@ impl ConstraintManager {
             violations.push(RuleViolation::component_clearance_violation(
                 &cv.item_a,
                 &cv.item_b,
-                crate::scope::RuleScope::All,
+                crate::scope::RuleScope::Global,
                 (cv.required_clearance_mm * 1000.0).round() as i64,
                 (cv.actual_clearance_mm * 1000.0).round() as i64,
                 cv.item_b == "Enclosure_Ceiling",

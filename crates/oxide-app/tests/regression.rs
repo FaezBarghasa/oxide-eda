@@ -91,3 +91,6 @@ mod library_browser_cell_commit;
 
 #[path = "regression/render_config_grid_style.rs"]
 mod render_config_grid_style;
+
+#[path = "regression/headless_wgpu_canvas_test.rs"]
+mod headless_wgpu_canvas_test;

@@ -178,7 +178,7 @@ impl PcbCanvas {
     /// Build the `oxide_gfx` scene for a board snapshot. Shared by the CPU
     /// `draw` path and the GPU [`Self::gpu_scene`] path so both tessellate from
     /// identical instance data.
-    fn build_scene(&self, snapshot: &PcbSnapshot) -> Scene {
+    pub fn build_scene(&self, snapshot: &PcbSnapshot) -> Scene {
         let mut scene = Scene::default();
         let theme = ResolvedTheme::from_canvas_colors(self.canvas_colors);
         PcbRenderer::build_scene(

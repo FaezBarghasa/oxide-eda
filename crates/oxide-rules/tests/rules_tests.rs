@@ -611,3 +611,54 @@ fn test_acid_trap_and_copper_sliver_validation() {
     assert_eq!(viol2.required_value, "0.100mm");
     assert_eq!(viol2.actual_value, "0.050mm");
 }
+
+#[test]
+fn test_drc_3d_component_and_enclosure_clearance() {
+    let mut cm = ConstraintManager::default();
+    cm.add_rule(DesignRule::ComponentClearance(oxide_rules::rules::ComponentClearanceRule {
+        scope: oxide_rules::scope::RuleScope::Global,
+        min_horizontal_clearance: 500, // 0.5mm
+        min_vertical_clearance: 500,
+        min_height: None,
+        max_height: Some(3000), // 3.0mm max enclosure ceiling
+    }));
+
+    let mut board = oxide_types::pcb::PcbBoard::default();
+    board.footprints.push(oxide_types::pcb::Footprint {
+        uuid: uuid::Uuid::new_v4(),
+        reference: "U1".into(),
+        value: "MCU".into(),
+        footprint_id: "QFN-32".into(),
+        position: oxide_types::pcb::Point::new(10.0, 10.0),
+        rotation: 0.0,
+        layer: "Top Layer".into(),
+        locked: false,
+        pads: vec![],
+        graphics: vec![],
+        properties: vec![oxide_types::property::PcbProperty {
+            key: "height".into(),
+            value: "4.5".into(), // Exceeds 3.0mm enclosure ceiling!
+            ..Default::default()
+        }],
+    });
+    board.footprints.push(oxide_types::pcb::Footprint {
+        uuid: uuid::Uuid::new_v4(),
+        reference: "C1".into(),
+        value: "100nF".into(),
+        footprint_id: "0402".into(),
+        position: oxide_types::pcb::Point::new(10.2, 10.0), // Collides with U1!
+        rotation: 0.0,
+        layer: "Top Layer".into(),
+        locked: false,
+        pads: vec![],
+        graphics: vec![],
+        properties: vec![],
+    });
+
+    let violations = cm.run_drc(&board);
+    assert!(!violations.is_empty());
+    assert!(
+        violations.iter().any(|v| v.violation_type == RuleViolationType::ComponentClearanceViolation),
+        "Must flag 3D component clearance / collision violation"
+    );
+}

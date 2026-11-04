@@ -665,6 +665,92 @@ pub async fn check_stock_async(
                     });
                 }
             }
+
+            // Component 9: Local-First Offline ActiveBOM Cache & Vault fallback
+            if let Some(status) = results.last_mut() {
+                if status.verified_at_utc.is_none() {
+                    if let Ok(cache) = oxide_library::distributors::cache::DistributorCache::default_root() {
+                        let provider_key = match dist.provider {
+                            DistributorProvider::Lcsc => "lcsc",
+                            DistributorProvider::Nexar | DistributorProvider::Octopart => "octopart",
+                            DistributorProvider::DigiKey => "digikey",
+                            DistributorProvider::Mouser => "mouser",
+                            _ => "generic",
+                        };
+                        if let Ok(Some(cached_part)) = cache.get(provider_key, &mpn, std::time::Duration::from_secs(60 * 60 * 24 * 30)) {
+                            status.in_stock_qty = cached_part.stock.unwrap_or(0) as u64;
+                            if let Some(pricing) = &cached_part.pricing {
+                                if let Some(breaks) = pricing.by_distributor.values().next() {
+                                    if let Some(first_break) = breaks.first() {
+                                        status.unit_price_usd = Some(first_break.unit_price_usd);
+                                    }
+                                }
+                            }
+                            status.lifecycle = if status.in_stock_qty > 0 { ComponentLifecycle::Active } else { ComponentLifecycle::NotRecommendedForNewDesigns };
+                            status.verified_at_utc = Some(cached_part.captured_at.to_rfc3339());
+                            status.distributor = format!("{} (Offline Cache)", status.distributor);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    results
+}
+
+/// Query local offline ActiveBOM cache without network requests.
+pub fn check_stock_from_cache(
+    table: &BomTable,
+    distributors: &[DistributorConfig],
+    cache: &oxide_library::distributors::cache::DistributorCache,
+) -> Vec<BomStockStatus> {
+    let mut results = Vec::new();
+
+    for row in &table.rows {
+        let mpn = row
+            .custom
+            .get("MPN")
+            .or_else(|| row.custom.get("mpn"))
+            .or_else(|| row.custom.get("Part Number"))
+            .cloned()
+            .unwrap_or_else(|| row.name.clone());
+
+        for dist in distributors.iter().filter(|d| d.enabled) {
+            let provider_key = match dist.provider {
+                DistributorProvider::Lcsc => "lcsc",
+                DistributorProvider::Nexar | DistributorProvider::Octopart => "octopart",
+                DistributorProvider::DigiKey => "digikey",
+                DistributorProvider::Mouser => "mouser",
+                _ => "generic",
+            };
+
+            let mut status = BomStockStatus {
+                mpn: mpn.clone(),
+                distributor: format!("{:?} (Offline Cache)", dist.provider),
+                in_stock_qty: 0,
+                min_order_qty: 1,
+                unit_price_usd: None,
+                lead_time_weeks: None,
+                lifecycle: ComponentLifecycle::Unknown,
+                currency: "USD".to_string(),
+                verified_at_utc: None,
+            };
+
+            if let Ok(Some(cached_part)) = cache.get(provider_key, &mpn, std::time::Duration::from_secs(60 * 60 * 24 * 30)) {
+                status.in_stock_qty = cached_part.stock.unwrap_or(0) as u64;
+                if let Some(pricing) = &cached_part.pricing {
+                    if let Some(breaks) = pricing.by_distributor.values().next() {
+                        if let Some(first_break) = breaks.first() {
+                            status.unit_price_usd = Some(first_break.unit_price_usd);
+                        }
+                    }
+                }
+                status.lifecycle = if status.in_stock_qty > 0 { ComponentLifecycle::Active } else { ComponentLifecycle::NotRecommendedForNewDesigns };
+                status.verified_at_utc = Some(cached_part.captured_at.to_rfc3339());
+            }
+
+            results.push(status);
         }
     }
 
@@ -977,6 +1063,57 @@ mod tests {
             assert_eq!(res.lifecycle, ComponentLifecycle::Unknown);
             assert_eq!(res.verified_at_utc, None);
         }
+    }
+
+    #[test]
+    fn test_offline_activebom_cache_retrieval() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let cache = oxide_library::distributors::cache::DistributorCache::with_root(temp_dir.path()).unwrap();
+
+        // Populate cache with a known part
+        let part = oxide_library::distributor::DistributorPart {
+            mpn: "STM32F401CCU6".to_string(),
+            manufacturer: "STMicroelectronics".to_string(),
+            description: "MCU 32-bit ARM Cortex-M4".to_string(),
+            datasheet_url: None,
+            footprint_hint: Some("UFQFPN-48".to_string()),
+            parameters: oxide_library::param::ParamMap::default(),
+            pricing: Some(oxide_library::distributor::PricingSnapshot {
+                captured_at: chrono::Utc::now(),
+                by_distributor: std::collections::BTreeMap::from([(
+                    "LCSC".to_string(),
+                    vec![oxide_library::distributor::PriceBreak { qty: 1, unit_price_usd: 2.45 }],
+                )]),
+            }),
+            stock: Some(4250),
+            source: oxide_library::distributor::DistributorSource::Lcsc,
+            captured_at: chrono::Utc::now(),
+            extra: std::collections::BTreeMap::new(),
+        };
+        cache.put("lcsc", &part).unwrap();
+
+        let mut comp = component("U1", "STM32F401CCU6", "QFN-48");
+        comp.custom.insert("MPN".to_string(), "STM32F401CCU6".to_string());
+        let ctx = BomContext {
+            components: vec![comp],
+            metadata: BomMetadata::default(),
+        };
+        let table = build_table(&ctx, &BomEngineOptions::default());
+        let configs = vec![DistributorConfig {
+            provider: DistributorProvider::Lcsc,
+            api_endpoint: "https://wmsc.lcsc.com".to_string(),
+            api_key: None,
+            enabled: true,
+        }];
+
+        let cached_results = check_stock_from_cache(&table, &configs, &cache);
+        assert_eq!(cached_results.len(), 1);
+        let res = &cached_results[0];
+        assert_eq!(res.mpn, "STM32F401CCU6");
+        assert_eq!(res.in_stock_qty, 4250);
+        assert_eq!(res.unit_price_usd, Some(2.45));
+        assert_eq!(res.lifecycle, ComponentLifecycle::Active);
+        assert!(res.verified_at_utc.is_some());
     }
 }
 

@@ -5996,10 +5996,13 @@ dependencies = [
 name = "oxide-bom"
 version = "1.5.0"
 dependencies = [
+ "chrono",
+ "oxide-library",
  "oxide-types",
  "reqwest 0.13.5",
  "serde",
  "serde_json",
+ "tempfile",
  "tokio",
 ]
 
