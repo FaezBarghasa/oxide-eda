@@ -999,6 +999,12 @@ pub enum PanelMsg {
     SetUartInputBuffer(String),
     /// Submit input string to Virtual MCU UART
     SubmitUartInput,
+    /// Synthesize IPC-7351 footprint from wizard parameters
+    GenerateIpcFootprint,
+    /// Run Kuhn-Munkres topological pin swap optimization
+    RunPinSwapOptimization,
+    /// Apply back-annotated pin swap ECO to schematic
+    ApplyPinSwapEco,
     /// No-op placeholder for unimplemented UI controls.
     Noop,
 }

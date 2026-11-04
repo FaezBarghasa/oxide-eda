@@ -24,6 +24,7 @@ pub mod ipc2581;
 pub mod netlist;
 pub mod odbpp;
 pub mod outjob;
+pub mod panelization;
 pub mod pdf;
 pub mod preview;
 pub mod step;
