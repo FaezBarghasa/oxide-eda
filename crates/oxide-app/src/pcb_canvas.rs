@@ -32,6 +32,7 @@ pub struct PcbCanvasState {
     // --- Interactive Push-and-Shove Routing Session ---
     pub active_router: Option<InteractiveRouter>,
     pub async_solver: Option<oxide_router::interactive::AsyncRoutingSolver>,
+    pub routing_epoch: u64,
     pub live_route_preview: Vec<RouteSegment>,
     pub preview_vias: Vec<ViaPlacement>,
     pub routing_layer: u8,
@@ -572,6 +573,7 @@ impl canvas::Program<Message> for PcbCanvas {
                 if let Some(router) = &mut state.active_router {
                     match key {
                         iced::keyboard::Key::Named(iced::keyboard::key::Named::Space) => {
+                            state.routing_epoch += 1;
                             if modifiers.shift() {
                                 state.corner_mode = router.hotkey_cycle_corner_mode();
                             } else {
@@ -584,6 +586,7 @@ impl canvas::Program<Message> for PcbCanvas {
                             return Some(canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved)).and_capture());
                         }
                         iced::keyboard::Key::Character(c) if c.as_str() == "*" || c.as_str().eq_ignore_ascii_case("v") => {
+                            state.routing_epoch += 1;
                             let next_layer = if state.routing_layer == 0 { 1 } else { 0 };
                             if let Some(via) = router.hotkey_drop_via_and_switch_layer(next_layer, 600, 300) {
                                 state.preview_vias.push(via);
@@ -596,6 +599,7 @@ impl canvas::Program<Message> for PcbCanvas {
                             return Some(canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved)).and_capture());
                         }
                         iced::keyboard::Key::Character(c) if c.as_str().eq_ignore_ascii_case("a") && modifiers.shift() => {
+                            state.routing_epoch += 1;
                             let cur_len = state.live_route_preview.iter().map(|s| s.length()).sum::<i64>();
                             let target_len = (cur_len + 5000).max(10_000);
                             router.enable_length_tuning(target_len, 0);
@@ -607,6 +611,7 @@ impl canvas::Program<Message> for PcbCanvas {
                             return Some(canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved)).and_capture());
                         }
                         iced::keyboard::Key::Character(c) if c.as_str().eq_ignore_ascii_case("b") && modifiers.shift() => {
+                            state.routing_epoch += 1;
                             router.mode = oxide_router::interactive::RoutingMode::DifferentialPair;
                             state.async_solver = None;
                             if let Some(cursor_pos) = cursor.position_in(bounds) {
@@ -676,6 +681,10 @@ impl canvas::Program<Message> for PcbCanvas {
                     state.click_start = Some((wx, wy));
                     state.move_origin = Some((wx, wy));
                     state.move_dragging = false;
+
+                    if state.active_router.is_some() {
+                        state.routing_epoch += 1;
+                    }
 
                     let event = if state.ctrl_held {
                         CanvasEvent::CtrlClicked {
@@ -777,8 +786,9 @@ impl canvas::Program<Message> for PcbCanvas {
                                 state.routing_net,
                                 state.routing_layer,
                                 router.session.as_ref().map(|s| s.track_width).unwrap_or(200),
+                                state.routing_epoch,
                             );
-                            if let Some(resp) = solver.poll_latest() {
+                            if let Some(resp) = solver.poll_latest(state.routing_epoch) {
                                 state.live_route_preview = resp.segments;
                             }
                         } else {

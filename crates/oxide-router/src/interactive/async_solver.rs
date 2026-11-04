@@ -21,6 +21,7 @@ use crate::interactive::{InteractiveRouter, RouteSegment, RoutingMode};
 #[derive(Debug, Clone)]
 pub struct SolverRequest {
     pub request_id: u64,
+    pub epoch: u64,
     pub target: Point2D,
     pub mode: RoutingMode,
     pub corner_mode: CornerMode,
@@ -33,6 +34,7 @@ pub struct SolverRequest {
 #[derive(Debug, Clone)]
 pub struct SolverResponse {
     pub request_id: u64,
+    pub epoch: u64,
     pub segments: Vec<RouteSegment>,
     pub computation_time_us: u64,
 }
@@ -108,6 +110,7 @@ impl AsyncRoutingSolver {
 
                     let response = SolverResponse {
                         request_id: latest_req.request_id,
+                        epoch: latest_req.epoch,
                         segments,
                         computation_time_us: elapsed_us,
                     };
@@ -127,7 +130,7 @@ impl AsyncRoutingSolver {
         }
     }
 
-    /// Submit a new mouse target to the solver. Returns the issued `request_id`.
+    /// Submit a new mouse target to the solver with an epoch fence token.
     pub fn submit_target(
         &self,
         target: Point2D,
@@ -136,10 +139,12 @@ impl AsyncRoutingSolver {
         net_id: NetId,
         layer: LayerId,
         track_width: Microns,
+        epoch: u64,
     ) -> u64 {
         let req_id = self.request_counter.fetch_add(1, Ordering::SeqCst) + 1;
         let req = SolverRequest {
             request_id: req_id,
+            epoch,
             target,
             mode,
             corner_mode,
@@ -153,19 +158,27 @@ impl AsyncRoutingSolver {
         req_id
     }
 
-    /// Poll for the latest solved segments without blocking the UI thread.
-    /// Drains any backlog and returns the most up-to-date solution.
-    pub fn poll_latest(&self) -> Option<SolverResponse> {
+    /// Poll for the latest solved segments matching the current epoch without blocking the UI thread.
+    /// Drains any backlog and discards obsolete / out-of-order epoch solutions.
+    pub fn poll_latest(&self, current_epoch: u64) -> Option<SolverResponse> {
         let mut latest = None;
         while let Ok(resp) = self.receiver.try_recv() {
-            latest = Some(resp);
+            if resp.epoch >= current_epoch {
+                latest = Some(resp);
+            }
         }
         if let Some(resp) = latest {
             let mut guard = self.latest_response.lock().unwrap();
             *guard = Some(resp.clone());
             Some(resp)
         } else {
-            self.latest_response.lock().unwrap().clone()
+            let guard = self.latest_response.lock().unwrap();
+            if let Some(resp) = &*guard {
+                if resp.epoch >= current_epoch {
+                    return Some(resp.clone());
+                }
+            }
+            None
         }
     }
 }
@@ -206,16 +219,62 @@ mod tests {
                 1,
                 0,
                 200,
+                1,
             );
         }
 
         // Wait briefly for worker thread to process
         std::thread::sleep(std::time::Duration::from_millis(50));
 
-        let res = solver.poll_latest();
+        let res = solver.poll_latest(1);
         assert!(res.is_some(), "expected solved response from async worker");
         let unwrapped = res.unwrap();
         assert!(!unwrapped.segments.is_empty());
         assert!(unwrapped.request_id >= 1);
+        assert_eq!(unwrapped.epoch, 1);
+    }
+
+    #[test]
+    fn test_async_solver_epoch_fencing_discards_stale_requests() {
+        let rules = Arc::new(ConstraintManager::default());
+        let spatial_index = Arc::new(SpatialIndex::new());
+        let mut router = InteractiveRouter::new(rules, spatial_index);
+        let start = Point2D::new(0, 0);
+        router.start_routing(start, 1, 0).unwrap();
+
+        let solver = AsyncRoutingSolver::spawn(router);
+
+        // Submit target with old epoch 1
+        solver.submit_target(
+            Point2D::new(1000, 1000),
+            RoutingMode::WalkAround,
+            CornerMode::default(),
+            1,
+            0,
+            200,
+            1,
+        );
+
+        std::thread::sleep(std::time::Duration::from_millis(50));
+
+        // When polling with newer epoch 2, old epoch 1 solutions should be ignored
+        let res_stale = solver.poll_latest(2);
+        assert!(res_stale.is_none(), "stale epoch 1 response must be fenced off");
+
+        // Now submit with epoch 2
+        solver.submit_target(
+            Point2D::new(2000, 2000),
+            RoutingMode::WalkAround,
+            CornerMode::default(),
+            1,
+            0,
+            200,
+            2,
+        );
+
+        std::thread::sleep(std::time::Duration::from_millis(50));
+        let res_current = solver.poll_latest(2);
+        assert!(res_current.is_some(), "epoch 2 response must be received");
+        assert_eq!(res_current.unwrap().epoch, 2);
     }
 }

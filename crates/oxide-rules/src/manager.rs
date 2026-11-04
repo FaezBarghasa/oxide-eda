@@ -957,6 +957,7 @@ impl ConstraintManager {
                 ),
                 height_mm,
                 mesh: None,
+                bvh: None,
             });
         }
 

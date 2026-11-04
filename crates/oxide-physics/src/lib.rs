@@ -19,7 +19,10 @@ pub use backdrill::{
 pub use bem_solver::{
     BemBoundaryElement, BemFieldSolver, ExtractedTransmissionLine, TransmissionLineCrossSection,
 };
-pub use clearance_3d::{Aabb3d, Body3d, ClearanceEngine3d, ClearanceViolation3d, Vec3};
+pub use clearance_3d::{
+    Aabb3d, Body3d, ClearanceEngine3d, ClearanceViolation3d, Triangle3d, TriangleBvh,
+    TriangleBvhNode, Vec3,
+};
 pub use collision::{CollisionResult, ConvexPolytope, GjkEpaEngine};
 pub use dual_quat::{DualQuaternion, Quaternion};
 pub use hdi::{HdiError, ViaDefinition, ViaType, check_hdi_rules};

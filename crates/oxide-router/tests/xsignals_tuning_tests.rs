@@ -94,3 +94,53 @@ fn test_via_shoving_and_multi_cycle_accordion_tuning() {
         "Length difference should be significantly narrowed"
     );
 }
+
+#[test]
+fn test_interactive_router_obstacle_aware_meander_clamping() {
+    use oxide_router::geometry::rtree::{SpatialIndex, SpatialObject, SpatialObjectType};
+    use oxide_router::geometry::{BoundingBox, Point2D};
+    use oxide_router::interactive::InteractiveRouter;
+    use oxide_rules::ConstraintManager;
+    use std::sync::Arc;
+    use uuid::Uuid;
+
+    let rules = Arc::new(ConstraintManager::standard_default());
+    let mut spatial_index = SpatialIndex::new();
+
+    // Place an obstacle at Y = 250um along the path
+    spatial_index.insert(SpatialObject {
+        id: Uuid::new_v4(),
+        bbox: BoundingBox::new(Point2D::new(500, 250), Point2D::new(4500, 750)),
+        object_type: SpatialObjectType::Track,
+        net_id: Some(42),
+        layer: 0,
+    });
+
+    let router = InteractiveRouter::new(rules, Arc::new(spatial_index));
+    let start = Point2D::new(0, 0);
+    let end = Point2D::new(5000, 0);
+
+    let segments = router.generate_meander_with_params(
+        start, end, 3000, 1, 0, 200, 800, 400,
+    );
+
+    assert!(!segments.is_empty(), "meander segments must be synthesized");
+
+    // All synthesized meander points must respect obstacle clearance
+    for seg in &segments {
+        if seg.start_point.x >= 500 && seg.start_point.x <= 4500 {
+            assert!(
+                seg.start_point.y < 250,
+                "Segment start point {:?} violated obstacle boundary at Y=250",
+                seg.start_point
+            );
+        }
+        if seg.end_point.x >= 500 && seg.end_point.x <= 4500 {
+            assert!(
+                seg.end_point.y < 250,
+                "Segment end point {:?} violated obstacle boundary at Y=250",
+                seg.end_point
+            );
+        }
+    }
+}

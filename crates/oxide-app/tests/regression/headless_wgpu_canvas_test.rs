@@ -57,13 +57,13 @@ fn test_headless_async_routing_gesture_simulation() {
     ];
 
     for pt in &drag_points {
-        solver.submit_target(*pt, RoutingMode::WalkAround, CornerMode::default(), 1, 0, 200);
+        solver.submit_target(*pt, RoutingMode::WalkAround, CornerMode::default(), 1, 0, 200, 1);
     }
 
     // Wait briefly for background solver thread to process
     std::thread::sleep(std::time::Duration::from_millis(50));
 
-    let latest = solver.poll_latest();
+    let latest = solver.poll_latest(1);
     assert!(latest.is_some(), "async solver must yield solved route segments");
     let resp = latest.unwrap();
     assert!(!resp.segments.is_empty(), "solved route must contain segments");

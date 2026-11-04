@@ -459,6 +459,7 @@ impl InteractiveRouter {
     }
 
     /// Generate accordion / trombone meander pattern for length and phase-delay matching
+    /// with dynamic obstacle-aware lateral clearance clamping.
     #[allow(clippy::too_many_arguments)]
     pub fn generate_meander_with_params(
         &self,
@@ -475,8 +476,14 @@ impl InteractiveRouter {
         let (dx, dy) = start.direction_to(end);
         let (perp_x, perp_y) = (-dy, dx);
 
-        let amplitude = amplitude_microns.max(100);
+        let initial_amplitude = amplitude_microns.max(100);
         let step = pitch_microns.max(100);
+        let net_str = net_id.to_string();
+        let clearance = self
+            .rules
+            .resolve_clearance_rule(&net_str, None, None)
+            .map(|r| r.min_distance)
+            .unwrap_or(200);
 
         let mut current = start;
         let mut remaining = extra_length;
@@ -488,14 +495,68 @@ impl InteractiveRouter {
                 current.y + (dy * step as f64).round() as i64,
             );
 
-            let offset_sign = if flip { 1.0 } else { -1.0 };
+            let preferred_sign = if flip { 1.0 } else { -1.0 };
+
+            // Determine safe amplitude by checking obstacles on proposed side
+            let find_safe_amplitude = |sign: f64| -> Microns {
+                let mut safe_amp = 0;
+                let step_div = (initial_amplitude / 10).max(25);
+                for test_amp in (step_div..=initial_amplitude).step_by(step_div as usize) {
+                    let p1 = Point2D::new(
+                        current.x + (perp_x * test_amp as f64 * sign).round() as i64,
+                        current.y + (perp_y * test_amp as f64 * sign).round() as i64,
+                    );
+                    let p2 = Point2D::new(
+                        next_base.x + (perp_x * test_amp as f64 * sign).round() as i64,
+                        next_base.y + (perp_y * test_amp as f64 * sign).round() as i64,
+                    );
+                    let bbox = crate::geometry::BoundingBox::from_points(&[current, p1, p2, next_base])
+                        .expand((width / 2) + clearance);
+
+                    let obstacles = self.spatial_index.check_collision(&bbox, &[net_id]);
+                    if obstacles.is_empty() {
+                        safe_amp = test_amp;
+                    } else {
+                        break;
+                    }
+                }
+                safe_amp
+            };
+
+            let mut offset_sign = preferred_sign;
+            let mut clamped_amp = find_safe_amplitude(offset_sign);
+
+            // If preferred side is constrained (< 100um), try opposite side (trombone jog)
+            if clamped_amp < 100 {
+                let alt_sign = -preferred_sign;
+                let alt_amp = find_safe_amplitude(alt_sign);
+                if alt_amp >= 100 {
+                    offset_sign = alt_sign;
+                    clamped_amp = alt_amp;
+                }
+            }
+
+            // If clearance on both sides is exhausted, fall back to inline straight step
+            if clamped_amp < 50 {
+                segments.push(RouteSegment {
+                    start_point: current,
+                    end_point: next_base,
+                    width,
+                    layer,
+                    net_id,
+                    segment_type: SegmentType::Straight,
+                });
+                current = next_base;
+                continue;
+            }
+
             let peak1 = Point2D::new(
-                current.x + (perp_x * amplitude as f64 * offset_sign).round() as i64,
-                current.y + (perp_y * amplitude as f64 * offset_sign).round() as i64,
+                current.x + (perp_x * clamped_amp as f64 * offset_sign).round() as i64,
+                current.y + (perp_y * clamped_amp as f64 * offset_sign).round() as i64,
             );
             let peak2 = Point2D::new(
-                next_base.x + (perp_x * amplitude as f64 * offset_sign).round() as i64,
-                next_base.y + (perp_y * amplitude as f64 * offset_sign).round() as i64,
+                next_base.x + (perp_x * clamped_amp as f64 * offset_sign).round() as i64,
+                next_base.y + (perp_y * clamped_amp as f64 * offset_sign).round() as i64,
             );
 
             let seg1_len = current.distance_to(peak1);

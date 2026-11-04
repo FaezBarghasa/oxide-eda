@@ -117,6 +117,28 @@ impl Triangle3d {
         ab.cross(&ac)
     }
 
+    pub fn aabb(&self) -> Aabb3d {
+        let min = Vec3::new(
+            self.a.x.min(self.b.x).min(self.c.x),
+            self.a.y.min(self.b.y).min(self.c.y),
+            self.a.z.min(self.b.z).min(self.c.z),
+        );
+        let max = Vec3::new(
+            self.a.x.max(self.b.x).max(self.c.x),
+            self.a.y.max(self.b.y).max(self.c.y),
+            self.a.z.max(self.b.z).max(self.c.z),
+        );
+        Aabb3d::new(min, max)
+    }
+
+    pub fn centroid(&self) -> Vec3 {
+        Vec3::new(
+            (self.a.x + self.b.x + self.c.x) / 3.0,
+            (self.a.y + self.b.y + self.c.y) / 3.0,
+            (self.a.z + self.b.z + self.c.z) / 3.0,
+        )
+    }
+
     pub fn project_onto(&self, axis: &Vec3) -> (f64, f64) {
         let d0 = self.a.dot(axis);
         let d1 = self.b.dot(axis);
@@ -137,6 +159,22 @@ pub struct Aabb3d {
 impl Aabb3d {
     pub fn new(min: Vec3, max: Vec3) -> Self {
         Self { min, max }
+    }
+
+    /// Compute union of two 3D AABBs.
+    pub fn union(&self, other: &Self) -> Self {
+        Self {
+            min: Vec3::new(
+                self.min.x.min(other.min.x),
+                self.min.y.min(other.min.y),
+                self.min.z.min(other.min.z),
+            ),
+            max: Vec3::new(
+                self.max.x.max(other.max.x),
+                self.max.y.max(other.max.y),
+                self.max.z.max(other.max.z),
+            ),
+        }
     }
 
     /// Check if two 3D boxes intersect or overlap.
@@ -196,6 +234,152 @@ impl Aabb3d {
     }
 }
 
+/// Node in a hierarchical 3D Bounding Volume Hierarchy.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum TriangleBvhNode {
+    Leaf {
+        aabb: Aabb3d,
+        triangles: Vec<Triangle3d>,
+    },
+    Internal {
+        aabb: Aabb3d,
+        left: Box<TriangleBvhNode>,
+        right: Box<TriangleBvhNode>,
+    },
+}
+
+impl TriangleBvhNode {
+    pub fn aabb(&self) -> &Aabb3d {
+        match self {
+            Self::Leaf { aabb, .. } => aabb,
+            Self::Internal { aabb, .. } => aabb,
+        }
+    }
+
+    pub fn build(mut triangles: Vec<Triangle3d>) -> Self {
+        if triangles.is_empty() {
+            return Self::Leaf {
+                aabb: Aabb3d::new(Vec3::new(0.0, 0.0, 0.0), Vec3::new(0.0, 0.0, 0.0)),
+                triangles,
+            };
+        }
+
+        if triangles.len() <= 4 {
+            let mut aabb = triangles[0].aabb();
+            for t in &triangles[1..] {
+                aabb = aabb.union(&t.aabb());
+            }
+            return Self::Leaf { aabb, triangles };
+        }
+
+        let mut total_aabb = triangles[0].aabb();
+        for t in &triangles[1..] {
+            total_aabb = total_aabb.union(&t.aabb());
+        }
+
+        let extent_x = total_aabb.max.x - total_aabb.min.x;
+        let extent_y = total_aabb.max.y - total_aabb.min.y;
+        let extent_z = total_aabb.max.z - total_aabb.min.z;
+
+        let axis = if extent_x >= extent_y && extent_x >= extent_z {
+            0
+        } else if extent_y >= extent_x && extent_y >= extent_z {
+            1
+        } else {
+            2
+        };
+
+        triangles.sort_by(|t1, t2| {
+            let c1 = t1.centroid();
+            let c2 = t2.centroid();
+            let v1 = match axis {
+                0 => c1.x,
+                1 => c1.y,
+                _ => c1.z,
+            };
+            let v2 = match axis {
+                0 => c2.x,
+                1 => c2.y,
+                _ => c2.z,
+            };
+            v1.partial_cmp(&v2).unwrap_or(std::cmp::Ordering::Equal)
+        });
+
+        let mid = triangles.len() / 2;
+        let right_tris = triangles.split_off(mid);
+        let left_tris = triangles;
+
+        let left = Box::new(Self::build(left_tris));
+        let right = Box::new(Self::build(right_tris));
+        let aabb = left.aabb().union(right.aabb());
+
+        Self::Internal { aabb, left, right }
+    }
+}
+
+/// 3D Bounding Volume Hierarchy for accelerating triangle mesh interference checks.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct TriangleBvh {
+    pub root: TriangleBvhNode,
+}
+
+impl TriangleBvh {
+    /// Construct a top-down BVH tree from a collection of 3D triangles.
+    pub fn build(triangles: Vec<Triangle3d>) -> Self {
+        let root = TriangleBvhNode::build(triangles);
+        Self { root }
+    }
+
+    /// Check if two BVH trees have any intersecting triangles using recursive dual-tree traversal.
+    pub fn intersects(&self, other: &Self) -> bool {
+        Self::collide_nodes(&self.root, &other.root)
+    }
+
+    fn collide_nodes(node_a: &TriangleBvhNode, node_b: &TriangleBvhNode) -> bool {
+        if !node_a.aabb().intersects(node_b.aabb()) {
+            return false;
+        }
+
+        match (node_a, node_b) {
+            (
+                TriangleBvhNode::Leaf { triangles: tris_a, .. },
+                TriangleBvhNode::Leaf { triangles: tris_b, .. },
+            ) => {
+                for ta in tris_a {
+                    for tb in tris_b {
+                        if ta.intersects(tb) {
+                            return true;
+                        }
+                    }
+                }
+                false
+            }
+            (TriangleBvhNode::Internal { left, right, .. }, TriangleBvhNode::Leaf { .. }) => {
+                Self::collide_nodes(left, node_b) || Self::collide_nodes(right, node_b)
+            }
+            (TriangleBvhNode::Leaf { .. }, TriangleBvhNode::Internal { left, right, .. }) => {
+                Self::collide_nodes(node_a, left) || Self::collide_nodes(node_a, right)
+            }
+            (
+                TriangleBvhNode::Internal { left: la, right: ra, .. },
+                TriangleBvhNode::Internal { left: lb, right: rb, .. },
+            ) => {
+                let vol_a = (node_a.aabb().max.x - node_a.aabb().min.x)
+                    * (node_a.aabb().max.y - node_a.aabb().min.y)
+                    * (node_a.aabb().max.z - node_a.aabb().min.z);
+                let vol_b = (node_b.aabb().max.x - node_b.aabb().min.x)
+                    * (node_b.aabb().max.y - node_b.aabb().min.y)
+                    * (node_b.aabb().max.z - node_b.aabb().min.z);
+                if vol_a >= vol_b {
+                    Self::collide_nodes(la, node_b) || Self::collide_nodes(ra, node_b)
+                } else {
+                    Self::collide_nodes(node_a, lb) || Self::collide_nodes(node_a, rb)
+                }
+            }
+        }
+    }
+}
+
 /// 3D Component body representation for clearance validation.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Body3d {
@@ -205,6 +389,16 @@ pub struct Body3d {
     pub height_mm: f64,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub mesh: Option<Vec<Triangle3d>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bvh: Option<TriangleBvh>,
+}
+
+impl Body3d {
+    pub fn with_mesh(mut self, mesh: Vec<Triangle3d>) -> Self {
+        self.bvh = Some(TriangleBvh::build(mesh.clone()));
+        self.mesh = Some(mesh);
+        self
+    }
 }
 
 /// 3D Clearance and Collision violation report.
@@ -236,19 +430,27 @@ impl ClearanceEngine3d {
                 let b = &bodies[j];
 
                 if a.aabb.intersects(&b.aabb) {
-                    // Check narrow-phase mesh collision if solid meshes are attached
+                    // Check narrow-phase mesh collision with BVH acceleration if solid meshes are attached
                     let is_mesh_collision = match (&a.mesh, &b.mesh) {
                         (Some(m_a), Some(m_b)) => {
-                            let mut hit = false;
-                            'outer: for t_a in m_a {
-                                for t_b in m_b {
-                                    if t_a.intersects(t_b) {
-                                        hit = true;
-                                        break 'outer;
+                            if let (Some(bvh_a), Some(bvh_b)) = (&a.bvh, &b.bvh) {
+                                bvh_a.intersects(bvh_b)
+                            } else if m_a.len() > 8 || m_b.len() > 8 {
+                                let bvh_a = a.bvh.clone().unwrap_or_else(|| TriangleBvh::build(m_a.clone()));
+                                let bvh_b = b.bvh.clone().unwrap_or_else(|| TriangleBvh::build(m_b.clone()));
+                                bvh_a.intersects(&bvh_b)
+                            } else {
+                                let mut hit = false;
+                                'outer: for t_a in m_a {
+                                    for t_b in m_b {
+                                        if t_a.intersects(t_b) {
+                                            hit = true;
+                                            break 'outer;
+                                        }
                                     }
                                 }
+                                hit
                             }
-                            hit
                         }
                         _ => true, // Fallback to AABB intersection
                     };
@@ -308,6 +510,7 @@ mod tests {
             aabb: Aabb3d::new(Vec3::new(0.0, 0.0, 0.0), Vec3::new(10.0, 10.0, 3.0)),
             height_mm: 3.0,
             mesh: None,
+            bvh: None,
         };
 
         let c1 = Body3d {
@@ -316,6 +519,7 @@ mod tests {
             aabb: Aabb3d::new(Vec3::new(10.2, 0.0, 0.0), Vec3::new(12.0, 2.0, 1.0)),
             height_mm: 1.0,
             mesh: None,
+            bvh: None,
         };
 
         let c2 = Body3d {
@@ -324,6 +528,7 @@ mod tests {
             aabb: Aabb3d::new(Vec3::new(9.0, 5.0, 0.0), Vec3::new(12.0, 8.0, 1.0)),
             height_mm: 1.0,
             mesh: None,
+            bvh: None,
         };
 
         // U1 and C1 are 0.2mm apart (violates 0.5mm clearance)
@@ -378,5 +583,69 @@ mod tests {
             Vec3::new(10.0, 15.0, 10.0),
         );
         assert!(!t1.intersects(&t3));
+    }
+
+    #[test]
+    fn test_bvh_accelerated_mesh_collision_performance() {
+        // Build two complex meshes (500 triangles each)
+        let mut mesh_a = Vec::with_capacity(500);
+        let mut mesh_b_far = Vec::with_capacity(500);
+        let mut mesh_b_hit = Vec::with_capacity(500);
+
+        for i in 0..500 {
+            let offset = i as f64 * 0.1;
+            mesh_a.push(Triangle3d::new(
+                Vec3::new(offset, 0.0, 0.0),
+                Vec3::new(offset + 0.1, 1.0, 0.0),
+                Vec3::new(offset, 1.0, 1.0),
+            ));
+
+            mesh_b_far.push(Triangle3d::new(
+                Vec3::new(offset + 100.0, 0.0, 0.0),
+                Vec3::new(offset + 100.1, 1.0, 0.0),
+                Vec3::new(offset + 100.0, 1.0, 1.0),
+            ));
+
+            mesh_b_hit.push(Triangle3d::new(
+                Vec3::new(offset + 25.0, 0.5, -0.5),
+                Vec3::new(offset + 25.0, 0.5, 1.5),
+                Vec3::new(offset + 25.1, -0.5, 0.5),
+            ));
+        }
+
+        let bvh_a = TriangleBvh::build(mesh_a.clone());
+        let bvh_far = TriangleBvh::build(mesh_b_far.clone());
+        let bvh_hit = TriangleBvh::build(mesh_b_hit.clone());
+
+        // Performance timing: BVH disjoint test should finish in microseconds (< 500us vs 500x500 = 250,000 SAT tests)
+        let t0 = std::time::Instant::now();
+        assert!(!bvh_a.intersects(&bvh_far));
+        let bvh_disjoint_us = t0.elapsed().as_micros();
+
+        assert!(bvh_a.intersects(&bvh_hit));
+
+        // Ensure clearance engine uses BVH properly
+        let body_a = Body3d {
+            id: "1".into(),
+            reference: "U1".into(),
+            aabb: bvh_a.root.aabb().clone(),
+            height_mm: 5.0,
+            mesh: Some(mesh_a),
+            bvh: Some(bvh_a),
+        };
+
+        let body_b = Body3d {
+            id: "2".into(),
+            reference: "U2".into(),
+            aabb: bvh_hit.root.aabb().clone(),
+            height_mm: 5.0,
+            mesh: Some(mesh_b_hit),
+            bvh: Some(bvh_hit),
+        };
+
+        let violations = ClearanceEngine3d::check_clearances(&[body_a, body_b], 1.0, None);
+        assert_eq!(violations.len(), 1);
+        assert!(violations[0].is_collision);
+        assert!(bvh_disjoint_us < 2000, "BVH disjoint query took too long: {} us", bvh_disjoint_us);
     }
 }
