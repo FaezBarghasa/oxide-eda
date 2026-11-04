@@ -14,6 +14,8 @@ pub mod camera;
 pub mod color_uniform;
 pub mod context;
 pub mod debug_pass;
+pub mod eye_diagram;
+pub mod pdn_heatmap;
 pub mod pipeline;
 pub mod primitive;
 pub mod scene;

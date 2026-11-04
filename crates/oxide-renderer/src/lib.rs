@@ -6,5 +6,6 @@
 
 pub mod pcb;
 pub mod pcb3d;
+pub mod rigid_flex;
 pub mod schematic;
 pub mod theme;

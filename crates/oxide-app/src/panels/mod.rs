@@ -39,6 +39,7 @@ mod properties;
 mod status;
 mod symbol_context;
 pub mod telecom;
+pub mod variants;
 pub mod waveform;
 mod widgets;
 

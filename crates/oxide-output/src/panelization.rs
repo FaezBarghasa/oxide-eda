@@ -304,3 +304,4 @@ mod tests {
         assert!(violations.iter().any(|v| v.kind == PanelViolationKind::VScoreWebTooThin));
     }
 }
+
