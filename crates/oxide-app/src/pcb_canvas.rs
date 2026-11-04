@@ -1146,40 +1146,37 @@ impl canvas::Program<Message> for PcbCanvas {
             && let Some(cursor_pos) = cursor.position_in(bounds)
         {
             let world_x = (cursor_pos.x - camera.offset.x) / camera.scale;
-                let world_y = (cursor_pos.y - camera.offset.y) / camera.scale;
+            let world_y = (cursor_pos.y - camera.offset.y) / camera.scale;
 
-                if let Some(grid) = &*self.pdn_mesh_cache.borrow() {
-                    let c = (world_x as f64 / grid.step_mm).floor() as isize;
-                    let r = (world_y as f64 / grid.step_mm).floor() as isize;
-                    if c >= 0 && c < grid.cols as isize && r >= 0 && r < grid.rows as isize {
-                        let idx = (r as usize) * grid.cols + (c as usize);
-                        if let Some(node) = grid.nodes.get(idx) {
-                            let drop_mv = (grid.nominal_voltage_v - node.voltage_v) * 1e3;
-                            let tip_text =
-                                format!("PDN: {:.3}V (-{:.1}mV)", node.voltage_v, drop_mv);
+            if let Some(grid) = &*self.pdn_mesh_cache.borrow() {
+                let c = (world_x as f64 / grid.step_mm).floor() as isize;
+                let r = (world_y as f64 / grid.step_mm).floor() as isize;
+                if c >= 0 && c < grid.cols as isize && r >= 0 && r < grid.rows as isize {
+                    let idx = (r as usize) * grid.cols + (c as usize);
+                    if let Some(node) = grid.nodes.get(idx) {
+                        let drop_mv = (grid.nominal_voltage_v - node.voltage_v) * 1e3;
+                        let tip_text = format!("PDN: {:.3}V (-{:.1}mV)", node.voltage_v, drop_mv);
 
-                            let tip_pos =
-                                iced::Point::new(cursor_pos.x + 14.0, cursor_pos.y + 14.0);
-                            let tip_size = iced::Size::new(160.0, 26.0);
-                            overlay_frame.fill_rectangle(
-                                tip_pos,
-                                tip_size,
-                                Color::from_rgba(0.06, 0.08, 0.12, 0.92),
-                            );
-                            overlay_frame.stroke(
-                                &canvas::Path::rectangle(tip_pos, tip_size),
-                                canvas::Stroke::default()
-                                    .with_width(1.0)
-                                    .with_color(Color::from_rgba(0.9, 0.7, 0.1, 0.8)),
-                            );
-                            overlay_frame.fill_text(canvas::Text {
-                                content: tip_text,
-                                position: iced::Point::new(tip_pos.x + 8.0, tip_pos.y + 6.0),
-                                color: Color::from_rgb(0.95, 0.95, 0.95),
-                                size: 12.0.into(),
-                                ..Default::default()
-                            });
-                        }
+                        let tip_pos = iced::Point::new(cursor_pos.x + 14.0, cursor_pos.y + 14.0);
+                        let tip_size = iced::Size::new(160.0, 26.0);
+                        overlay_frame.fill_rectangle(
+                            tip_pos,
+                            tip_size,
+                            Color::from_rgba(0.06, 0.08, 0.12, 0.92),
+                        );
+                        overlay_frame.stroke(
+                            &canvas::Path::rectangle(tip_pos, tip_size),
+                            canvas::Stroke::default()
+                                .with_width(1.0)
+                                .with_color(Color::from_rgba(0.9, 0.7, 0.1, 0.8)),
+                        );
+                        overlay_frame.fill_text(canvas::Text {
+                            content: tip_text,
+                            position: iced::Point::new(tip_pos.x + 8.0, tip_pos.y + 6.0),
+                            color: Color::from_rgb(0.95, 0.95, 0.95),
+                            size: 12.0.into(),
+                            ..Default::default()
+                        });
                     }
                 }
             }

@@ -718,6 +718,7 @@ mod tests {
 
         let opts = BomOptions::default();
         let bytes = html_emit(&table, &opts.columns)?;
+        let _ = std::fs::write("/tmp/oxide_bom_report.html", &bytes);
         let text = String::from_utf8_lossy(&bytes);
 
         assert!(text.contains("<html"), "Missing <html tag");

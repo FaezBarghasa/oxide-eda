@@ -123,3 +123,98 @@ fn test_headless_wgpu_offscreen_framebuffer_smoke() {
     assert_eq!(report.circle_instances, 1);
     assert_eq!(report.scale_px_per_mm, 16.0);
 }
+
+#[test]
+fn test_canvas_routing_epoch_fencing_discards_stale_in_flight_gestures() {
+    let mut state = PcbCanvasState::default();
+    assert_eq!(state.routing_epoch, 0);
+
+    let rules = Arc::new(ConstraintManager::standard_default());
+    let spatial_index = Arc::new(oxide_router::geometry::rtree::SpatialIndex::new());
+    let mut router = InteractiveRouter::new(rules, spatial_index);
+    router.start_routing(Point2D::new(0, 0), 1, 0).unwrap();
+    let solver = AsyncRoutingSolver::spawn(router);
+
+    // Initial drag gesture with epoch 0
+    solver.submit_target(
+        Point2D::new(1000, 1000),
+        RoutingMode::WalkAround,
+        CornerMode::default(),
+        1,
+        0,
+        200,
+        state.routing_epoch,
+    );
+
+    // User commits waypoint or steps layers -> epoch increments to 1
+    state.routing_epoch += 1;
+
+    // Polling with new epoch must discard epoch 0 solutions
+    std::thread::sleep(std::time::Duration::from_millis(50));
+    let stale_resp = solver.poll_latest(state.routing_epoch);
+    assert!(
+        stale_resp.is_none(),
+        "stale epoch 0 calculation must be discarded"
+    );
+
+    // Submit new cursor position with current epoch 1
+    solver.submit_target(
+        Point2D::new(2500, 2500),
+        RoutingMode::WalkAround,
+        CornerMode::default(),
+        1,
+        0,
+        200,
+        state.routing_epoch,
+    );
+
+    std::thread::sleep(std::time::Duration::from_millis(50));
+    let valid_resp = solver.poll_latest(state.routing_epoch);
+    assert!(valid_resp.is_some(), "epoch 1 response must be received");
+    assert_eq!(valid_resp.unwrap().epoch, 1);
+}
+
+#[test]
+fn test_canvas_dynamic_obstacle_aware_accordion_tuning() {
+    use oxide_router::geometry::BoundingBox;
+    use oxide_router::geometry::rtree::{SpatialObject, SpatialObjectType};
+    use uuid::Uuid;
+
+    let rules = Arc::new(ConstraintManager::standard_default());
+    let mut spatial_index = oxide_router::geometry::rtree::SpatialIndex::new();
+
+    // Place an obstacle at Y = 300um
+    spatial_index.insert(SpatialObject {
+        id: Uuid::new_v4(),
+        bbox: BoundingBox::new(Point2D::new(500, 300), Point2D::new(4500, 800)),
+        object_type: SpatialObjectType::Track,
+        net_id: Some(99),
+        layer: 0,
+    });
+
+    let router = InteractiveRouter::new(rules, Arc::new(spatial_index));
+    let start = Point2D::new(0, 0);
+    let end = Point2D::new(5000, 0);
+
+    let segments = router.generate_meander_with_params(start, end, 4000, 1, 0, 200, 1000, 400);
+
+    assert!(!segments.is_empty(), "meander segments must be synthesized");
+
+    // Verify all points clamp below obstacle Y=300
+    for seg in &segments {
+        if seg.start_point.x >= 500 && seg.start_point.x <= 4500 {
+            assert!(
+                seg.start_point.y < 300,
+                "Lobe start point {:?} violated obstacle boundary at Y=300",
+                seg.start_point
+            );
+        }
+        if seg.end_point.x >= 500 && seg.end_point.x <= 4500 {
+            assert!(
+                seg.end_point.y < 300,
+                "Lobe end point {:?} violated obstacle boundary at Y=300",
+                seg.end_point
+            );
+        }
+    }
+}
