@@ -849,6 +849,37 @@ impl ConstraintManager {
                 .unwrap_or_else(|| format!("NET_{net}"))
         };
 
+        // Collect Net-Tie exempted net pairs (D9 Parity)
+        let mut net_tied_pairs = std::collections::HashSet::new();
+        for fp in &board.footprints {
+            let is_net_tie = fp.footprint_id.to_ascii_lowercase().contains("nettie")
+                || fp.value.to_ascii_lowercase().contains("nettie")
+                || fp.reference.starts_with("NT")
+                || fp.properties.iter().any(|p| {
+                    (p.key.eq_ignore_ascii_case("componentkind")
+                        && p.value.eq_ignore_ascii_case("nettie"))
+                        || (p.key.eq_ignore_ascii_case("nettie")
+                            && (p.value.eq_ignore_ascii_case("true") || p.value == "1"))
+                });
+
+            if is_net_tie {
+                let nets: Vec<u32> = fp
+                    .pads
+                    .iter()
+                    .filter_map(|p| p.net.as_ref().map(|n| n.number))
+                    .collect();
+                for i in 0..nets.len() {
+                    for j in (i + 1)..nets.len() {
+                        let na = nets[i];
+                        let nb = nets[j];
+                        if na != nb {
+                            net_tied_pairs.insert((na.min(nb), na.max(nb)));
+                        }
+                    }
+                }
+            }
+        }
+
         // 1. Trace Width Validations
         for seg in &board.segments {
             let width_microns = (seg.width * 1000.0).round() as i64;
@@ -884,6 +915,11 @@ impl ConstraintManager {
                 let seg_b = &board.segments[j];
 
                 if seg_a.layer == seg_b.layer && seg_a.net != seg_b.net {
+                    let pair = (seg_a.net.min(seg_b.net), seg_a.net.max(seg_b.net));
+                    if net_tied_pairs.contains(&pair) {
+                        continue; // Exempted by Net-Tie
+                    }
+
                     let d = oxide_types::schematic::point_to_segment_dist(
                         seg_a.start.x,
                         seg_a.start.y,

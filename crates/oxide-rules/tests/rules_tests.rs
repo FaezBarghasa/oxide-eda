@@ -705,3 +705,104 @@ fn test_drc_3d_component_and_enclosure_clearance() {
         "Must flag 3D component clearance / collision violation"
     );
 }
+
+#[test]
+fn test_d9_net_tie_exempts_tied_nets_from_clearance_violations() {
+    let cm = ConstraintManager::standard_default();
+    let mut board = oxide_types::pcb::PcbBoard::default();
+
+    // Define 2 distinct nets: AGND (1) and DGND (2)
+    board.nets = vec![
+        oxide_types::pcb::NetDef {
+            number: 1,
+            name: "AGND".into(),
+        },
+        oxide_types::pcb::NetDef {
+            number: 2,
+            name: "DGND".into(),
+        },
+    ];
+
+    // Two segments very close (0.05mm apart < 0.254mm default clearance rule)
+    board.segments.push(oxide_types::pcb::Segment {
+        uuid: uuid::Uuid::new_v4(),
+        start: oxide_types::pcb::Point::new(10.0, 10.0),
+        end: oxide_types::pcb::Point::new(20.0, 10.0),
+        width: 0.25,
+        layer: "Top Layer".into(),
+        net: 1, // AGND
+    });
+    board.segments.push(oxide_types::pcb::Segment {
+        uuid: uuid::Uuid::new_v4(),
+        start: oxide_types::pcb::Point::new(10.0, 10.05),
+        end: oxide_types::pcb::Point::new(20.0, 10.05),
+        width: 0.25,
+        layer: "Top Layer".into(),
+        net: 2, // DGND
+    });
+
+    // Without Net-Tie: must report a clearance violation between AGND and DGND
+    let violations = cm.run_drc(&board);
+    assert_eq!(
+        violations.len(),
+        1,
+        "Without Net-Tie, close tracks of different nets must fail DRC"
+    );
+    assert_eq!(
+        violations[0].violation_type,
+        RuleViolationType::ClearanceViolation
+    );
+
+    // Now add a Net-Tie component NT1 tying AGND and DGND together at a star ground point
+    board.footprints.push(oxide_types::pcb::Footprint {
+        uuid: uuid::Uuid::new_v4(),
+        reference: "NT1".into(),
+        value: "NetTie_SMD".into(),
+        footprint_id: "NetTie-2_SMD_Pad0.5mm".into(),
+        position: oxide_types::pcb::Point::new(15.0, 10.0),
+        rotation: 0.0,
+        layer: "Top Layer".into(),
+        locked: false,
+        pads: vec![
+            oxide_types::pcb::Pad {
+                uuid: uuid::Uuid::new_v4(),
+                number: "1".into(),
+                position: oxide_types::pcb::Point::new(-0.25, 0.0),
+                size: oxide_types::pcb::Point::new(0.5, 0.5),
+                pad_type: oxide_types::pcb::PadType::Smd,
+                shape: oxide_types::pcb::PadShape::Rect,
+                drill: None,
+                layers: vec!["Top Layer".into()],
+                net: Some(oxide_types::pcb::PadNet {
+                    number: 1,
+                    name: "AGND".into(),
+                }),
+                roundrect_ratio: 0.0,
+            },
+            oxide_types::pcb::Pad {
+                uuid: uuid::Uuid::new_v4(),
+                number: "2".into(),
+                position: oxide_types::pcb::Point::new(0.25, 0.0),
+                size: oxide_types::pcb::Point::new(0.5, 0.5),
+                pad_type: oxide_types::pcb::PadType::Smd,
+                shape: oxide_types::pcb::PadShape::Rect,
+                drill: None,
+                layers: vec!["Top Layer".into()],
+                net: Some(oxide_types::pcb::PadNet {
+                    number: 2,
+                    name: "DGND".into(),
+                }),
+                roundrect_ratio: 0.0,
+            },
+        ],
+        graphics: vec![],
+        properties: vec![],
+    });
+
+    // With Net-Tie: must be exempted! Zero violations
+    let violations_with_tie = cm.run_drc(&board);
+    assert!(
+        violations_with_tie.is_empty(),
+        "Net-Tie NT1 must exempt AGND and DGND from clearance violations, got: {violations_with_tie:?}"
+    );
+}

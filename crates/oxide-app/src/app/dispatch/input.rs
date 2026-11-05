@@ -982,7 +982,10 @@ mod tests {
         let mut app = quiet_app();
         let w = main_window(&app);
 
-        let ctrl_shift_p = character("p", keyboard::Modifiers::CTRL | keyboard::Modifiers::SHIFT);
+        let ctrl_shift_p = character(
+            "p",
+            keyboard::Modifiers::CTRL | keyboard::Modifiers::SHIFT,
+        );
         let _ = app.handle_key_input(w, ctrl_shift_p);
         assert!(
             app.ui_state.command_palette.open,
