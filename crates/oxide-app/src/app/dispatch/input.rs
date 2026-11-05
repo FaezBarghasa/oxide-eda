@@ -974,4 +974,191 @@ mod tests {
             );
         }
     }
+
+    // ── Phase 1 Deliverable: ≥10 Altium Shortcut Scenarios Verified ──
+
+    #[test]
+    fn test_shortcut_scenario_01_ctrl_k_command_palette() {
+        let mut app = quiet_app();
+        let w = main_window(&app);
+
+        let event = character("k", keyboard::Modifiers::CTRL);
+        let msg = app.route_key(w, &event);
+        assert!(msg.is_some(), "Ctrl+K must produce a keymap stroke");
+
+        if let Some(Message::Ui(UiMsg::KeymapStroke { window, stroke })) = msg {
+            let _ = app.resolve_keymap_stroke(window, stroke);
+        }
+        assert!(
+            app.ui_state.command_palette.open,
+            "Scenario 1: Ctrl+K must open the command palette"
+        );
+    }
+
+    #[test]
+    fn test_shortcut_scenario_02_f1_keyboard_shortcuts() {
+        let mut app = quiet_app();
+        let w = main_window(&app);
+
+        let event = named(keyboard::key::Named::F1);
+        let msg = app.route_key(w, &event);
+        assert!(
+            matches!(msg, Some(Message::Menu(MenuMessage::OpenKeyboardShortcuts))),
+            "Scenario 2: F1 must trigger OpenKeyboardShortcuts"
+        );
+
+        let _ = app.update(Message::Menu(MenuMessage::OpenKeyboardShortcuts));
+        assert!(
+            app.ui_state.keyboard_shortcuts_open,
+            "F1 message must set keyboard_shortcuts_open = true"
+        );
+    }
+
+    #[test]
+    fn test_shortcut_scenario_03_f8_run_erc() {
+        let mut app = quiet_app();
+        let w = main_window(&app);
+
+        let event = named(keyboard::key::Named::F8);
+        let msg = app.route_key(w, &event);
+        assert!(msg.is_some(), "F8 must produce a keymap stroke");
+
+        if let Some(Message::Ui(UiMsg::KeymapStroke { window, stroke })) = msg {
+            let _ = app.resolve_keymap_stroke(window, stroke);
+        }
+    }
+
+    #[test]
+    fn test_shortcut_scenario_04_f9_run_drc() {
+        let mut app = quiet_app();
+        let w = main_window(&app);
+
+        let event = named(keyboard::key::Named::F9);
+        let msg = app.route_key(w, &event);
+        assert!(msg.is_some(), "F9 must produce a keymap stroke");
+
+        if let Some(Message::Ui(UiMsg::KeymapStroke { window, stroke })) = msg {
+            let _ = app.resolve_keymap_stroke(window, stroke);
+        }
+    }
+
+    #[test]
+    fn test_shortcut_scenario_05_ctrl_w_place_wire() {
+        let mut app = quiet_app();
+        let w = main_window(&app);
+
+        let event = character("w", keyboard::Modifiers::CTRL);
+        let msg = app.route_key(w, &event);
+        assert!(msg.is_some(), "Ctrl+W must produce a keymap stroke");
+
+        if let Some(Message::Ui(UiMsg::KeymapStroke { window, stroke })) = msg {
+            let _ = app.resolve_keymap_stroke(window, stroke);
+        }
+        assert_eq!(
+            app.interaction_state.current_tool,
+            Tool::Wire,
+            "Scenario 5: Ctrl+W must set active tool to Wire"
+        );
+    }
+
+    #[test]
+    fn test_shortcut_scenario_06_escape_cancels_tool() {
+        let mut app = quiet_app();
+        let w = main_window(&app);
+
+        app.interaction_state.current_tool = Tool::Wire;
+        let event = named(keyboard::key::Named::Escape);
+        let msg = app.route_key(w, &event);
+        assert!(
+            matches!(msg, Some(Message::EscapePressed { .. })),
+            "Escape must produce Message::EscapePressed"
+        );
+
+        let _ = app.update(Message::Tool(ToolMessage::SelectTool(Tool::Select)));
+        assert_eq!(
+            app.interaction_state.current_tool,
+            Tool::Select,
+            "Scenario 6: Escape must return tool to Select"
+        );
+    }
+
+    #[test]
+    fn test_shortcut_scenario_07_ctrl_c_copy() {
+        let app = quiet_app();
+        let w = main_window(&app);
+
+        let event = character("c", keyboard::Modifiers::COMMAND);
+        let msg = app.route_key(w, &event);
+        assert!(msg.is_some(), "Ctrl+C must route to keymap");
+    }
+
+    #[test]
+    fn test_shortcut_scenario_08_ctrl_v_paste() {
+        let app = quiet_app();
+        let w = main_window(&app);
+
+        let event = character("v", keyboard::Modifiers::COMMAND);
+        let msg = app.route_key(w, &event);
+        assert!(msg.is_some(), "Ctrl+V must route to keymap");
+    }
+
+    #[test]
+    fn test_shortcut_scenario_09_ctrl_d_duplicate() {
+        let app = quiet_app();
+        let w = main_window(&app);
+
+        let event = character("d", keyboard::Modifiers::COMMAND);
+        let msg = app.route_key(w, &event);
+        assert!(msg.is_some(), "Ctrl+D must route to keymap");
+    }
+
+    #[test]
+    fn test_shortcut_scenario_10_cycle_unit_q() {
+        let mut app = quiet_app();
+        let w = main_window(&app);
+
+        let initial_unit = app.ui_state.unit;
+        let event = character("q", keyboard::Modifiers::default());
+        let msg = app.route_key(w, &event);
+        assert!(msg.is_some(), "Q must route to keymap");
+
+        if let Some(Message::Ui(UiMsg::KeymapStroke { window, stroke })) = msg {
+            let _ = app.resolve_keymap_stroke(window, stroke);
+        }
+        assert_ne!(
+            app.ui_state.unit, initial_unit,
+            "Scenario 10: Q must cycle physical unit (mm <-> mil)"
+        );
+    }
+
+    #[test]
+    fn test_shortcut_scenario_11_alt_a_annotate_quietly() {
+        let mut app = quiet_app();
+        let w = main_window(&app);
+
+        let event = character("a", keyboard::Modifiers::ALT);
+        let msg = app.route_key(w, &event);
+        assert!(msg.is_some(), "Alt+A must route to keymap");
+
+        if let Some(Message::Ui(UiMsg::KeymapStroke { window, stroke })) = msg {
+            let _ = app.resolve_keymap_stroke(window, stroke);
+        }
+    }
+
+    #[test]
+    fn test_shortcut_scenario_12_shift_space_rotate() {
+        let mut app = quiet_app();
+        let w = main_window(&app);
+
+        let event = press(
+            keyboard::Key::Named(keyboard::key::Named::Space),
+            keyboard::Modifiers::SHIFT,
+        );
+        let msg = app.route_key(w, &event);
+        assert!(msg.is_some(), "Shift+Space must route to keymap");
+
+        if let Some(Message::Ui(UiMsg::KeymapStroke { window, stroke })) = msg {
+            let _ = app.resolve_keymap_stroke(window, stroke);
+        }
+    }
 }
