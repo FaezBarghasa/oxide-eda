@@ -519,11 +519,7 @@ pub fn view(tokens: &ThemeTokens, ctx: MenuContext) -> Element<'static, MenuMess
                 mc,
             ),
             leaf_stub("Interactive Multi-Routing", None, mc),
-            leaf_stub(
-                "Interactive Length Tuning",
-                Some("Shift+T".to_string()),
-                mc,
-            ),
+            leaf_stub("Interactive Length Tuning", Some("Shift+T".to_string()), mc),
             separator(mc),
             leaf_stub("Auto Route Board", None, mc),
             leaf_stub("Fanout Component / BGA", None, mc),

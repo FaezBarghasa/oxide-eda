@@ -6065,6 +6065,8 @@ version = "1.5.0"
 dependencies = [
  "anyhow",
  "oxide-net",
+ "oxide-output",
+ "oxide-rules",
  "oxide-types",
  "serde",
  "thiserror 2.0.18",

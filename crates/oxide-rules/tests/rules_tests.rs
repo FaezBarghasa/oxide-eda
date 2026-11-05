@@ -532,6 +532,45 @@ fn test_batch_drc_evaluation() {
 }
 
 #[test]
+fn test_drc_reports_real_net_names_not_generic_fallbacks() {
+    let cm = ConstraintManager::standard_default();
+    let mut board = oxide_types::pcb::PcbBoard {
+        nets: vec![oxide_types::pcb::NetDef {
+            number: 42,
+            name: "DDR5_CLK_P".to_string(),
+        }],
+        ..Default::default()
+    };
+
+    // Narrow trace violating 150µm min rule on net 42
+    board.segments.push(oxide_types::pcb::Segment {
+        uuid: uuid::Uuid::new_v4(),
+        start: oxide_types::pcb::Point::new(0.0, 0.0),
+        end: oxide_types::pcb::Point::new(10.0, 0.0),
+        width: 0.10, // 100µm < 150µm
+        layer: "Top Layer".into(),
+        net: 42,
+    });
+
+    let violations = cm.run_drc(&board);
+    let width_violation = violations
+        .iter()
+        .find(|v| v.violation_type == RuleViolationType::WidthTooSmall)
+        .expect("must flag trace width violation");
+
+    assert!(
+        width_violation.message.contains("net 'DDR5_CLK_P'"),
+        "DRC must report real net name 'DDR5_CLK_P' in message: {}",
+        width_violation.message
+    );
+    assert_eq!(
+        width_violation.object_ids,
+        vec!["DDR5_CLK_P".to_string()],
+        "DRC object_ids must contain 'DDR5_CLK_P', not 'NET_42'"
+    );
+}
+
+#[test]
 fn test_acid_trap_and_copper_sliver_validation() {
     use oxide_rules::{AcidTrapRule, CopperSliverRule};
 

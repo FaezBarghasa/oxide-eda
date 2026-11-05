@@ -18,5 +18,9 @@ thiserror = { workspace = true }
 anyhow = { workspace = true }
 uuid = { workspace = true }
 # GH #548 — inherit [workspace.lints.rust] (unused_must_use = deny).
+[dev-dependencies]
+oxide-rules = { workspace = true }
+oxide-output = { workspace = true }
+
 [lints]
 workspace = true
