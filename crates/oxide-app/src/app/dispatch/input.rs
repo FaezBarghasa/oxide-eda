@@ -978,20 +978,15 @@ mod tests {
     // ── Phase 1 Deliverable: ≥10 Altium Shortcut Scenarios Verified ──
 
     #[test]
-    fn test_shortcut_scenario_01_ctrl_k_command_palette() {
+    fn test_shortcut_scenario_01_command_palette_toggle() {
         let mut app = quiet_app();
         let w = main_window(&app);
 
-        let event = character("k", keyboard::Modifiers::CTRL);
-        let msg = app.route_key(w, &event);
-        assert!(msg.is_some(), "Ctrl+K must produce a keymap stroke");
-
-        if let Some(Message::Ui(UiMsg::KeymapStroke { window, stroke })) = msg {
-            let _ = app.resolve_keymap_stroke(window, stroke);
-        }
+        let ctrl_shift_p = character("p", keyboard::Modifiers::CTRL | keyboard::Modifiers::SHIFT);
+        let _ = app.handle_key_input(w, ctrl_shift_p);
         assert!(
             app.ui_state.command_palette.open,
-            "Scenario 1: Ctrl+K must open the command palette"
+            "Scenario 1: Ctrl+Shift+P must open palette"
         );
     }
 
@@ -1043,21 +1038,25 @@ mod tests {
     }
 
     #[test]
-    fn test_shortcut_scenario_05_ctrl_w_place_wire() {
+    fn test_shortcut_scenario_05_p_w_place_wire() {
         let mut app = quiet_app();
         let w = main_window(&app);
 
-        let event = character("w", keyboard::Modifiers::CTRL);
-        let msg = app.route_key(w, &event);
-        assert!(msg.is_some(), "Ctrl+W must produce a keymap stroke");
+        // Altium 2-key chord: P then W
+        let event_p = character("p", keyboard::Modifiers::default());
+        let _ = app.handle_key_input(w, event_p);
+        assert_eq!(
+            app.ui_state.keymap_pending_sequence.len(),
+            1,
+            "P starts chord"
+        );
 
-        if let Some(Message::Ui(UiMsg::KeymapStroke { window, stroke })) = msg {
-            let _ = app.resolve_keymap_stroke(window, stroke);
-        }
+        let event_w = character("w", keyboard::Modifiers::default());
+        let _ = app.handle_key_input(w, event_w);
         assert_eq!(
             app.interaction_state.current_tool,
             Tool::Wire,
-            "Scenario 5: Ctrl+W must set active tool to Wire"
+            "Scenario 5: P W must set active tool to Wire"
         );
     }
 
