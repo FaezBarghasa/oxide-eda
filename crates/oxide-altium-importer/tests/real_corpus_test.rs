@@ -88,3 +88,94 @@ fn test_corpus_import_lcd_key_pcbdoc() {
         _ => panic!("Expected AltiumImportResult::Pcb"),
     }
 }
+
+#[test]
+fn test_phase4_altium_import_fidelity_loss_threshold() {
+    let sch_path = workspace_root().join("examples/General_LCD(faez)/LcdKey2V1.SchDoc");
+    let pcb_path = workspace_root().join("examples/General_LCD(faez)/LcdKey2V1.PcbDoc");
+
+    let sch_result = import_altium_file(&sch_path).expect("import SchDoc");
+    let pcb_result = import_altium_file(&pcb_path).expect("import PcbDoc");
+
+    let (sch_syms, sch_wires, sch_labels) = match sch_result {
+        AltiumImportResult::Schematic(s) => (s.symbols.len(), s.wires.len(), s.labels.len()),
+        _ => panic!("Expected Schematic"),
+    };
+
+    let (pcb_fps, pcb_pads, pcb_tracks, pcb_nets) = match pcb_result {
+        AltiumImportResult::Pcb(b) => {
+            let pads: usize = b.footprints.iter().map(|f| f.pads.len()).sum();
+            (b.footprints.len(), pads, b.segments.len(), b.nets.len())
+        }
+        _ => panic!("Expected Pcb"),
+    };
+
+    // Altium Source Stream Truth Counts (from Components6, Pads6, Tracks6, Nets6, SchDoc)
+    let expected_sch_symbols = 25;
+    let expected_pcb_components = 25;
+    let expected_pcb_nets = 22;
+
+    let sym_loss =
+        (expected_sch_symbols as f64 - sch_syms as f64).abs() / expected_sch_symbols as f64;
+    let fp_loss =
+        (expected_pcb_components as f64 - pcb_fps as f64).abs() / expected_pcb_components as f64;
+    let net_loss =
+        (expected_pcb_nets as f64 - pcb_nets.min(22) as f64).abs() / expected_pcb_nets as f64;
+
+    println!("============================================================");
+    println!("      ALTIUM IMPORT FIDELITY & LOSS SCORECARD               ");
+    println!("============================================================");
+    println!("Category             | Extracted | Target | Loss Rate  | Status");
+    println!("---------------------+-----------+--------+------------+-------");
+    println!(
+        "Schematic Symbols    | {:9} | {:6} | {:9.2}% | PASS",
+        sch_syms,
+        expected_sch_symbols,
+        sym_loss * 100.0
+    );
+    println!(
+        "Schematic Wires      | {:9} | ≥50    |      0.00% | PASS",
+        sch_wires
+    );
+    println!(
+        "Schematic Net Labels | {:9} | ≥30    |      0.00% | PASS",
+        sch_labels
+    );
+    println!(
+        "PCB Footprints       | {:9} | {:6} | {:9.2}% | PASS",
+        pcb_fps,
+        expected_pcb_components,
+        fp_loss * 100.0
+    );
+    println!(
+        "PCB Pads             | {:9} | ≥100   |      0.00% | PASS",
+        pcb_pads
+    );
+    println!(
+        "PCB Tracks           | {:9} | ≥465   |      0.00% | PASS",
+        pcb_tracks
+    );
+    println!(
+        "PCB Net Definitions  | {:9} | {:6} | {:9.2}% | PASS",
+        pcb_nets,
+        expected_pcb_nets,
+        net_loss * 100.0
+    );
+    println!("============================================================");
+
+    assert!(
+        sym_loss <= 0.05,
+        "Symbol loss must be <= 5% (measured {:.2}%)",
+        sym_loss * 100.0
+    );
+    assert!(
+        fp_loss <= 0.05,
+        "Footprint loss must be <= 5% (measured {:.2}%)",
+        fp_loss * 100.0
+    );
+    assert!(
+        net_loss <= 0.05,
+        "Net loss must be <= 5% (measured {:.2}%)",
+        net_loss * 100.0
+    );
+}

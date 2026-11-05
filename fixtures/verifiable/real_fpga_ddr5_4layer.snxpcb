@@ -1,5 +1,5 @@
 format = "snxpcb/1"
-pcb_id = "d2839f8b-30f2-439e-90ff-ee226c782517"
+pcb_id = "a8ec8f13-2504-4cae-a5a0-2caa33f02cc8"
 version = 1
 generator = "Oxide EDA Verifiable Test Suite"
 thickness = 1.6
@@ -36,54 +36,54 @@ name = "DDR5_DQ0"
 [footprints]
 content = """
 uuid                                  ref      library                               pos_x     pos_y     rotation  layer      value
-a507745f-4caf-4f8d-ac9c-e21e0550284b  U1_FPGA  Package_SO:SOIC-14_3.9x8.7mm_P1.27mm  35000000  50000000  0         TopCopper  TL074_Quad_OpAmp
-97c36d98-e601-40b0-adbe-a84aa35342ef  U2_DDR5  Package_SO:SOIC-14_3.9x8.7mm_P1.27mm  65000000  50000000  0         TopCopper  TL074_Quad_OpAmp
-a0161b45-0f17-49f0-b2fc-2f5b3bd80f43  C1       Resistor_SMD:R_0805_2012Metric        35000000  35000000  0         TopCopper  100nF
-4efc0592-808b-4e42-a62d-3b35e0c67ffe  C2       Resistor_SMD:R_0805_2012Metric        65000000  35000000  0         TopCopper  100nF
+8fc2160e-fdd1-4c2a-8168-85f42c82b319  U1_FPGA  Package_SO:SOIC-14_3.9x8.7mm_P1.27mm  35000000  50000000  0         TopCopper  TL074_Quad_OpAmp
+071c4c9d-3a54-438e-8292-71de751d2098  U2_DDR5  Package_SO:SOIC-14_3.9x8.7mm_P1.27mm  65000000  50000000  0         TopCopper  TL074_Quad_OpAmp
+11cecfef-014a-43a4-9afc-a936e52d5407  C1       Resistor_SMD:R_0805_2012Metric        35000000  35000000  0         TopCopper  100nF
+265ae1b3-bc34-40a6-916a-c8835fc4f833  C2       Resistor_SMD:R_0805_2012Metric        65000000  35000000  0         TopCopper  100nF
 """
 
 [pads]
 content = """
 uuid                                  footprint_ref  pin  pos_x     pos_y     size_x   size_y   pad_type  shape      layers     drill  net_number  net_name  roundrect_ratio
-261c8fbd-510f-487e-982e-b6b29193fd48  U1_FPGA        1    -2700000  -3810000  1500000  600000   smd       roundrect  TopCopper  0      1           SIG_1     0.25
-a6b3e654-cb6c-420a-bb41-21bc03ff9c92  U1_FPGA        14   2700000   -3810000  1500000  600000   smd       roundrect  TopCopper  0      14          SIG_14    0.25
-0bcb90a0-4755-4b93-9f70-35ef60321719  U1_FPGA        2    -2700000  -2540000  1500000  600000   smd       roundrect  TopCopper  0      2           SIG_2     0.25
-68219313-8c41-40b0-b093-bf0e7901f81c  U1_FPGA        13   2700000   -2540000  1500000  600000   smd       roundrect  TopCopper  0      13          SIG_13    0.25
-26087663-8c3c-4ef0-9cfa-7cb3a9671c3d  U1_FPGA        3    -2700000  -1270000  1500000  600000   smd       roundrect  TopCopper  0      3           SIG_3     0.25
-aa8a50bd-7e39-447d-90d5-db0d1b362707  U1_FPGA        12   2700000   -1270000  1500000  600000   smd       roundrect  TopCopper  0      12          SIG_12    0.25
-bdc82592-09fd-4b34-ba9a-6e5d9b71ab3d  U1_FPGA        4    -2700000  0         1500000  600000   smd       roundrect  TopCopper  0      4           SIG_4     0.25
-e1d8b4b1-0ea8-4c06-95f1-81bf409edf99  U1_FPGA        11   2700000   0         1500000  600000   smd       roundrect  TopCopper  0      11          SIG_11    0.25
-82b34e0a-7eed-4592-936f-de66ad58c11f  U1_FPGA        5    -2700000  1270000   1500000  600000   smd       roundrect  TopCopper  0      5           SIG_5     0.25
-92f9f736-62b2-4fd5-b2c0-77cc6cdbbd12  U1_FPGA        10   2700000   1270000   1500000  600000   smd       roundrect  TopCopper  0      10          SIG_10    0.25
-19371624-4adc-41b1-8f3a-5237898ebeac  U1_FPGA        6    -2700000  2540000   1500000  600000   smd       roundrect  TopCopper  0      6           SIG_6     0.25
-6eb8bbb4-f3fc-4eb2-8d00-449e273a852c  U1_FPGA        9    2700000   2540000   1500000  600000   smd       roundrect  TopCopper  0      9           SIG_9     0.25
-fd8f92d3-b3cc-4b94-b2ed-00fbfbe1dfab  U1_FPGA        7    -2700000  3810000   1500000  600000   smd       roundrect  TopCopper  0      7           SIG_7     0.25
-bf99cf38-b2c0-4a91-a9b1-b5bc2132e3d2  U1_FPGA        8    2700000   3810000   1500000  600000   smd       roundrect  TopCopper  0      8           SIG_8     0.25
-2ee35770-22c9-4442-afd7-fc3eb7c3d651  U2_DDR5        1    -2700000  -3810000  1500000  600000   smd       roundrect  TopCopper  0      1           SIG_1     0.25
-7e4b88e7-947f-4a34-80a6-454570f6051b  U2_DDR5        14   2700000   -3810000  1500000  600000   smd       roundrect  TopCopper  0      14          SIG_14    0.25
-b650a79f-4e71-4c3e-b06d-e54d5fe32ecf  U2_DDR5        2    -2700000  -2540000  1500000  600000   smd       roundrect  TopCopper  0      2           SIG_2     0.25
-40bca68a-cc8d-4157-8e57-3390e2f4f866  U2_DDR5        13   2700000   -2540000  1500000  600000   smd       roundrect  TopCopper  0      13          SIG_13    0.25
-fc611e13-8ead-4c79-bc6b-4cfa2fbacb80  U2_DDR5        3    -2700000  -1270000  1500000  600000   smd       roundrect  TopCopper  0      3           SIG_3     0.25
-da4cba75-06e4-4fbe-a433-a83c37b939cb  U2_DDR5        12   2700000   -1270000  1500000  600000   smd       roundrect  TopCopper  0      12          SIG_12    0.25
-c9ac42d5-a7b0-4aac-834d-619ec69a32de  U2_DDR5        4    -2700000  0         1500000  600000   smd       roundrect  TopCopper  0      4           SIG_4     0.25
-098ddb4d-c696-49f8-8fce-620585aef7fb  U2_DDR5        11   2700000   0         1500000  600000   smd       roundrect  TopCopper  0      11          SIG_11    0.25
-5a39cf53-2256-4c48-8c96-d9f1469a81d9  U2_DDR5        5    -2700000  1270000   1500000  600000   smd       roundrect  TopCopper  0      5           SIG_5     0.25
-0b5844b7-bc39-4e5a-a3f3-e1e81a9c660a  U2_DDR5        10   2700000   1270000   1500000  600000   smd       roundrect  TopCopper  0      10          SIG_10    0.25
-7d0139f3-9715-4ad3-91cb-0997a45e7fb5  U2_DDR5        6    -2700000  2540000   1500000  600000   smd       roundrect  TopCopper  0      6           SIG_6     0.25
-40a47e0c-ec68-4ee0-b386-324d9f020af6  U2_DDR5        9    2700000   2540000   1500000  600000   smd       roundrect  TopCopper  0      9           SIG_9     0.25
-b7ffc84d-3297-4db2-b1f3-27cd68250a34  U2_DDR5        7    -2700000  3810000   1500000  600000   smd       roundrect  TopCopper  0      7           SIG_7     0.25
-0ded900c-0ede-4745-b493-3ba2dc1a6d43  U2_DDR5        8    2700000   3810000   1500000  600000   smd       roundrect  TopCopper  0      8           SIG_8     0.25
-47b68e64-8525-4580-95c2-6ef30acb5155  C1             1    -950000   0         1000000  1300000  smd       rect       TopCopper  0      1           GND       0.25
-609f223b-2f21-4a81-8782-eca0e2e2bf8b  C1             2    950000    0         1000000  1300000  smd       rect       TopCopper  0      2           +1V8      0.25
-ff60051d-1afe-4cea-a4ab-e9676064361a  C2             1    -950000   0         1000000  1300000  smd       rect       TopCopper  0      1           GND       0.25
-ed38808d-da15-4ed1-a064-d9f79c03fe80  C2             2    950000    0         1000000  1300000  smd       rect       TopCopper  0      2           +1V8      0.25
+d52edb3c-26d2-48f0-be2b-bdfbd944ca87  U1_FPGA        1    -2700000  -3810000  1500000  600000   smd       roundrect  TopCopper  0      1           SIG_1     0.25
+33a70c11-8c14-41be-8d26-5ff85d19ba5f  U1_FPGA        14   2700000   -3810000  1500000  600000   smd       roundrect  TopCopper  0      14          SIG_14    0.25
+826de799-40c7-458f-97ff-766fad16d925  U1_FPGA        2    -2700000  -2540000  1500000  600000   smd       roundrect  TopCopper  0      2           SIG_2     0.25
+8ac931c2-d46e-4b83-8d82-cf86198e6f87  U1_FPGA        13   2700000   -2540000  1500000  600000   smd       roundrect  TopCopper  0      13          SIG_13    0.25
+5e4947f0-d5e5-4f42-a98a-a113ff5b5e69  U1_FPGA        3    -2700000  -1270000  1500000  600000   smd       roundrect  TopCopper  0      3           SIG_3     0.25
+0fece6b6-3183-4828-94b3-4c492178e602  U1_FPGA        12   2700000   -1270000  1500000  600000   smd       roundrect  TopCopper  0      12          SIG_12    0.25
+fa1a9824-9d1a-463f-a28e-7bdfc4d85e42  U1_FPGA        4    -2700000  0         1500000  600000   smd       roundrect  TopCopper  0      4           SIG_4     0.25
+41b58b8a-6ef8-4172-a7aa-0e5bab7fd018  U1_FPGA        11   2700000   0         1500000  600000   smd       roundrect  TopCopper  0      11          SIG_11    0.25
+07fe7471-f75f-49d7-bb1f-d3336f180ad7  U1_FPGA        5    -2700000  1270000   1500000  600000   smd       roundrect  TopCopper  0      5           SIG_5     0.25
+033e1119-8552-4ba4-9662-3642a141f4d3  U1_FPGA        10   2700000   1270000   1500000  600000   smd       roundrect  TopCopper  0      10          SIG_10    0.25
+0686b1ec-4cc1-4e7a-b887-1d22952e26b2  U1_FPGA        6    -2700000  2540000   1500000  600000   smd       roundrect  TopCopper  0      6           SIG_6     0.25
+502c2fda-176e-4beb-a9f5-a3d8e02a9681  U1_FPGA        9    2700000   2540000   1500000  600000   smd       roundrect  TopCopper  0      9           SIG_9     0.25
+0f0630d8-f969-41a2-9a32-b890f621616e  U1_FPGA        7    -2700000  3810000   1500000  600000   smd       roundrect  TopCopper  0      7           SIG_7     0.25
+1d511c21-115f-4296-aa85-d8b676c8cf2c  U1_FPGA        8    2700000   3810000   1500000  600000   smd       roundrect  TopCopper  0      8           SIG_8     0.25
+2f453bd2-0424-47f8-ab84-966dd496ed75  U2_DDR5        1    -2700000  -3810000  1500000  600000   smd       roundrect  TopCopper  0      1           SIG_1     0.25
+51840206-f775-48fe-a3b9-71f4e8f76945  U2_DDR5        14   2700000   -3810000  1500000  600000   smd       roundrect  TopCopper  0      14          SIG_14    0.25
+2659b33b-b02e-4210-8b5d-f320960cabef  U2_DDR5        2    -2700000  -2540000  1500000  600000   smd       roundrect  TopCopper  0      2           SIG_2     0.25
+a0a3cde7-d2e6-46af-a026-633e79f8be9b  U2_DDR5        13   2700000   -2540000  1500000  600000   smd       roundrect  TopCopper  0      13          SIG_13    0.25
+62210027-ea45-444a-a69f-bb09f9e270e7  U2_DDR5        3    -2700000  -1270000  1500000  600000   smd       roundrect  TopCopper  0      3           SIG_3     0.25
+9a792a61-bd7f-4fa3-a7bc-16a5ced77915  U2_DDR5        12   2700000   -1270000  1500000  600000   smd       roundrect  TopCopper  0      12          SIG_12    0.25
+65ee3311-bf3e-426d-a957-2412fd087792  U2_DDR5        4    -2700000  0         1500000  600000   smd       roundrect  TopCopper  0      4           SIG_4     0.25
+40201fbe-450c-4028-a4cb-25c1094fd494  U2_DDR5        11   2700000   0         1500000  600000   smd       roundrect  TopCopper  0      11          SIG_11    0.25
+997d930d-9d46-4407-b6e8-970ef2d7e27e  U2_DDR5        5    -2700000  1270000   1500000  600000   smd       roundrect  TopCopper  0      5           SIG_5     0.25
+5afa0bca-f971-4d60-b2fd-eb1593ca5fce  U2_DDR5        10   2700000   1270000   1500000  600000   smd       roundrect  TopCopper  0      10          SIG_10    0.25
+ea6b794d-60e6-4070-8c16-1fc2d8ea86c4  U2_DDR5        6    -2700000  2540000   1500000  600000   smd       roundrect  TopCopper  0      6           SIG_6     0.25
+64ecd7c4-96c2-4a80-9165-5b2c6a59f84e  U2_DDR5        9    2700000   2540000   1500000  600000   smd       roundrect  TopCopper  0      9           SIG_9     0.25
+6492fdfc-c660-4295-a689-82aa5c3dffee  U2_DDR5        7    -2700000  3810000   1500000  600000   smd       roundrect  TopCopper  0      7           SIG_7     0.25
+f399fa48-e61d-478a-a7f7-ea191e4a4009  U2_DDR5        8    2700000   3810000   1500000  600000   smd       roundrect  TopCopper  0      8           SIG_8     0.25
+a5f023dd-ab6a-4b4b-a589-fbe15a6c72a0  C1             1    -950000   0         1000000  1300000  smd       rect       TopCopper  0      1           GND       0.25
+a4c49cac-66c4-4aaa-b88a-e5068e935427  C1             2    950000    0         1000000  1300000  smd       rect       TopCopper  0      2           +1V8      0.25
+5fd539b3-ab51-4a9f-9b10-7fb297158d61  C2             1    -950000   0         1000000  1300000  smd       rect       TopCopper  0      1           GND       0.25
+bf717021-1bbd-4178-91f8-471d34f1812a  C2             2    950000    0         1000000  1300000  smd       rect       TopCopper  0      2           +1V8      0.25
 """
 
 [tracks]
 content = """
 uuid                                  net  layer      width   start_x   start_y   end_x     end_y
-7a1dbbb8-b85b-4077-a1c6-115bf7d29b1e  3    TopCopper  200000  40000000  52000000  60000000  52000000
-7134c926-919e-4ab2-971a-12a507fa00b6  4    TopCopper  200000  40000000  52300000  60000000  52300000
+3c8492eb-3422-4e4c-bc80-bbe8ddc57b43  3    TopCopper  200000  40000000  52000000  60000000  52000000
+6f45abea-3fe3-40a6-bf9f-ec14778c8e46  4    TopCopper  200000  40000000  52300000  60000000  52300000
 """
 
 [vias]
@@ -91,25 +91,25 @@ content = """
 uuid  net  pos_x  pos_y  drill  diameter  layers  via_type
 """
 
-[extras.footprints.4efc0592-808b-4e42-a62d-3b35e0c67ffe]
-footprint_id = "Resistor_SMD:R_0805_2012Metric"
-locked = false
-graphics = []
-properties = []
-
-[extras.footprints.97c36d98-e601-40b0-adbe-a84aa35342ef]
+[extras.footprints.071c4c9d-3a54-438e-8292-71de751d2098]
 footprint_id = "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
 locked = false
 graphics = []
 properties = []
 
-[extras.footprints.a0161b45-0f17-49f0-b2fc-2f5b3bd80f43]
+[extras.footprints.11cecfef-014a-43a4-9afc-a936e52d5407]
 footprint_id = "Resistor_SMD:R_0805_2012Metric"
 locked = false
 graphics = []
 properties = []
 
-[extras.footprints.a507745f-4caf-4f8d-ac9c-e21e0550284b]
+[extras.footprints.265ae1b3-bc34-40a6-916a-c8835fc4f833]
+footprint_id = "Resistor_SMD:R_0805_2012Metric"
+locked = false
+graphics = []
+properties = []
+
+[extras.footprints.8fc2160e-fdd1-4c2a-8168-85f42c82b319]
 footprint_id = "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
 locked = false
 graphics = []

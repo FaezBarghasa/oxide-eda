@@ -188,7 +188,7 @@ impl Oxide {
     }
 
     /// The single entry point for `Message::KeyInput`.
-    pub(crate) fn handle_key_input(
+    pub fn handle_key_input(
         &mut self,
         window: iced::window::Id,
         event: keyboard::Event,

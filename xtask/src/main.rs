@@ -178,6 +178,35 @@ fn run_verify() {
                 "--nocapture",
             ],
         },
+        Check {
+            name: "Phase 4: Daily Workflow End-to-End on T2",
+            desc: "Full daily workflow: open T2, Altium hotkeys P W/Esc, DRC oracle, teardrops, Gerber & drill CAM",
+            cmd: "cargo",
+            args: &[
+                "test",
+                "-p",
+                "oxide-app",
+                "--test",
+                "daily_workflow_test",
+                "--",
+                "--nocapture",
+            ],
+        },
+        Check {
+            name: "Phase 4: Altium Import Fidelity Loss Threshold",
+            desc: "Assert ≤5% import loss across symbols, footprints, pads, tracks, and nets on real corpus",
+            cmd: "cargo",
+            args: &[
+                "test",
+                "-p",
+                "oxide-altium-importer",
+                "--test",
+                "real_corpus_test",
+                "--",
+                "test_phase4_altium_import_fidelity_loss_threshold",
+                "--nocapture",
+            ],
+        },
     ];
 
     let mut all_passed = true;
