@@ -5,10 +5,10 @@ use iced::widget::{Column, Space, button, container, row, scrollable, text};
 use iced::{Element, Length};
 use oxide_widgets::theme_ext;
 
-use crate::diff::DiffClassification;
 use super::context::PanelContext;
 use super::messages::PanelMsg;
 use super::widgets::{section_title, separator};
+use crate::diff::DiffClassification;
 
 pub fn view_ai_diff<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
     let mut col: Column<'a, PanelMsg> = Column::new().spacing(4).padding(6).width(Length::Fill);
@@ -22,7 +22,7 @@ pub fn view_ai_diff<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
                     .size(11)
                     .color(theme_ext::text_primary(&ctx.tokens)),
             )
-            .padding([3, 10])
+            .padding([6, 14])
             .on_press(PanelMsg::AcceptAiProposal)
             .style(crate::styles::menu_item(&ctx.tokens)),
             Space::new().width(6).height(Length::Shrink),
@@ -31,7 +31,7 @@ pub fn view_ai_diff<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
                     .size(11)
                     .color(theme_ext::text_secondary(&ctx.tokens)),
             )
-            .padding([3, 10])
+            .padding([6, 14])
             .on_press(PanelMsg::DiscardAiProposal)
             .style(crate::styles::menu_item(&ctx.tokens)),
         ]
@@ -94,7 +94,7 @@ pub fn view_ai_diff<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
 
     let mut diff_col = Column::new().spacing(4);
 
-    for (classification, action, target, desc, validation) in changes {
+    for (idx, (classification, action, target, desc, validation)) in changes.iter().enumerate() {
         let tag_color = match classification {
             DiffClassification::Added => iced::Color::from_rgb(0.15, 0.85, 0.30),
             DiffClassification::Removed => iced::Color::from_rgb(0.90, 0.20, 0.20),
@@ -104,23 +104,46 @@ pub fn view_ai_diff<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
         diff_col = diff_col.push(
             container(
                 row![
-                    text(action)
+                    text(*action)
                         .size(10)
                         .color(tag_color)
                         .width(Length::FillPortion(2)),
-                    text(target)
+                    text(*target)
                         .size(10)
                         .color(theme_ext::text_primary(&ctx.tokens))
                         .width(Length::FillPortion(3)),
-                    text(desc)
+                    text(*desc)
                         .size(10)
                         .color(theme_ext::text_secondary(&ctx.tokens))
-                        .width(Length::FillPortion(4)),
-                    text(validation)
+                        .width(Length::FillPortion(3)),
+                    text(*validation)
                         .size(10)
                         .color(theme_ext::text_primary(&ctx.tokens))
-                        .width(Length::FillPortion(4)),
+                        .width(Length::FillPortion(3)),
+                    button(
+                        text("✓")
+                            .size(10)
+                            .color(iced::Color::from_rgb(0.2, 0.9, 0.3))
+                    )
+                    .padding([2, 6])
+                    .on_press(PanelMsg::CherryPickDiffItem {
+                        item_index: idx,
+                        accept: true,
+                    })
+                    .style(crate::styles::menu_item(&ctx.tokens)),
+                    button(
+                        text("✕")
+                            .size(10)
+                            .color(iced::Color::from_rgb(0.9, 0.3, 0.3))
+                    )
+                    .padding([2, 6])
+                    .on_press(PanelMsg::CherryPickDiffItem {
+                        item_index: idx,
+                        accept: false,
+                    })
+                    .style(crate::styles::menu_item(&ctx.tokens)),
                 ]
+                .spacing(4)
                 .align_y(iced::Alignment::Center)
                 .padding([4, 6]),
             )

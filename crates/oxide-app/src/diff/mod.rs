@@ -7,6 +7,9 @@
 //!
 //! Supports side-by-side split rendering and unified alpha-blended overlay comparison.
 
+pub mod git_loader;
+pub use git_loader::{list_recent_revisions, load_board_revision, load_diff_between_revisions};
+
 use oxide_types::pcb::{Footprint, PcbBoard, Segment, Via};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
@@ -41,8 +44,8 @@ pub struct PcbVisualDiff {
 pub enum VisualDiffMode {
     #[default]
     UnifiedOverlay, // Color-coded alpha blend
-    SplitSwipe,     // Vertical swipe divider
-    SideBySide,     // Dual viewports
+    SplitSwipe, // Vertical swipe divider
+    SideBySide, // Dual viewports
 }
 
 impl PcbVisualDiff {
@@ -249,8 +252,8 @@ impl PcbVisualDiff {
     /// RGBA color representation for overlay visual rendering.
     pub fn classification_color(classification: DiffClassification) -> [f32; 4] {
         match classification {
-            DiffClassification::Added => [0.15, 0.85, 0.30, 0.80],    // Crisp Green
-            DiffClassification::Removed => [0.90, 0.20, 0.20, 0.80],  // Bright Red
+            DiffClassification::Added => [0.15, 0.85, 0.30, 0.80], // Crisp Green
+            DiffClassification::Removed => [0.90, 0.20, 0.20, 0.80], // Bright Red
             DiffClassification::Modified => [1.00, 0.75, 0.10, 0.85], // Amber / Gold
         }
     }
@@ -343,8 +346,14 @@ mod tests {
         let diff = PcbVisualDiff::compute_diff(&board_a, &board_b);
 
         // Assert classifications
-        assert_eq!(diff.added_count, 2, "Expected 1 added footprint + 1 added segment");
-        assert_eq!(diff.removed_count, 2, "Expected 1 removed footprint + 1 removed segment");
+        assert_eq!(
+            diff.added_count, 2,
+            "Expected 1 added footprint + 1 added segment"
+        );
+        assert_eq!(
+            diff.removed_count, 2,
+            "Expected 1 removed footprint + 1 removed segment"
+        );
         assert_eq!(diff.modified_count, 1, "Expected 1 modified footprint (R1)");
 
         let r1_diff = diff
@@ -370,7 +379,10 @@ mod tests {
 
         // Colors
         let green = PcbVisualDiff::classification_color(DiffClassification::Added);
-        assert!(green[1] > green[0], "Green channel must dominate added color");
+        assert!(
+            green[1] > green[0],
+            "Green channel must dominate added color"
+        );
         let red = PcbVisualDiff::classification_color(DiffClassification::Removed);
         assert!(red[0] > red[1], "Red channel must dominate removed color");
     }

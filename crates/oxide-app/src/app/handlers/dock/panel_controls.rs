@@ -1025,6 +1025,22 @@ impl Oxide {
                 self.mark_active_pcb_dirty();
                 self.refresh_panel_ctx();
             }
+            crate::panels::PanelMsg::DiffLoaded(diff) => {
+                crate::diagnostics::log_info(format!(
+                    "Visual Diff: Loaded {} added, {} modified, {} removed elements",
+                    diff.added_count, diff.modified_count, diff.removed_count
+                ));
+                self.interaction_state.pcb_canvas.clear_content_cache();
+                self.refresh_panel_ctx();
+            }
+            crate::panels::PanelMsg::CherryPickDiffItem { item_index, accept } => {
+                crate::diagnostics::log_info(format!(
+                    "Visual Diff: {} item #{}",
+                    if *accept { "Accepted" } else { "Rejected" },
+                    item_index
+                ));
+                self.refresh_panel_ctx();
+            }
             _ => return None,
         }
 

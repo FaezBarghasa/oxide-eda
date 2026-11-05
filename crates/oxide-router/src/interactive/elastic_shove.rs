@@ -204,7 +204,71 @@ pub struct ShovePropagationStep {
 pub struct CascadeObstacle {
     pub net_id: u32,
     pub points: Vec<Point2D>,
+    pub original_points: Vec<Point2D>,
     pub is_fixed: bool,
+    pub is_via: bool,
+    pub is_locked: bool,
+    pub max_displacement_um: f64,
+}
+
+impl CascadeObstacle {
+    pub fn new_trace(net_id: u32, points: Vec<Point2D>, is_fixed: bool) -> Self {
+        let original_points = points.clone();
+        Self {
+            net_id,
+            points,
+            original_points,
+            is_fixed,
+            is_via: false,
+            is_locked: is_fixed,
+            max_displacement_um: 0.0,
+        }
+    }
+
+    pub fn new_via(
+        net_id: u32,
+        position: Point2D,
+        is_locked: bool,
+        max_displacement_um: f64,
+    ) -> Self {
+        let original_points = vec![position];
+        Self {
+            net_id,
+            points: vec![position],
+            original_points,
+            is_fixed: is_locked,
+            is_via: true,
+            is_locked,
+            max_displacement_um,
+        }
+    }
+
+    /// Relaxes obstacle points toward their original resting coordinates when clearance permits.
+    pub fn relax_towards_rest(&mut self, primary_path: &[Point2D], clearance: i64, damping: f64) {
+        if self.is_locked || self.is_fixed {
+            return;
+        }
+        for (pt, orig) in self.points.iter_mut().zip(&self.original_points) {
+            let dx = orig.x - pt.x;
+            let dy = orig.y - pt.y;
+            let dist_to_orig = ((dx * dx + dy * dy) as f64).sqrt();
+            if dist_to_orig > 1.0 {
+                let step_x = (dx as f64 * damping.clamp(0.0, 1.0)).round() as i64;
+                let step_y = (dy as f64 * damping.clamp(0.0, 1.0)).round() as i64;
+                let candidate = Point2D::new(pt.x + step_x, pt.y + step_y);
+                let mut violates = false;
+                for prim_pt in primary_path {
+                    if prim_pt.distance_to(candidate) < clearance {
+                        violates = true;
+                        break;
+                    }
+                }
+                if !violates {
+                    *pt = candidate;
+                }
+            }
+        }
+    }
 }
 
 /// Outcome of a multi-obstacle topological cascade shove.
@@ -212,6 +276,7 @@ pub struct CascadeObstacle {
 pub struct CascadeShoveResult {
     pub primary_deflected_path: Vec<Point2D>,
     pub displaced_obstacles: Vec<(u32, Vec<Point2D>)>,
+    pub displaced_vias: Vec<(u32, Point2D)>,
     pub propagation_steps: Vec<ShovePropagationStep>,
     pub max_hop_reached: usize,
     pub deflected_around_fixed: bool,
@@ -265,12 +330,15 @@ impl CascadeShoveEngine {
             .iter()
             .map(|obs| (obs.net_id, obs.is_fixed))
             .collect();
+        let obs_map: HashMap<u32, &CascadeObstacle> =
+            obstacles.iter().map(|obs| (obs.net_id, obs)).collect();
 
         let mut queue: VecDeque<(u32, Vector2D, usize, Point2D)> = VecDeque::new();
         let mut visited_nets = HashSet::new();
         visited_nets.insert(primary_net);
 
         let mut propagation_steps = Vec::new();
+        let mut displaced_vias = Vec::new();
         let mut max_hop_reached = 0;
         let mut deflected_around_fixed = false;
 
@@ -312,14 +380,36 @@ impl CascadeShoveEngine {
         }
 
         // Step 2: Propagate cascade through queue
-        while let Some((curr_net, push_vec, hop, _contact_pt)) = queue.pop_front() {
+        while let Some((curr_net, mut push_vec, hop, _contact_pt)) = queue.pop_front() {
             max_hop_reached = max_hop_reached.max(hop);
+
+            // Handle via constraints
+            if let Some(obs) = obs_map.get(&curr_net)
+                && obs.is_via
+            {
+                if obs.is_locked {
+                    deflected_around_fixed = true;
+                    continue;
+                }
+                let req_len = push_vec.length();
+                if req_len > obs.max_displacement_um {
+                    let scale = obs.max_displacement_um / req_len.max(1e-9);
+                    push_vec = Vector2D::new(push_vec.dx * scale, push_vec.dy * scale);
+                    deflected_around_fixed = true;
+                }
+            }
 
             // Displace target obstacle points
             if let Some(pts) = displaced_map.get_mut(&curr_net) {
                 for p in pts.iter_mut() {
                     p.x += push_vec.dx.round() as i64;
                     p.y += push_vec.dy.round() as i64;
+                }
+                if let Some(obs) = obs_map.get(&curr_net)
+                    && obs.is_via
+                    && !pts.is_empty()
+                {
+                    displaced_vias.push((curr_net, pts[0]));
                 }
             }
 
@@ -345,7 +435,8 @@ impl CascadeShoveEngine {
                                 deflected_around_fixed = true;
                             } else if !visited_nets.contains(&other_net) {
                                 visited_nets.insert(other_net);
-                                let mut dir = Vector2D::from_points(*pt_curr, *pt_other).normalize();
+                                let mut dir =
+                                    Vector2D::from_points(*pt_curr, *pt_other).normalize();
                                 if dir.length() < 1e-6 {
                                     dir = push_vec.normalize();
                                 }
@@ -404,9 +495,22 @@ impl CascadeShoveEngine {
         CascadeShoveResult {
             primary_deflected_path,
             displaced_obstacles: displaced_map.into_iter().collect(),
+            displaced_vias,
             propagation_steps,
             max_hop_reached,
             deflected_around_fixed,
+        }
+    }
+
+    /// Relaxes displaced obstacles back toward their resting state when primary path clearance allows.
+    pub fn relax_obstacles(
+        &self,
+        primary_path: &[Point2D],
+        obstacles: &mut [CascadeObstacle],
+        damping: f64,
+    ) {
+        for obs in obstacles.iter_mut() {
+            obs.relax_towards_rest(primary_path, self.clearance_microns, damping);
         }
     }
 }
@@ -461,17 +565,9 @@ mod tests {
         ];
 
         // Obstacle 1 at (500, 50) is movable (distance to path = 50 < clearance 100)
-        let obs1 = CascadeObstacle {
-            net_id: 10,
-            points: vec![Point2D::new(500, 50)],
-            is_fixed: false,
-        };
+        let obs1 = CascadeObstacle::new_trace(10, vec![Point2D::new(500, 50)], false);
         // Obstacle 2 at (500, 110) is also movable (when obs1 is shoved to y ~ 110, obs1 hits obs2)
-        let obs2 = CascadeObstacle {
-            net_id: 20,
-            points: vec![Point2D::new(500, 110)],
-            is_fixed: false,
-        };
+        let obs2 = CascadeObstacle::new_trace(20, vec![Point2D::new(500, 110)], false);
 
         let result = cascade_engine.propagate_cascade(&primary_path, 1, &[obs1, obs2]);
 
@@ -511,11 +607,7 @@ mod tests {
         ];
 
         // Fixed obstacle directly colliding with primary path
-        let fixed_obs = CascadeObstacle {
-            net_id: 99,
-            points: vec![Point2D::new(500, 30)],
-            is_fixed: true,
-        };
+        let fixed_obs = CascadeObstacle::new_trace(99, vec![Point2D::new(500, 30)], true);
 
         let result = cascade_engine.propagate_cascade(&primary_path, 1, &[fixed_obs]);
 
@@ -527,6 +619,62 @@ mod tests {
         assert!(
             result.primary_deflected_path[1].y != 0,
             "primary path must deflect around fixed boundary"
+        );
+    }
+
+    #[test]
+    fn test_cascade_shove_movable_via_displacement() {
+        let cascade_engine = CascadeShoveEngine::new(5, 100);
+        let primary_path = vec![
+            Point2D::new(0, 0),
+            Point2D::new(500, 0),
+            Point2D::new(1000, 0),
+        ];
+
+        // Movable signal via at (500, 60), distance to primary path = 60 < clearance 100
+        let movable_via = CascadeObstacle::new_via(15, Point2D::new(500, 60), false, 150.0);
+
+        let result = cascade_engine.propagate_cascade(&primary_path, 1, &[movable_via]);
+
+        assert_eq!(result.displaced_vias.len(), 1, "must record displaced via");
+        let (via_net, new_pos) = result.displaced_vias[0];
+        assert_eq!(via_net, 15);
+        assert!(
+            new_pos.y > 60,
+            "movable signal via must be shoved away from trace (got y={})",
+            new_pos.y
+        );
+    }
+
+    #[test]
+    fn test_cascade_shove_elastic_springback_relaxation() {
+        let cascade_engine = CascadeShoveEngine::new(5, 100);
+        let orig_pos = Point2D::new(500, 60);
+        let mut via = CascadeObstacle::new_via(21, orig_pos, false, 150.0);
+
+        // Displace via manually or by a collision
+        via.points[0] = Point2D::new(500, 180);
+        assert_eq!(via.points[0].y, 180);
+
+        // When primary path has moved far away (e.g. at Y = -500), clearance is satisfied
+        let distant_path = vec![
+            Point2D::new(0, -500),
+            Point2D::new(500, -500),
+            Point2D::new(1000, -500),
+        ];
+
+        // Relax toward rest with damping 0.8
+        cascade_engine.relax_obstacles(&distant_path, std::slice::from_mut(&mut via), 0.8);
+
+        // Via should have moved significantly back towards original Y=60
+        assert!(
+            via.points[0].y < 180,
+            "via must relax back towards resting state (now at y={})",
+            via.points[0].y
+        );
+        assert!(
+            via.points[0].y >= 60,
+            "via must not overshoot resting position"
         );
     }
 }

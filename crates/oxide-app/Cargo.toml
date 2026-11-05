@@ -24,6 +24,7 @@ iced_aw = { workspace = true }
 num-traits = "0.2"
 serde = { workspace = true }
 serde_json = { workspace = true }
+git2 = { workspace = true }
 uuid = { workspace = true }
 anyhow = { workspace = true }
 oxide-widgets = { workspace = true }

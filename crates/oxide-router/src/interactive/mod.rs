@@ -609,6 +609,42 @@ impl InteractiveRouter {
             });
         }
 
+        let is_arc = self
+            .session
+            .as_ref()
+            .map(|s| {
+                s.corner_style == session::CornerStyle::Arc45
+                    || s.corner_style == session::CornerStyle::FullArc
+                    || s.corner_mode == CornerMode::FortyFiveArc
+            })
+            .unwrap_or(false);
+
+        if is_arc && segments.len() >= 2 {
+            let mut polyline = Vec::with_capacity(segments.len() + 1);
+            polyline.push(segments[0].start_point);
+            for s in &segments {
+                polyline.push(s.end_point);
+            }
+            let fillet_radius = (width as f64 * 1.5).max(150.0);
+            let smoothed =
+                crate::tuning::clothoid::fillet_meander_path(&polyline, fillet_radius, true);
+
+            if smoothed.len() >= 2 {
+                let mut arc_segs = Vec::with_capacity(smoothed.len() - 1);
+                for i in 0..smoothed.len() - 1 {
+                    arc_segs.push(RouteSegment {
+                        start_point: smoothed[i],
+                        end_point: smoothed[i + 1],
+                        width,
+                        layer,
+                        net_id,
+                        segment_type: SegmentType::Straight,
+                    });
+                }
+                return arc_segs;
+            }
+        }
+
         segments
     }
 
@@ -752,5 +788,38 @@ impl TopologicalRouter for InteractiveRouter {
         let tuned = self.generate_meander(start, end, target_len_um, 200, 0, 1);
         *path = tuned.iter().map(|s| s.end_point).collect();
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_interactive_router_clothoid_meander_generation() {
+        let rules = Arc::new(ConstraintManager::default());
+        let spatial_index = Arc::new(SpatialIndex::new());
+        let mut router = InteractiveRouter::new(rules, spatial_index);
+
+        router.start_routing(Point2D::new(0, 0), 1, 0).unwrap();
+        router.enable_length_tuning(15_000, 0);
+
+        // 1. Mitered mode (default)
+        let mitered_segs =
+            router.length_tuning_route(Point2D::new(0, 0), Point2D::new(5000, 0), 1, 0, 200);
+        assert!(!mitered_segs.is_empty());
+
+        // 2. Arc45 mode (Continuous Clothoid G2 filleting)
+        router.session.as_mut().unwrap().corner_style = session::CornerStyle::Arc45;
+        let arc_segs =
+            router.length_tuning_route(Point2D::new(0, 0), Point2D::new(5000, 0), 1, 0, 200);
+
+        // Filleted meander must have higher segment resolution due to curvature easing
+        assert!(
+            arc_segs.len() > mitered_segs.len(),
+            "Clothoid arc meander (len={}) must have more segments than mitered (len={})",
+            arc_segs.len(),
+            mitered_segs.len()
+        );
     }
 }

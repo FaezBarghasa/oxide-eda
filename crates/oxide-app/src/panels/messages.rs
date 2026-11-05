@@ -1011,6 +1011,13 @@ pub enum PanelMsg {
     VariantExportBom,
     /// Select active assembly variant by index
     VariantSelect(usize),
+    /// Asynchronously loaded visual diff between git revisions
+    DiffLoaded(Box<crate::diff::PcbVisualDiff>),
+    /// Granularly cherry-pick or reject a specific visual diff change item
+    CherryPickDiffItem {
+        item_index: usize,
+        accept: bool,
+    },
     /// No-op placeholder for unimplemented UI controls.
     Noop,
 }

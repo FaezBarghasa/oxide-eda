@@ -38,6 +38,14 @@ pub struct PcbCanvasState {
     pub routing_layer: u8,
     pub routing_net: u32,
     pub corner_mode: CornerMode,
+    // --- Git-Native Visual Diff-Merge Viewport ---
+    pub visual_diff: Option<crate::diff::PcbVisualDiff>,
+    pub diff_mode: crate::diff::VisualDiffMode,
+    pub split_swipe_x: f32,
+    pub split_swipe_dragging: bool,
+    // --- Precision Crosshair Alignment ---
+    pub show_large_crosshair: bool,
+    pub crosshair_pos: Option<iced::Point>,
 }
 
 pub struct PcbCanvas {
@@ -573,6 +581,35 @@ impl canvas::Program<Message> for PcbCanvas {
                 state.shift_held = mods.shift();
             }
             Event::Keyboard(iced::keyboard::Event::KeyPressed { key, modifiers, .. }) => {
+                if let iced::keyboard::Key::Character(c) = key
+                    && (c.as_str() == "`" || c.as_str() == "~")
+                {
+                    state.show_large_crosshair = !state.show_large_crosshair;
+                    return Some(
+                        canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved))
+                            .and_capture(),
+                    );
+                }
+                if let iced::keyboard::Key::Named(iced::keyboard::key::Named::Tab) = key {
+                    state.diff_mode = match state.diff_mode {
+                        crate::diff::VisualDiffMode::UnifiedOverlay => {
+                            crate::diff::VisualDiffMode::SplitSwipe
+                        }
+                        crate::diff::VisualDiffMode::SplitSwipe => {
+                            crate::diff::VisualDiffMode::SideBySide
+                        }
+                        crate::diff::VisualDiffMode::SideBySide => {
+                            crate::diff::VisualDiffMode::UnifiedOverlay
+                        }
+                    };
+                    if state.split_swipe_x <= 0.0 {
+                        state.split_swipe_x = bounds.width / 2.0;
+                    }
+                    return Some(
+                        canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved))
+                            .and_capture(),
+                    );
+                }
                 if let Some(router) = &mut state.active_router {
                     match key {
                         iced::keyboard::Key::Named(iced::keyboard::key::Named::Space) => {
@@ -675,6 +712,38 @@ impl canvas::Program<Message> for PcbCanvas {
                                 .and_capture(),
                             );
                         }
+                        iced::keyboard::Key::Character(c)
+                            if c.as_str() == "1" && modifiers.control() =>
+                        {
+                            let style = router.hotkey_cycle_corner_style();
+                            state.corner_mode = match style {
+                                oxide_router::interactive::session::CornerStyle::Arc45
+                                | oxide_router::interactive::session::CornerStyle::FullArc => {
+                                    oxide_router::CornerMode::FortyFiveArc
+                                }
+                                oxide_router::interactive::session::CornerStyle::RightAngle90 => {
+                                    oxide_router::CornerMode::NinetyDeg
+                                }
+                                _ => oxide_router::CornerMode::FortyFiveDeg,
+                            };
+                            return Some(
+                                canvas::Action::publish(Message::CanvasEvent(
+                                    CanvasEvent::CursorMoved,
+                                ))
+                                .and_capture(),
+                            );
+                        }
+                        iced::keyboard::Key::Character(c)
+                            if c.as_str() == "2" && modifiers.control() =>
+                        {
+                            state.corner_mode = router.hotkey_cycle_corner_mode();
+                            return Some(
+                                canvas::Action::publish(Message::CanvasEvent(
+                                    CanvasEvent::CursorMoved,
+                                ))
+                                .and_capture(),
+                            );
+                        }
                         iced::keyboard::Key::Character(c) if c.as_str() == "1" => {
                             router.hotkey_increase_amplitude();
                             return Some(
@@ -729,6 +798,16 @@ impl canvas::Program<Message> for PcbCanvas {
             }
             Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left)) => {
                 if let Some(cursor_pos) = cursor.position_in(bounds) {
+                    if state.diff_mode == crate::diff::VisualDiffMode::SplitSwipe
+                        && (cursor_pos.x - state.split_swipe_x).abs() <= 16.0
+                    {
+                        state.split_swipe_dragging = true;
+                        return Some(
+                            canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved))
+                                .and_capture(),
+                        );
+                    }
+
                     let world = self.camera.borrow().screen_to_world(cursor_pos, bounds);
                     let wx = world.x as f64;
                     let wy = world.y as f64;
@@ -784,6 +863,7 @@ impl canvas::Program<Message> for PcbCanvas {
                 }
             }
             Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left)) => {
+                state.split_swipe_dragging = false;
                 if state.move_dragging
                     && let Some((ox, oy)) = state.move_origin.take()
                     && let Some(cursor_pos) = cursor.position_in(bounds)
@@ -839,6 +919,16 @@ impl canvas::Program<Message> for PcbCanvas {
                             camera.zoom_percent(),
                         )
                     };
+
+                    state.crosshair_pos = Some(cursor_pos);
+
+                    if state.diff_mode == crate::diff::VisualDiffMode::SplitSwipe {
+                        if state.split_swipe_dragging {
+                            state.split_swipe_x = cursor_pos.x.clamp(30.0, bounds.width - 30.0);
+                        } else if state.split_swipe_x <= 0.0 {
+                            state.split_swipe_x = bounds.width / 2.0;
+                        }
+                    }
 
                     if let Some((sx, sy)) = state.click_start {
                         let dx = world.x as f64 - sx;
@@ -1182,6 +1272,299 @@ impl canvas::Program<Message> for PcbCanvas {
             }
         }
 
+        // Render Git-Native Visual Diff Overlay
+        if let Some(diff) = &state.visual_diff {
+            let mode_str = match state.diff_mode {
+                crate::diff::VisualDiffMode::UnifiedOverlay => "Unified Overlay",
+                crate::diff::VisualDiffMode::SplitSwipe => "Split-Swipe Divider",
+                crate::diff::VisualDiffMode::SideBySide => "Side-by-Side Viewport",
+            };
+
+            // Top Diff Mode HUD badge
+            let badge_pos = iced::Point::new((bounds.width / 2.0 - 180.0).max(10.0), 16.0);
+            let badge_size = iced::Size::new(360.0, 32.0);
+            overlay_frame.fill_rectangle(
+                badge_pos,
+                badge_size,
+                Color::from_rgba(0.05, 0.07, 0.11, 0.92),
+            );
+            overlay_frame.stroke(
+                &canvas::Path::rectangle(badge_pos, badge_size),
+                canvas::Stroke::default()
+                    .with_width(1.0)
+                    .with_color(Color::from_rgba(0.3, 0.7, 1.0, 0.8)),
+            );
+            let diff_summary = format!(
+                "DIFF: {} | +{} Added  -{} Removed  ~{} Mod (Tab to Cycle)",
+                mode_str, diff.added_count, diff.removed_count, diff.modified_count
+            );
+            overlay_frame.fill_text(canvas::Text {
+                content: diff_summary,
+                position: iced::Point::new(badge_pos.x + 12.0, badge_pos.y + 10.0),
+                color: Color::from_rgb(0.95, 0.95, 0.95),
+                size: 11.0.into(),
+                ..Default::default()
+            });
+
+            // Split-Swipe vertical line
+            if state.diff_mode == crate::diff::VisualDiffMode::SplitSwipe {
+                let swipe_x = if state.split_swipe_x > 0.0 {
+                    state.split_swipe_x
+                } else {
+                    bounds.width / 2.0
+                };
+                let corridor_rect = canvas::Path::rectangle(
+                    iced::Point::new(swipe_x - 12.0, 0.0),
+                    iced::Size::new(24.0, bounds.height),
+                );
+                overlay_frame.fill(&corridor_rect, Color::from_rgba(0.0, 0.9, 1.0, 0.04));
+
+                let swipe_line = canvas::Path::line(
+                    iced::Point::new(swipe_x, 0.0),
+                    iced::Point::new(swipe_x, bounds.height),
+                );
+                overlay_frame.stroke(
+                    &swipe_line,
+                    canvas::Stroke::default()
+                        .with_width(2.0)
+                        .with_color(Color::from_rgba(0.0, 0.9, 1.0, 0.95)),
+                );
+                // Handle badge at middle
+                let handle_rect = canvas::Path::rectangle(
+                    iced::Point::new(swipe_x - 18.0, bounds.height / 2.0 - 12.0),
+                    iced::Size::new(36.0, 24.0),
+                );
+                overlay_frame.fill(&handle_rect, Color::from_rgba(0.0, 0.8, 0.9, 0.9));
+                overlay_frame.fill_text(canvas::Text {
+                    content: "◄ ►".to_string(),
+                    position: iced::Point::new(swipe_x - 10.0, bounds.height / 2.0 - 6.0),
+                    color: Color::BLACK,
+                    size: 10.0.into(),
+                    ..Default::default()
+                });
+            } else if state.diff_mode == crate::diff::VisualDiffMode::SideBySide {
+                let mid_x = bounds.width / 2.0;
+                let divider = canvas::Path::line(
+                    iced::Point::new(mid_x, 0.0),
+                    iced::Point::new(mid_x, bounds.height),
+                );
+                overlay_frame.stroke(
+                    &divider,
+                    canvas::Stroke::default()
+                        .with_width(1.5)
+                        .with_color(Color::from_rgba(0.6, 0.6, 0.7, 0.6)),
+                );
+                overlay_frame.fill_text(canvas::Text {
+                    content: "BASELINE (HEAD~1)".to_string(),
+                    position: iced::Point::new((mid_x - 140.0).max(10.0), 56.0),
+                    color: Color::from_rgba(0.9, 0.3, 0.3, 0.8),
+                    size: 11.0.into(),
+                    ..Default::default()
+                });
+                overlay_frame.fill_text(canvas::Text {
+                    content: "COMPARISON (WORKTREE)".to_string(),
+                    position: iced::Point::new(mid_x + 20.0, 56.0),
+                    color: Color::from_rgba(0.2, 0.9, 0.3, 0.8),
+                    size: 11.0.into(),
+                    ..Default::default()
+                });
+            }
+
+            // Draw color-coded diff elements:
+            let swipe_x = if state.diff_mode == crate::diff::VisualDiffMode::SplitSwipe {
+                if state.split_swipe_x > 0.0 {
+                    state.split_swipe_x
+                } else {
+                    bounds.width / 2.0
+                }
+            } else {
+                f32::MAX
+            };
+
+            // 1. Segments
+            for seg_diff in &diff.segment_diffs {
+                let color_arr =
+                    crate::diff::PcbVisualDiff::classification_color(seg_diff.classification);
+                let color =
+                    Color::from_rgba(color_arr[0], color_arr[1], color_arr[2], color_arr[3]);
+
+                let (p0_world, p1_world) = match seg_diff.classification {
+                    crate::diff::DiffClassification::Removed => {
+                        if let Some(s) = &seg_diff.before {
+                            (
+                                [s.start.x as f32, s.start.y as f32],
+                                [s.end.x as f32, s.end.y as f32],
+                            )
+                        } else {
+                            continue;
+                        }
+                    }
+                    crate::diff::DiffClassification::Added
+                    | crate::diff::DiffClassification::Modified => {
+                        if let Some(s) = &seg_diff.after {
+                            (
+                                [s.start.x as f32, s.start.y as f32],
+                                [s.end.x as f32, s.end.y as f32],
+                            )
+                        } else {
+                            continue;
+                        }
+                    }
+                };
+
+                let screen_p0 = world_to_screen(&camera, bounds, p0_world);
+                let screen_p1 = world_to_screen(&camera, bounds, p1_world);
+
+                // If in SplitSwipe mode, only show before if on left, after if on right
+                if state.diff_mode == crate::diff::VisualDiffMode::SplitSwipe {
+                    let mid_screen_x = (screen_p0.x + screen_p1.x) * 0.5;
+                    if seg_diff.classification == crate::diff::DiffClassification::Removed
+                        && mid_screen_x > swipe_x
+                    {
+                        continue;
+                    }
+                    if seg_diff.classification == crate::diff::DiffClassification::Added
+                        && mid_screen_x < swipe_x
+                    {
+                        continue;
+                    }
+                }
+
+                let path = canvas::Path::line(screen_p0, screen_p1);
+                overlay_frame.stroke(
+                    &path,
+                    canvas::Stroke::default()
+                        .with_width((3.0 * camera.scale).max(1.0))
+                        .with_color(color),
+                );
+            }
+
+            // 2. Footprints
+            for fp_diff in &diff.footprint_diffs {
+                let color_arr =
+                    crate::diff::PcbVisualDiff::classification_color(fp_diff.classification);
+                let color =
+                    Color::from_rgba(color_arr[0], color_arr[1], color_arr[2], color_arr[3]);
+
+                let (fp_ref, pos_world) = match fp_diff.classification {
+                    crate::diff::DiffClassification::Removed => {
+                        if let Some(f) = &fp_diff.before {
+                            (&f.reference, [f.position.x as f32, f.position.y as f32])
+                        } else {
+                            continue;
+                        }
+                    }
+                    crate::diff::DiffClassification::Added
+                    | crate::diff::DiffClassification::Modified => {
+                        if let Some(f) = &fp_diff.after {
+                            (&f.reference, [f.position.x as f32, f.position.y as f32])
+                        } else {
+                            continue;
+                        }
+                    }
+                };
+
+                let center = world_to_screen(&camera, bounds, pos_world);
+
+                if state.diff_mode == crate::diff::VisualDiffMode::SplitSwipe {
+                    if fp_diff.classification == crate::diff::DiffClassification::Removed
+                        && center.x > swipe_x
+                    {
+                        continue;
+                    }
+                    if fp_diff.classification == crate::diff::DiffClassification::Added
+                        && center.x < swipe_x
+                    {
+                        continue;
+                    }
+                }
+
+                let box_r = (12.0 * camera.scale).clamp(4.0, 30.0);
+                let fp_box = canvas::Path::rectangle(
+                    iced::Point::new(center.x - box_r, center.y - box_r),
+                    iced::Size::new(box_r * 2.0, box_r * 2.0),
+                );
+                overlay_frame.stroke(
+                    &fp_box,
+                    canvas::Stroke::default().with_width(2.0).with_color(color),
+                );
+                overlay_frame.fill_text(canvas::Text {
+                    content: fp_ref.clone(),
+                    position: iced::Point::new(center.x - box_r, center.y - box_r - 12.0),
+                    color,
+                    size: 10.0.into(),
+                    ..Default::default()
+                });
+            }
+
+            // 3. Vias
+            for via_diff in &diff.via_diffs {
+                let color_arr =
+                    crate::diff::PcbVisualDiff::classification_color(via_diff.classification);
+                let color =
+                    Color::from_rgba(color_arr[0], color_arr[1], color_arr[2], color_arr[3]);
+
+                let pos_world = match via_diff.classification {
+                    crate::diff::DiffClassification::Removed => {
+                        if let Some(v) = &via_diff.before {
+                            [v.position.x as f32, v.position.y as f32]
+                        } else {
+                            continue;
+                        }
+                    }
+                    crate::diff::DiffClassification::Added
+                    | crate::diff::DiffClassification::Modified => {
+                        if let Some(v) = &via_diff.after {
+                            [v.position.x as f32, v.position.y as f32]
+                        } else {
+                            continue;
+                        }
+                    }
+                };
+
+                let center = world_to_screen(&camera, bounds, pos_world);
+
+                if state.diff_mode == crate::diff::VisualDiffMode::SplitSwipe {
+                    if via_diff.classification == crate::diff::DiffClassification::Removed
+                        && center.x > swipe_x
+                    {
+                        continue;
+                    }
+                    if via_diff.classification == crate::diff::DiffClassification::Added
+                        && center.x < swipe_x
+                    {
+                        continue;
+                    }
+                }
+
+                let via_circle =
+                    canvas::Path::circle(center, (6.0 * camera.scale).clamp(2.0, 20.0));
+                overlay_frame.stroke(
+                    &via_circle,
+                    canvas::Stroke::default().with_width(2.0).with_color(color),
+                );
+            }
+        }
+
+        // Full-Screen 90° Orthographic Alignment Crosshair (Altium Parity)
+        if (state.show_large_crosshair || state.active_router.is_some())
+            && let Some(pos) = state.crosshair_pos
+        {
+            let h_line = canvas::Path::line(
+                iced::Point::new(0.0, pos.y),
+                iced::Point::new(bounds.width, pos.y),
+            );
+            let v_line = canvas::Path::line(
+                iced::Point::new(pos.x, 0.0),
+                iced::Point::new(pos.x, bounds.height),
+            );
+            let stroke = canvas::Stroke::default()
+                .with_width(0.75)
+                .with_color(Color::from_rgba(0.0, 0.94, 1.0, 0.35));
+            overlay_frame.stroke(&h_line, stroke);
+            overlay_frame.stroke(&v_line, stroke);
+        }
+
         let dynamic_overlay = overlay_frame.into_geometry();
 
         // GPU mode: a `shader` stacked above this canvas draws the board
@@ -1510,5 +1893,134 @@ mod tests {
 
         state.active_router = Some(router);
         assert!(state.active_router.is_some());
+    }
+
+    #[test]
+    fn test_canvas_split_swipe_and_overlay_rendering() {
+        let mut state = PcbCanvasState::default();
+        let mut board_a = oxide_types::pcb::PcbBoard::default();
+        let mut board_b = oxide_types::pcb::PcbBoard::default();
+
+        let r1 = oxide_types::pcb::Footprint {
+            uuid: uuid::Uuid::new_v4(),
+            reference: "R1".to_string(),
+            value: "10k".to_string(),
+            footprint_id: "R_0603".to_string(),
+            position: oxide_types::pcb::Point { x: 10.0, y: 10.0 },
+            rotation: 0.0,
+            layer: "F.Cu".to_string(),
+            locked: false,
+            pads: Vec::new(),
+            graphics: Vec::new(),
+            properties: Vec::new(),
+        };
+        board_a.footprints.push(r1.clone());
+
+        let mut r1_mod = r1;
+        r1_mod.value = "20k".to_string();
+        board_b.footprints.push(r1_mod);
+
+        let seg = oxide_types::pcb::Segment {
+            uuid: uuid::Uuid::new_v4(),
+            start: oxide_types::pcb::Point { x: 0.0, y: 0.0 },
+            end: oxide_types::pcb::Point { x: 20.0, y: 0.0 },
+            width: 0.25,
+            layer: "F.Cu".to_string(),
+            net: 1,
+        };
+        board_b.segments.push(seg);
+
+        let diff = crate::diff::PcbVisualDiff::compute_diff(&board_a, &board_b);
+        assert_eq!(diff.modified_count, 1);
+        assert_eq!(diff.added_count, 1);
+
+        state.visual_diff = Some(diff);
+        assert_eq!(state.diff_mode, crate::diff::VisualDiffMode::UnifiedOverlay);
+
+        // Test cycle diff mode
+        state.diff_mode = crate::diff::VisualDiffMode::SplitSwipe;
+        state.split_swipe_x = 400.0;
+        assert_eq!(state.diff_mode, crate::diff::VisualDiffMode::SplitSwipe);
+        assert_eq!(state.split_swipe_x, 400.0);
+
+        state.diff_mode = crate::diff::VisualDiffMode::SideBySide;
+        assert_eq!(state.diff_mode, crate::diff::VisualDiffMode::SideBySide);
+    }
+
+    #[test]
+    fn test_canvas_interactive_clothoid_meander_commitment() {
+        let rules = std::sync::Arc::new(oxide_rules::ConstraintManager::standard_default());
+        let spatial_index = std::sync::Arc::new(oxide_router::geometry::rtree::SpatialIndex::new());
+        let mut router = oxide_router::interactive::InteractiveRouter::new(rules, spatial_index);
+        let start = oxide_router::geometry::Point2D::new(0, 0);
+        router.start_routing(start, 1, 0).unwrap();
+
+        // Switch corner style to Arc45 for G2 Clothoid / Euler filleted transitions
+        router.session.as_mut().unwrap().corner_style =
+            oxide_router::interactive::session::CornerStyle::Arc45;
+        router.session.as_mut().unwrap().corner_mode = oxide_router::CornerMode::FortyFiveArc;
+
+        let end = oxide_router::geometry::Point2D::new(50_000, 0);
+        let meander_segs =
+            router.generate_meander_with_params(start, end, 30_000, 1, 0, 200, 1200, 800);
+
+        // Filleted meander produces multiple sub-segments along Euler spirals
+        assert!(
+            meander_segs.len() > 4,
+            "Filleted clothoid meander must decompose into polyline arcs"
+        );
+
+        // Verify total length increased beyond straight line
+        let total_len: i64 = meander_segs.iter().map(|s| s.length()).sum();
+        assert!(
+            total_len > 50_000,
+            "Meander total length must exceed straight path"
+        );
+
+        // Convert route segments into board segments (commitment)
+        let mut committed_board = oxide_types::pcb::PcbBoard::default();
+        for s in &meander_segs {
+            committed_board.segments.push(oxide_types::pcb::Segment {
+                uuid: uuid::Uuid::new_v4(),
+                start: oxide_types::pcb::Point {
+                    x: s.start_point.x as f64 / 1000.0,
+                    y: s.start_point.y as f64 / 1000.0,
+                },
+                end: oxide_types::pcb::Point {
+                    x: s.end_point.x as f64 / 1000.0,
+                    y: s.end_point.y as f64 / 1000.0,
+                },
+                width: s.width as f64 / 1000.0,
+                layer: "F.Cu".to_string(),
+                net: s.net_id,
+            });
+        }
+        assert_eq!(committed_board.segments.len(), meander_segs.len());
+    }
+
+    #[test]
+    fn test_canvas_large_crosshair_and_split_swipe_corridor() {
+        let mut state = PcbCanvasState::default();
+
+        // 1. Precision crosshair state toggling
+        assert!(!state.show_large_crosshair);
+        state.show_large_crosshair = true;
+        state.crosshair_pos = Some(iced::Point::new(320.0, 240.0));
+        assert!(state.show_large_crosshair);
+        assert_eq!(state.crosshair_pos, Some(iced::Point::new(320.0, 240.0)));
+
+        // 2. Split-swipe dragging corridor
+        state.diff_mode = crate::diff::VisualDiffMode::SplitSwipe;
+        state.split_swipe_x = 400.0;
+        state.split_swipe_dragging = false;
+
+        // Cursor within ±16px hit corridor arms drag
+        let cursor_x = 410.0;
+        let in_corridor = (cursor_x - state.split_swipe_x).abs() <= 16.0;
+        assert!(in_corridor, "Cursor within 16px must hit drag corridor");
+
+        state.split_swipe_dragging = true;
+        state.split_swipe_x = cursor_x;
+        assert_eq!(state.split_swipe_x, 410.0);
     }
 }

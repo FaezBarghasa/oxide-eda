@@ -163,8 +163,8 @@ pub fn compute_analytical_safe_amplitude(
     );
 
     let required_margin = ((trace_width_um / 2.0) + clearance_um).round() as i64;
-    let envelope_bbox = BoundingBox::from_points(&[p_base1, p_base2, p_peak1, p_peak2])
-        .expand(required_margin);
+    let envelope_bbox =
+        BoundingBox::from_points(&[p_base1, p_base2, p_peak1, p_peak2]).expand(required_margin);
 
     let obstacles = si.check_collision(&envelope_bbox, &[net_id]);
     if obstacles.is_empty() {
@@ -356,7 +356,11 @@ pub fn synthesize_coupled_accordion_filleted(
         layer,
         clearance_um,
     )?;
-    Ok(super::clothoid::fillet_meander_path(&raw_pts, fillet_radius_um, use_clothoid))
+    Ok(super::clothoid::fillet_meander_path(
+        &raw_pts,
+        fillet_radius_um,
+        use_clothoid,
+    ))
 }
 
 #[cfg(test)]

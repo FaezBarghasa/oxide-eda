@@ -5935,6 +5935,7 @@ dependencies = [
  "chrono",
  "dirs",
  "fontdb 0.24.0",
+ "git2",
  "iced",
  "iced_aw",
  "image",
