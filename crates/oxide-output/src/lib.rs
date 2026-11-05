@@ -48,6 +48,7 @@ pub use gerber::{GerberError, GerberExporter, GerberLayer, GerberLayerOutput, Ge
 pub use ipc2581::{Ipc2581Error, Ipc2581Options, Ipc2581Output, export_ipc2581};
 pub use odbpp::{OdbError, OdbFileEntry, OdbOutputPackage, export_odbpp_package};
 pub use outjob::{OutJobError, OutputJobConfig, OutputJobRunner, ReleasePackage};
+pub use panelization::{BoardInstance, PanelLayout, PanelViolation, Point2D};
 pub use pdf::{
     ColourMode, Margins, Orientation, PageRange, PageSize, PdfExporter, PdfOptions, PdfOutput,
     PdfScale, SafePdfError, SafePdfStreamer, SchematicPalette,

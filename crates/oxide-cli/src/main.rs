@@ -19,7 +19,9 @@ fn load_board(path: &Path) -> Result<PcbBoard, Box<dyn std::error::Error>> {
     }
 }
 
-fn load_schematic(path: &Path) -> Result<oxide_types::schematic::SchematicSheet, Box<dyn std::error::Error>> {
+fn load_schematic(
+    path: &Path,
+) -> Result<oxide_types::schematic::SchematicSheet, Box<dyn std::error::Error>> {
     let content = std::fs::read_to_string(path)?;
     if let Ok(snx) = oxide_types::format::SnxSchematic::parse(&content) {
         Ok(snx.sheet)
@@ -152,6 +154,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Commands::Drc { board, rules } => {
             println!("Oxide EDA DRC Validator");
             println!("Loading PCB: {}", board.display());
+            let pcb = load_board(&board)?;
+
             let cm = match rules {
                 Some(r_path) => {
                     println!("Loading rules: {}", r_path.display());
@@ -159,12 +163,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         .map_err(|e| format!("Failed to read rules: {e}"))?
                 }
                 None => {
-                    println!("Using standard default rules");
-                    ConstraintManager::standard_default()
+                    if pcb.layers.len() > 6 || pcb.vias.iter().any(|v| v.drill < 0.25) {
+                        println!(
+                            "Using HDI advanced default rules (board has {} layers, microvias)",
+                            pcb.layers.len()
+                        );
+                        ConstraintManager::hdi_advanced_default()
+                    } else {
+                        println!("Using standard default rules");
+                        ConstraintManager::standard_default()
+                    }
                 }
             };
-
-            let pcb = load_board(&board)?;
 
             println!(
                 "Loaded PCB with {} footprints, {} segments, {} vias",
@@ -356,6 +366,302 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         println!("Wrote native integrated library to {}", out_path.display());
                     }
                 }
+            }
+        }
+        Commands::Check {
+            board,
+            schematic,
+            rules,
+            golden_bom,
+            target_z0,
+            max_z0_error_pct,
+        } => {
+            println!("=======================================================");
+            println!("Oxide EDA Headless CI/CD Holistic Quality Gate");
+            println!("=======================================================");
+
+            // 1. ERC (Electrical Rules Check)
+            if let Some(sch_path) = schematic {
+                println!(
+                    "--> [Gate 1/4] Running Electrical Rules Check (ERC): {}",
+                    sch_path.display()
+                );
+                let sheet = load_schematic(&sch_path)?;
+                let erc_violations = oxide_erc::run(&sheet);
+                let err_count = erc_violations
+                    .iter()
+                    .filter(|v| v.severity == oxide_erc::Severity::Error)
+                    .count();
+
+                if err_count > 0 {
+                    eprintln!("ERC GATE FAILED: {} error(s) detected", err_count);
+                    for v in erc_violations
+                        .iter()
+                        .filter(|v| v.severity == oxide_erc::Severity::Error)
+                    {
+                        eprintln!("  [ERC ERROR] {:?}: {}", v.rule, v.message);
+                    }
+                    std::process::exit(2);
+                } else {
+                    println!(
+                        "    ERC Gate: PASSED (0 errors, {} warnings)",
+                        erc_violations.len()
+                    );
+                }
+            } else {
+                println!("--> [Gate 1/4] ERC: Skipped (no schematic provided)");
+            }
+
+            // 2. DRC (Design Rule Check)
+            println!(
+                "--> [Gate 2/4] Running Design Rule Check (DRC): {}",
+                board.display()
+            );
+            let pcb = load_board(&board)?;
+            let cm = match rules {
+                Some(r_path) => ConstraintManager::from_file(r_path)
+                    .map_err(|e| format!("Failed to read rules: {e}"))?,
+                None => {
+                    if pcb.layers.len() > 6 || pcb.vias.iter().any(|v| v.drill < 0.25) {
+                        println!(
+                            "    Using HDI advanced default rules (board has {} layers, microvias)",
+                            pcb.layers.len()
+                        );
+                        ConstraintManager::hdi_advanced_default()
+                    } else {
+                        println!("    Using standard default rules");
+                        ConstraintManager::standard_default()
+                    }
+                }
+            };
+            let drc_violations = cm.run_drc_parallel(&pcb);
+            if !drc_violations.is_empty() {
+                eprintln!(
+                    "DRC GATE FAILED: {} violation(s) detected",
+                    drc_violations.len()
+                );
+                for (idx, v) in drc_violations.iter().enumerate() {
+                    eprintln!(
+                        "  [{}] {:?}: {} (Required: {}, Actual: {})",
+                        idx + 1,
+                        v.violation_type,
+                        v.message,
+                        v.required_value,
+                        v.actual_value
+                    );
+                }
+                std::process::exit(1);
+            } else {
+                println!("    DRC Gate: PASSED (0 violations)");
+            }
+
+            // 3. Impedance Check
+            if let Some(target) = target_z0 {
+                println!(
+                    "--> [Gate 3/4] Running Stackup Impedance Check (Target: {:.1} Ω)",
+                    target
+                );
+                let default_trace_w = pcb.segments.first().map(|s| s.width).unwrap_or(0.15);
+                let width_um = (default_trace_w * 1000.0).round() as i64;
+                let calc_z0 = oxide_physics::ImpedanceCalculator::calculate_microstrip(
+                    width_um, 100, // 100µm (0.10mm dielectric height above plane)
+                    35,  // 35µm (1oz copper)
+                    4.3, // Standard FR-4 permittivity
+                );
+                let error_pct = ((calc_z0 - target).abs() / target) * 100.0;
+                println!(
+                    "    Calculated Single-Ended Z0: {:.2} Ω (Deviation: {:.2}%)",
+                    calc_z0, error_pct
+                );
+                if error_pct > max_z0_error_pct {
+                    eprintln!(
+                        "IMPEDANCE GATE FAILED: Z0 = {:.2} Ω deviates by {:.2}% (exceeds max {:.2}%)",
+                        calc_z0, error_pct, max_z0_error_pct
+                    );
+                    std::process::exit(3);
+                } else {
+                    println!(
+                        "    Impedance Gate: PASSED (Within {:.1}% tolerance)",
+                        max_z0_error_pct
+                    );
+                }
+            } else {
+                println!("--> [Gate 3/4] Impedance Check: Skipped (no target specified)");
+            }
+
+            // 4. BOM Drift Gate
+            if let Some(bom_path) = golden_bom {
+                println!(
+                    "--> [Gate 4/4] Running BOM Drift Gate: {}",
+                    bom_path.display()
+                );
+                let golden_content = std::fs::read_to_string(&bom_path)?;
+                let golden_items: Vec<GoldenBomItem> = serde_json::from_str(&golden_content)?;
+
+                let mut golden_map: std::collections::HashMap<String, &GoldenBomItem> =
+                    golden_items
+                        .iter()
+                        .map(|item| (item.refdes.clone(), item))
+                        .collect();
+
+                let mut drift_errors = Vec::new();
+                for fp in &pcb.footprints {
+                    if let Some(golden) = golden_map.remove(&fp.reference) {
+                        if !golden.value.is_empty()
+                            && !fp.value.is_empty()
+                            && golden.value != fp.value
+                        {
+                            drift_errors.push(format!(
+                                "Value mismatch on '{}': board has '{}', golden requires '{}'",
+                                fp.reference, fp.value, golden.value
+                            ));
+                        }
+                        if !golden.footprint.is_empty()
+                            && !fp.footprint_id.is_empty()
+                            && golden.footprint != fp.footprint_id
+                        {
+                            drift_errors.push(format!(
+                                "Footprint mismatch on '{}': board has '{}', golden requires '{}'",
+                                fp.reference, fp.footprint_id, golden.footprint
+                            ));
+                        }
+                    } else {
+                        drift_errors.push(format!(
+                            "Untracked component on board: '{}' (Value: '{}', Footprint: '{}')",
+                            fp.reference, fp.value, fp.footprint_id
+                        ));
+                    }
+                }
+
+                for (missing_ref, _) in golden_map {
+                    drift_errors.push(format!("Missing component from board: '{missing_ref}'"));
+                }
+
+                if !drift_errors.is_empty() {
+                    eprintln!(
+                        "BOM DRIFT GATE FAILED: {} discrepancy(ies) detected",
+                        drift_errors.len()
+                    );
+                    for err in &drift_errors {
+                        eprintln!("  [BOM DRIFT] {err}");
+                    }
+                    std::process::exit(4);
+                } else {
+                    println!("    BOM Drift Gate: PASSED (0 drift against golden spec)");
+                }
+            } else {
+                println!("--> [Gate 4/4] BOM Drift Gate: Skipped (no golden BOM provided)");
+            }
+
+            println!("\n=======================================================");
+            println!("ALL CI/CD QUALITY GATES PASSED (Exit Code: 0)");
+            println!("=======================================================");
+        }
+        Commands::Panel {
+            board,
+            out,
+            cols,
+            rows,
+            spacing_x,
+            spacing_y,
+            rail_width,
+        } => {
+            println!("Oxide EDA Panelization Engine");
+            let pcb = load_board(&board)?;
+            let b_width = pcb
+                .setup
+                .as_ref()
+                .map(|s| s.grid_size)
+                .unwrap_or(50.0)
+                .max(30.0);
+            let b_height = pcb
+                .setup
+                .as_ref()
+                .map(|s| s.grid_size)
+                .unwrap_or(50.0)
+                .max(30.0);
+
+            let panel = oxide_output::PanelLayout::create_step_and_repeat(
+                b_width, b_height, cols, rows, spacing_x, spacing_y, rail_width,
+            );
+            let violations = panel.validate();
+            if !violations.is_empty() {
+                eprintln!("Warning: Panel DFM violations detected: {:?}", violations);
+            }
+
+            let json = serde_json::to_string_pretty(&panel)?;
+            std::fs::write(&out, json)?;
+            println!(
+                "Successfully generated panel ({} boards) to {}",
+                panel.boards.len(),
+                out.display()
+            );
+        }
+        Commands::PickAndPlace { board, out } => {
+            println!("Oxide EDA Pick-and-Place (CPL) Exporter");
+            let pcb = load_board(&board)?;
+            let exp = PickAndPlaceExporter::new(PickAndPlaceOptions::default());
+            let csv = exp.export(&pcb)?;
+            std::fs::write(&out, csv)?;
+            println!("Exported Centroid Pick-and-Place file to {}", out.display());
+        }
+        Commands::Bom { board, out, golden } => {
+            println!("Oxide EDA BOM Exporter & Verification");
+            let pcb = load_board(&board)?;
+            let items: Vec<GoldenBomItem> = pcb
+                .footprints
+                .iter()
+                .map(|fp| GoldenBomItem {
+                    refdes: fp.reference.clone(),
+                    value: fp.value.clone(),
+                    footprint: fp.footprint_id.clone(),
+                })
+                .collect();
+
+            if let Some(golden_path) = golden {
+                let golden_content = std::fs::read_to_string(&golden_path)?;
+                let golden_items: Vec<GoldenBomItem> = serde_json::from_str(&golden_content)?;
+                let mut golden_map: std::collections::HashMap<String, &GoldenBomItem> =
+                    golden_items
+                        .iter()
+                        .map(|item| (item.refdes.clone(), item))
+                        .collect();
+
+                let mut diffs = Vec::new();
+                for item in &items {
+                    if let Some(g) = golden_map.remove(&item.refdes) {
+                        if g.value != item.value || g.footprint != item.footprint {
+                            diffs.push(format!(
+                                "Mismatch on '{}': Board({}/{}) vs Golden({}/{})",
+                                item.refdes, item.value, item.footprint, g.value, g.footprint
+                            ));
+                        }
+                    } else {
+                        diffs.push(format!("Untracked component on board: '{}'", item.refdes));
+                    }
+                }
+                for (rem, _) in golden_map {
+                    diffs.push(format!("Missing component from board: '{rem}'"));
+                }
+
+                if !diffs.is_empty() {
+                    eprintln!("BOM DRIFT DETECTED: {} discrepancy(ies)", diffs.len());
+                    for d in &diffs {
+                        eprintln!("  {d}");
+                    }
+                    std::process::exit(4);
+                } else {
+                    println!(
+                        "BOM verification PASSED: Zero drift against {}",
+                        golden_path.display()
+                    );
+                }
+            }
+
+            if let Some(out_path) = out {
+                let json = serde_json::to_string_pretty(&items)?;
+                std::fs::write(&out_path, json)?;
+                println!("Wrote BOM to {}", out_path.display());
             }
         }
         Commands::Mcp => {

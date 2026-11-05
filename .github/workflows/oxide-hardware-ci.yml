@@ -1,0 +1,71 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# Oxide EDA Automated Hardware CI/CD Quality Gate Example
+#
+# Validates Schematic ERC, PCB DRC, High-Speed Stackup Impedance,
+# and BOM Drift on every commit and pull request.
+
+name: Hardware CI/CD Gate
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  oxide-hardware-gate:
+    name: Oxide EDA · Quality & CAM Release Gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Hardware Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust Toolchain
+        uses: dtolnay/rust-toolchain@1.97.0
+
+      - name: Rust Package Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build Oxide CLI
+        run: cargo build -p oxide-cli --release
+
+      - name: Run Holistic Quality Gate (ERC, DRC, Impedance, BOM)
+        run: |
+          ./target/release/oxide-cli check \
+            --board fixtures/high_stress_suite/titan_sbc_12layer_flagship.snxpcb \
+            --schematic fixtures/high_stress_suite/titan_sbc_12layer_flagship.snxsch \
+            --target-z0 60.0 \
+            --max-z0-error-pct 5.0
+
+      - name: Generate CAM Release Package (Gerber X3, IPC-2581C, ODB++)
+        run: |
+          mkdir -p build/cam
+          ./target/release/oxide-cli cam \
+            --board fixtures/high_stress_suite/titan_sbc_12layer_flagship.snxpcb \
+            --out-dir build/cam/gerber
+
+          ./target/release/oxide-cli ipc2581 \
+            --board fixtures/high_stress_suite/titan_sbc_12layer_flagship.snxpcb \
+            --out build/cam/titan_sbc_ipc2581c.xml
+
+          ./target/release/oxide-cli odbpp \
+            --board fixtures/high_stress_suite/titan_sbc_12layer_flagship.snxpcb \
+            --out-dir build/cam/odbpp
+
+          ./target/release/oxide-cli pick-and-place \
+            --board fixtures/high_stress_suite/titan_sbc_12layer_flagship.snxpcb \
+            --out build/cam/pick_and_place.csv
+
+      - name: Upload CAM Fabrication Package Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: titan-sbc-cam-release
+          path: build/cam/
+          if-no-files-found: error

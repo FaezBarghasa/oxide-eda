@@ -1,8 +1,8 @@
 //! Gerber X2/X3, IPC-2581C, and ODB++ Industrial Manufacturing Output Parity Tests.
 
 use oxide_output::{
-    export_ipc2581, export_odbpp_package, GerberExporter, GerberLayer, GerberOptions,
-    Ipc2581Options,
+    GerberExporter, GerberLayer, GerberOptions, Ipc2581Options, export_ipc2581,
+    export_odbpp_package,
 };
 use oxide_types::pcb::{
     LayerDef, NetDef, Pad, PadShape, PadType, PcbBoard, Point, Segment, Via, ViaType,
@@ -67,7 +67,11 @@ fn build_manufacturing_test_board() -> PcbBoard {
             layers: vec!["Top Layer".into()],
             net: Some(oxide_types::pcb::PadNet {
                 number: if i == 1 { 1 } else { 3 },
-                name: if i == 1 { "GND".into() } else { "DDR5_CLK_P".into() },
+                name: if i == 1 {
+                    "GND".into()
+                } else {
+                    "DDR5_CLK_P".into()
+                },
             }),
             drill: None,
             roundrect_ratio: 0.0,
@@ -167,8 +171,8 @@ fn test_ipc2581c_and_odbpp_full_layer_and_component_synthesis() {
     let board = build_manufacturing_test_board();
 
     // 1. IPC-2581C
-    let ipc = export_ipc2581(&board, &Ipc2581Options::default())
-        .expect("IPC-2581 export must succeed");
+    let ipc =
+        export_ipc2581(&board, &Ipc2581Options::default()).expect("IPC-2581 export must succeed");
     assert!(
         ipc.xml_content.contains("<IPC-2581 version=\"C\""),
         "Must declare IPC-2581 version C"
@@ -189,11 +193,15 @@ fn test_ipc2581c_and_odbpp_full_layer_and_component_synthesis() {
         "Must include matrix/matrix layer stackup definition"
     );
     assert!(
-        odb.files.iter().any(|f| f.relative_path.contains("netlists")),
+        odb.files
+            .iter()
+            .any(|f| f.relative_path.contains("netlists")),
         "Must include netlists"
     );
     assert!(
-        odb.files.iter().any(|f| f.relative_path.contains("components")),
+        odb.files
+            .iter()
+            .any(|f| f.relative_path.contains("components")),
         "Must include component placements"
     );
 }

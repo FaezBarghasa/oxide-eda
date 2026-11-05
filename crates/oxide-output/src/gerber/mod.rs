@@ -376,11 +376,11 @@ impl GerberExporter {
                                 };
                                 writeln!(out, "%TD.P,{pin_num}*%")?;
                             }
-                            if self.options.include_netlist_attributes {
-                                if let Some(n) = &pad.net {
-                                    let n_name = get_net_name(n.number);
-                                    writeln!(out, "%TD.N,{n_name}*%")?;
-                                }
+                            if self.options.include_netlist_attributes
+                                && let Some(n) = &pad.net
+                            {
+                                let n_name = get_net_name(n.number);
+                                writeln!(out, "%TD.N,{n_name}*%")?;
                             }
 
                             writeln!(out, "D{ap_id}*")?;
