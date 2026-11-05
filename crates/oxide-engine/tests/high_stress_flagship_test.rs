@@ -121,47 +121,173 @@ fn test_generate_and_verify_high_stress_titan_sbc_12layer() {
     // 1. Construct 12-Layer Board Definition
     // -------------------------------------------------------------
     let layers = vec![
-        LayerDef { id: 0, name: "TopCopper".to_string(), layer_type: "copper".to_string() },
-        LayerDef { id: 1, name: "In1.GND01".to_string(), layer_type: "copper".to_string() },
-        LayerDef { id: 2, name: "In2.SIG01_DDR5".to_string(), layer_type: "copper".to_string() },
-        LayerDef { id: 3, name: "In3.SIG02_DDR5".to_string(), layer_type: "copper".to_string() },
-        LayerDef { id: 4, name: "In4.PWR01_VCORE".to_string(), layer_type: "copper".to_string() },
-        LayerDef { id: 5, name: "In5.GND02".to_string(), layer_type: "copper".to_string() },
-        LayerDef { id: 6, name: "In6.GND03".to_string(), layer_type: "copper".to_string() },
-        LayerDef { id: 7, name: "In7.PWR02_PERIPH".to_string(), layer_type: "copper".to_string() },
-        LayerDef { id: 8, name: "In8.SIG03_PCIE".to_string(), layer_type: "copper".to_string() },
-        LayerDef { id: 9, name: "In9.SIG04_HIGH_SPEED".to_string(), layer_type: "copper".to_string() },
-        LayerDef { id: 10, name: "In10.GND04".to_string(), layer_type: "copper".to_string() },
-        LayerDef { id: 11, name: "BottomCopper".to_string(), layer_type: "copper".to_string() },
+        LayerDef {
+            id: 0,
+            name: "TopCopper".to_string(),
+            layer_type: "copper".to_string(),
+        },
+        LayerDef {
+            id: 1,
+            name: "In1.GND01".to_string(),
+            layer_type: "copper".to_string(),
+        },
+        LayerDef {
+            id: 2,
+            name: "In2.SIG01_DDR5".to_string(),
+            layer_type: "copper".to_string(),
+        },
+        LayerDef {
+            id: 3,
+            name: "In3.SIG02_DDR5".to_string(),
+            layer_type: "copper".to_string(),
+        },
+        LayerDef {
+            id: 4,
+            name: "In4.PWR01_VCORE".to_string(),
+            layer_type: "copper".to_string(),
+        },
+        LayerDef {
+            id: 5,
+            name: "In5.GND02".to_string(),
+            layer_type: "copper".to_string(),
+        },
+        LayerDef {
+            id: 6,
+            name: "In6.GND03".to_string(),
+            layer_type: "copper".to_string(),
+        },
+        LayerDef {
+            id: 7,
+            name: "In7.PWR02_PERIPH".to_string(),
+            layer_type: "copper".to_string(),
+        },
+        LayerDef {
+            id: 8,
+            name: "In8.SIG03_PCIE".to_string(),
+            layer_type: "copper".to_string(),
+        },
+        LayerDef {
+            id: 9,
+            name: "In9.SIG04_HIGH_SPEED".to_string(),
+            layer_type: "copper".to_string(),
+        },
+        LayerDef {
+            id: 10,
+            name: "In10.GND04".to_string(),
+            layer_type: "copper".to_string(),
+        },
+        LayerDef {
+            id: 11,
+            name: "BottomCopper".to_string(),
+            layer_type: "copper".to_string(),
+        },
     ];
 
     let nets = vec![
-        NetDef { number: 1, name: "GND".to_string() },
-        NetDef { number: 2, name: "AGND".to_string() },
-        NetDef { number: 3, name: "+0V85_VCORE".to_string() },
-        NetDef { number: 4, name: "+1V8_IO".to_string() },
-        NetDef { number: 5, name: "+3V3_SYS".to_string() },
-        NetDef { number: 6, name: "+1V1_DDR".to_string() },
-        NetDef { number: 7, name: "DDR5_CK_P".to_string() },
-        NetDef { number: 8, name: "DDR5_CK_N".to_string() },
-        NetDef { number: 9, name: "DDR5_DQS0_P".to_string() },
-        NetDef { number: 10, name: "DDR5_DQS0_N".to_string() },
-        NetDef { number: 11, name: "DDR5_DQ0".to_string() },
-        NetDef { number: 12, name: "DDR5_DQ1".to_string() },
-        NetDef { number: 13, name: "PCIE4_TX0_P".to_string() },
-        NetDef { number: 14, name: "PCIE4_TX0_N".to_string() },
-        NetDef { number: 15, name: "PCIE4_RX0_P".to_string() },
-        NetDef { number: 16, name: "PCIE4_RX0_N".to_string() },
-        NetDef { number: 17, name: "USB_SS_TX_P".to_string() },
-        NetDef { number: 18, name: "USB_SS_TX_N".to_string() },
-        NetDef { number: 19, name: "USB_SS_RX_P".to_string() },
-        NetDef { number: 20, name: "USB_SS_RX_N".to_string() },
-        NetDef { number: 21, name: "HDMI_CLK_P".to_string() },
-        NetDef { number: 22, name: "HDMI_CLK_N".to_string() },
-        NetDef { number: 23, name: "HDMI_D0_P".to_string() },
-        NetDef { number: 24, name: "HDMI_D0_N".to_string() },
-        NetDef { number: 25, name: "AUDIO_OUT_L".to_string() },
-        NetDef { number: 26, name: "AUDIO_OUT_R".to_string() },
+        NetDef {
+            number: 1,
+            name: "GND".to_string(),
+        },
+        NetDef {
+            number: 2,
+            name: "AGND".to_string(),
+        },
+        NetDef {
+            number: 3,
+            name: "+0V85_VCORE".to_string(),
+        },
+        NetDef {
+            number: 4,
+            name: "+1V8_IO".to_string(),
+        },
+        NetDef {
+            number: 5,
+            name: "+3V3_SYS".to_string(),
+        },
+        NetDef {
+            number: 6,
+            name: "+1V1_DDR".to_string(),
+        },
+        NetDef {
+            number: 7,
+            name: "DDR5_CK_P".to_string(),
+        },
+        NetDef {
+            number: 8,
+            name: "DDR5_CK_N".to_string(),
+        },
+        NetDef {
+            number: 9,
+            name: "DDR5_DQS0_P".to_string(),
+        },
+        NetDef {
+            number: 10,
+            name: "DDR5_DQS0_N".to_string(),
+        },
+        NetDef {
+            number: 11,
+            name: "DDR5_DQ0".to_string(),
+        },
+        NetDef {
+            number: 12,
+            name: "DDR5_DQ1".to_string(),
+        },
+        NetDef {
+            number: 13,
+            name: "PCIE4_TX0_P".to_string(),
+        },
+        NetDef {
+            number: 14,
+            name: "PCIE4_TX0_N".to_string(),
+        },
+        NetDef {
+            number: 15,
+            name: "PCIE4_RX0_P".to_string(),
+        },
+        NetDef {
+            number: 16,
+            name: "PCIE4_RX0_N".to_string(),
+        },
+        NetDef {
+            number: 17,
+            name: "USB_SS_TX_P".to_string(),
+        },
+        NetDef {
+            number: 18,
+            name: "USB_SS_TX_N".to_string(),
+        },
+        NetDef {
+            number: 19,
+            name: "USB_SS_RX_P".to_string(),
+        },
+        NetDef {
+            number: 20,
+            name: "USB_SS_RX_N".to_string(),
+        },
+        NetDef {
+            number: 21,
+            name: "HDMI_CLK_P".to_string(),
+        },
+        NetDef {
+            number: 22,
+            name: "HDMI_CLK_N".to_string(),
+        },
+        NetDef {
+            number: 23,
+            name: "HDMI_D0_P".to_string(),
+        },
+        NetDef {
+            number: 24,
+            name: "HDMI_D0_N".to_string(),
+        },
+        NetDef {
+            number: 25,
+            name: "AUDIO_OUT_L".to_string(),
+        },
+        NetDef {
+            number: 26,
+            name: "AUDIO_OUT_R".to_string(),
+        },
     ];
 
     let mut board = PcbBoard {
@@ -399,12 +525,54 @@ fn test_generate_and_verify_high_stress_titan_sbc_12layer() {
     });
 
     // Decoupling Capacitors Matrix (C1..C8 around SoC & PMIC)
-    board.footprints.push(make_smd_0402("C1", "100nF", Point::new(42.5, 14.5), "TopCopper", (1, "GND"), (3, "+0V85_VCORE")));
-    board.footprints.push(make_smd_0402("C2", "100nF", Point::new(45.0, 14.5), "TopCopper", (1, "GND"), (3, "+0V85_VCORE")));
-    board.footprints.push(make_smd_0402("C3", "100nF", Point::new(40.0, 14.5), "TopCopper", (1, "GND"), (3, "+0V85_VCORE")));
-    board.footprints.push(make_smd_0402("C4", "1µF", Point::new(28.0, 28.0), "TopCopper", (1, "GND"), (6, "+1V1_DDR")));
-    board.footprints.push(make_smd_0402("C5", "10µF", Point::new(42.5, 41.5), "TopCopper", (1, "GND"), (5, "+3V3_SYS")));
-    board.footprints.push(make_smd_0402("C6", "100nF", Point::new(45.0, 41.5), "TopCopper", (1, "GND"), (4, "+1V8_IO")));
+    board.footprints.push(make_smd_0402(
+        "C1",
+        "100nF",
+        Point::new(42.5, 14.5),
+        "TopCopper",
+        (1, "GND"),
+        (3, "+0V85_VCORE"),
+    ));
+    board.footprints.push(make_smd_0402(
+        "C2",
+        "100nF",
+        Point::new(45.0, 14.5),
+        "TopCopper",
+        (1, "GND"),
+        (3, "+0V85_VCORE"),
+    ));
+    board.footprints.push(make_smd_0402(
+        "C3",
+        "100nF",
+        Point::new(40.0, 14.5),
+        "TopCopper",
+        (1, "GND"),
+        (3, "+0V85_VCORE"),
+    ));
+    board.footprints.push(make_smd_0402(
+        "C4",
+        "1µF",
+        Point::new(28.0, 28.0),
+        "TopCopper",
+        (1, "GND"),
+        (6, "+1V1_DDR"),
+    ));
+    board.footprints.push(make_smd_0402(
+        "C5",
+        "10µF",
+        Point::new(42.5, 41.5),
+        "TopCopper",
+        (1, "GND"),
+        (5, "+3V3_SYS"),
+    ));
+    board.footprints.push(make_smd_0402(
+        "C6",
+        "100nF",
+        Point::new(45.0, 41.5),
+        "TopCopper",
+        (1, "GND"),
+        (4, "+1V8_IO"),
+    ));
 
     // -------------------------------------------------------------
     // 3. High-Speed Differential Pairs & Escape Fanout
@@ -488,7 +656,9 @@ fn test_generate_and_verify_high_stress_titan_sbc_12layer() {
     // 5. Serialize and Write Native SnxPcb
     // -------------------------------------------------------------
     let snx = SnxPcb::new(board.clone());
-    let snx_content = snx.write_string().expect("serialize titan_sbc_12layer_flagship.snxpcb");
+    let snx_content = snx
+        .write_string()
+        .expect("serialize titan_sbc_12layer_flagship.snxpcb");
     std::fs::write(&pcb_path, &snx_content).expect("write titan_sbc_12layer_flagship.snxpcb");
 
     // -------------------------------------------------------------
@@ -519,16 +689,28 @@ fn test_generate_and_verify_high_stress_titan_sbc_12layer() {
         format: oxide_types::format::SNXSCH_FORMAT_V1.to_string(),
         sheet,
     };
-    let sch_content = sch_snx.write_string().expect("serialize titan_sbc schematic");
+    let sch_content = sch_snx
+        .write_string()
+        .expect("serialize titan_sbc schematic");
     std::fs::write(&sch_path, &sch_content).expect("write titan_sbc schematic");
 
     // -------------------------------------------------------------
     // 7. Verification: Round-Trip Parse, DRC Oracle & CAM Output
     // -------------------------------------------------------------
     let parsed_board = SnxPcb::parse(&snx_content).expect("round-trip parse").board;
-    assert_eq!(parsed_board.layers.len(), 12, "Must contain exactly 12 layers");
-    assert!(parsed_board.footprints.len() >= 10, "Must contain SoC, RAM, PMIC, Net-Tie, caps");
-    assert!(parsed_board.vias.len() >= 3, "Must contain core power, ground, and blind/buried vias");
+    assert_eq!(
+        parsed_board.layers.len(),
+        12,
+        "Must contain exactly 12 layers"
+    );
+    assert!(
+        parsed_board.footprints.len() >= 10,
+        "Must contain SoC, RAM, PMIC, Net-Tie, caps"
+    );
+    assert!(
+        parsed_board.vias.len() >= 3,
+        "Must contain core power, ground, and blind/buried vias"
+    );
 
     let cm = ConstraintManager::standard_default();
     let violations = cm.run_drc(&parsed_board);
@@ -539,8 +721,14 @@ fn test_generate_and_verify_high_stress_titan_sbc_12layer() {
 
     // Multi-layer CAM release verification (12 copper + 2 masks + 2 silks + 2 paste + edge cuts = 19)
     let exporter = oxide_output::GerberExporter::new(oxide_output::GerberOptions::default());
-    let gerbers = exporter.export_board(&parsed_board).expect("export 12-layer gerbers");
-    assert_eq!(gerbers.len(), 19, "Expected 12 copper layers + 2 masks + 2 silks + 2 paste + edge cuts");
+    let gerbers = exporter
+        .export_board(&parsed_board)
+        .expect("export 12-layer gerbers");
+    assert_eq!(
+        gerbers.len(),
+        19,
+        "Expected 12 copper layers + 2 masks + 2 silks + 2 paste + edge cuts"
+    );
 
     println!(
         "[High-Stress Verified] Successfully generated and verified Titan-SBC 12-Layer Flagship Board: {} footprints, {} segments, {} vias, {} gerbers",
