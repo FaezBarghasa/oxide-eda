@@ -95,10 +95,12 @@ impl CfbContainer {
         let num_entries = dir_data.len() / 128;
         let mut root_start_sec = 0u32;
         let mut root_size = 0usize;
+        let mut root_child_id = ENDOFCHAIN;
 
         // Parse Root Storage first (entry 0)
         if num_entries > 0 {
             let entry = &dir_data[0..128];
+            root_child_id = (&entry[76..80]).read_u32::<LittleEndian>()?;
             root_start_sec = (&entry[116..120]).read_u32::<LittleEndian>()?;
             root_size = (&entry[120..128]).read_u64::<LittleEndian>()? as usize;
         }
@@ -122,57 +124,137 @@ impl CfbContainer {
             Vec::new()
         };
 
-        for i in 1..num_entries {
+        #[derive(Debug, Clone)]
+        struct DirNode {
+            name: String,
+            obj_type: u8,
+            left_sibling: u32,
+            right_sibling: u32,
+            child_id: u32,
+            start_sec: u32,
+            stream_size: usize,
+        }
+
+        let mut raw_nodes = Vec::with_capacity(num_entries);
+        for i in 0..num_entries {
             let entry = &dir_data[i * 128..(i + 1) * 128];
             let name_len = (&entry[64..66]).read_u16::<LittleEndian>()? as usize;
             let obj_type = entry[66];
+            let left_sibling = (&entry[68..72]).read_u32::<LittleEndian>()?;
+            let right_sibling = (&entry[72..76]).read_u32::<LittleEndian>()?;
+            let child_id = (&entry[76..80]).read_u32::<LittleEndian>()?;
             let start_sec = (&entry[116..120]).read_u32::<LittleEndian>()?;
             let stream_size = (&entry[120..128]).read_u64::<LittleEndian>()? as usize;
 
-            if obj_type == 2 && name_len > 2 {
-                // Stream object
+            let name = if name_len > 2 {
                 let name_bytes = &entry[0..name_len.min(64)];
                 let utf16_chars: Vec<u16> = name_bytes
                     .chunks_exact(2)
                     .map(|c| u16::from_le_bytes([c[0], c[1]]))
                     .take_while(|&c| c != 0)
                     .collect();
-                let stream_name = String::from_utf16_lossy(&utf16_chars);
+                String::from_utf16_lossy(&utf16_chars)
+            } else {
+                String::new()
+            };
 
-                let stream_content =
-                    if stream_size < 4096 && !mini_stream.is_empty() && !mini_fat.is_empty() {
-                        // Mini stream reading (64 byte mini sectors)
-                        let mini_sector_size = 64;
-                        let mut result = Vec::with_capacity(stream_size);
-                        let mut mcurr = start_sec;
-                        let mut mvisited = 0;
-                        while mcurr != ENDOFCHAIN
-                            && mcurr != FREESECT
-                            && (mcurr as usize) < mini_fat.len()
-                        {
-                            let offset = mcurr as usize * mini_sector_size;
-                            if offset >= mini_stream.len() {
-                                break;
-                            }
-                            let end = (offset + mini_sector_size).min(mini_stream.len());
-                            result.extend_from_slice(&mini_stream[offset..end]);
-                            mcurr = mini_fat[mcurr as usize];
-                            mvisited += 1;
-                            if mvisited > mini_fat.len()
-                                || result.len() >= stream_size + mini_sector_size
-                            {
-                                break;
-                            }
-                        }
-                        if result.len() > stream_size {
-                            result.truncate(stream_size);
-                        }
-                        result
-                    } else {
-                        read_chain(start_sec, stream_size)
-                    };
+            raw_nodes.push(DirNode {
+                name,
+                obj_type,
+                left_sibling,
+                right_sibling,
+                child_id,
+                start_sec,
+                stream_size,
+            });
+        }
 
-                streams.insert(stream_name, stream_content);
+        let read_stream_content = |start_sec: u32, stream_size: usize| -> Vec<u8> {
+            if stream_size < 4096 && !mini_stream.is_empty() && !mini_fat.is_empty() {
+                // Mini stream reading (64 byte mini sectors)
+                let mini_sector_size = 64;
+                let mut result = Vec::with_capacity(stream_size);
+                let mut mcurr = start_sec;
+                let mut mvisited = 0;
+                while mcurr != ENDOFCHAIN
+                    && mcurr != FREESECT
+                    && (mcurr as usize) < mini_fat.len()
+                {
+                    let offset = mcurr as usize * mini_sector_size;
+                    if offset >= mini_stream.len() {
+                        break;
+                    }
+                    let end = (offset + mini_sector_size).min(mini_stream.len());
+                    result.extend_from_slice(&mini_stream[offset..end]);
+                    mcurr = mini_fat[mcurr as usize];
+                    mvisited += 1;
+                    if mvisited > mini_fat.len()
+                        || result.len() >= stream_size + mini_sector_size
+                    {
+                        break;
+                    }
+                }
+                if result.len() > stream_size {
+                    result.truncate(stream_size);
+                }
+                result
+            } else {
+                read_chain(start_sec, stream_size)
+            }
+        };
+
+        fn walk_tree(
+            idx: u32,
+            prefix: &str,
+            nodes: &[DirNode],
+            streams: &mut HashMap<String, Vec<u8>>,
+            reader: &dyn Fn(u32, usize) -> Vec<u8>,
+            visited: &mut std::collections::HashSet<u32>,
+        ) {
+            if idx == ENDOFCHAIN || idx == FREESECT || idx as usize >= nodes.len() || !visited.insert(idx) {
+                return;
+            }
+            let node = &nodes[idx as usize];
+
+            walk_tree(node.left_sibling, prefix, nodes, streams, reader, visited);
+
+            let full_name = if prefix.is_empty() {
+                node.name.clone()
+            } else {
+                format!("{}/{}", prefix, node.name)
+            };
+
+            if node.obj_type == 2 {
+                // Stream object
+                let content = reader(node.start_sec, node.stream_size);
+                streams.insert(full_name.clone(), content.clone());
+                streams.entry(node.name.clone()).or_insert_with(|| content.clone());
+
+                if (node.name == "Data" || node.name == "data") && !prefix.is_empty() {
+                    streams.entry(prefix.to_string()).or_insert_with(|| content.clone());
+                    if prefix.ends_with('6') {
+                        let stripped = prefix.trim_end_matches('6');
+                        streams.entry(stripped.to_string()).or_insert(content);
+                    }
+                }
+            } else if node.obj_type == 1 {
+                // Storage object
+                walk_tree(node.child_id, &full_name, nodes, streams, reader, visited);
+            }
+
+            walk_tree(node.right_sibling, prefix, nodes, streams, reader, visited);
+        }
+
+        let mut visited = std::collections::HashSet::new();
+        if root_child_id != ENDOFCHAIN && (root_child_id as usize) < raw_nodes.len() {
+            walk_tree(root_child_id, "", &raw_nodes, &mut streams, &read_stream_content, &mut visited);
+        }
+
+        // Fallback: collect any stream nodes not reached by tree walk
+        for (i, node) in raw_nodes.iter().enumerate().skip(1) {
+            if node.obj_type == 2 && !visited.contains(&(i as u32)) && !node.name.is_empty() {
+                let content = read_stream_content(node.start_sec, node.stream_size);
+                streams.entry(node.name.clone()).or_insert(content);
             }
         }
 

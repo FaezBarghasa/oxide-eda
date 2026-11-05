@@ -58,35 +58,44 @@ pub fn import_pcbdoc_bytes(bytes: &[u8]) -> Result<PcbBoard, AltiumImportError> 
     };
 
     // 1. Process Board stream if available (outline, layers, nets)
-    if let Ok(board_data) = cfb.get_stream("Board")
+    if let Ok(board_data) = cfb.get_stream("Board").or_else(|_| cfb.get_stream("Board6"))
         && let Ok(records) = parse_record_stream(&board_data)
     {
         parse_board_metadata(&records, &mut board)?;
     }
 
     // 2. Process Tracks stream
-    if let Ok(tracks_data) = cfb.get_stream("Tracks")
+    if let Ok(tracks_data) = cfb.get_stream("Tracks").or_else(|_| cfb.get_stream("Tracks6"))
         && let Ok(records) = parse_record_stream(&tracks_data)
     {
         parse_tracks(&records, &mut board);
     }
 
     // 3. Process Vias stream
-    if let Ok(vias_data) = cfb.get_stream("Vias")
+    if let Ok(vias_data) = cfb.get_stream("Vias").or_else(|_| cfb.get_stream("Vias6"))
         && let Ok(records) = parse_record_stream(&vias_data)
     {
         parse_vias(&records, &mut board);
     }
 
     // 4. Process Components & Pads stream
-    if let Ok(comp_data) = cfb.get_stream("Components")
+    if let Ok(comp_data) = cfb.get_stream("Components").or_else(|_| cfb.get_stream("Components6"))
         && let Ok(records) = parse_record_stream(&comp_data)
     {
         parse_components(&records, &mut board);
     }
 
+    // 4b. Process Pads stream if separate
+    if let Ok(pads_data) = cfb.get_stream("Pads").or_else(|_| cfb.get_stream("Pads6"))
+        && let Ok(records) = parse_record_stream(&pads_data)
+    {
+        parse_pads(&records, &mut board);
+    }
+
     // 5. Check FileHeader stream for all records combined
-    if let Ok(header_data) = cfb.get_stream("FileHeader")
+    if let Ok(header_data) = cfb
+        .get_stream("FileHeader")
+        .or_else(|_| cfb.get_stream("FileHeaderSix"))
         && let Ok(records) = parse_record_stream(&header_data)
     {
         parse_all_pcb_records(&records, &mut board);

@@ -145,3 +145,65 @@ fn test_d2_scenario_t2_fpga_ddr5_4layer_blank_guard() {
         "T2 must contain DDR5_CLK_N differential net"
     );
 }
+
+#[test]
+fn test_d2_scenario_t3_bga_fanout_6layer_blank_guard() {
+    let t3_path = workspace_root().join("fixtures/verifiable/real_bga_fanout_6layer.snxpcb");
+    assert!(
+        t3_path.exists(),
+        "T3 fixture must exist at {}",
+        t3_path.display()
+    );
+
+    let content = std::fs::read_to_string(&t3_path).expect("read T3 file");
+    let snx_pcb = SnxPcb::parse(&content).expect("parse T3 SnxPcb");
+    let board = snx_pcb.board.clone();
+
+    // 1. Initialise quiet headless Oxide application
+    let (mut app, _boot_task) = Oxide::new();
+
+    // 2. Dispatch PcbOpenFinished message with parsed T3 board
+    drop(app.update(Message::File(FileMsg::PcbOpenFinished {
+        path: t3_path.clone(),
+        title: "real_bga_fanout_6layer".to_string(),
+        result: Ok(Box::new(board.clone())),
+    })));
+
+    // 3. Blank-Guard assertions: Document Tabs & 6 Layers
+    assert_eq!(
+        app.document_state.tabs.len(),
+        1,
+        "Blank-Guard: Must have 1 open tab"
+    );
+    assert_eq!(
+        board.layers.len(),
+        6,
+        "T3 must have 6 copper layers"
+    );
+
+    // 4. Blank-Guard assertions: High-Density BGA Entities
+    assert_eq!(
+        board.footprints.len(),
+        5,
+        "T3 must have 5 footprints (1 BGA-64 + 4 0805 decoupling caps)"
+    );
+    assert_eq!(
+        board.footprints[0].pads.len(),
+        64,
+        "U1 must be an 8x8 BGA with 64 pads"
+    );
+    assert_eq!(
+        board.segments.len(),
+        4,
+        "T3 must have 4 fanout escape tracks"
+    );
+    assert_eq!(
+        board.vias.len(),
+        2,
+        "T3 must have 2 dogbone plane vias"
+    );
+    assert!(
+        board.nets.iter().any(|n| n.name == "+0V85_CORE"),
+        "T3 must contain core power net +0V85_CORE"
+    );
+}

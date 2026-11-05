@@ -37,8 +37,8 @@ fn run_verify() {
 
     let checks = [
         Check {
-            name: "D2/T1+T2: Verifiable Fixtures & DRC",
-            desc: "2-layer synth + 4-layer FPGA fixtures, SnxPcb roundtrip, DRC zero violations",
+            name: "D2/T1+T2+T3: Verifiable Fixtures & DRC",
+            desc: "2-layer synth + 4-layer FPGA + 6-layer BGA fixtures, SnxPcb roundtrip, DRC zero violations",
             cmd: "cargo",
             args: &[
                 "test",
@@ -65,6 +65,20 @@ fn run_verify() {
             ],
         },
         Check {
+            name: "D4: Brand Consistency Gate",
+            desc: "Application title and metadata strictly Oxide, zero Signex regressions",
+            cmd: "cargo",
+            args: &[
+                "test",
+                "-p",
+                "oxide-app",
+                "--test",
+                "brand_consistency_test",
+                "--",
+                "--nocapture",
+            ],
+        },
+        Check {
             name: "D7: DRC Real Net Names",
             desc: "DRC reports actual net names from board netlist, no generic fallbacks",
             cmd: "cargo",
@@ -80,8 +94,23 @@ fn run_verify() {
             ],
         },
         Check {
+            name: "D9: Net-Tie DRC Exemption",
+            desc: "Star-ground Net-Tie components exempt tied nets from clearance violations",
+            cmd: "cargo",
+            args: &[
+                "test",
+                "-p",
+                "oxide-rules",
+                "--test",
+                "rules_tests",
+                "--",
+                "test_d9_net_tie",
+                "--nocapture",
+            ],
+        },
+        Check {
             name: "D2: Blank-Guard Scenario Runner",
-            desc: "Headless scenario runner verifies T1 and T2 load with non-empty canvas bounds",
+            desc: "Headless scenario runner verifies T1, T2, and T3 load with non-empty canvas bounds",
             cmd: "cargo",
             args: &[
                 "test",
@@ -89,6 +118,20 @@ fn run_verify() {
                 "oxide-app",
                 "--test",
                 "scenario_runner_test",
+                "--",
+                "--nocapture",
+            ],
+        },
+        Check {
+            name: "Phase 2: Altium Real Corpus Ingest",
+            desc: "Import real Altium binary SchDoc/PcbDoc corpus files with 100% object extraction",
+            cmd: "cargo",
+            args: &[
+                "test",
+                "-p",
+                "oxide-altium-importer",
+                "--test",
+                "real_corpus_test",
                 "--",
                 "--nocapture",
             ],

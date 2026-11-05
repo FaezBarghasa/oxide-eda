@@ -450,4 +450,243 @@ fn test_generate_and_verify_real_verifiable_fixtures() {
     }
     // Confirm inner layers got unique names
     assert!(filenames.contains("output_in2_cu.gbr") || filenames.contains("output_in3_cu.gbr"));
+
+    // -------------------------------------------------------------
+    // Fixture 3: Real 6-Layer High-Density BGA Fanout Board (T3)
+    // -------------------------------------------------------------
+    let mut bga_board = PcbBoard {
+        generator: "Oxide EDA Verifiable Test Suite".to_string(),
+        thickness: 1.6,
+        outline: vec![
+            Point::new(0.0, 0.0),
+            Point::new(80.0, 0.0),
+            Point::new(80.0, 80.0),
+            Point::new(0.0, 80.0),
+        ],
+        layers: vec![
+            LayerDef {
+                id: 0,
+                name: "TopCopper".to_string(),
+                layer_type: "copper".to_string(),
+            },
+            LayerDef {
+                id: 1,
+                name: "In1.GND".to_string(),
+                layer_type: "copper".to_string(),
+            },
+            LayerDef {
+                id: 2,
+                name: "In2.SIG1".to_string(),
+                layer_type: "copper".to_string(),
+            },
+            LayerDef {
+                id: 3,
+                name: "In3.SIG2".to_string(),
+                layer_type: "copper".to_string(),
+            },
+            LayerDef {
+                id: 4,
+                name: "In4.PWR".to_string(),
+                layer_type: "copper".to_string(),
+            },
+            LayerDef {
+                id: 5,
+                name: "BottomCopper".to_string(),
+                layer_type: "copper".to_string(),
+            },
+        ],
+        nets: vec![
+            NetDef {
+                number: 1,
+                name: "GND".to_string(),
+            },
+            NetDef {
+                number: 2,
+                name: "+0V85_CORE".to_string(),
+            },
+            NetDef {
+                number: 3,
+                name: "+1V8_IO".to_string(),
+            },
+            NetDef {
+                number: 4,
+                name: "BGA_CLK_P".to_string(),
+            },
+            NetDef {
+                number: 5,
+                name: "BGA_CLK_N".to_string(),
+            },
+            NetDef {
+                number: 6,
+                name: "BGA_D0".to_string(),
+            },
+            NetDef {
+                number: 7,
+                name: "BGA_D1".to_string(),
+            },
+        ],
+        ..Default::default()
+    };
+
+    // Make 8x8 BGA Footprint (pitch 0.8mm, pad diameter 0.40mm)
+    let mut bga_pads = Vec::new();
+    let pitch = 0.8;
+    for row in 0..8 {
+        for col in 0..8 {
+            let px = (col as f64 - 3.5) * pitch;
+            let py = (row as f64 - 3.5) * pitch;
+            let row_letter = (b'A' + row as u8) as char;
+            let pin_name = format!("{}{}", row_letter, col + 1);
+            let net = if (2..=5).contains(&row) && (2..=5).contains(&col) {
+                if (row + col) % 2 == 0 {
+                    (1, "GND")
+                } else {
+                    (2, "+0V85_CORE")
+                }
+            } else if row == 0 && col == 0 {
+                (4, "BGA_CLK_P")
+            } else if row == 0 && col == 1 {
+                (5, "BGA_CLK_N")
+            } else if row == 0 && col == 2 {
+                (6, "BGA_D0")
+            } else if row == 0 && col == 3 {
+                (7, "BGA_D1")
+            } else {
+                (3, "+1V8_IO")
+            };
+
+            bga_pads.push(make_pad(
+                &pin_name,
+                Point::new(px, py),
+                Point::new(0.40, 0.40),
+                PadType::Smd,
+                PadShape::Circle,
+                None,
+                vec!["TopCopper".to_string()],
+                Some(net),
+            ));
+        }
+    }
+
+    let bga_u1 = Footprint {
+        uuid: Uuid::new_v4(),
+        reference: "U1_BGA".to_string(),
+        value: "FPGA_BGA64".to_string(),
+        footprint_id: "Package_BGA:BGA-64_8x8_0.8mm".to_string(),
+        position: Point::new(40.0, 40.0),
+        rotation: 0.0,
+        layer: "TopCopper".to_string(),
+        locked: false,
+        properties: Vec::new(),
+        pads: bga_pads,
+        graphics: Vec::new(),
+    };
+    bga_board.footprints.push(bga_u1);
+
+    // Decoupling capacitors surrounding BGA
+    bga_board.footprints.push(make_smd_0805(
+        "C1",
+        "100nF",
+        Point::new(30.0, 40.0),
+        "TopCopper",
+        (1, "GND"),
+        (2, "+0V85_CORE"),
+    ));
+    bga_board.footprints.push(make_smd_0805(
+        "C2",
+        "100nF",
+        Point::new(50.0, 40.0),
+        "TopCopper",
+        (1, "GND"),
+        (2, "+0V85_CORE"),
+    ));
+    bga_board.footprints.push(make_smd_0805(
+        "C3",
+        "1uF",
+        Point::new(40.0, 30.0),
+        "TopCopper",
+        (1, "GND"),
+        (3, "+1V8_IO"),
+    ));
+    bga_board.footprints.push(make_smd_0805(
+        "C4",
+        "1uF",
+        Point::new(40.0, 50.0),
+        "TopCopper",
+        (1, "GND"),
+        (3, "+1V8_IO"),
+    ));
+
+    // BGA Fanout Tracks (escape routing outward to headers)
+    bga_board.segments.push(Segment {
+        uuid: Uuid::new_v4(),
+        start: Point::new(37.2, 37.2), // Pin A1 (BGA_CLK_P)
+        end: Point::new(20.0, 37.2),
+        width: 0.20,
+        layer: "TopCopper".to_string(),
+        net: 4,
+    });
+    bga_board.segments.push(Segment {
+        uuid: Uuid::new_v4(),
+        start: Point::new(38.0, 36.4), // Pin A2 (BGA_CLK_N)
+        end: Point::new(20.0, 36.4),
+        width: 0.20,
+        layer: "TopCopper".to_string(),
+        net: 5,
+    });
+    bga_board.segments.push(Segment {
+        uuid: Uuid::new_v4(),
+        start: Point::new(38.8, 35.6), // Pin A3 (BGA_D0)
+        end: Point::new(20.0, 35.6),
+        width: 0.20,
+        layer: "TopCopper".to_string(),
+        net: 6,
+    });
+    bga_board.segments.push(Segment {
+        uuid: Uuid::new_v4(),
+        start: Point::new(39.6, 34.8), // Pin A4 (BGA_D1)
+        end: Point::new(20.0, 34.8),
+        width: 0.20,
+        layer: "TopCopper".to_string(),
+        net: 7,
+    });
+
+    // Dogbone power/ground vias connecting to inner planes
+    bga_board.vias.push(Via {
+        uuid: Uuid::new_v4(),
+        position: Point::new(41.0, 41.0),
+        diameter: 0.6,
+        drill: 0.3,
+        layers: vec!["TopCopper".to_string(), "In1.GND".to_string()],
+        net: 1,
+        via_type: ViaType::Through,
+        via_span: None,
+    });
+    bga_board.vias.push(Via {
+        uuid: Uuid::new_v4(),
+        position: Point::new(39.0, 39.0),
+        diameter: 0.6,
+        drill: 0.3,
+        layers: vec!["TopCopper".to_string(), "In4.PWR".to_string()],
+        net: 2,
+        via_type: ViaType::Through,
+        via_span: None,
+    });
+
+    let bga_path = out_dir.join("real_bga_fanout_6layer.snxpcb");
+    let bga_snx = SnxPcb::new(bga_board.clone());
+    let bga_str = bga_snx.write_string().expect("serialise bga board");
+    std::fs::write(&bga_path, &bga_str).expect("write bga fixture");
+
+    let parsed_bga = SnxPcb::parse(&bga_str).expect("parse bga fixture");
+    assert_eq!(parsed_bga.board.footprints.len(), 5);
+    assert_eq!(parsed_bga.board.layers.len(), 6);
+    assert_eq!(parsed_bga.board.segments.len(), 4);
+    assert_eq!(parsed_bga.board.vias.len(), 2);
+
+    let bga_violations = rules_manager.run_drc(&parsed_bga.board);
+    assert!(
+        bga_violations.is_empty(),
+        "BGA fixture must pass DRC with 0 violations, got: {bga_violations:?}"
+    );
 }
