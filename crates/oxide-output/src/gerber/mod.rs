@@ -82,6 +82,7 @@ pub enum ApertureDef {
 #[derive(Debug, Clone)]
 pub struct GerberOptions {
     pub use_gerber_x2_attributes: bool,
+    pub use_gerber_x3_attributes: bool,
     pub include_netlist_attributes: bool,
     pub coordinate_format_integer: u8,
     pub coordinate_format_decimal: u8,
@@ -91,6 +92,7 @@ impl Default for GerberOptions {
     fn default() -> Self {
         Self {
             use_gerber_x2_attributes: true,
+            use_gerber_x3_attributes: true,
             include_netlist_attributes: true,
             coordinate_format_integer: 4,
             coordinate_format_decimal: 6,
@@ -177,16 +179,30 @@ impl GerberExporter {
             "G04 ===================================================================*"
         )?;
 
-        if self.options.use_gerber_x2_attributes {
+        if self.options.use_gerber_x2_attributes || self.options.use_gerber_x3_attributes {
             writeln!(out, "%TF.GenerationSoftware,OxideEDA,Oxide,v0.16.0*%")?;
             writeln!(out, "%TF.Part,Single*%")?;
             writeln!(out, "%TF.FilePolarity,Positive*%")?;
+            writeln!(out, "%TF.SameCoordinates,Original*%")?;
             writeln!(out, "{}", layer.x2_file_function())?;
         }
 
         writeln!(out, "%MOMM*%")?; // Metric millimeters
         writeln!(out, "%FSLAX46Y46*%")?; // Format Specification: Leading zeros omitted, Absolute, 4.6 format
         writeln!(out, "%LPD*%")?; // Layer Polarity Dark
+
+        let net_names: BTreeMap<u32, &str> = board
+            .nets
+            .iter()
+            .map(|n| (n.number, n.name.as_str()))
+            .collect();
+        let get_net_name = |net: u32| -> String {
+            net_names
+                .get(&net)
+                .copied()
+                .map(|s| s.to_string())
+                .unwrap_or_else(|| format!("NET_{net}"))
+        };
 
         // 2. Aperture Table Collection
         let mut apertures: BTreeMap<ApertureDef, u32> = BTreeMap::new();
@@ -323,9 +339,17 @@ impl GerberExporter {
         // 4. Emit Geometry Commands
         match layer {
             GerberLayer::TopCopper | GerberLayer::BottomCopper | GerberLayer::InnerCopper(_) => {
-                // Flash pads
+                // Flash pads with optional X3 Component & Pin attributes
                 for fp in &board.footprints {
-                    for pad in &fp.pads {
+                    if self.options.use_gerber_x3_attributes {
+                        writeln!(out, "%TO.CN,{}*%", fp.reference)?;
+                        writeln!(out, "%TO.CF,{}*%", fp.footprint_id)?;
+                        if !fp.value.is_empty() {
+                            writeln!(out, "%TO.CV,{}*%", fp.value)?;
+                        }
+                    }
+
+                    for (pin_idx, pad) in fp.pads.iter().enumerate() {
                         let def = match pad.shape {
                             PadShape::Circle => ApertureDef::Circle {
                                 diameter_nm: (pad.size.x * 1_000_000.0).round() as i64,
@@ -344,39 +368,77 @@ impl GerberExporter {
                         };
 
                         if let Some(&ap_id) = apertures.get(&def) {
+                            if self.options.use_gerber_x3_attributes {
+                                writeln!(out, "%TD.P,{}*%", pin_idx + 1)?;
+                            }
+                            if self.options.include_netlist_attributes {
+                                if let Some(n) = &pad.net {
+                                    let n_name = get_net_name(n.number);
+                                    writeln!(out, "%TD.N,{n_name}*%")?;
+                                }
+                            }
+
                             writeln!(out, "D{ap_id}*")?;
                             let (x, y) = self.format_coord(
                                 fp.position.x + pad.position.x,
                                 fp.position.y + pad.position.y,
                             );
                             writeln!(out, "X{x}Y{y}D03*")?;
+
+                            if self.options.use_gerber_x3_attributes
+                                || self.options.include_netlist_attributes
+                            {
+                                writeln!(out, "%TD*%")?;
+                            }
                         }
+                    }
+
+                    if self.options.use_gerber_x3_attributes {
+                        writeln!(out, "%TO*%")?;
                     }
                 }
 
-                // Flash vias
+                // Flash vias with Net attributes
                 for via in &board.vias {
                     let def = ApertureDef::Circle {
                         diameter_nm: (via.diameter * 1_000_000.0).round() as i64,
                     };
                     if let Some(&ap_id) = apertures.get(&def) {
+                        if self.options.include_netlist_attributes {
+                            let n_name = get_net_name(via.net);
+                            writeln!(out, "%TD.N,{n_name}*%")?;
+                        }
+
                         writeln!(out, "D{ap_id}*")?;
                         let (x, y) = self.format_coord(via.position.x, via.position.y);
                         writeln!(out, "X{x}Y{y}D03*")?;
+
+                        if self.options.include_netlist_attributes {
+                            writeln!(out, "%TD*%")?;
+                        }
                     }
                 }
 
-                // Interpolate segments
+                // Interpolate segments with Net attributes
                 for seg in &board.segments {
                     let def = ApertureDef::Circle {
                         diameter_nm: (seg.width * 1_000_000.0).round() as i64,
                     };
                     if let Some(&ap_id) = apertures.get(&def) {
+                        if self.options.include_netlist_attributes {
+                            let n_name = get_net_name(seg.net);
+                            writeln!(out, "%TD.N,{n_name}*%")?;
+                        }
+
                         writeln!(out, "D{ap_id}*")?;
                         let (x0, y0) = self.format_coord(seg.start.x, seg.start.y);
                         let (x1, y1) = self.format_coord(seg.end.x, seg.end.y);
                         writeln!(out, "X{x0}Y{y0}D02*")?;
                         writeln!(out, "X{x1}Y{y1}D01*")?;
+
+                        if self.options.include_netlist_attributes {
+                            writeln!(out, "%TD*%")?;
+                        }
                     }
                 }
 
