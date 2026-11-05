@@ -936,6 +936,37 @@ impl ConstraintManager {
             let net_name = get_net_name(via.net);
             let obj_id = format!("Via_{}", via.uuid);
 
+            if let Some(rule) = self.resolve_via_style_rule(&net_name, None, None) {
+                if drill_microns < rule.min_drill {
+                    violations.push(RuleViolation {
+                        violation_type: crate::violation::RuleViolationType::ViaDrillTooSmall,
+                        message: format!(
+                            "Via drill violation on '{obj_id}' (net '{net_name}'): drill is {:.3}mm ({}µm), rule requires minimum {:.3}mm ({}µm)",
+                            via.drill, drill_microns, rule.min_drill as f64 / 1000.0, rule.min_drill
+                        ),
+                        scope: rule.scope.clone(),
+                        required_value: format!("{:.3}mm", rule.min_drill as f64 / 1000.0),
+                        actual_value: format!("{:.3}mm", via.drill),
+                        location: Some((via.position.x, via.position.y)),
+                        object_ids: vec![obj_id.clone()],
+                    });
+                }
+                if pad_microns < rule.min_diameter {
+                    violations.push(RuleViolation {
+                        violation_type: crate::violation::RuleViolationType::ViaDiameterTooSmall,
+                        message: format!(
+                            "Via diameter violation on '{obj_id}' (net '{net_name}'): diameter is {:.3}mm ({}µm), rule requires minimum {:.3}mm ({}µm)",
+                            via.diameter, pad_microns, rule.min_diameter as f64 / 1000.0, rule.min_diameter
+                        ),
+                        scope: rule.scope.clone(),
+                        required_value: format!("{:.3}mm", rule.min_diameter as f64 / 1000.0),
+                        actual_value: format!("{:.3}mm", via.diameter),
+                        location: Some((via.position.x, via.position.y)),
+                        object_ids: vec![obj_id.clone()],
+                    });
+                }
+            }
+
             if let Err(v) = self.validate_annular_ring(
                 &obj_id,
                 &net_name,

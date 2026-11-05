@@ -250,3 +250,52 @@ fn test_interactive_corner_mode_routing() {
     let segments_arc = router.on_mouse_move(target);
     assert!(!segments_arc.is_empty());
 }
+
+#[test]
+fn test_bga_half_mm_escape_routing_and_shove_benchmark() {
+    use std::time::Instant;
+
+    let mut board = PcbBoard::default();
+    let rules = Arc::new(ConstraintManager::hdi_advanced_default());
+
+    // Construct a tight 0.50mm pitch 4x4 BGA matrix obstacle field
+    let pitch_mm = 0.50;
+    for r in 0..4 {
+        for c in 0..4 {
+            let px = 10.0 + c as f64 * pitch_mm;
+            let py = 10.0 + r as f64 * pitch_mm;
+            board.segments.push(Segment {
+                uuid: Uuid::new_v4(),
+                start: Point::new(px, py),
+                end: Point::new(px + 0.1, py),
+                width: 0.15,
+                layer: "Top Layer".to_string(),
+                net: (r * 4 + c + 1) as u32,
+            });
+        }
+    }
+
+    let spatial = Arc::new(SpatialIndex::build(&board));
+    let mut router = InteractiveRouter::new(Arc::clone(&rules), Arc::clone(&spatial));
+
+    // Route an escape channel through the 0.5mm pitch BGA corridor
+    let start = Point2D::from_mm(9.5, 10.25);
+    let target = Point2D::from_mm(12.0, 10.25);
+
+    let t0 = Instant::now();
+    router
+        .start_routing(start, 99, 0)
+        .expect("start 0.5mm BGA breakout routing");
+    let escape_route = router.on_mouse_move(target);
+    let elapsed = t0.elapsed();
+
+    assert!(
+        !escape_route.is_empty(),
+        "Escape route must be generated through 0.5mm BGA corridor"
+    );
+    assert!(
+        elapsed.as_millis() < 50,
+        "Interactive A*/shove routing must solve in sub-50ms (took {:?})",
+        elapsed
+    );
+}

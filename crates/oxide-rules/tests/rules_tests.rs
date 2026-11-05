@@ -806,3 +806,47 @@ fn test_d9_net_tie_exempts_tied_nets_from_clearance_violations() {
         "Net-Tie NT1 must exempt AGND and DGND from clearance violations, got: {violations_with_tie:?}"
     );
 }
+
+#[test]
+fn test_hdi_via_style_and_aspect_ratio_rules() {
+    use oxide_rules::ViaStyleRule;
+    use oxide_types::pcb::{PcbBoard, Via, ViaType};
+    use uuid::Uuid;
+
+    let mut cm = ConstraintManager::new();
+    // HDI rules: min drill 150µm, min diameter 350µm
+    cm.add_rule(DesignRule::ViaStyle(ViaStyleRule {
+        scope: RuleScope::Global,
+        min_drill: 150,
+        min_diameter: 350,
+        preferred_drill: 200,
+        preferred_diameter: 450,
+    }));
+
+    let mut board = PcbBoard::default();
+    // Sub-standard microvia: 100µm drill, 250µm pad -> violates HDI rules
+    board.vias.push(Via {
+        uuid: Uuid::new_v4(),
+        position: oxide_types::pcb::Point::new(10.0, 10.0),
+        diameter: 0.25,
+        drill: 0.10,
+        layers: vec!["Top Layer".into(), "In1.GND".into()],
+        net: 1,
+        via_type: ViaType::Micro,
+        via_span: None,
+    });
+
+    let violations = cm.run_drc(&board);
+    assert!(
+        violations
+            .iter()
+            .any(|v| v.violation_type == RuleViolationType::ViaDrillTooSmall),
+        "Must flag ViaDrillTooSmall for 0.10mm drill with 0.15mm min rule"
+    );
+    assert!(
+        violations
+            .iter()
+            .any(|v| v.violation_type == RuleViolationType::ViaDiameterTooSmall),
+        "Must flag ViaDiameterTooSmall for 0.25mm diameter with 0.35mm min rule"
+    );
+}
