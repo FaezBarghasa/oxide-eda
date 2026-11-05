@@ -1195,7 +1195,7 @@ mod tests {
             cache_age_hours: 6,
         };
 
-        assert!(audit_production_bom(&[valid_status.clone()], 24).is_ok());
+        assert!(audit_production_bom(std::slice::from_ref(&valid_status), 24).is_ok());
 
         // 2. Stale data (48 hours old) fails release audit
         let stale_status = BomStockStatus {

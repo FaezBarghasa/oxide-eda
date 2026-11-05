@@ -813,7 +813,7 @@ mod tests {
         let body_a = Body3d {
             id: "1".into(),
             reference: "U1".into(),
-            aabb: bvh_a.root.aabb().clone(),
+            aabb: *bvh_a.root.aabb(),
             height_mm: 5.0,
             mesh: Some(mesh_a),
             bvh: Some(bvh_a),
@@ -822,7 +822,7 @@ mod tests {
         let body_b = Body3d {
             id: "2".into(),
             reference: "U2".into(),
-            aabb: bvh_hit.root.aabb().clone(),
+            aabb: *bvh_hit.root.aabb(),
             height_mm: 5.0,
             mesh: Some(mesh_b_hit),
             bvh: Some(bvh_hit),
