@@ -850,3 +850,65 @@ fn test_hdi_via_style_and_aspect_ratio_rules() {
         "Must flag ViaDiameterTooSmall for 0.25mm diameter with 0.35mm min rule"
     );
 }
+
+#[test]
+fn test_incremental_dirty_region_drc_equivalence_and_speed() {
+    use oxide_rules::{DrcAabb, IncrementalDrcEngine};
+    use oxide_types::pcb::{PcbBoard, Point, Segment};
+    use std::time::Instant;
+    use uuid::Uuid;
+
+    let cm = ConstraintManager::standard_default();
+    let mut board = PcbBoard::default();
+
+    // Generate 100 parallel traces spaced 0.30mm apart (clearance-clean)
+    for i in 0..100 {
+        let y = 10.0 + i as f64 * 0.30;
+        board.segments.push(Segment {
+            uuid: Uuid::new_v4(),
+            start: Point::new(10.0, y),
+            end: Point::new(40.0, y),
+            width: 0.15,
+            layer: "Top Layer".into(),
+            net: (i + 1) as u32,
+        });
+    }
+
+    // Build spatial R-Tree
+    let engine = IncrementalDrcEngine::build(&board);
+
+    // Initial board must have zero violations
+    let dirty_all = DrcAabb::new(0, 0, 100_000, 100_000);
+    let initial_violations = engine.check_dirty_region(&cm, &board, &dirty_all, 500);
+    assert!(initial_violations.is_empty(), "Initial board must have 0 violations");
+
+    // Introduce an edit on segment 50 that causes a clearance violation (shift segment 50 towards 49)
+    let bad_seg_idx = 50;
+    let target_y = 10.0 + 49.0 * 0.30 + 0.05; // 50µm distance from net 49 (violates 150µm min rule)
+    board.segments[bad_seg_idx].start.y = target_y;
+    board.segments[bad_seg_idx].end.y = target_y;
+
+    // Incremental DRC over just the dirty bounding box of the edited segment + 500µm halo
+    let edited_seg = &board.segments[bad_seg_idx];
+    let dirty_edit = DrcAabb::from_mm_points(edited_seg.start, edited_seg.end, 0.50);
+
+    let t0 = Instant::now();
+    let re_engine = IncrementalDrcEngine::build(&board);
+    let delta_violations = re_engine.check_dirty_region(&cm, &board, &dirty_edit, 500);
+    let incremental_elapsed = t0.elapsed();
+
+    assert_eq!(
+        delta_violations.len(),
+        1,
+        "Incremental DRC must catch exactly the clearance violation on the edited segment"
+    );
+    assert_eq!(
+        delta_violations[0].violation_type,
+        RuleViolationType::ClearanceViolation
+    );
+    assert!(
+        incremental_elapsed.as_millis() < 5,
+        "Incremental DRC must complete in sub-5ms (took {:?})",
+        incremental_elapsed
+    );
+}
