@@ -133,53 +133,55 @@ fn test_generate_and_verify_real_verifiable_fixtures() {
     // -------------------------------------------------------------
     // Fixture 1: Real 2-Layer Polyphonic Synthesizer Module
     // -------------------------------------------------------------
-    let mut synth_board = PcbBoard::default();
-    synth_board.generator = "Oxide EDA Verifiable Test Suite".to_string();
-    synth_board.thickness = 1.6;
-    synth_board.outline = vec![
-        Point::new(0.0, 0.0),
-        Point::new(120.0, 0.0),
-        Point::new(120.0, 80.0),
-        Point::new(0.0, 80.0),
-    ];
-    synth_board.layers = vec![
-        LayerDef {
-            id: 0,
-            name: "TopCopper".to_string(),
-            layer_type: "copper".to_string(),
-        },
-        LayerDef {
-            id: 1,
-            name: "BottomCopper".to_string(),
-            layer_type: "copper".to_string(),
-        },
-    ];
-    synth_board.nets = vec![
-        NetDef {
-            number: 1,
-            name: "GND".to_string(),
-        },
-        NetDef {
-            number: 2,
-            name: "+12V".to_string(),
-        },
-        NetDef {
-            number: 3,
-            name: "-12V".to_string(),
-        },
-        NetDef {
-            number: 4,
-            name: "VCO_OUT".to_string(),
-        },
-        NetDef {
-            number: 5,
-            name: "VCF_IN".to_string(),
-        },
-        NetDef {
-            number: 6,
-            name: "VCF_OUT".to_string(),
-        },
-    ];
+    let mut synth_board = PcbBoard {
+        generator: "Oxide EDA Verifiable Test Suite".to_string(),
+        thickness: 1.6,
+        outline: vec![
+            Point::new(0.0, 0.0),
+            Point::new(120.0, 0.0),
+            Point::new(120.0, 80.0),
+            Point::new(0.0, 80.0),
+        ],
+        layers: vec![
+            LayerDef {
+                id: 0,
+                name: "TopCopper".to_string(),
+                layer_type: "copper".to_string(),
+            },
+            LayerDef {
+                id: 1,
+                name: "BottomCopper".to_string(),
+                layer_type: "copper".to_string(),
+            },
+        ],
+        nets: vec![
+            NetDef {
+                number: 1,
+                name: "GND".to_string(),
+            },
+            NetDef {
+                number: 2,
+                name: "+12V".to_string(),
+            },
+            NetDef {
+                number: 3,
+                name: "-12V".to_string(),
+            },
+            NetDef {
+                number: 4,
+                name: "VCO_OUT".to_string(),
+            },
+            NetDef {
+                number: 5,
+                name: "VCF_IN".to_string(),
+            },
+            NetDef {
+                number: 6,
+                name: "VCF_OUT".to_string(),
+            },
+        ],
+        ..Default::default()
+    };
 
     // Place Real Components
     synth_board
@@ -321,59 +323,61 @@ fn test_generate_and_verify_real_verifiable_fixtures() {
     // -------------------------------------------------------------
     // Fixture 2: Real 4-Layer FPGA DDR5 Board
     // -------------------------------------------------------------
-    let mut fpga_board = PcbBoard::default();
-    fpga_board.generator = "Oxide EDA Verifiable Test Suite".to_string();
-    fpga_board.thickness = 1.6;
-    fpga_board.outline = vec![
-        Point::new(0.0, 0.0),
-        Point::new(100.0, 0.0),
-        Point::new(100.0, 100.0),
-        Point::new(0.0, 100.0),
-    ];
-    fpga_board.layers = vec![
-        LayerDef {
-            id: 0,
-            name: "TopCopper".to_string(),
-            layer_type: "copper".to_string(),
-        },
-        LayerDef {
-            id: 1,
-            name: "In1.GND".to_string(),
-            layer_type: "copper".to_string(),
-        },
-        LayerDef {
-            id: 2,
-            name: "In2.PWR".to_string(),
-            layer_type: "copper".to_string(),
-        },
-        LayerDef {
-            id: 3,
-            name: "BottomCopper".to_string(),
-            layer_type: "copper".to_string(),
-        },
-    ];
-    fpga_board.nets = vec![
-        NetDef {
-            number: 1,
-            name: "GND".to_string(),
-        },
-        NetDef {
-            number: 2,
-            name: "+1V8".to_string(),
-        },
-        NetDef {
-            number: 3,
-            name: "DDR5_CLK_P".to_string(),
-        },
-        NetDef {
-            number: 4,
-            name: "DDR5_CLK_N".to_string(),
-        },
-        NetDef {
-            number: 5,
-            name: "DDR5_DQ0".to_string(),
-        },
-    ];
+    let mut fpga_board = PcbBoard {
+        generator: "Oxide EDA Verifiable Test Suite".to_string(),
+        thickness: 1.6,
+        outline: vec![
+            Point::new(0.0, 0.0),
+            Point::new(100.0, 0.0),
+            Point::new(100.0, 100.0),
+            Point::new(0.0, 100.0),
+        ],
+        layers: vec![
+            LayerDef {
+                id: 0,
+                name: "TopCopper".to_string(),
+                layer_type: "copper".to_string(),
+            },
+            LayerDef {
+                id: 1,
+                name: "In1.GND".to_string(),
+                layer_type: "copper".to_string(),
+            },
+            LayerDef {
+                id: 2,
+                name: "In2.PWR".to_string(),
+                layer_type: "copper".to_string(),
+            },
+            LayerDef {
+                id: 3,
+                name: "BottomCopper".to_string(),
+                layer_type: "copper".to_string(),
+            },
+        ],
+        nets: vec![
+            NetDef {
+                number: 1,
+                name: "GND".to_string(),
+            },
+            NetDef {
+                number: 2,
+                name: "+1V8".to_string(),
+            },
+            NetDef {
+                number: 3,
+                name: "DDR5_CLK_P".to_string(),
+            },
+            NetDef {
+                number: 4,
+                name: "DDR5_CLK_N".to_string(),
+            },
+            NetDef {
+                number: 5,
+                name: "DDR5_DQ0".to_string(),
+            },
+        ],
+        ..Default::default()
+    };
 
     // Footprints
     fpga_board
