@@ -6275,6 +6275,7 @@ name = "oxide-router"
 version = "1.5.0"
 dependencies = [
  "oxide-ml",
+ "oxide-output",
  "oxide-physics",
  "oxide-rules",
  "oxide-types",

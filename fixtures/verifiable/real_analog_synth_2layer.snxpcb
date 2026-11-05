@@ -1,5 +1,5 @@
 format = "snxpcb/1"
-pcb_id = "938a6d61-7de1-49f9-b3db-a46a76049a1e"
+pcb_id = "f11f7687-c8b1-4cbe-b15c-8c682c724dd8"
 version = 1
 generator = "Oxide EDA Verifiable Test Suite"
 thickness = 1.6
@@ -38,104 +38,104 @@ name = "VCF_OUT"
 [footprints]
 content = """
 uuid                                  ref  library                               pos_x     pos_y     rotation  layer      value
-9723c9d1-265c-4ee0-a48d-27c9b93ee36e  U1   Package_SO:SOIC-14_3.9x8.7mm_P1.27mm  40000000  40000000  0         TopCopper  TL074_Quad_OpAmp
-db6bb704-d999-4aca-99c4-8f57c9745d24  U2   Package_SO:SOIC-14_3.9x8.7mm_P1.27mm  80000000  40000000  0         TopCopper  TL074_Quad_OpAmp
-20d4edc9-d0c7-410e-9696-0626834227a1  R1   Resistor_SMD:R_0805_2012Metric        25000000  40000000  0         TopCopper  100k
-954ce80c-b7ac-4835-ac30-4071e2ea7535  R2   Resistor_SMD:R_0805_2012Metric        25000000  48000000  0         TopCopper  10k
-4d7f39a2-ee11-4a83-9e09-ef5f81f1e562  C1   Resistor_SMD:R_0805_2012Metric        60000000  40000000  0         TopCopper  10nF
-bf68e42a-30a3-45a9-9076-59288be9435f  C2   Resistor_SMD:R_0805_2012Metric        60000000  50000000  0         TopCopper  47uF
+51ffc3b4-e4cb-43a2-8c75-836b91326ee0  U1   Package_SO:SOIC-14_3.9x8.7mm_P1.27mm  40000000  40000000  0         TopCopper  TL074_Quad_OpAmp
+26af6d4f-bf54-442d-93d3-da2cf6926adb  U2   Package_SO:SOIC-14_3.9x8.7mm_P1.27mm  80000000  40000000  0         TopCopper  TL074_Quad_OpAmp
+462ad4e7-5dca-47ce-abf3-1812e5ddae30  R1   Resistor_SMD:R_0805_2012Metric        25000000  40000000  0         TopCopper  100k
+c2eb1876-33c8-45e4-bacd-2fd32a239d00  R2   Resistor_SMD:R_0805_2012Metric        25000000  48000000  0         TopCopper  10k
+d530428b-c705-4875-92d7-d7f171a51233  C1   Resistor_SMD:R_0805_2012Metric        60000000  40000000  0         TopCopper  10nF
+c81cb176-8850-4474-acd0-703ffd5d9b7c  C2   Resistor_SMD:R_0805_2012Metric        60000000  50000000  0         TopCopper  47uF
 """
 
 [pads]
 content = """
 uuid                                  footprint_ref  pin  pos_x     pos_y     size_x   size_y   pad_type  shape      layers     drill  net_number  net_name  roundrect_ratio
-d5cbe894-213e-4a52-a0ff-567c15d554d0  U1             1    -2700000  -3810000  1500000  600000   smd       roundrect  TopCopper  0      1           SIG_1     0.25
-755ec728-7b6f-4a16-b0de-abf669fb9055  U1             14   2700000   -3810000  1500000  600000   smd       roundrect  TopCopper  0      14          SIG_14    0.25
-ceee357f-923d-4ff5-8f69-6da1dc61cd29  U1             2    -2700000  -2540000  1500000  600000   smd       roundrect  TopCopper  0      2           SIG_2     0.25
-c2967dad-7e8c-45c4-895a-e13d614c1514  U1             13   2700000   -2540000  1500000  600000   smd       roundrect  TopCopper  0      13          SIG_13    0.25
-7e9938e9-edbd-482d-890f-3e9034a5b787  U1             3    -2700000  -1270000  1500000  600000   smd       roundrect  TopCopper  0      3           SIG_3     0.25
-1a62e950-14c9-465a-9624-e6e4f0f0b79c  U1             12   2700000   -1270000  1500000  600000   smd       roundrect  TopCopper  0      12          SIG_12    0.25
-d64c2128-4446-44c0-88de-2e31a4a481f5  U1             4    -2700000  0         1500000  600000   smd       roundrect  TopCopper  0      4           SIG_4     0.25
-ff3dd977-f5ea-4740-a16e-72f266990bc3  U1             11   2700000   0         1500000  600000   smd       roundrect  TopCopper  0      11          SIG_11    0.25
-6c70e793-5487-4234-9365-1901c92459b9  U1             5    -2700000  1270000   1500000  600000   smd       roundrect  TopCopper  0      5           SIG_5     0.25
-6be76b99-f197-4fad-992b-61495bb414d6  U1             10   2700000   1270000   1500000  600000   smd       roundrect  TopCopper  0      10          SIG_10    0.25
-a2ebbbd9-adaa-411c-a387-223c336e4bb2  U1             6    -2700000  2540000   1500000  600000   smd       roundrect  TopCopper  0      6           SIG_6     0.25
-a73a9488-d6fb-40bf-9442-774a7f0a7925  U1             9    2700000   2540000   1500000  600000   smd       roundrect  TopCopper  0      9           SIG_9     0.25
-8641dd66-ae6f-4426-86dd-b60104001a6b  U1             7    -2700000  3810000   1500000  600000   smd       roundrect  TopCopper  0      7           SIG_7     0.25
-975322fe-ee6f-4f69-a7c4-2e52fc62e23a  U1             8    2700000   3810000   1500000  600000   smd       roundrect  TopCopper  0      8           SIG_8     0.25
-51b56420-d0d1-4ca5-970b-bfd07cd858d2  U2             1    -2700000  -3810000  1500000  600000   smd       roundrect  TopCopper  0      1           SIG_1     0.25
-34a9bfb2-e123-434a-9b26-08c2701a7045  U2             14   2700000   -3810000  1500000  600000   smd       roundrect  TopCopper  0      14          SIG_14    0.25
-2fe6564b-2c82-432b-964a-9c2b1350b0e0  U2             2    -2700000  -2540000  1500000  600000   smd       roundrect  TopCopper  0      2           SIG_2     0.25
-26a5e899-36f2-450d-bd58-dcb0b3c9cc6b  U2             13   2700000   -2540000  1500000  600000   smd       roundrect  TopCopper  0      13          SIG_13    0.25
-05785ae7-3e99-4857-9d47-61cd7ce87c30  U2             3    -2700000  -1270000  1500000  600000   smd       roundrect  TopCopper  0      3           SIG_3     0.25
-01dae5c2-390c-47fe-b5ab-12e90187c328  U2             12   2700000   -1270000  1500000  600000   smd       roundrect  TopCopper  0      12          SIG_12    0.25
-235a078b-f077-464d-aa75-88b9210f7aba  U2             4    -2700000  0         1500000  600000   smd       roundrect  TopCopper  0      4           SIG_4     0.25
-405e04c8-64c5-406c-8958-caef2bef6cf8  U2             11   2700000   0         1500000  600000   smd       roundrect  TopCopper  0      11          SIG_11    0.25
-036ce1fa-b06a-4dfd-8ef7-18b4a6407ac3  U2             5    -2700000  1270000   1500000  600000   smd       roundrect  TopCopper  0      5           SIG_5     0.25
-f42ac24f-4050-42dd-88df-f104a60c57e8  U2             10   2700000   1270000   1500000  600000   smd       roundrect  TopCopper  0      10          SIG_10    0.25
-d43a2747-753e-4f27-817e-0373b0963f32  U2             6    -2700000  2540000   1500000  600000   smd       roundrect  TopCopper  0      6           SIG_6     0.25
-a4cb58bb-fded-4fd6-bc65-de935bdd40b1  U2             9    2700000   2540000   1500000  600000   smd       roundrect  TopCopper  0      9           SIG_9     0.25
-3605240d-494d-4990-aba2-a4c5eeebb3e9  U2             7    -2700000  3810000   1500000  600000   smd       roundrect  TopCopper  0      7           SIG_7     0.25
-5c46d408-bb4c-463e-96c4-44789a228305  U2             8    2700000   3810000   1500000  600000   smd       roundrect  TopCopper  0      8           SIG_8     0.25
-5d84516f-8ba6-4ad4-a04a-7cad96f653b6  R1             1    -950000   0         1000000  1300000  smd       rect       TopCopper  0      1           GND       0.25
-3d100f5d-e7a1-47dc-8813-48f2acee8fa3  R1             2    950000    0         1000000  1300000  smd       rect       TopCopper  0      4           VCO_OUT   0.25
-55827f09-1518-4041-a6c1-bec2fa6b89c3  R2             1    -950000   0         1000000  1300000  smd       rect       TopCopper  0      2           +12V      0.25
-0f166600-c15d-4210-ab97-a274c8251030  R2             2    950000    0         1000000  1300000  smd       rect       TopCopper  0      5           VCF_IN    0.25
-b482be8c-26bf-4d8d-a9cb-a83a00b7fb25  C1             1    -950000   0         1000000  1300000  smd       rect       TopCopper  0      4           VCO_OUT   0.25
-30d236c1-65fb-422e-bbaf-f997d81162bc  C1             2    950000    0         1000000  1300000  smd       rect       TopCopper  0      5           VCF_IN    0.25
-47c50ee0-a7a8-4ff9-8c0d-a8c1c60ee9bd  C2             1    -950000   0         1000000  1300000  smd       rect       TopCopper  0      2           +12V      0.25
-f0c76043-f4a4-463a-aa45-fa5d60ce224f  C2             2    950000    0         1000000  1300000  smd       rect       TopCopper  0      1           GND       0.25
+efddddeb-419b-4ec3-b26f-5f39e78c2191  U1             1    -2700000  -3810000  1500000  600000   smd       roundrect  TopCopper  0      1           SIG_1     0.25
+2837a812-10bc-43fa-90bc-6eac8511ae9b  U1             14   2700000   -3810000  1500000  600000   smd       roundrect  TopCopper  0      14          SIG_14    0.25
+df743b3a-8b4b-4106-991c-ad9f06ea5762  U1             2    -2700000  -2540000  1500000  600000   smd       roundrect  TopCopper  0      2           SIG_2     0.25
+76494a1e-3025-4ab2-afea-b3352593ee11  U1             13   2700000   -2540000  1500000  600000   smd       roundrect  TopCopper  0      13          SIG_13    0.25
+2d13f580-4441-4fa5-9115-e40a7dca6433  U1             3    -2700000  -1270000  1500000  600000   smd       roundrect  TopCopper  0      3           SIG_3     0.25
+4d8fd053-12ee-42d2-9313-022e9203d81d  U1             12   2700000   -1270000  1500000  600000   smd       roundrect  TopCopper  0      12          SIG_12    0.25
+70af8d25-bf54-4324-9e44-9ed5616673b9  U1             4    -2700000  0         1500000  600000   smd       roundrect  TopCopper  0      4           SIG_4     0.25
+a15aabc7-35f5-43e6-8b4b-db579a9ff15c  U1             11   2700000   0         1500000  600000   smd       roundrect  TopCopper  0      11          SIG_11    0.25
+b442db1b-ca9a-45aa-8cf9-73a7b5a69249  U1             5    -2700000  1270000   1500000  600000   smd       roundrect  TopCopper  0      5           SIG_5     0.25
+70a35e5e-b209-4cd7-865d-9de4edd5d1a4  U1             10   2700000   1270000   1500000  600000   smd       roundrect  TopCopper  0      10          SIG_10    0.25
+fd2d19b7-6a12-4857-a618-2539364802b1  U1             6    -2700000  2540000   1500000  600000   smd       roundrect  TopCopper  0      6           SIG_6     0.25
+0eb344c3-02aa-4bff-8b16-c2bff0484d97  U1             9    2700000   2540000   1500000  600000   smd       roundrect  TopCopper  0      9           SIG_9     0.25
+f6474ca4-e780-4384-9b4a-ad7c81f8bb52  U1             7    -2700000  3810000   1500000  600000   smd       roundrect  TopCopper  0      7           SIG_7     0.25
+a914b091-74ca-4ef3-9de9-8fa0d42a4a80  U1             8    2700000   3810000   1500000  600000   smd       roundrect  TopCopper  0      8           SIG_8     0.25
+17fdb934-2330-484d-aafd-67e73eb34400  U2             1    -2700000  -3810000  1500000  600000   smd       roundrect  TopCopper  0      1           SIG_1     0.25
+3c733f70-2599-4c45-a27c-ea4a91460441  U2             14   2700000   -3810000  1500000  600000   smd       roundrect  TopCopper  0      14          SIG_14    0.25
+26e51abb-6d71-4b67-9a3c-efdca2063c4b  U2             2    -2700000  -2540000  1500000  600000   smd       roundrect  TopCopper  0      2           SIG_2     0.25
+116bd58f-5b25-43e4-b7e9-cd5095ce0a3d  U2             13   2700000   -2540000  1500000  600000   smd       roundrect  TopCopper  0      13          SIG_13    0.25
+24c5e19a-ecaa-4df3-9c1b-a3d000906a4e  U2             3    -2700000  -1270000  1500000  600000   smd       roundrect  TopCopper  0      3           SIG_3     0.25
+f6109c21-41c5-4c6c-b29c-65d978d2ab85  U2             12   2700000   -1270000  1500000  600000   smd       roundrect  TopCopper  0      12          SIG_12    0.25
+e0d9bd27-c9c1-46fd-b5ab-c867322a1735  U2             4    -2700000  0         1500000  600000   smd       roundrect  TopCopper  0      4           SIG_4     0.25
+05cef693-e07a-4483-9182-f982ae654900  U2             11   2700000   0         1500000  600000   smd       roundrect  TopCopper  0      11          SIG_11    0.25
+f27a6a7a-31b6-45c3-807d-06065208dadf  U2             5    -2700000  1270000   1500000  600000   smd       roundrect  TopCopper  0      5           SIG_5     0.25
+b5927d0f-0e80-4847-8d27-6b00836e72e2  U2             10   2700000   1270000   1500000  600000   smd       roundrect  TopCopper  0      10          SIG_10    0.25
+236dd12d-856e-4eac-9075-bc2a9ac87a5d  U2             6    -2700000  2540000   1500000  600000   smd       roundrect  TopCopper  0      6           SIG_6     0.25
+b7f4a7b5-81ab-4b3f-8d2c-9b80493effee  U2             9    2700000   2540000   1500000  600000   smd       roundrect  TopCopper  0      9           SIG_9     0.25
+a7bae1c7-3038-4c65-b5bd-6fb155629803  U2             7    -2700000  3810000   1500000  600000   smd       roundrect  TopCopper  0      7           SIG_7     0.25
+db40614e-8107-4f5f-957a-a9a50bab2129  U2             8    2700000   3810000   1500000  600000   smd       roundrect  TopCopper  0      8           SIG_8     0.25
+67187671-1f8e-48b2-a1e9-b67dfe223c5a  R1             1    -950000   0         1000000  1300000  smd       rect       TopCopper  0      1           GND       0.25
+56df6d64-e52f-4a5d-a226-126dfdfb614d  R1             2    950000    0         1000000  1300000  smd       rect       TopCopper  0      4           VCO_OUT   0.25
+2ea3a936-c4cd-484f-9637-bc75d69b30d6  R2             1    -950000   0         1000000  1300000  smd       rect       TopCopper  0      2           +12V      0.25
+d35703ce-506a-4ab4-9694-80639c95c1e1  R2             2    950000    0         1000000  1300000  smd       rect       TopCopper  0      5           VCF_IN    0.25
+c08900f7-0fc4-4ef3-b7c0-9036e65594da  C1             1    -950000   0         1000000  1300000  smd       rect       TopCopper  0      4           VCO_OUT   0.25
+9d22dcb4-3955-42d5-97cf-ba4b9c7e055f  C1             2    950000    0         1000000  1300000  smd       rect       TopCopper  0      5           VCF_IN    0.25
+c4304d35-d638-445b-8470-3fe18239c5af  C2             1    -950000   0         1000000  1300000  smd       rect       TopCopper  0      2           +12V      0.25
+9595ad6d-5f0c-46f0-bc1a-2aaf54085fa1  C2             2    950000    0         1000000  1300000  smd       rect       TopCopper  0      1           GND       0.25
 """
 
 [tracks]
 content = """
 uuid                                  net  layer         width   start_x   start_y   end_x      end_y
-90af8d2a-d4a7-4955-92b6-6a323aeda1bf  4    TopCopper     350000  26000000  40000000  35000000   40000000
-ad06fffd-6e99-4a32-bf7a-4c941157bfa0  4    TopCopper     350000  45000000  40000000  59000000   40000000
-44e2160a-2ca0-484d-8b01-0b6b38bd3217  5    TopCopper     350000  61000000  40000000  75000000   40000000
-9478647d-3e7b-445e-b829-ff59a30f5c35  1    BottomCopper  500000  10000000  20000000  110000000  20000000
-7838a52f-eda4-4630-8f00-2feed9ba6880  2    BottomCopper  500000  10000000  25000000  110000000  25000000
+7bcec4da-685f-44ab-aa4b-f8ca01a7fab1  4    TopCopper     350000  26000000  40000000  35000000   40000000
+ff2d7507-5878-4d3c-aeab-87da5b5ef84a  4    TopCopper     350000  45000000  40000000  59000000   40000000
+b20a66e6-96df-49c9-9043-3ae0e3be3b3a  5    TopCopper     350000  61000000  40000000  75000000   40000000
+1602046e-0932-434e-9e0c-faa431fe7ede  1    BottomCopper  500000  10000000  20000000  110000000  20000000
+c07f58a6-4325-4e3a-82b8-e399671ebe70  2    BottomCopper  500000  10000000  25000000  110000000  25000000
 """
 
 [vias]
 content = """
 uuid                                  net  pos_x     pos_y     drill   diameter  layers                  via_type
-463ffa42-1378-462d-a7ac-5593c99962bd  1    24000000  20000000  400000  800000    TopCopper,BottomCopper  through
-861529ec-aa89-498b-9eea-ae64b5cba365  2    24000000  25000000  400000  800000    TopCopper,BottomCopper  through
+6bb34e0b-3f1a-4565-adb7-38240468fabd  1    24000000  20000000  400000  800000    TopCopper,BottomCopper  through
+39ba0f35-f794-4813-9763-e2dca08a4fc7  2    24000000  25000000  400000  800000    TopCopper,BottomCopper  through
 """
 
-[extras.footprints.20d4edc9-d0c7-410e-9696-0626834227a1]
-footprint_id = "Resistor_SMD:R_0805_2012Metric"
-locked = false
-graphics = []
-properties = []
-
-[extras.footprints.4d7f39a2-ee11-4a83-9e09-ef5f81f1e562]
-footprint_id = "Resistor_SMD:R_0805_2012Metric"
-locked = false
-graphics = []
-properties = []
-
-[extras.footprints.954ce80c-b7ac-4835-ac30-4071e2ea7535]
-footprint_id = "Resistor_SMD:R_0805_2012Metric"
-locked = false
-graphics = []
-properties = []
-
-[extras.footprints.9723c9d1-265c-4ee0-a48d-27c9b93ee36e]
+[extras.footprints.26af6d4f-bf54-442d-93d3-da2cf6926adb]
 footprint_id = "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
 locked = false
 graphics = []
 properties = []
 
-[extras.footprints.bf68e42a-30a3-45a9-9076-59288be9435f]
+[extras.footprints.462ad4e7-5dca-47ce-abf3-1812e5ddae30]
 footprint_id = "Resistor_SMD:R_0805_2012Metric"
 locked = false
 graphics = []
 properties = []
 
-[extras.footprints.db6bb704-d999-4aca-99c4-8f57c9745d24]
+[extras.footprints.51ffc3b4-e4cb-43a2-8c75-836b91326ee0]
 footprint_id = "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
+locked = false
+graphics = []
+properties = []
+
+[extras.footprints.c2eb1876-33c8-45e4-bacd-2fd32a239d00]
+footprint_id = "Resistor_SMD:R_0805_2012Metric"
+locked = false
+graphics = []
+properties = []
+
+[extras.footprints.c81cb176-8850-4474-acd0-703ffd5d9b7c]
+footprint_id = "Resistor_SMD:R_0805_2012Metric"
+locked = false
+graphics = []
+properties = []
+
+[extras.footprints.d530428b-c705-4875-92d7-d7f171a51233]
+footprint_id = "Resistor_SMD:R_0805_2012Metric"
 locked = false
 graphics = []
 properties = []

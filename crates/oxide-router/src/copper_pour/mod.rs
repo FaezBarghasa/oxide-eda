@@ -7,6 +7,7 @@ use crate::geometry::Point2D;
 use crate::geometry::rtree::NetId;
 use crate::{LayerId, RouteSegment, SegmentType, ViaPlacement};
 use oxide_physics::Microns;
+use oxide_types::pcb::{PcbBoard, Point, Segment};
 use serde::{Deserialize, Serialize};
 
 /// Thermal relief connection style.
@@ -224,6 +225,210 @@ impl TeardropGenerator {
 
         teardrops
     }
+
+    /// Generate and apply teardrops to an entire PCB board pre-CAM.
+    ///
+    /// Identifies all track segments terminating at circular pads or vias,
+    /// and generates matching-net teardrop fillet segments on the same copper layer.
+    pub fn apply_teardrops_to_board(board: &mut PcbBoard) -> usize {
+        let mut new_segments = Vec::new();
+
+        // 1. Gather all via targets: (center, radius_mm, net_id, layers)
+        let via_targets: Vec<(Point, f64, u32, Vec<String>)> = board
+            .vias
+            .iter()
+            .map(|v| (v.position, v.diameter / 2.0, v.net, v.layers.clone()))
+            .collect();
+
+        // 2. Gather all pad targets: (center, radius_mm, net_id, layers)
+        let mut pad_targets: Vec<(Point, f64, u32, Vec<String>)> = Vec::new();
+        for fp in &board.footprints {
+            for pad in &fp.pads {
+                let rot_rad = fp.rotation.to_radians();
+                let cos_r = rot_rad.cos();
+                let sin_r = rot_rad.sin();
+                let px = fp.position.x + pad.position.x * cos_r - pad.position.y * sin_r;
+                let py = fp.position.y + pad.position.x * sin_r + pad.position.y * cos_r;
+                let radius = pad.size.x.max(pad.size.y) / 2.0;
+                let net = pad.net.as_ref().map(|n| n.number).unwrap_or(0);
+                pad_targets.push((Point::new(px, py), radius, net, pad.layers.clone()));
+            }
+        }
+
+        // 3. For each existing segment, check ends against vias and pads
+        for seg in &board.segments {
+            if seg.width <= 0.0 {
+                continue;
+            }
+            let seg_len =
+                ((seg.end.x - seg.start.x).powi(2) + (seg.end.y - seg.start.y).powi(2)).sqrt();
+            if seg_len < 0.05 {
+                continue;
+            }
+
+            // Check against vias
+            for (via_pos, via_r, via_net, via_layers) in &via_targets {
+                if *via_net != seg.net {
+                    continue;
+                }
+                let layer_matches = via_layers.is_empty()
+                    || via_layers.iter().any(|l| {
+                        l.eq_ignore_ascii_case(&seg.layer) || l.eq_ignore_ascii_case("Multi-Layer")
+                    });
+                if !layer_matches {
+                    continue;
+                }
+
+                let d_start =
+                    ((seg.start.x - via_pos.x).powi(2) + (seg.start.y - via_pos.y).powi(2)).sqrt();
+                let d_end =
+                    ((seg.end.x - via_pos.x).powi(2) + (seg.end.y - via_pos.y).powi(2)).sqrt();
+
+                if d_start <= *via_r * 1.2 && seg_len > *via_r {
+                    let dir_x = (seg.end.x - seg.start.x) / seg_len;
+                    let dir_y = (seg.end.y - seg.start.y) / seg_len;
+                    let perp_x = -dir_y;
+                    let perp_y = dir_x;
+                    let anchor = Point::new(
+                        via_pos.x + dir_x * (*via_r * 1.5),
+                        via_pos.y + dir_y * (*via_r * 1.5),
+                    );
+                    let wing_r = *via_r * 0.8;
+                    let w1 = Point::new(via_pos.x + perp_x * wing_r, via_pos.y + perp_y * wing_r);
+                    let w2 = Point::new(via_pos.x - perp_x * wing_r, via_pos.y - perp_y * wing_r);
+                    let td_width = seg.width.max(0.15);
+                    new_segments.push(Segment {
+                        uuid: uuid::Uuid::now_v7(),
+                        start: anchor,
+                        end: w1,
+                        width: td_width,
+                        layer: seg.layer.clone(),
+                        net: seg.net,
+                    });
+                    new_segments.push(Segment {
+                        uuid: uuid::Uuid::now_v7(),
+                        start: anchor,
+                        end: w2,
+                        width: td_width,
+                        layer: seg.layer.clone(),
+                        net: seg.net,
+                    });
+                } else if d_end <= *via_r * 1.2 && seg_len > *via_r {
+                    let dir_x = (seg.start.x - seg.end.x) / seg_len;
+                    let dir_y = (seg.start.y - seg.end.y) / seg_len;
+                    let perp_x = -dir_y;
+                    let perp_y = dir_x;
+                    let anchor = Point::new(
+                        via_pos.x + dir_x * (*via_r * 1.5),
+                        via_pos.y + dir_y * (*via_r * 1.5),
+                    );
+                    let wing_r = *via_r * 0.8;
+                    let w1 = Point::new(via_pos.x + perp_x * wing_r, via_pos.y + perp_y * wing_r);
+                    let w2 = Point::new(via_pos.x - perp_x * wing_r, via_pos.y - perp_y * wing_r);
+                    let td_width = seg.width.max(0.15);
+                    new_segments.push(Segment {
+                        uuid: uuid::Uuid::now_v7(),
+                        start: anchor,
+                        end: w1,
+                        width: td_width,
+                        layer: seg.layer.clone(),
+                        net: seg.net,
+                    });
+                    new_segments.push(Segment {
+                        uuid: uuid::Uuid::now_v7(),
+                        start: anchor,
+                        end: w2,
+                        width: td_width,
+                        layer: seg.layer.clone(),
+                        net: seg.net,
+                    });
+                }
+            }
+
+            // Check against pads
+            for (pad_pos, pad_r, pad_net, pad_layers) in &pad_targets {
+                if *pad_net != 0 && *pad_net != seg.net {
+                    continue;
+                }
+                let layer_matches = pad_layers.is_empty()
+                    || pad_layers.iter().any(|l| {
+                        l.eq_ignore_ascii_case(&seg.layer) || l.eq_ignore_ascii_case("Multi-Layer")
+                    });
+                if !layer_matches {
+                    continue;
+                }
+
+                let d_start =
+                    ((seg.start.x - pad_pos.x).powi(2) + (seg.start.y - pad_pos.y).powi(2)).sqrt();
+                let d_end =
+                    ((seg.end.x - pad_pos.x).powi(2) + (seg.end.y - pad_pos.y).powi(2)).sqrt();
+
+                if d_start <= *pad_r * 1.2 && seg_len > *pad_r {
+                    let dir_x = (seg.end.x - seg.start.x) / seg_len;
+                    let dir_y = (seg.end.y - seg.start.y) / seg_len;
+                    let perp_x = -dir_y;
+                    let perp_y = dir_x;
+                    let anchor = Point::new(
+                        pad_pos.x + dir_x * (*pad_r * 1.5),
+                        pad_pos.y + dir_y * (*pad_r * 1.5),
+                    );
+                    let wing_r = *pad_r * 0.8;
+                    let w1 = Point::new(pad_pos.x + perp_x * wing_r, pad_pos.y + perp_y * wing_r);
+                    let w2 = Point::new(pad_pos.x - perp_x * wing_r, pad_pos.y - perp_y * wing_r);
+                    let td_width = seg.width.max(0.15);
+                    new_segments.push(Segment {
+                        uuid: uuid::Uuid::now_v7(),
+                        start: anchor,
+                        end: w1,
+                        width: td_width,
+                        layer: seg.layer.clone(),
+                        net: seg.net,
+                    });
+                    new_segments.push(Segment {
+                        uuid: uuid::Uuid::now_v7(),
+                        start: anchor,
+                        end: w2,
+                        width: td_width,
+                        layer: seg.layer.clone(),
+                        net: seg.net,
+                    });
+                } else if d_end <= *pad_r * 1.2 && seg_len > *pad_r {
+                    let dir_x = (seg.start.x - seg.end.x) / seg_len;
+                    let dir_y = (seg.start.y - seg.end.y) / seg_len;
+                    let perp_x = -dir_y;
+                    let perp_y = dir_x;
+                    let anchor = Point::new(
+                        pad_pos.x + dir_x * (*pad_r * 1.5),
+                        pad_pos.y + dir_y * (*pad_r * 1.5),
+                    );
+                    let wing_r = *pad_r * 0.8;
+                    let w1 = Point::new(pad_pos.x + perp_x * wing_r, pad_pos.y + perp_y * wing_r);
+                    let w2 = Point::new(pad_pos.x - perp_x * wing_r, pad_pos.y - perp_y * wing_r);
+                    let td_width = seg.width.max(0.15);
+                    new_segments.push(Segment {
+                        uuid: uuid::Uuid::now_v7(),
+                        start: anchor,
+                        end: w1,
+                        width: td_width,
+                        layer: seg.layer.clone(),
+                        net: seg.net,
+                    });
+                    new_segments.push(Segment {
+                        uuid: uuid::Uuid::now_v7(),
+                        start: anchor,
+                        end: w2,
+                        width: td_width,
+                        layer: seg.layer.clone(),
+                        net: seg.net,
+                    });
+                }
+            }
+        }
+
+        let count = new_segments.len();
+        board.segments.extend(new_segments);
+        count
+    }
 }
 
 #[cfg(test)]
@@ -267,6 +472,47 @@ mod tests {
 
         assert!(!CopperPourEngine::is_valid_island(&small_square, 500_000));
         assert!(CopperPourEngine::is_valid_island(&large_square, 500_000));
+    }
+
+    #[test]
+    fn test_board_level_teardrop_application() {
+        use oxide_types::pcb::{PcbBoard, Point, Segment, Via};
+        use uuid::Uuid;
+
+        let mut board = PcbBoard::default();
+
+        // Add a via at (10.0, 10.0) with diameter 0.6mm (radius 0.3mm)
+        board.vias.push(Via {
+            uuid: Uuid::now_v7(),
+            position: Point::new(10.0, 10.0),
+            diameter: 0.6,
+            drill: 0.3,
+            layers: vec!["Top Layer".to_string(), "Bottom Layer".to_string()],
+            net: 1,
+            via_type: oxide_types::pcb::ViaType::Through,
+            via_span: None,
+        });
+
+        // Add a segment connecting to the via from (5.0, 10.0) to (10.0, 10.0)
+        board.segments.push(Segment {
+            uuid: Uuid::now_v7(),
+            start: Point::new(5.0, 10.0),
+            end: Point::new(10.0, 10.0),
+            width: 0.25,
+            layer: "Top Layer".to_string(),
+            net: 1,
+        });
+
+        assert_eq!(board.segments.len(), 1);
+        let added = TeardropGenerator::apply_teardrops_to_board(&mut board);
+        assert_eq!(added, 2, "Expected 2 teardrop fillet wing segments");
+        assert_eq!(board.segments.len(), 3);
+
+        // Teardrop segments must inherit net and layer
+        assert_eq!(board.segments[1].net, 1);
+        assert_eq!(board.segments[1].layer, "Top Layer");
+        assert_eq!(board.segments[2].net, 1);
+        assert_eq!(board.segments[2].layer, "Top Layer");
     }
 
     #[test]

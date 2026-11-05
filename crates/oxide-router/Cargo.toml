@@ -17,6 +17,7 @@ thiserror = { workspace = true }
 uuid = { workspace = true }
 
 [dev-dependencies]
+oxide-output = { path = "../oxide-output" }
 
 [lints]
 workspace = true

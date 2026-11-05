@@ -55,19 +55,34 @@ fn test_corpus_import_lcd_key_pcbdoc() {
     let result = import_altium_file(&pcb_path).expect("import LcdKey2V1.PcbDoc");
     match result {
         AltiumImportResult::Pcb(board) => {
+            let total_pads: usize = board.footprints.iter().map(|f| f.pads.len()).sum();
             println!(
-                "[Corpus Report] LcdKey2V1.PcbDoc: {} tracks, {} nets, {} copper layers",
+                "[Corpus Report] LcdKey2V1.PcbDoc: {} footprints, {} pads, {} tracks, {} nets, {} copper layers",
+                board.footprints.len(),
+                total_pads,
                 board.segments.len(),
                 board.nets.len(),
                 board.layers.len()
             );
             assert!(
-                !board.segments.is_empty(),
-                "Real PcbDoc must contain imported tracks"
+                board.footprints.len() >= 20,
+                "Real PcbDoc must contain imported footprints (found {})",
+                board.footprints.len()
             );
             assert!(
-                !board.nets.is_empty(),
-                "Real PcbDoc must contain imported nets"
+                total_pads >= 50,
+                "Real PcbDoc must contain imported pads (found {})",
+                total_pads
+            );
+            assert!(
+                board.segments.len() >= 400,
+                "Real PcbDoc must contain imported tracks (found {})",
+                board.segments.len()
+            );
+            assert!(
+                board.nets.len() >= 20,
+                "Real PcbDoc must contain imported nets (found {})",
+                board.nets.len()
             );
         }
         _ => panic!("Expected AltiumImportResult::Pcb"),

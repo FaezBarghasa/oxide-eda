@@ -1229,6 +1229,77 @@ impl canvas::Program<Message> for PcbCanvas {
                     },
                 );
             }
+
+            // Floating On-Cursor Length & Routing Telemetry HUD badge (D10 Parity)
+            if state.active_router.is_some() || !state.live_route_preview.is_empty() {
+                if let Some(cursor_pos) = cursor.position_in(bounds).or(state.crosshair_pos) {
+                    let total_len_um: i64 =
+                        state.live_route_preview.iter().map(|s| s.length()).sum();
+                    let last_seg_len_um: i64 = state
+                        .live_route_preview
+                        .last()
+                        .map(|s| s.length())
+                        .unwrap_or(0);
+                    let total_mm = total_len_um as f64 / 1000.0;
+                    let seg_mm = last_seg_len_um as f64 / 1000.0;
+
+                    let net_name = if state.routing_net > 0 {
+                        format!("Net_{}", state.routing_net)
+                    } else {
+                        "Trace".to_string()
+                    };
+
+                    let layer_name = match state.routing_layer {
+                        0 => "Top Layer",
+                        31 => "Bottom Layer",
+                        _ => "Copper",
+                    };
+
+                    let hud_x = (cursor_pos.x + 18.0).min(bounds.width - 180.0).max(10.0);
+                    let hud_y = (cursor_pos.y + 18.0).min(bounds.height - 65.0).max(10.0);
+                    let hud_pos = iced::Point::new(hud_x, hud_y);
+                    let hud_size = iced::Size::new(172.0, 50.0);
+
+                    overlay_frame.fill_rectangle(
+                        hud_pos,
+                        hud_size,
+                        Color::from_rgba(0.04, 0.06, 0.10, 0.92),
+                    );
+                    overlay_frame.stroke(
+                        &canvas::Path::rectangle(hud_pos, hud_size),
+                        canvas::Stroke::default()
+                            .with_width(1.0)
+                            .with_color(Color::from_rgba(0.0, 0.85, 1.0, 0.8)),
+                    );
+
+                    // Line 1: Net & Layer
+                    overlay_frame.fill_text(canvas::Text {
+                        content: format!("{net_name} [{layer_name}]"),
+                        position: iced::Point::new(hud_pos.x + 8.0, hud_pos.y + 5.0),
+                        color: Color::from_rgb(0.0, 0.9, 1.0),
+                        size: 11.0.into(),
+                        ..Default::default()
+                    });
+
+                    // Line 2: Length and Segment
+                    overlay_frame.fill_text(canvas::Text {
+                        content: format!("L: {:.2}mm  (Seg: {:.2})", total_mm, seg_mm),
+                        position: iced::Point::new(hud_pos.x + 8.0, hud_pos.y + 20.0),
+                        color: Color::from_rgb(0.95, 0.95, 0.95),
+                        size: 12.0.into(),
+                        ..Default::default()
+                    });
+
+                    // Line 3: Corner Mode
+                    overlay_frame.fill_text(canvas::Text {
+                        content: format!("Mode: {:?}", state.corner_mode),
+                        position: iced::Point::new(hud_pos.x + 8.0, hud_pos.y + 36.0),
+                        color: Color::from_rgb(1.0, 0.8, 0.2),
+                        size: 9.0.into(),
+                        ..Default::default()
+                    });
+                }
+            }
         }
 
         // Live PDN Heatmap Tooltip readout when cursor hovers over mesh
@@ -1893,6 +1964,56 @@ mod tests {
 
         state.active_router = Some(router);
         assert!(state.active_router.is_some());
+    }
+
+    #[test]
+    fn test_d10_floating_on_cursor_length_hud() {
+        let mut state = PcbCanvasState::default();
+        let rules = std::sync::Arc::new(oxide_rules::ConstraintManager::standard_default());
+        let spatial_index = std::sync::Arc::new(oxide_router::geometry::rtree::SpatialIndex::new());
+        let mut router = oxide_router::interactive::InteractiveRouter::new(rules, spatial_index);
+        let start = oxide_router::geometry::Point2D::new(0, 0);
+        router.start_routing(start, 1, 0).unwrap();
+
+        // Simulate interactive route preview
+        let s1 = oxide_router::RouteSegment {
+            start_point: oxide_router::geometry::Point2D::new(0, 0),
+            end_point: oxide_router::geometry::Point2D::new(5000, 0),
+            width: 250,
+            layer: 0,
+            net_id: 1,
+            segment_type: oxide_router::SegmentType::Straight,
+        };
+        let s2 = oxide_router::RouteSegment {
+            start_point: oxide_router::geometry::Point2D::new(5000, 0),
+            end_point: oxide_router::geometry::Point2D::new(5000, 3000),
+            width: 250,
+            layer: 0,
+            net_id: 1,
+            segment_type: oxide_router::SegmentType::Straight,
+        };
+        state.live_route_preview = vec![s1, s2];
+        state.routing_net = 1;
+        state.routing_layer = 0;
+        state.crosshair_pos = Some(iced::Point::new(450.0, 320.0));
+        state.active_router = Some(router);
+
+        // Verify total length calculation: 5000µm + 3000µm = 8000µm = 8.00mm
+        let total_len_um: i64 = state.live_route_preview.iter().map(|s| s.length()).sum();
+        let last_seg_len_um: i64 = state
+            .live_route_preview
+            .last()
+            .map(|s| s.length())
+            .unwrap_or(0);
+        assert_eq!(
+            total_len_um, 8000,
+            "Total route length must be 8000µm (8mm)"
+        );
+        assert_eq!(
+            last_seg_len_um, 3000,
+            "Last segment length must be 3000µm (3mm)"
+        );
+        assert_eq!(state.crosshair_pos, Some(iced::Point::new(450.0, 320.0)));
     }
 
     #[test]

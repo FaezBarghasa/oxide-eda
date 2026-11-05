@@ -150,6 +150,34 @@ fn run_verify() {
                 "--nocapture",
             ],
         },
+        Check {
+            name: "D10: Floating On-Cursor Length HUD",
+            desc: "Active trace length, segment length, net, and layer hover on cursor during routing",
+            cmd: "cargo",
+            args: &[
+                "test",
+                "-p",
+                "oxide-app",
+                "--lib",
+                "--",
+                "pcb_canvas::tests::test_d10_floating_on_cursor_length_hud",
+                "--nocapture",
+            ],
+        },
+        Check {
+            name: "D11: Teardrop Pre-CAM Pass & DRC Oracle",
+            desc: "Automated teardrop fillets on pad/via joints verify zero DRC violations and Gerber export",
+            cmd: "cargo",
+            args: &[
+                "test",
+                "-p",
+                "oxide-router",
+                "--test",
+                "teardrop_drc_cam_test",
+                "--",
+                "--nocapture",
+            ],
+        },
     ];
 
     let mut all_passed = true;
