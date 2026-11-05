@@ -1,5 +1,5 @@
 format = "snxpcb/1"
-pcb_id = "cf4682bc-532d-4697-a76d-2790a1be7f03"
+pcb_id = "afbda565-1440-44e1-8f01-f841fbe5f063"
 version = 1
 generator = "Oxide EDA Verifiable Test Suite"
 thickness = 1.6
@@ -46,132 +46,132 @@ name = "BGA_D1"
 [footprints]
 content = """
 uuid                                  ref     library                         pos_x     pos_y     rotation  layer      value
-a1605fe4-997e-46b4-8059-db6d26a3ed87  U1_BGA  Package_BGA:BGA-64_8x8_0.8mm    40000000  40000000  0         TopCopper  FPGA_BGA64
-373aeaec-2596-408e-a86e-586f655b8a38  C1      Resistor_SMD:R_0805_2012Metric  30000000  40000000  0         TopCopper  100nF
-7f3c11e1-51ca-4d8b-adac-51067ac72f30  C2      Resistor_SMD:R_0805_2012Metric  50000000  40000000  0         TopCopper  100nF
-2d53516c-439b-49af-b2a9-8e68b51620d2  C3      Resistor_SMD:R_0805_2012Metric  40000000  30000000  0         TopCopper  1uF
-305d11a8-14e9-4ca5-bc9b-d380953d94f2  C4      Resistor_SMD:R_0805_2012Metric  40000000  50000000  0         TopCopper  1uF
+1a08f5c7-ffde-4e0c-be16-28d41b1ad25d  U1_BGA  Package_BGA:BGA-64_8x8_0.8mm    40000000  40000000  0         TopCopper  FPGA_BGA64
+c73f29ac-3bc7-4265-b399-cbdc965077eb  C1      Resistor_SMD:R_0805_2012Metric  30000000  40000000  0         TopCopper  100nF
+f1212a51-0f4e-4ad1-955d-6b269298ff3e  C2      Resistor_SMD:R_0805_2012Metric  50000000  40000000  0         TopCopper  100nF
+781511a7-c76f-408c-a17e-cb53722075fd  C3      Resistor_SMD:R_0805_2012Metric  40000000  30000000  0         TopCopper  1uF
+f9f2315f-5686-470b-9763-1deabbaf4155  C4      Resistor_SMD:R_0805_2012Metric  40000000  50000000  0         TopCopper  1uF
 """
 
 [pads]
 content = """
 uuid                                  footprint_ref  pin  pos_x     pos_y     size_x   size_y   pad_type  shape   layers     drill  net_number  net_name    roundrect_ratio
-185c8290-b60f-4f86-9847-727c4c4d12bd  U1_BGA         A1   -2800000  -2800000  400000   400000   smd       circle  TopCopper  0      4           BGA_CLK_P   0.25
-bfefe3db-1696-451f-8d80-18aa7af77186  U1_BGA         A2   -2000000  -2800000  400000   400000   smd       circle  TopCopper  0      5           BGA_CLK_N   0.25
-b3ecccdc-d27d-4eda-b443-103b07087b25  U1_BGA         A3   -1200000  -2800000  400000   400000   smd       circle  TopCopper  0      6           BGA_D0      0.25
-d1ce1036-6f9f-486c-b85c-11345202d4ba  U1_BGA         A4   -400000   -2800000  400000   400000   smd       circle  TopCopper  0      7           BGA_D1      0.25
-2c2f9a59-7007-4384-954c-ade3702f4953  U1_BGA         A5   400000    -2800000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-ec798e5e-0dee-4a61-9dcc-e571c12746dd  U1_BGA         A6   1200000   -2800000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-2d6e9d7a-9cca-4483-9cc6-1d51b6b34d2a  U1_BGA         A7   2000000   -2800000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-def8e888-76eb-42cd-a87b-3fe63395a751  U1_BGA         A8   2800000   -2800000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-d42d4da2-bcbd-4393-88ab-9b6de5bccb3b  U1_BGA         B1   -2800000  -2000000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-48e4bb17-ce2b-47fc-8c05-cdd21ff13784  U1_BGA         B2   -2000000  -2000000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-ea726806-f5d9-4fda-9fbc-35db07757ff0  U1_BGA         B3   -1200000  -2000000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-5a7c3660-3c93-4ccf-a7fa-991e9b4e26a9  U1_BGA         B4   -400000   -2000000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-86ed8689-5dd6-4a47-8543-9a8381351632  U1_BGA         B5   400000    -2000000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-0cebb321-a49b-4abf-b648-6ec207ef7713  U1_BGA         B6   1200000   -2000000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-8282f38b-2a5a-41ce-ac06-0d35b32c08a4  U1_BGA         B7   2000000   -2000000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-3d159e03-921b-449f-877c-4f72a5474e77  U1_BGA         B8   2800000   -2000000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-b414d815-e316-43ea-b6ed-7db2a6a23d66  U1_BGA         C1   -2800000  -1200000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-786408d1-f37a-4876-b774-8521f3bb1587  U1_BGA         C2   -2000000  -1200000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-5b1fa4ab-b5cb-4b28-a19c-d4ac4d54f5d3  U1_BGA         C3   -1200000  -1200000  400000   400000   smd       circle  TopCopper  0      1           GND         0.25
-e5b8e4a6-2374-48b2-92f2-93a6c00bdd3c  U1_BGA         C4   -400000   -1200000  400000   400000   smd       circle  TopCopper  0      2           +0V85_CORE  0.25
-8240ef7b-5ec3-42b9-8441-819e352a0e92  U1_BGA         C5   400000    -1200000  400000   400000   smd       circle  TopCopper  0      1           GND         0.25
-b1c6827a-0fe9-4dab-a8e2-4219a0bc12a4  U1_BGA         C6   1200000   -1200000  400000   400000   smd       circle  TopCopper  0      2           +0V85_CORE  0.25
-a1614487-b2db-4270-aab2-8f0cfa9bbddb  U1_BGA         C7   2000000   -1200000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-d8ebbd53-052c-4d3d-b224-2405babb1f42  U1_BGA         C8   2800000   -1200000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-2c732143-46af-483a-9b7f-841d05bed437  U1_BGA         D1   -2800000  -400000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-1daabd7c-4b41-4bd6-9dec-ed131c9a9eef  U1_BGA         D2   -2000000  -400000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-8c1bcbf2-8427-410f-9285-18f54a452754  U1_BGA         D3   -1200000  -400000   400000   400000   smd       circle  TopCopper  0      2           +0V85_CORE  0.25
-1095d684-fa81-474f-87a3-f6545884926c  U1_BGA         D4   -400000   -400000   400000   400000   smd       circle  TopCopper  0      1           GND         0.25
-10745f54-03dd-41e9-8dcc-dcbc2389679e  U1_BGA         D5   400000    -400000   400000   400000   smd       circle  TopCopper  0      2           +0V85_CORE  0.25
-cd10786b-98bb-41ed-a9b7-f75346bdfae6  U1_BGA         D6   1200000   -400000   400000   400000   smd       circle  TopCopper  0      1           GND         0.25
-055ea698-30d7-42e4-8591-4a3f2cd796e8  U1_BGA         D7   2000000   -400000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-50e5672f-5e03-4396-ab27-387cb016e8c8  U1_BGA         D8   2800000   -400000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-bb0f266b-b5d0-4e6c-85ab-ba8a90400678  U1_BGA         E1   -2800000  400000    400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-21773233-5b37-468b-95bc-912bc69bcd3a  U1_BGA         E2   -2000000  400000    400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-76230fa4-35e4-4bc7-9da0-90cd0778614f  U1_BGA         E3   -1200000  400000    400000   400000   smd       circle  TopCopper  0      1           GND         0.25
-ad3b381a-768a-41f9-b3c7-6a8a33927fde  U1_BGA         E4   -400000   400000    400000   400000   smd       circle  TopCopper  0      2           +0V85_CORE  0.25
-ea3e72ae-e181-48d5-b722-ce2063a5363b  U1_BGA         E5   400000    400000    400000   400000   smd       circle  TopCopper  0      1           GND         0.25
-acc0b2d0-fb7a-4b7d-9ecd-fdc2a6134d43  U1_BGA         E6   1200000   400000    400000   400000   smd       circle  TopCopper  0      2           +0V85_CORE  0.25
-c93ad77c-7da3-4157-8f29-fda73aa2c0f8  U1_BGA         E7   2000000   400000    400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-222aa03a-c4f7-49c1-ad9e-c58b1a8fa662  U1_BGA         E8   2800000   400000    400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-dfdc8920-8599-43ea-a665-d922ff9b8d71  U1_BGA         F1   -2800000  1200000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-26e9cd35-f080-4647-8cd7-27f14cbd6fa2  U1_BGA         F2   -2000000  1200000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-a7a5babc-1b4b-4d52-80a0-da50200a3275  U1_BGA         F3   -1200000  1200000   400000   400000   smd       circle  TopCopper  0      2           +0V85_CORE  0.25
-032188f8-4c2a-4ff0-9829-1dead2df1355  U1_BGA         F4   -400000   1200000   400000   400000   smd       circle  TopCopper  0      1           GND         0.25
-fecfbfd1-b304-41c7-a951-825f79ebc0fa  U1_BGA         F5   400000    1200000   400000   400000   smd       circle  TopCopper  0      2           +0V85_CORE  0.25
-816f3571-ba7a-4691-8bf3-8a0dfb00c0fd  U1_BGA         F6   1200000   1200000   400000   400000   smd       circle  TopCopper  0      1           GND         0.25
-bb2ae72e-b7cf-4cad-a559-abe56f45a64d  U1_BGA         F7   2000000   1200000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-9a159511-80ec-4b58-8fcd-d3b401d8dc5f  U1_BGA         F8   2800000   1200000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-e122573b-dcfb-4def-872f-e020f3d2c2c6  U1_BGA         G1   -2800000  2000000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-debb4856-aa7f-4bd1-bb62-edaf60536ba9  U1_BGA         G2   -2000000  2000000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-4abbeff6-3a3f-463e-9f2a-0b1beb5e64db  U1_BGA         G3   -1200000  2000000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-ecf2f38a-444a-45b5-901e-18d0072a651a  U1_BGA         G4   -400000   2000000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-d959b72d-46af-46b5-ae3b-c071d95ebd74  U1_BGA         G5   400000    2000000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-0ce59ab4-64b8-42fa-9854-a1fc4ea4a895  U1_BGA         G6   1200000   2000000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-f062e820-0b62-4078-a9b1-c9e21bdb5520  U1_BGA         G7   2000000   2000000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-8a36c1ec-9c9e-4e10-801b-bf4e2703517b  U1_BGA         G8   2800000   2000000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-45c2bcf8-e1e8-4558-b8ff-190b27946fbd  U1_BGA         H1   -2800000  2800000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-90466dcd-ecb3-463a-9660-70a9ec8946a6  U1_BGA         H2   -2000000  2800000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-6f64f3aa-3559-4b08-a7f0-146a5b92796d  U1_BGA         H3   -1200000  2800000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-11717b48-1ab3-4c91-8fda-71de711fedca  U1_BGA         H4   -400000   2800000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-81b03dfa-1877-4648-bd37-a846130fa668  U1_BGA         H5   400000    2800000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-4697e2e3-8568-4191-bfb0-02d96a9f671c  U1_BGA         H6   1200000   2800000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-3252b5c6-aff0-4426-b469-d9118352b5d0  U1_BGA         H7   2000000   2800000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-d0efe7a0-d229-4cde-926d-1ebcae625230  U1_BGA         H8   2800000   2800000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
-9e8a96b9-6b75-4f49-9d7e-c0d0a7f973f8  C1             1    -950000   0         1000000  1300000  smd       rect    TopCopper  0      1           GND         0.25
-9cebaad6-abf0-44f7-acf0-caf6cd6f8415  C1             2    950000    0         1000000  1300000  smd       rect    TopCopper  0      2           +0V85_CORE  0.25
-1459193f-e376-4504-a886-cf4b588a69cc  C2             1    -950000   0         1000000  1300000  smd       rect    TopCopper  0      1           GND         0.25
-fbf15bfc-3d0a-486f-95fe-944662e2b162  C2             2    950000    0         1000000  1300000  smd       rect    TopCopper  0      2           +0V85_CORE  0.25
-d95386cb-cb74-49dc-83de-36388fe504eb  C3             1    -950000   0         1000000  1300000  smd       rect    TopCopper  0      1           GND         0.25
-efb9de9d-273f-49ac-a103-ba4e767af955  C3             2    950000    0         1000000  1300000  smd       rect    TopCopper  0      3           +1V8_IO     0.25
-8fd1a691-d299-4dea-a6b3-7e1c96285e85  C4             1    -950000   0         1000000  1300000  smd       rect    TopCopper  0      1           GND         0.25
-adebaed9-339e-46d3-92ee-c795318e0d28  C4             2    950000    0         1000000  1300000  smd       rect    TopCopper  0      3           +1V8_IO     0.25
+773a1c8b-089c-4bfe-843a-4218ebbe9338  U1_BGA         A1   -2800000  -2800000  400000   400000   smd       circle  TopCopper  0      4           BGA_CLK_P   0.25
+19504548-b6ba-44bc-a5bd-53e19dbad2b6  U1_BGA         A2   -2000000  -2800000  400000   400000   smd       circle  TopCopper  0      5           BGA_CLK_N   0.25
+f7c5ecdd-e2cd-4df9-9551-d3e815ceeee8  U1_BGA         A3   -1200000  -2800000  400000   400000   smd       circle  TopCopper  0      6           BGA_D0      0.25
+33dd4ff3-adae-4a83-927d-6226603c1d90  U1_BGA         A4   -400000   -2800000  400000   400000   smd       circle  TopCopper  0      7           BGA_D1      0.25
+9d568ff6-e76e-4635-b685-ef0e5a895415  U1_BGA         A5   400000    -2800000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+a744b19c-1fa2-445b-90a8-1dec6998979d  U1_BGA         A6   1200000   -2800000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+5dc241fb-29b3-4b35-a582-5b37f5c93552  U1_BGA         A7   2000000   -2800000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+d8c9d3bc-19a3-4468-8684-7a2761fbd753  U1_BGA         A8   2800000   -2800000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+69526ca5-54cf-440b-ad4a-4a41f2b705a6  U1_BGA         B1   -2800000  -2000000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+c5dab43c-d527-463c-a0bd-c64f31981626  U1_BGA         B2   -2000000  -2000000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+ddb44d41-20eb-4bbf-bdea-591a072b6362  U1_BGA         B3   -1200000  -2000000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+f5c943a2-b637-4d2a-bf66-36a915e8d8fc  U1_BGA         B4   -400000   -2000000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+6bb17446-b6c6-4872-b116-ab0143004cf9  U1_BGA         B5   400000    -2000000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+e303f7c5-47ad-49ff-a5a0-8059d41ad0dc  U1_BGA         B6   1200000   -2000000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+5af83edd-a8dc-417d-a80c-b0376d658f85  U1_BGA         B7   2000000   -2000000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+9853cfa7-9ef2-4012-b42e-54f504a5370b  U1_BGA         B8   2800000   -2000000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+bcf2002b-85a2-46ce-aaf9-942fa9e3a851  U1_BGA         C1   -2800000  -1200000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+7a520139-a89d-44b8-9141-19e322e520fd  U1_BGA         C2   -2000000  -1200000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+93e84127-1e63-4c0e-882b-ef91b72ecc3b  U1_BGA         C3   -1200000  -1200000  400000   400000   smd       circle  TopCopper  0      1           GND         0.25
+b3b8a981-5ac2-4d9e-a858-fd550cbb3eed  U1_BGA         C4   -400000   -1200000  400000   400000   smd       circle  TopCopper  0      2           +0V85_CORE  0.25
+8b476945-cf32-471b-bb27-7807670d04c4  U1_BGA         C5   400000    -1200000  400000   400000   smd       circle  TopCopper  0      1           GND         0.25
+c052fc06-feb1-4d85-90e8-71a74c14bc3b  U1_BGA         C6   1200000   -1200000  400000   400000   smd       circle  TopCopper  0      2           +0V85_CORE  0.25
+d765e4c0-6267-4254-ae56-1e64033f431d  U1_BGA         C7   2000000   -1200000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+037cc18c-bcfe-46a0-aa34-a0a17949f5a5  U1_BGA         C8   2800000   -1200000  400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+fa77e121-6e70-4673-9c5e-881391e80964  U1_BGA         D1   -2800000  -400000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+7a702832-d626-4272-85af-7699831343ab  U1_BGA         D2   -2000000  -400000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+ac5b4ab3-f4d4-414d-8089-24f059835971  U1_BGA         D3   -1200000  -400000   400000   400000   smd       circle  TopCopper  0      2           +0V85_CORE  0.25
+8f47813c-c61a-4ebd-ab54-d1ebfb4f54b3  U1_BGA         D4   -400000   -400000   400000   400000   smd       circle  TopCopper  0      1           GND         0.25
+c88dc004-0151-4abc-a0f2-f510e62f7a41  U1_BGA         D5   400000    -400000   400000   400000   smd       circle  TopCopper  0      2           +0V85_CORE  0.25
+b9054a3b-e78f-405e-be7e-2c8321ad7330  U1_BGA         D6   1200000   -400000   400000   400000   smd       circle  TopCopper  0      1           GND         0.25
+dff9ed05-0f85-4cbb-9c1f-3f8008f6bdb9  U1_BGA         D7   2000000   -400000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+d3167474-2cc6-4541-81cb-fa67a6398700  U1_BGA         D8   2800000   -400000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+85e16e3b-5a44-4dfe-a537-f845b9aff282  U1_BGA         E1   -2800000  400000    400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+a607719f-f97b-48e6-a399-af723a0adcb4  U1_BGA         E2   -2000000  400000    400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+1e5e4799-eea9-40a6-967f-77321975872e  U1_BGA         E3   -1200000  400000    400000   400000   smd       circle  TopCopper  0      1           GND         0.25
+dbcf5d49-6794-4773-ade0-84d7946e245d  U1_BGA         E4   -400000   400000    400000   400000   smd       circle  TopCopper  0      2           +0V85_CORE  0.25
+44ed6910-50c9-450a-ba46-2ccb516f55ce  U1_BGA         E5   400000    400000    400000   400000   smd       circle  TopCopper  0      1           GND         0.25
+3574ea26-55ff-4f76-b18b-5d51b4d41527  U1_BGA         E6   1200000   400000    400000   400000   smd       circle  TopCopper  0      2           +0V85_CORE  0.25
+3ae0a894-39ce-4d32-84ff-5e5a203b8ef4  U1_BGA         E7   2000000   400000    400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+83fdfb44-9813-4d7c-a411-1501276437de  U1_BGA         E8   2800000   400000    400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+0f35e15c-9033-4322-9d2d-67d6665dcc41  U1_BGA         F1   -2800000  1200000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+d7d459c1-b06a-4237-9094-57047dc6cecf  U1_BGA         F2   -2000000  1200000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+56cd8e21-37b1-4881-bfab-1db4b48122e4  U1_BGA         F3   -1200000  1200000   400000   400000   smd       circle  TopCopper  0      2           +0V85_CORE  0.25
+3edc231f-c395-46a6-8bec-153a682f5b13  U1_BGA         F4   -400000   1200000   400000   400000   smd       circle  TopCopper  0      1           GND         0.25
+a5f33725-f3e7-48cf-89a0-3a8c34e1999b  U1_BGA         F5   400000    1200000   400000   400000   smd       circle  TopCopper  0      2           +0V85_CORE  0.25
+b246c3bf-dfff-4913-bfec-9487f0a3bac0  U1_BGA         F6   1200000   1200000   400000   400000   smd       circle  TopCopper  0      1           GND         0.25
+6f82aa13-030a-45a8-9de0-bb083b4c2e14  U1_BGA         F7   2000000   1200000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+828a587f-0e64-4af6-86be-17af59e1ee79  U1_BGA         F8   2800000   1200000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+7db82a65-8016-47ea-9c63-1c55e43fb8b9  U1_BGA         G1   -2800000  2000000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+81ef12a0-0ca3-475f-9376-3ba3084078a9  U1_BGA         G2   -2000000  2000000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+8d576a92-1da5-490e-bb86-9ee8c8ee8e39  U1_BGA         G3   -1200000  2000000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+30e2c0aa-d64d-4d7a-a780-d1582a96d2e5  U1_BGA         G4   -400000   2000000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+0cf2476c-fd49-464a-a565-259d2db70ebf  U1_BGA         G5   400000    2000000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+ac27a0a5-f67f-4ce0-847e-057c63b4657f  U1_BGA         G6   1200000   2000000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+aac1d4f0-3294-40b8-8154-805161eca602  U1_BGA         G7   2000000   2000000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+316ae1b8-6589-42c1-af00-b31e0efb4d99  U1_BGA         G8   2800000   2000000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+8f6020cc-afe1-41d9-aaa1-ddab0d302acd  U1_BGA         H1   -2800000  2800000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+0ebe1909-717c-49fd-a631-068a1042160a  U1_BGA         H2   -2000000  2800000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+72b46281-148f-43d4-8762-12908c586c9b  U1_BGA         H3   -1200000  2800000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+f2a87b33-992d-42d3-8433-c2bc426f0cd7  U1_BGA         H4   -400000   2800000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+75b13053-1cdb-474c-a26d-6a977304727d  U1_BGA         H5   400000    2800000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+03ca4459-db19-4628-aa83-3926ffd3ad3a  U1_BGA         H6   1200000   2800000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+9440aecd-1707-426c-8049-7b554fe31ebe  U1_BGA         H7   2000000   2800000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+7ae6b053-1b44-434d-a741-249de4ca1bb8  U1_BGA         H8   2800000   2800000   400000   400000   smd       circle  TopCopper  0      3           +1V8_IO     0.25
+9432c8fb-16ca-4193-8cea-201fdc11c167  C1             1    -950000   0         1000000  1300000  smd       rect    TopCopper  0      1           GND         0.25
+3c36a0c5-c31b-4acf-9fb1-73a37c675931  C1             2    950000    0         1000000  1300000  smd       rect    TopCopper  0      2           +0V85_CORE  0.25
+0709726f-fba0-4f9a-8f18-84d09ec83112  C2             1    -950000   0         1000000  1300000  smd       rect    TopCopper  0      1           GND         0.25
+2d7652bf-94d1-4cb0-ae74-716607346cb3  C2             2    950000    0         1000000  1300000  smd       rect    TopCopper  0      2           +0V85_CORE  0.25
+88eb658b-550f-4d13-9ed8-9c3c12f801de  C3             1    -950000   0         1000000  1300000  smd       rect    TopCopper  0      1           GND         0.25
+d653ace4-7d5f-4d86-8239-f01799344fc8  C3             2    950000    0         1000000  1300000  smd       rect    TopCopper  0      3           +1V8_IO     0.25
+e196cb36-fa9a-4fa3-8cd5-8d3bd2033f43  C4             1    -950000   0         1000000  1300000  smd       rect    TopCopper  0      1           GND         0.25
+72543de6-d985-46c6-bede-5de94dce6101  C4             2    950000    0         1000000  1300000  smd       rect    TopCopper  0      3           +1V8_IO     0.25
 """
 
 [tracks]
 content = """
 uuid                                  net  layer      width   start_x   start_y   end_x     end_y
-4dbb061a-6c27-4b95-b25a-d2ef9293a139  4    TopCopper  200000  37200000  37200000  20000000  37200000
-917cb4d0-d600-4eaa-9841-ad5311570470  5    TopCopper  200000  38000000  36400000  20000000  36400000
-75b8bd0b-762d-4fb2-9626-18452a3e252b  6    TopCopper  200000  38800000  35600000  20000000  35600000
-e05cf13b-7240-4aad-b923-046a9f01ebc1  7    TopCopper  200000  39600000  34800000  20000000  34800000
+d3a80c4d-f24b-411d-8b49-ba5ca3dada15  4    TopCopper  200000  37200000  37200000  20000000  37200000
+d94c92bc-360e-4030-b0f6-004eb8797275  5    TopCopper  200000  38000000  36400000  20000000  36400000
+0487abb5-396c-4aed-b14c-798e215fdb59  6    TopCopper  200000  38800000  35600000  20000000  35600000
+1dac8488-fd23-4091-b813-0a3b9caad826  7    TopCopper  200000  39600000  34800000  20000000  34800000
 """
 
 [vias]
 content = """
 uuid                                  net  pos_x     pos_y     drill   diameter  layers             via_type
-1d36f6ec-993d-4f87-81ee-ac1b11df95be  1    41000000  41000000  300000  600000    TopCopper,In1.GND  through
-3b5d1ee0-5f10-4f90-aff0-b6e16a2127a9  2    39000000  39000000  300000  600000    TopCopper,In4.PWR  through
+c364b105-0d71-495f-858f-30280cdef7cb  1    41000000  41000000  300000  600000    TopCopper,In1.GND  through
+53c22b92-0f6a-4c1d-80af-185c6d89df27  2    39000000  39000000  300000  600000    TopCopper,In4.PWR  through
 """
 
-[extras.footprints.2d53516c-439b-49af-b2a9-8e68b51620d2]
-footprint_id = "Resistor_SMD:R_0805_2012Metric"
-locked = false
-graphics = []
-properties = []
-
-[extras.footprints.305d11a8-14e9-4ca5-bc9b-d380953d94f2]
-footprint_id = "Resistor_SMD:R_0805_2012Metric"
-locked = false
-graphics = []
-properties = []
-
-[extras.footprints.373aeaec-2596-408e-a86e-586f655b8a38]
-footprint_id = "Resistor_SMD:R_0805_2012Metric"
-locked = false
-graphics = []
-properties = []
-
-[extras.footprints.7f3c11e1-51ca-4d8b-adac-51067ac72f30]
-footprint_id = "Resistor_SMD:R_0805_2012Metric"
-locked = false
-graphics = []
-properties = []
-
-[extras.footprints.a1605fe4-997e-46b4-8059-db6d26a3ed87]
+[extras.footprints.1a08f5c7-ffde-4e0c-be16-28d41b1ad25d]
 footprint_id = "Package_BGA:BGA-64_8x8_0.8mm"
+locked = false
+graphics = []
+properties = []
+
+[extras.footprints.781511a7-c76f-408c-a17e-cb53722075fd]
+footprint_id = "Resistor_SMD:R_0805_2012Metric"
+locked = false
+graphics = []
+properties = []
+
+[extras.footprints.c73f29ac-3bc7-4265-b399-cbdc965077eb]
+footprint_id = "Resistor_SMD:R_0805_2012Metric"
+locked = false
+graphics = []
+properties = []
+
+[extras.footprints.f1212a51-0f4e-4ad1-955d-6b269298ff3e]
+footprint_id = "Resistor_SMD:R_0805_2012Metric"
+locked = false
+graphics = []
+properties = []
+
+[extras.footprints.f9f2315f-5686-470b-9763-1deabbaf4155]
+footprint_id = "Resistor_SMD:R_0805_2012Metric"
 locked = false
 graphics = []
 properties = []
