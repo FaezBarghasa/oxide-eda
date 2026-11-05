@@ -6014,6 +6014,8 @@ dependencies = [
  "clap",
  "oxide-ai",
  "oxide-altium-importer",
+ "oxide-bom",
+ "oxide-erc",
  "oxide-net",
  "oxide-output",
  "oxide-physics",

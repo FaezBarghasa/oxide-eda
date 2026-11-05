@@ -14,16 +14,14 @@ fn build_manufacturing_test_board() -> PcbBoard {
         generator: "Titan-Flagship-Test".to_string(),
         layers: vec![
             LayerDef {
+                id: 1,
                 name: "Top Layer".into(),
                 layer_type: "signal".into(),
-                color: (200, 0, 0),
-                visible: true,
             },
             LayerDef {
+                id: 2,
                 name: "Bottom Layer".into(),
                 layer_type: "signal".into(),
-                color: (0, 0, 200),
-                visible: true,
             },
         ],
         nets: vec![
@@ -54,21 +52,25 @@ fn build_manufacturing_test_board() -> PcbBoard {
         layer: "Top Layer".into(),
         pads: Vec::new(),
         properties: Vec::new(),
+        graphics: Vec::new(),
+        locked: false,
     };
 
     for i in 1..=4 {
         u1.pads.push(Pad {
             uuid: Uuid::new_v4(),
+            number: format!("{i}"),
             position: Point::new((i as f64) * 0.5 - 1.25, -1.5),
             size: Point::new(0.30, 0.80),
             shape: PadShape::Rect,
             pad_type: PadType::Smd,
             layers: vec!["Top Layer".into()],
-            net: Some(NetDef {
+            net: Some(oxide_types::pcb::PadNet {
                 number: if i == 1 { 1 } else { 3 },
                 name: if i == 1 { "GND".into() } else { "DDR5_CLK_P".into() },
             }),
             drill: None,
+            roundrect_ratio: 0.0,
         });
     }
     board.footprints.push(u1);

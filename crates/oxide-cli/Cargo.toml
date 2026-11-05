@@ -17,6 +17,8 @@ oxide-net = { path = "../oxide-net" }
 oxide-rules = { path = "../oxide-rules" }
 oxide-output = { path = "../oxide-output" }
 oxide-physics = { path = "../oxide-physics" }
+oxide-bom = { path = "../oxide-bom" }
+oxide-erc = { path = "../oxide-erc" }
 oxide-altium-importer = { path = "../oxide-altium-importer" }
 oxide-ai = { path = "../oxide-ai" }
 serde = { workspace = true }

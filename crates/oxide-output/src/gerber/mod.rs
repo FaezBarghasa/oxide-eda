@@ -369,7 +369,12 @@ impl GerberExporter {
 
                         if let Some(&ap_id) = apertures.get(&def) {
                             if self.options.use_gerber_x3_attributes {
-                                writeln!(out, "%TD.P,{}*%", pin_idx + 1)?;
+                                let pin_num = if pad.number.is_empty() {
+                                    format!("{}", pin_idx + 1)
+                                } else {
+                                    pad.number.clone()
+                                };
+                                writeln!(out, "%TD.P,{pin_num}*%")?;
                             }
                             if self.options.include_netlist_attributes {
                                 if let Some(n) = &pad.net {

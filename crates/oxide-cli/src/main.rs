@@ -19,6 +19,23 @@ fn load_board(path: &Path) -> Result<PcbBoard, Box<dyn std::error::Error>> {
     }
 }
 
+fn load_schematic(path: &Path) -> Result<oxide_types::schematic::SchematicSheet, Box<dyn std::error::Error>> {
+    let content = std::fs::read_to_string(path)?;
+    if let Ok(snx) = oxide_types::format::SnxSchematic::parse(&content) {
+        Ok(snx.sheet)
+    } else {
+        let sheet = serde_json::from_str(&content)?;
+        Ok(sheet)
+    }
+}
+
+#[derive(serde::Deserialize, serde::Serialize)]
+struct GoldenBomItem {
+    pub refdes: String,
+    pub value: String,
+    pub footprint: String,
+}
+
 #[derive(Parser)]
 #[command(name = "oxide")]
 #[command(about = "Headless CLI tool for Oxide EDA: DRC, ERC, CAM and Release automation", long_about = None)]
@@ -72,6 +89,54 @@ enum Commands {
         input: PathBuf,
         #[arg(short, long)]
         out: Option<PathBuf>,
+    },
+    /// Run holistic CI/CD quality gate checking ERC, DRC, stackup impedance, and BOM drift
+    Check {
+        #[arg(short, long)]
+        board: PathBuf,
+        #[arg(short, long)]
+        schematic: Option<PathBuf>,
+        #[arg(short, long)]
+        rules: Option<PathBuf>,
+        #[arg(long)]
+        golden_bom: Option<PathBuf>,
+        #[arg(long)]
+        target_z0: Option<f64>,
+        #[arg(long, default_value_t = 5.0)]
+        max_z0_error_pct: f64,
+    },
+    /// Automated panelization with rails, tooling holes, fiducials, and V-scores
+    Panel {
+        #[arg(short, long)]
+        board: PathBuf,
+        #[arg(short, long)]
+        out: PathBuf,
+        #[arg(long, default_value_t = 2)]
+        cols: u32,
+        #[arg(long, default_value_t = 2)]
+        rows: u32,
+        #[arg(long, default_value_t = 2.0)]
+        spacing_x: f64,
+        #[arg(long, default_value_t = 2.0)]
+        spacing_y: f64,
+        #[arg(long, default_value_t = 5.0)]
+        rail_width: f64,
+    },
+    /// Generate Pick-and-Place (CPL / Centroid) XY placement file
+    PickAndPlace {
+        #[arg(short, long)]
+        board: PathBuf,
+        #[arg(short, long)]
+        out: PathBuf,
+    },
+    /// Generate Bill of Materials (BOM) and assert zero drift against golden specification
+    Bom {
+        #[arg(short, long)]
+        board: PathBuf,
+        #[arg(short, long)]
+        out: Option<PathBuf>,
+        #[arg(long)]
+        golden: Option<PathBuf>,
     },
     /// Start Oxide EDA Model Context Protocol (MCP) server over stdio for agent interaction
     Mcp,
