@@ -58,14 +58,18 @@ pub fn import_pcbdoc_bytes(bytes: &[u8]) -> Result<PcbBoard, AltiumImportError> 
     };
 
     // 1. Process Board stream if available (outline, layers, nets)
-    if let Ok(board_data) = cfb.get_stream("Board").or_else(|_| cfb.get_stream("Board6"))
+    if let Ok(board_data) = cfb
+        .get_stream("Board")
+        .or_else(|_| cfb.get_stream("Board6"))
         && let Ok(records) = parse_record_stream(&board_data)
     {
         parse_board_metadata(&records, &mut board)?;
     }
 
     // 2. Process Tracks stream
-    if let Ok(tracks_data) = cfb.get_stream("Tracks").or_else(|_| cfb.get_stream("Tracks6"))
+    if let Ok(tracks_data) = cfb
+        .get_stream("Tracks")
+        .or_else(|_| cfb.get_stream("Tracks6"))
         && let Ok(records) = parse_record_stream(&tracks_data)
     {
         parse_tracks(&records, &mut board);
@@ -79,7 +83,9 @@ pub fn import_pcbdoc_bytes(bytes: &[u8]) -> Result<PcbBoard, AltiumImportError> 
     }
 
     // 4. Process Components & Pads stream
-    if let Ok(comp_data) = cfb.get_stream("Components").or_else(|_| cfb.get_stream("Components6"))
+    if let Ok(comp_data) = cfb
+        .get_stream("Components")
+        .or_else(|_| cfb.get_stream("Components6"))
         && let Ok(records) = parse_record_stream(&comp_data)
     {
         parse_components(&records, &mut board);

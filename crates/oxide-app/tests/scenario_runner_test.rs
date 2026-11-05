@@ -175,11 +175,7 @@ fn test_d2_scenario_t3_bga_fanout_6layer_blank_guard() {
         1,
         "Blank-Guard: Must have 1 open tab"
     );
-    assert_eq!(
-        board.layers.len(),
-        6,
-        "T3 must have 6 copper layers"
-    );
+    assert_eq!(board.layers.len(), 6, "T3 must have 6 copper layers");
 
     // 4. Blank-Guard assertions: High-Density BGA Entities
     assert_eq!(
@@ -197,11 +193,7 @@ fn test_d2_scenario_t3_bga_fanout_6layer_blank_guard() {
         4,
         "T3 must have 4 fanout escape tracks"
     );
-    assert_eq!(
-        board.vias.len(),
-        2,
-        "T3 must have 2 dogbone plane vias"
-    );
+    assert_eq!(board.vias.len(), 2, "T3 must have 2 dogbone plane vias");
     assert!(
         board.nets.iter().any(|n| n.name == "+0V85_CORE"),
         "T3 must contain core power net +0V85_CORE"

@@ -176,9 +176,7 @@ impl CfbContainer {
                 let mut result = Vec::with_capacity(stream_size);
                 let mut mcurr = start_sec;
                 let mut mvisited = 0;
-                while mcurr != ENDOFCHAIN
-                    && mcurr != FREESECT
-                    && (mcurr as usize) < mini_fat.len()
+                while mcurr != ENDOFCHAIN && mcurr != FREESECT && (mcurr as usize) < mini_fat.len()
                 {
                     let offset = mcurr as usize * mini_sector_size;
                     if offset >= mini_stream.len() {
@@ -188,9 +186,7 @@ impl CfbContainer {
                     result.extend_from_slice(&mini_stream[offset..end]);
                     mcurr = mini_fat[mcurr as usize];
                     mvisited += 1;
-                    if mvisited > mini_fat.len()
-                        || result.len() >= stream_size + mini_sector_size
-                    {
+                    if mvisited > mini_fat.len() || result.len() >= stream_size + mini_sector_size {
                         break;
                     }
                 }
@@ -211,7 +207,11 @@ impl CfbContainer {
             reader: &dyn Fn(u32, usize) -> Vec<u8>,
             visited: &mut std::collections::HashSet<u32>,
         ) {
-            if idx == ENDOFCHAIN || idx == FREESECT || idx as usize >= nodes.len() || !visited.insert(idx) {
+            if idx == ENDOFCHAIN
+                || idx == FREESECT
+                || idx as usize >= nodes.len()
+                || !visited.insert(idx)
+            {
                 return;
             }
             let node = &nodes[idx as usize];
@@ -228,10 +228,14 @@ impl CfbContainer {
                 // Stream object
                 let content = reader(node.start_sec, node.stream_size);
                 streams.insert(full_name.clone(), content.clone());
-                streams.entry(node.name.clone()).or_insert_with(|| content.clone());
+                streams
+                    .entry(node.name.clone())
+                    .or_insert_with(|| content.clone());
 
                 if (node.name == "Data" || node.name == "data") && !prefix.is_empty() {
-                    streams.entry(prefix.to_string()).or_insert_with(|| content.clone());
+                    streams
+                        .entry(prefix.to_string())
+                        .or_insert_with(|| content.clone());
                     if prefix.ends_with('6') {
                         let stripped = prefix.trim_end_matches('6');
                         streams.entry(stripped.to_string()).or_insert(content);
@@ -247,7 +251,14 @@ impl CfbContainer {
 
         let mut visited = std::collections::HashSet::new();
         if root_child_id != ENDOFCHAIN && (root_child_id as usize) < raw_nodes.len() {
-            walk_tree(root_child_id, "", &raw_nodes, &mut streams, &read_stream_content, &mut visited);
+            walk_tree(
+                root_child_id,
+                "",
+                &raw_nodes,
+                &mut streams,
+                &read_stream_content,
+                &mut visited,
+            );
         }
 
         // Fallback: collect any stream nodes not reached by tree walk
