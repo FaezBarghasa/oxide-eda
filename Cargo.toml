@@ -119,9 +119,8 @@ uuid = { version = "1.23.1", features = ["v4", "v7", "serde"] }
 thiserror = "2"
 anyhow = "1"
 
-# Concurrency & Testing
+# Concurrency
 rayon = "1.10"
-proptest = "1"
 
 # File dialogs
 rfd = "0.17.2"

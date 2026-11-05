@@ -915,3 +915,189 @@ fn test_incremental_dirty_region_drc_equivalence_and_speed() {
         incremental_elapsed
     );
 }
+
+#[test]
+fn test_rayon_parallel_drc_equivalence_and_speedup() {
+    use oxide_rules::ConstraintManager;
+    use oxide_types::pcb::{PcbBoard, Point, Segment, Via};
+    use std::time::Instant;
+    use uuid::Uuid;
+
+    let cm = ConstraintManager::standard_default();
+    let mut board = PcbBoard::default();
+
+    // Create a dense board with 500 segments and 100 vias
+    for i in 0..500 {
+        let y = (i as f64) * 0.40;
+        let width = if i % 7 == 0 { 0.10 } else { 0.20 }; // Intentional width violations on i % 7 == 0
+        board.segments.push(Segment {
+            uuid: Uuid::new_v4(),
+            start: Point::new(5.0, y),
+            end: Point::new(45.0, y),
+            width,
+            layer: "Top Layer".into(),
+            net: (i + 1) as u32,
+        });
+    }
+
+    for i in 0..100 {
+        let x = 10.0 + (i as f64) * 0.8;
+        let y = 10.0 + ((i % 10) as f64) * 5.0;
+        board.vias.push(Via {
+            uuid: Uuid::new_v4(),
+            position: Point::new(x, y),
+            drill: 0.20,
+            diameter: 0.45,
+            net: (i + 501) as u32,
+            layers: vec!["Top Layer".into(), "Bottom Layer".into()],
+            via_type: oxide_types::pcb::ViaType::Through,
+            via_span: None,
+        });
+    }
+
+    // 1. Run sequential DRC
+    let t_seq = Instant::now();
+    let violations_seq = cm.run_drc(&board);
+    let seq_duration = t_seq.elapsed();
+
+    // 2. Run Rayon-parallel DRC
+    let t_par = Instant::now();
+    let violations_par = cm.run_drc_parallel(&board);
+    let par_duration = t_par.elapsed();
+
+    // 3. Equivalence assertion: count and violation types must match exactly
+    assert_eq!(
+        violations_seq.len(),
+        violations_par.len(),
+        "Sequential ({}) and Parallel ({}) DRC violation counts must match",
+        violations_seq.len(),
+        violations_par.len()
+    );
+
+    let count_type = |list: &[oxide_rules::RuleViolation], vt: RuleViolationType| {
+        list.iter().filter(|v| v.violation_type == vt).count()
+    };
+
+    assert_eq!(
+        count_type(&violations_seq, RuleViolationType::WidthTooSmall),
+        count_type(&violations_par, RuleViolationType::WidthTooSmall),
+        "Width violation count must match"
+    );
+
+    println!(
+        "Dense board DRC benchmark: Sequential = {:?}, Rayon-Parallel = {:?} (Speedup: {:.2}x)",
+        seq_duration,
+        par_duration,
+        seq_duration.as_secs_f64() / par_duration.as_secs_f64().max(0.0001)
+    );
+}
+
+#[test]
+fn test_incremental_vs_full_drc_randomized_property_equivalence() {
+    use oxide_rules::{ConstraintManager, DrcAabb, IncrementalDrcEngine};
+    use oxide_types::pcb::{PcbBoard, Point, Segment, Via};
+    use uuid::Uuid;
+
+    let cm = ConstraintManager::standard_default();
+    let mut board = PcbBoard::default();
+
+    // Deterministic LCG pseudo-random generator
+    let mut rng_state: u64 = 0xDEADBEEFCAFEBABE;
+    let mut next_rand = || -> f64 {
+        rng_state = rng_state
+            .wrapping_mul(6364136223846793005)
+            .wrapping_add(1442695040888963407);
+        ((rng_state >> 33) as f64) / ((1u64 << 31) as f64)
+    };
+
+    // Baseline grid of 60 segments
+    for i in 0..60 {
+        let y = 5.0 + (i as f64) * 0.50;
+        board.segments.push(Segment {
+            uuid: Uuid::new_v4(),
+            start: Point::new(10.0, y),
+            end: Point::new(50.0, y),
+            width: 0.20,
+            layer: "Top Layer".into(),
+            net: (i + 1) as u32,
+        });
+    }
+
+    // 20 vias (clean: 0.35mm drill, 0.70mm diameter)
+    for i in 0..20 {
+        board.vias.push(Via {
+            uuid: Uuid::new_v4(),
+            position: Point::new(15.0 + (i as f64) * 1.5, 2.0),
+            drill: 0.35,
+            diameter: 0.70,
+            net: (i + 100) as u32,
+            layers: vec!["Top Layer".into(), "Bottom Layer".into()],
+            via_type: oxide_types::pcb::ViaType::Through,
+            via_span: None,
+        });
+    }
+
+    // Run 25 randomized edit mutations
+    for iteration in 0..25 {
+        let target_seg_idx = (next_rand() * 59.0).floor() as usize;
+        let original_y = board.segments[target_seg_idx].start.y;
+        let original_width = board.segments[target_seg_idx].width;
+
+        // Mutation: either shift Y into collision with adjacent trace or alter width
+        let mut_type = (next_rand() * 2.0).floor() as usize;
+        let (dirty_aabb, target_net) = match mut_type {
+            0 => {
+                // Collide with adjacent trace
+                let neighbor_y = if target_seg_idx > 0 {
+                    board.segments[target_seg_idx - 1].start.y
+                } else {
+                    board.segments[target_seg_idx + 1].start.y
+                };
+                let new_y = neighbor_y + 0.05; // 50µm distance < 150µm min clearance
+                board.segments[target_seg_idx].start.y = new_y;
+                board.segments[target_seg_idx].end.y = new_y;
+                let seg = &board.segments[target_seg_idx];
+                (DrcAabb::from_mm_points(seg.start, seg.end, 0.50), seg.net)
+            }
+            _ => {
+                // Violate width
+                board.segments[target_seg_idx].width = 0.08; // 80µm < 150µm
+                let seg = &board.segments[target_seg_idx];
+                (DrcAabb::from_mm_points(seg.start, seg.end, 0.50), seg.net)
+            }
+        };
+
+        // Incremental DRC
+        let engine = IncrementalDrcEngine::build(&board);
+        let inc_violations = engine.check_dirty_region(&cm, &board, &dirty_aabb, 500);
+
+        // Full Board DRC
+        let full_violations = cm.run_drc_parallel(&board);
+
+        // Every violation touching the target mutated entity in full DRC MUST be in incremental DRC
+        let net_marker = format!("'NET_{target_net}'");
+        let obj_marker = format!("NET_{target_net}");
+        let full_target_violations: Vec<_> = full_violations
+            .iter()
+            .filter(|v| {
+                v.message.contains(&net_marker) || v.object_ids.iter().any(|id| id == &obj_marker)
+            })
+            .collect();
+
+        for fv in &full_target_violations {
+            let matched = inc_violations
+                .iter()
+                .any(|iv| iv.violation_type == fv.violation_type);
+            assert!(
+                matched,
+                "Iteration {iteration}: Full DRC violation {:?} on net {} must be caught by Incremental DRC",
+                fv, target_net
+            );
+        }
+
+        // Revert mutation for next round
+        board.segments[target_seg_idx].start.y = original_y;
+        board.segments[target_seg_idx].end.y = original_y;
+        board.segments[target_seg_idx].width = original_width;
+    }
+}

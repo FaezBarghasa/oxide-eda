@@ -1109,6 +1109,83 @@ impl ConstraintManager {
         violations
     }
 
+    /// Run Rayon-parallel accelerated DRC on a `PcbBoard` layout (Phase 3.2).
+    pub fn run_drc_parallel(&self, board: &oxide_types::pcb::PcbBoard) -> Vec<RuleViolation> {
+        let engine = crate::incremental::IncrementalDrcEngine::build(board);
+        let mut violations = engine.run_drc_parallel(self, board);
+
+        // Include 3D Component & Enclosure Clearance Validations
+        let mut bodies = Vec::new();
+        for fp in &board.footprints {
+            let mut min_x = fp.position.x;
+            let mut max_x = fp.position.x;
+            let mut min_y = fp.position.y;
+            let mut max_y = fp.position.y;
+            for pad in &fp.pads {
+                min_x = min_x.min(fp.position.x + pad.position.x - pad.size.x / 2.0);
+                max_x = max_x.max(fp.position.x + pad.position.x + pad.size.x / 2.0);
+                min_y = min_y.min(fp.position.y + pad.position.y - pad.size.y / 2.0);
+                max_y = max_y.max(fp.position.y + pad.position.y + pad.size.y / 2.0);
+            }
+            if fp.pads.is_empty() {
+                min_x -= 1.0;
+                max_x += 1.0;
+                min_y -= 1.0;
+                max_y += 1.0;
+            }
+
+            let height_mm = fp
+                .properties
+                .iter()
+                .find(|p| p.key.eq_ignore_ascii_case("height"))
+                .and_then(|p| p.value.parse::<f64>().ok())
+                .unwrap_or(2.0);
+
+            bodies.push(oxide_physics::clearance_3d::Body3d {
+                id: fp.uuid.to_string(),
+                reference: if fp.reference.is_empty() {
+                    fp.footprint_id.clone()
+                } else {
+                    fp.reference.clone()
+                },
+                aabb: oxide_physics::clearance_3d::Aabb3d::new(
+                    oxide_physics::clearance_3d::Vec3::new(min_x, min_y, 0.0),
+                    oxide_physics::clearance_3d::Vec3::new(max_x, max_y, height_mm),
+                ),
+                height_mm,
+                mesh: None,
+                bvh: None,
+            });
+        }
+
+        let enclosure_max_h = self.rules.iter().find_map(|r| {
+            if let crate::rules::DesignRule::ComponentClearance(c) = r {
+                c.max_height.map(|h| h as f64 / 1000.0)
+            } else {
+                None
+            }
+        });
+
+        let comp_violations = oxide_physics::clearance_3d::ClearanceEngine3d::check_clearances(
+            &bodies,
+            0.5,
+            enclosure_max_h,
+        );
+
+        for cv in comp_violations {
+            violations.push(RuleViolation::component_clearance_violation(
+                &cv.item_a,
+                &cv.item_b,
+                crate::scope::RuleScope::Global,
+                (cv.required_clearance_mm * 1000.0).round() as i64,
+                (cv.actual_clearance_mm * 1000.0).round() as i64,
+                cv.item_b == "Enclosure_Ceiling",
+            ));
+        }
+
+        violations
+    }
+
     /// Parse constraints from a TOML configuration string.
     pub fn from_toml_str(toml_content: &str) -> Result<Self, toml::de::Error> {
         let config: RuleConfigFile = toml::from_str(toml_content)?;

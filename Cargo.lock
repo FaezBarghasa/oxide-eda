@@ -6292,6 +6292,7 @@ version = "1.5.0"
 dependencies = [
  "oxide-physics",
  "oxide-types",
+ "rayon",
  "serde",
  "serde_json",
  "thiserror 2.0.18",
