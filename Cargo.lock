@@ -6066,6 +6066,7 @@ dependencies = [
  "anyhow",
  "oxide-net",
  "oxide-output",
+ "oxide-router",
  "oxide-rules",
  "oxide-types",
  "serde",

@@ -1,0 +1,609 @@
+format = "snxpcb/1"
+pcb_id = "eeea9583-44f5-4cc1-ac76-13f5160d9b69"
+version = 1
+generator = "Oxide EDA Verifiable Test Suite"
+thickness = 1.6
+
+
+[stackup]
+layers = [
+    "TopCopper",
+    "In1.GND01",
+    "In2.SIG01_DDR5",
+    "In3.SIG02_DDR5",
+    "In4.PWR01_VCORE",
+    "In5.GND02",
+    "In6.GND03",
+    "In7.PWR02_PERIPH",
+    "In8.SIG03_PCIE",
+    "In9.SIG04_HIGH_SPEED",
+    "In10.GND04",
+    "BottomCopper",
+]
+
+[[nets.entries]]
+number = 1
+name = "GND"
+
+[[nets.entries]]
+number = 2
+name = "AGND"
+
+[[nets.entries]]
+number = 3
+name = "+0V85_VCORE"
+
+[[nets.entries]]
+number = 4
+name = "+1V8_IO"
+
+[[nets.entries]]
+number = 5
+name = "+3V3_SYS"
+
+[[nets.entries]]
+number = 6
+name = "+1V1_DDR"
+
+[[nets.entries]]
+number = 7
+name = "DDR5_CK_P"
+
+[[nets.entries]]
+number = 8
+name = "DDR5_CK_N"
+
+[[nets.entries]]
+number = 9
+name = "DDR5_DQS0_P"
+
+[[nets.entries]]
+number = 10
+name = "DDR5_DQS0_N"
+
+[[nets.entries]]
+number = 11
+name = "DDR5_DQ0"
+
+[[nets.entries]]
+number = 12
+name = "DDR5_DQ1"
+
+[[nets.entries]]
+number = 13
+name = "PCIE4_TX0_P"
+
+[[nets.entries]]
+number = 14
+name = "PCIE4_TX0_N"
+
+[[nets.entries]]
+number = 15
+name = "PCIE4_RX0_P"
+
+[[nets.entries]]
+number = 16
+name = "PCIE4_RX0_N"
+
+[[nets.entries]]
+number = 17
+name = "USB_SS_TX_P"
+
+[[nets.entries]]
+number = 18
+name = "USB_SS_TX_N"
+
+[[nets.entries]]
+number = 19
+name = "USB_SS_RX_P"
+
+[[nets.entries]]
+number = 20
+name = "USB_SS_RX_N"
+
+[[nets.entries]]
+number = 21
+name = "HDMI_CLK_P"
+
+[[nets.entries]]
+number = 22
+name = "HDMI_CLK_N"
+
+[[nets.entries]]
+number = 23
+name = "HDMI_D0_P"
+
+[[nets.entries]]
+number = 24
+name = "HDMI_D0_N"
+
+[[nets.entries]]
+number = 25
+name = "AUDIO_OUT_L"
+
+[[nets.entries]]
+number = 26
+name = "AUDIO_OUT_R"
+
+[footprints]
+content = """
+uuid                                  ref            library                                              pos_x     pos_y     rotation  layer      value
+bce631c2-c4ce-48a4-b43a-c0f2ec75d52d  U1_SOC         Package_BGA:BGA-684_23.0x23.0mm_P0.65mm              42500000  28000000  0         TopCopper  Rockchip_RK3588_SoC
+9e5be846-4c9f-4086-a57b-271483a633f4  U2_LPDDR5_CH0  Package_BGA:BGA-315_12.0x12.0mm_P0.5mm               20000000  28000000  0         TopCopper  LPDDR5_16GB_6400
+071af110-ef25-47b1-b0f5-d7e26e054d9d  U4_PMIC        Package_DFN_QFN:QFN-32-1EP_5x5mm_P0.5mm_EP3.2x3.2mm  42500000  8000000   0         TopCopper  RK806_Power_Management
+1376be7d-00b9-40c2-a61d-db896b39440e  NT1            NetTie:NetTie-2_SMD_Pad0.6mm                         12000000  48000000  0         TopCopper  NetTie_SMD_Pad0.6mm
+2a728778-1f96-4ad2-a156-c9ac730876f5  C1             Capacitor_SMD:C_0402_1005Metric                      42500000  14500000  0         TopCopper  100nF
+e4c3d6e6-21b2-4b90-a994-68714a5240d8  C2             Capacitor_SMD:C_0402_1005Metric                      45000000  14500000  0         TopCopper  100nF
+1f30cab6-50a7-49cc-b32f-46a0603f2a10  C3             Capacitor_SMD:C_0402_1005Metric                      40000000  14500000  0         TopCopper  100nF
+75cf6205-fdc2-403e-babc-6a2491db220f  C4             Capacitor_SMD:C_0402_1005Metric                      28000000  28000000  0         TopCopper  1µF
+c6905a0a-0b17-42bc-ac45-da5c6ed0da06  C5             Capacitor_SMD:C_0402_1005Metric                      42500000  41500000  0         TopCopper  10µF
+911b1a57-b213-45d6-afcb-a82446404a98  C6             Capacitor_SMD:C_0402_1005Metric                      45000000  41500000  0         TopCopper  100nF
+"""
+
+[pads]
+content = """
+uuid                                  footprint_ref  pin  pos_x     pos_y     size_x   size_y   pad_type  shape      layers     drill  net_number  net_name     roundrect_ratio
+f7cc4abe-16d2-4636-b778-2552209266a3  U1_SOC         A1   -6000000  -6000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+6924f33a-868b-4374-8992-307079bbad9c  U1_SOC         A2   -5200000  -6000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+ba79fba6-e0de-4b40-bf2d-7cd5900ce40c  U1_SOC         A3   -4400000  -6000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+f73f1e02-7d04-438c-ab70-3b6f75132d4a  U1_SOC         A4   -3600000  -6000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+8f75220b-0abb-4d0c-aa70-b2d15a9f075a  U1_SOC         A5   -2800000  -6000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+5a969020-225a-4ea4-96ef-9584c1a3cbba  U1_SOC         A6   -2000000  -6000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+90a288a5-dc1a-438b-81dc-be85c1b403f1  U1_SOC         A7   -1200000  -6000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+e62da382-9b76-4713-a89b-88a9dff4a549  U1_SOC         A8   -400000   -6000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+25feb02b-3b23-4f15-b3bd-2969c419908c  U1_SOC         A9   400000    -6000000  400000   400000   smd       circle     TopCopper  0      21          HDMI_CLK_P   0.25
+ecd6faaf-9bfb-474c-b183-ba950196b768  U1_SOC         A10  1200000   -6000000  400000   400000   smd       circle     TopCopper  0      22          HDMI_CLK_N   0.25
+81fe4950-0fbf-4d79-a3a1-2b441abde920  U1_SOC         A11  2000000   -6000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+68d4df38-514e-4af6-a139-d4130d980d03  U1_SOC         A12  2800000   -6000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+15f7892c-0ce6-4fb9-b749-00aac61581e6  U1_SOC         A13  3600000   -6000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+27ca7d4d-0210-4df4-9c46-ed5c3152fe71  U1_SOC         A14  4400000   -6000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+a0af9194-ae7d-4a78-8e63-575bd59925dd  U1_SOC         A15  5200000   -6000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+c59658ae-60b8-4d47-a328-ed69dd31b2b0  U1_SOC         A16  6000000   -6000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+b1b85d43-a62a-4a54-be5c-90f70526043b  U1_SOC         B1   -6000000  -5200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+38d0fee2-9b39-4f83-885e-cb29ad4a54d8  U1_SOC         B2   -5200000  -5200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+effca14f-993f-4f11-80a9-a236139e0d05  U1_SOC         B3   -4400000  -5200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+a19345e6-70b5-43b1-849a-94044b385bc9  U1_SOC         B4   -3600000  -5200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+1c691859-1ab4-43b6-b5e5-cda060a641dc  U1_SOC         B5   -2800000  -5200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+15a7bba5-a7fb-4951-8883-e8be8d47e043  U1_SOC         B6   -2000000  -5200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+8a87f53c-ef72-4c7f-a6b0-51c934201788  U1_SOC         B7   -1200000  -5200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+2d544b10-133e-4747-982d-97efbcc96ca8  U1_SOC         B8   -400000   -5200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+b4582511-9604-4cde-9359-8625aa5aea19  U1_SOC         B9   400000    -5200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+88a1b31f-a557-45d0-ab48-43c3ac7b9910  U1_SOC         B10  1200000   -5200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+e864799a-3b30-4cd1-84b6-c108e0ba5f29  U1_SOC         B11  2000000   -5200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+2af74a5b-2934-4478-b286-ac6b74bdb0c8  U1_SOC         B12  2800000   -5200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+39e94a91-c806-429a-a847-6c475294a984  U1_SOC         B13  3600000   -5200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+0efa0980-c7a0-4cda-a54f-98d97b695a7b  U1_SOC         B14  4400000   -5200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+af45b7e1-eb99-469b-ab04-c2950a9eb52a  U1_SOC         B15  5200000   -5200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+ce0980a9-2ca3-4613-87be-5b8b4c7653da  U1_SOC         B16  6000000   -5200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+2b471691-9578-422a-8e37-5dff2d65dcce  U1_SOC         C1   -6000000  -4400000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+ba47c94d-b828-4074-b87c-da9f7dd3fd40  U1_SOC         C2   -5200000  -4400000  400000   400000   smd       circle     TopCopper  0      7           DDR5_CK_P    0.25
+02822d71-73ee-434f-ba1a-5d0c58d904bf  U1_SOC         C3   -4400000  -4400000  400000   400000   smd       circle     TopCopper  0      8           DDR5_CK_N    0.25
+7c308224-0703-488a-987f-f95c93452dd7  U1_SOC         C4   -3600000  -4400000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+f102555d-7b71-40d0-ac1a-c338835e82b5  U1_SOC         C5   -2800000  -4400000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+0246d639-5e54-4b7e-b4d7-418b3df6cb74  U1_SOC         C6   -2000000  -4400000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+d0fcac29-e0b3-4921-9688-61c1f003716b  U1_SOC         C7   -1200000  -4400000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+e50c5ca8-912a-4d6f-81a3-b9130e510c17  U1_SOC         C8   -400000   -4400000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+764899ca-a6ae-48ec-aee7-e138bdb7d09a  U1_SOC         C9   400000    -4400000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+47b715ed-3901-4005-b661-e19c58a432b2  U1_SOC         C10  1200000   -4400000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+a6c2b161-80c5-460a-97e3-e58dad3c6b55  U1_SOC         C11  2000000   -4400000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+f3fd8b21-0b2e-45c4-86fe-effadc4022aa  U1_SOC         C12  2800000   -4400000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+72783125-586f-4fe7-9463-c29ba5541720  U1_SOC         C13  3600000   -4400000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+291d24a1-b2fd-4894-9960-2e4067f3cfd0  U1_SOC         C14  4400000   -4400000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+33ad524b-481d-463b-ac1d-7e6eddacabfe  U1_SOC         C15  5200000   -4400000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+5de757d5-c6fd-4c35-9e79-90438892c7be  U1_SOC         C16  6000000   -4400000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+780c51d7-d84a-4519-a159-7277ccdd00d7  U1_SOC         D1   -6000000  -3600000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+b70519ae-02c0-4bb1-ac28-ac489a77d056  U1_SOC         D2   -5200000  -3600000  400000   400000   smd       circle     TopCopper  0      9           DDR5_DQS0_P  0.25
+4d4c35f8-2f41-4c8d-8bed-1b11a902d184  U1_SOC         D3   -4400000  -3600000  400000   400000   smd       circle     TopCopper  0      10          DDR5_DQS0_N  0.25
+8b5a3b91-6aa6-4db5-a89f-d40eeab69321  U1_SOC         D4   -3600000  -3600000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+263db602-a370-4dca-87d7-59a6b89f3fc6  U1_SOC         D5   -2800000  -3600000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+bebe0dbd-00e1-4717-9aa6-10b6654fc9ee  U1_SOC         D6   -2000000  -3600000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+6429a160-e6a5-4d4f-93bb-2dedc3524609  U1_SOC         D7   -1200000  -3600000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+f9ed92dd-a933-4839-bbf6-4a73503ce015  U1_SOC         D8   -400000   -3600000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+aa58f690-5d97-49ec-85a2-aafdd775e20e  U1_SOC         D9   400000    -3600000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+94eb4e04-f12c-4f9c-a612-6d3992cc769b  U1_SOC         D10  1200000   -3600000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+69cf9b46-a6a1-4494-afc1-3098a8558802  U1_SOC         D11  2000000   -3600000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+7b2e2111-b64e-41e5-a50b-6bc757118a02  U1_SOC         D12  2800000   -3600000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+9ef649b7-f1d0-4952-93d9-4a93f57ac568  U1_SOC         D13  3600000   -3600000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+6996077d-0530-4f9f-8a7e-ac91e60b6fdb  U1_SOC         D14  4400000   -3600000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+2a946b39-c59d-468f-928d-1fe003dc6542  U1_SOC         D15  5200000   -3600000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+25411853-e70e-4724-9532-dd11a7edae77  U1_SOC         D16  6000000   -3600000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+1961a2c2-40cf-4473-a8c1-9422c4fb8874  U1_SOC         E1   -6000000  -2800000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+926b8502-bb4e-4ccc-a9fb-14e4ba2e20a9  U1_SOC         E2   -5200000  -2800000  400000   400000   smd       circle     TopCopper  0      11          DDR5_DQ0     0.25
+e9f03ee8-b9e2-41dd-b822-7d4581bf8505  U1_SOC         E3   -4400000  -2800000  400000   400000   smd       circle     TopCopper  0      12          DDR5_DQ1     0.25
+f59b8d1b-fe66-4421-addf-4206d36d1115  U1_SOC         E4   -3600000  -2800000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+c714e219-647f-45b9-9cee-ea45277979d8  U1_SOC         E5   -2800000  -2800000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+e14202e9-69a0-4a46-a086-f553ee6d279a  U1_SOC         E6   -2000000  -2800000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+1ca2b2cd-bdaa-44f0-b458-27cad065ab1d  U1_SOC         E7   -1200000  -2800000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+ea74dc6a-ada2-4999-89ad-8ea2f9d9b2d9  U1_SOC         E8   -400000   -2800000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+9621064f-be48-419e-9309-22c17b74a9cd  U1_SOC         E9   400000    -2800000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+9d2d5769-dbaa-4a30-9230-c7fe8c55c428  U1_SOC         E10  1200000   -2800000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+22065756-4b19-4301-89e2-140c211fa8a4  U1_SOC         E11  2000000   -2800000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+cddddd24-c599-4d0a-9b2a-706b825325a8  U1_SOC         E12  2800000   -2800000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+5d96b7e1-cac5-43fd-a1fb-668e03425b76  U1_SOC         E13  3600000   -2800000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+9b11339f-b70d-40a4-991d-c4a066ec6453  U1_SOC         E14  4400000   -2800000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+7d8b4546-44bc-465b-89a3-a5c2aa382dd3  U1_SOC         E15  5200000   -2800000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+a03fb01a-14c0-47e1-bbea-ada601843b0d  U1_SOC         E16  6000000   -2800000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+3452027c-0a05-4290-b2d2-30762fe53fa5  U1_SOC         F1   -6000000  -2000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+e2fd62c2-b515-4e28-96ec-c5d86ec853ca  U1_SOC         F2   -5200000  -2000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+06dd36bb-6d29-4069-b356-0272765475b6  U1_SOC         F3   -4400000  -2000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+5d6704f7-10d6-4033-a200-55a2a0c06b08  U1_SOC         F4   -3600000  -2000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+2c6e0e89-95f7-4a74-91e8-26b8335d9fcc  U1_SOC         F5   -2800000  -2000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+5813e5b6-bc73-45ba-a410-0c2efa172b26  U1_SOC         F6   -2000000  -2000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+26040c10-ae69-4077-b912-0900a0d9cb90  U1_SOC         F7   -1200000  -2000000  400000   400000   smd       circle     TopCopper  0      3           +0V85_VCORE  0.25
+9b09384b-a15b-4d4d-a27b-8c4b4c8e6e6e  U1_SOC         F8   -400000   -2000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+5b340672-349d-4c76-90e5-7b0198c2596d  U1_SOC         F9   400000    -2000000  400000   400000   smd       circle     TopCopper  0      3           +0V85_VCORE  0.25
+7756878b-f4b1-4e74-b5e5-3b247109739e  U1_SOC         F10  1200000   -2000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+4716bed7-ab75-4e8d-8560-c9fcd11aefc2  U1_SOC         F11  2000000   -2000000  400000   400000   smd       circle     TopCopper  0      3           +0V85_VCORE  0.25
+8183b47c-a0e1-4a1a-b657-efe10e12e2c9  U1_SOC         F12  2800000   -2000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+1603d3aa-76db-47eb-af05-eae80e00a6ab  U1_SOC         F13  3600000   -2000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+92aafb2e-9e78-434e-a888-e2ee04af71f8  U1_SOC         F14  4400000   -2000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+b3d27976-5276-42bb-a77c-86b5c80f622e  U1_SOC         F15  5200000   -2000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+68de9b8d-ef2f-4ea4-b1e3-1dcbdbb26c1d  U1_SOC         F16  6000000   -2000000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+801a89cc-4ad0-4e61-adb5-e2db9248be03  U1_SOC         G1   -6000000  -1200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+94fa5946-0cb8-44b4-a9fc-11c731c98103  U1_SOC         G2   -5200000  -1200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+1b2d568b-b58a-4dae-af62-80468106a56e  U1_SOC         G3   -4400000  -1200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+fc44e7ff-4082-4f7b-a93e-d2452eb3771c  U1_SOC         G4   -3600000  -1200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+bab9b9e6-41e1-44e9-820a-e7d0e0fe1916  U1_SOC         G5   -2800000  -1200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+0ae23d68-e72f-4432-8891-4056e8dec07b  U1_SOC         G6   -2000000  -1200000  400000   400000   smd       circle     TopCopper  0      3           +0V85_VCORE  0.25
+9e0cf3f7-f0c9-4e03-b1a8-17a083609780  U1_SOC         G7   -1200000  -1200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+9959d22c-ce7b-433e-a7c3-1bb8da460b58  U1_SOC         G8   -400000   -1200000  400000   400000   smd       circle     TopCopper  0      3           +0V85_VCORE  0.25
+9f51c6de-3cd6-4296-b283-6ab0d7c84f78  U1_SOC         G9   400000    -1200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+3713dc8b-25d0-47e2-9ed2-ff2cdad79776  U1_SOC         G10  1200000   -1200000  400000   400000   smd       circle     TopCopper  0      3           +0V85_VCORE  0.25
+30e242a4-8d39-4bb8-9c13-5bf8b7d4bfd9  U1_SOC         G11  2000000   -1200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+1c78af51-3e2c-419f-a015-b89d9165cb3a  U1_SOC         G12  2800000   -1200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+80d8c968-bc5a-4a86-be17-b83fe05385ac  U1_SOC         G13  3600000   -1200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+40296d7c-1c89-4153-9da5-86e6a39c98ff  U1_SOC         G14  4400000   -1200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+53a220f4-5a19-43b9-a3cb-0da7c5f056c6  U1_SOC         G15  5200000   -1200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+ea8500d0-925a-45c2-9a39-99216cc435a5  U1_SOC         G16  6000000   -1200000  400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+e98bc136-6d9b-4da0-8fa4-c0deb8380d9c  U1_SOC         H1   -6000000  -400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+9b2e5c59-03bc-4112-869a-79ac34866f5f  U1_SOC         H2   -5200000  -400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+bfe01198-f7ee-4a15-a904-b98927a7d41d  U1_SOC         H3   -4400000  -400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+50c57160-4879-4961-9285-74d07d209dff  U1_SOC         H4   -3600000  -400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+580c0cfc-cf6c-466a-b5fa-9b9dadfc86ad  U1_SOC         H5   -2800000  -400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+7992de87-c794-4a4a-9748-888378318890  U1_SOC         H6   -2000000  -400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+a60667b6-f322-43fb-aca1-e90f87f40bf3  U1_SOC         H7   -1200000  -400000   400000   400000   smd       circle     TopCopper  0      3           +0V85_VCORE  0.25
+a87e4600-7a20-4a5c-a8d7-0359dea6157f  U1_SOC         H8   -400000   -400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+e9b23742-e474-413c-8191-b981937db309  U1_SOC         H9   400000    -400000   400000   400000   smd       circle     TopCopper  0      3           +0V85_VCORE  0.25
+9d2102ad-1d7b-4e91-a211-854ba619bd79  U1_SOC         H10  1200000   -400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+565e328e-6b51-49f3-80ec-2dde4d97e6ba  U1_SOC         H11  2000000   -400000   400000   400000   smd       circle     TopCopper  0      3           +0V85_VCORE  0.25
+248f031a-9783-4cb8-8761-8e61c1a66f01  U1_SOC         H12  2800000   -400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+77c1b8cc-53c7-4af4-bc96-1af8ec36a70b  U1_SOC         H13  3600000   -400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+500a6c68-5700-42e7-8a67-6ac4ab174743  U1_SOC         H14  4400000   -400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+a2f54c60-8c9f-4259-a2bb-aecb33232a5d  U1_SOC         H15  5200000   -400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+ca7eb046-6fce-481c-a41b-d53e63b94bac  U1_SOC         H16  6000000   -400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+6107d013-f5e4-453e-81f0-e9b2cf92ff50  U1_SOC         I1   -6000000  400000    400000   400000   smd       circle     TopCopper  0      17          USB_SS_TX_P  0.25
+3a41749d-5153-47c9-b384-b2f7c1caa0d7  U1_SOC         I2   -5200000  400000    400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+b35edc7d-e9c2-4091-91e2-af08e397997c  U1_SOC         I3   -4400000  400000    400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+f7716abc-68d0-4a58-b11e-16f89098240b  U1_SOC         I4   -3600000  400000    400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+2bd5e9c0-5a3a-41c2-9363-3069b287c096  U1_SOC         I5   -2800000  400000    400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+863d7b7e-4cfd-4a66-8a9a-3fc26b4822d2  U1_SOC         I6   -2000000  400000    400000   400000   smd       circle     TopCopper  0      3           +0V85_VCORE  0.25
+b29118e2-700d-48eb-9824-5673ea799db2  U1_SOC         I7   -1200000  400000    400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+c4658c93-4d0f-45c4-bf1a-37b62ad792c1  U1_SOC         I8   -400000   400000    400000   400000   smd       circle     TopCopper  0      3           +0V85_VCORE  0.25
+7bba22e2-956d-48bc-adea-e7f67b71f225  U1_SOC         I9   400000    400000    400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+f1f7ba04-2394-465f-a978-0309089269b6  U1_SOC         I10  1200000   400000    400000   400000   smd       circle     TopCopper  0      3           +0V85_VCORE  0.25
+8fd1f393-306b-4677-aacd-ed3f3d30f7b4  U1_SOC         I11  2000000   400000    400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+c4f2c005-a167-4ff2-b75a-58004a3faa4b  U1_SOC         I12  2800000   400000    400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+7b821e7d-557f-414a-91f9-33f0104efe00  U1_SOC         I13  3600000   400000    400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+924a5fc0-25c1-459a-b340-a9621bb1c533  U1_SOC         I14  4400000   400000    400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+c0c5cb10-f58f-4272-b481-b2c74c972347  U1_SOC         I15  5200000   400000    400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+9560e584-2b24-46a3-95cf-9630e2e02288  U1_SOC         I16  6000000   400000    400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+5667a176-412d-4455-84c1-266f092c0492  U1_SOC         J1   -6000000  1200000   400000   400000   smd       circle     TopCopper  0      18          USB_SS_TX_N  0.25
+1acf5f0b-a6bf-4995-8566-aecda7bb2508  U1_SOC         J2   -5200000  1200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+7fd1c0f4-781f-42cb-9605-9afd7810fae2  U1_SOC         J3   -4400000  1200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+35398b1d-5b38-433e-aa81-e8e3ea52db9b  U1_SOC         J4   -3600000  1200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+2cfbbcce-2a05-4dea-a03b-1ab212850957  U1_SOC         J5   -2800000  1200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+b3832aa9-451e-4aa7-a9ba-dd80b5da351b  U1_SOC         J6   -2000000  1200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+764687d9-e548-41fb-b275-49182036b809  U1_SOC         J7   -1200000  1200000   400000   400000   smd       circle     TopCopper  0      3           +0V85_VCORE  0.25
+0025f737-6925-4ea7-9b5c-97643fb71584  U1_SOC         J8   -400000   1200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+584280c0-5c4a-44ca-9e71-273333594999  U1_SOC         J9   400000    1200000   400000   400000   smd       circle     TopCopper  0      3           +0V85_VCORE  0.25
+b87f1516-a355-422b-8f15-a1e8ad9cdfe5  U1_SOC         J10  1200000   1200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+b5e32c19-d173-4b6c-8cb6-206b516f40f0  U1_SOC         J11  2000000   1200000   400000   400000   smd       circle     TopCopper  0      3           +0V85_VCORE  0.25
+3c6beca2-bb0b-44fa-8f59-eddec9b39160  U1_SOC         J12  2800000   1200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+4d07079a-cb7a-409d-879b-86af8b1ea8e9  U1_SOC         J13  3600000   1200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+7b1fbe3c-96f5-4d0e-92d9-9112fb744088  U1_SOC         J14  4400000   1200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+5f7bd0b9-c976-4ad9-bb6a-e2f3bf530b84  U1_SOC         J15  5200000   1200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+65f2c24a-7b73-4fb0-b879-8a45fde3c1a0  U1_SOC         J16  6000000   1200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+b426f419-c718-4b75-a68a-dee4bef89399  U1_SOC         K1   -6000000  2000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+52626625-ae78-438a-9fc7-7959039d9455  U1_SOC         K2   -5200000  2000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+03cd86b7-7a52-44c0-b560-fa61d6f42d8b  U1_SOC         K3   -4400000  2000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+bb9bf79b-9ff7-4a3b-a175-c6d02e2232dd  U1_SOC         K4   -3600000  2000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+0bbd13c2-0815-4199-8f19-7bbd25367560  U1_SOC         K5   -2800000  2000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+d358a1d4-9964-498b-ad5e-ff7f519a6c80  U1_SOC         K6   -2000000  2000000   400000   400000   smd       circle     TopCopper  0      3           +0V85_VCORE  0.25
+e3efb53b-4a8c-4716-aa21-7cb41944b1bd  U1_SOC         K7   -1200000  2000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+01506d47-c754-4e79-858c-8a298fcd90c5  U1_SOC         K8   -400000   2000000   400000   400000   smd       circle     TopCopper  0      3           +0V85_VCORE  0.25
+039cb9e0-4caf-4e80-b84b-19a2332603db  U1_SOC         K9   400000    2000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+d3b7f295-d249-4229-b24a-343251ad4b5f  U1_SOC         K10  1200000   2000000   400000   400000   smd       circle     TopCopper  0      3           +0V85_VCORE  0.25
+75d9985f-e5ce-4de6-a0ca-5a3e5fa521be  U1_SOC         K11  2000000   2000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+c5a5e39f-9edf-49f2-abd6-cdd15f649a7b  U1_SOC         K12  2800000   2000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+11a0d8bf-1550-4908-9c50-ed8e6e01012e  U1_SOC         K13  3600000   2000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+c0ec5bb5-3f35-4192-915f-060e8712efce  U1_SOC         K14  4400000   2000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+bc3931fd-1edf-4a60-ab3a-6420450e0135  U1_SOC         K15  5200000   2000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+53bb92ea-73d7-42cc-91c8-84e52c8299d9  U1_SOC         K16  6000000   2000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+cda3d679-69b4-4abe-aad4-386971897bdd  U1_SOC         L1   -6000000  2800000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+3d2f5de8-8a27-4550-a24c-6c5a25a372fa  U1_SOC         L2   -5200000  2800000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+2442a906-59df-4066-843a-ce07cdb1888e  U1_SOC         L3   -4400000  2800000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+dc4b15ef-b2be-475c-9d66-fba1eecb2b93  U1_SOC         L4   -3600000  2800000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+3e18d758-1b58-4df9-932f-8461961d12f7  U1_SOC         L5   -2800000  2800000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+5423f000-23a6-4702-a33a-2b0422194a2f  U1_SOC         L6   -2000000  2800000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+6483ea46-f7c9-4565-bd85-5c7896f565f5  U1_SOC         L7   -1200000  2800000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+2f4702e0-3e65-42fb-8ca7-f6ed95fc318d  U1_SOC         L8   -400000   2800000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+2b431c66-90f5-41aa-8e69-a9cdbe452cfd  U1_SOC         L9   400000    2800000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+99c76237-8e7c-4ca3-a629-1c00081b9e7b  U1_SOC         L10  1200000   2800000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+7dd39416-cdd4-4e04-adef-5e5909c111e6  U1_SOC         L11  2000000   2800000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+61c5997f-34ed-48a3-bc41-912fc7d35457  U1_SOC         L12  2800000   2800000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+17e70f8e-82b7-430b-ba04-9b7c0c4c1103  U1_SOC         L13  3600000   2800000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+0b2dcf05-cb8d-475c-ac7b-f3bb43450d91  U1_SOC         L14  4400000   2800000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+e0e46dff-95b4-40ad-afe3-93e9cdee0726  U1_SOC         L15  5200000   2800000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+454f2557-983b-4566-bd9a-468f96eb8292  U1_SOC         L16  6000000   2800000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+10bdf278-238e-4a82-8aca-332d07b5747d  U1_SOC         M1   -6000000  3600000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+790f7fc4-a2e3-4a98-872a-e11b7222a792  U1_SOC         M2   -5200000  3600000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+d02aac4c-662c-482a-9369-ee0c9cbcc153  U1_SOC         M3   -4400000  3600000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+7c0a4982-d9bc-47f1-b882-8c3054c50d42  U1_SOC         M4   -3600000  3600000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+4acbab23-9c97-40da-ad64-afa3543e64de  U1_SOC         M5   -2800000  3600000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+a07fd360-ccf4-4301-a4ff-86667decad4c  U1_SOC         M6   -2000000  3600000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+c72c67c0-c2d5-4e5b-b12d-68e51f6cd365  U1_SOC         M7   -1200000  3600000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+fdfdfab7-62e1-41b3-9ae3-4023e49aae55  U1_SOC         M8   -400000   3600000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+b527ddca-313f-478e-a470-1a4a00aac1a1  U1_SOC         M9   400000    3600000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+754a1e75-a727-4603-a1a2-10b5b0923a36  U1_SOC         M10  1200000   3600000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+4b75e6fa-4996-41cd-8466-e4f0b84a85c0  U1_SOC         M11  2000000   3600000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+bd73034b-9e53-49a6-bdbc-f1f185843136  U1_SOC         M12  2800000   3600000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+910cc0ed-ad50-49a7-9f20-6c46ca46428e  U1_SOC         M13  3600000   3600000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+6c02a460-ab64-46f8-8fcd-70adf872ca90  U1_SOC         M14  4400000   3600000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+1bdb7c45-fbd0-4da6-b92f-30bff049ac50  U1_SOC         M15  5200000   3600000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+3a807081-80d8-454d-9697-383bfabdde5a  U1_SOC         M16  6000000   3600000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+df50a32f-a6eb-4a81-a5a6-95c1c9995f4c  U1_SOC         N1   -6000000  4400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+4005c6f8-9255-45cc-8f2c-440cbd565fac  U1_SOC         N2   -5200000  4400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+c1933313-5dec-4b8e-8f12-3653d3c9e50f  U1_SOC         N3   -4400000  4400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+b6ff7fea-4e3a-44f2-83f7-1771afa43520  U1_SOC         N4   -3600000  4400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+7357c93d-1859-4347-a796-c0d3e6d6cc1f  U1_SOC         N5   -2800000  4400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+b747c931-9534-4c01-9e09-f02531d29f87  U1_SOC         N6   -2000000  4400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+63bfc5af-e432-447f-8bd1-d875887f8125  U1_SOC         N7   -1200000  4400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+6fd1cc8f-115a-40fb-a19d-20826255db4a  U1_SOC         N8   -400000   4400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+b7b541f4-d87e-4b5d-9e9c-2c0d1c0ef0eb  U1_SOC         N9   400000    4400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+e0badecb-87b2-41cb-baab-f4b5f61d4d49  U1_SOC         N10  1200000   4400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+b2f0ec61-930d-4a70-9cf3-3df4fb719003  U1_SOC         N11  2000000   4400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+e9788d82-24f9-4a38-91f5-0ccafe7b8159  U1_SOC         N12  2800000   4400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+d1246ef3-e4e0-4f76-84bf-9cba36446bdd  U1_SOC         N13  3600000   4400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+76edd804-6260-43ef-8190-e62ee8a1355f  U1_SOC         N14  4400000   4400000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+9258e08f-1c87-4655-b504-41c9d8ea7d22  U1_SOC         N15  5200000   4400000   400000   400000   smd       circle     TopCopper  0      15          PCIE4_RX0_P  0.25
+6beb6f65-a882-4691-ad6f-d1fadca19bc2  U1_SOC         N16  6000000   4400000   400000   400000   smd       circle     TopCopper  0      16          PCIE4_RX0_N  0.25
+774fa77b-041c-4941-b3c9-0e96eed54615  U1_SOC         O1   -6000000  5200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+f7e0fc55-6b14-4522-9cfb-6ade58209c60  U1_SOC         O2   -5200000  5200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+e1179e4e-2cff-4186-8147-5b088982d20a  U1_SOC         O3   -4400000  5200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+cae7e422-3ad8-4a77-bb51-2190ed867222  U1_SOC         O4   -3600000  5200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+b62887bd-3655-44c0-9771-d958b33a0990  U1_SOC         O5   -2800000  5200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+7352db38-e648-4ea9-a60c-9416eb53d188  U1_SOC         O6   -2000000  5200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+ad099be1-300a-4c04-ab2b-18a5a9a1c3c4  U1_SOC         O7   -1200000  5200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+d279141d-65b2-4b91-9435-612df8b74495  U1_SOC         O8   -400000   5200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+5f98bdcf-9d47-47bc-a0cd-6c18567dc921  U1_SOC         O9   400000    5200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+eb8cbfd7-a656-4ea8-bba6-2ff012fc0665  U1_SOC         O10  1200000   5200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+2890a9aa-10bb-4a5f-aab3-9a12f8d4bb95  U1_SOC         O11  2000000   5200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+3629640d-9a77-4f9c-b4ad-fbe4b099fe43  U1_SOC         O12  2800000   5200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+452eedb0-5722-4b77-a3ac-fa1fb82de3d4  U1_SOC         O13  3600000   5200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+e25c8c5b-5910-4d49-a980-6ad54b4db688  U1_SOC         O14  4400000   5200000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+bf38043d-5d58-494a-9472-0de974ecb58c  U1_SOC         O15  5200000   5200000   400000   400000   smd       circle     TopCopper  0      13          PCIE4_TX0_P  0.25
+87f09afe-3beb-427a-97ff-734767f305a9  U1_SOC         O16  6000000   5200000   400000   400000   smd       circle     TopCopper  0      14          PCIE4_TX0_N  0.25
+478cae5f-a430-415d-99da-e76658ac0eb6  U1_SOC         P1   -6000000  6000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+f4819b9e-1afa-45b3-86c9-106cb09b9711  U1_SOC         P2   -5200000  6000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+6473dbf8-d4a5-45a0-8db0-293379fe4b53  U1_SOC         P3   -4400000  6000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+f29adb4c-eb23-43e5-89e3-bee75226e740  U1_SOC         P4   -3600000  6000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+ab44b8d9-ce4b-4bde-b248-100392ade972  U1_SOC         P5   -2800000  6000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+580cf729-b6bb-4344-ac71-0a4f10b864b4  U1_SOC         P6   -2000000  6000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+ac0a06ee-bd8d-4c84-8dac-b77c8bb9f1c4  U1_SOC         P7   -1200000  6000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+58be60fe-e65b-4520-bc50-d777e4c8de13  U1_SOC         P8   -400000   6000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+ee559567-2b42-48b0-ba6c-6f04ae9fbe57  U1_SOC         P9   400000    6000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+6bc76276-e5c2-4a37-a4ee-696c6c9b39a9  U1_SOC         P10  1200000   6000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+67231b49-49f1-45c8-9de6-e4a964ba47e7  U1_SOC         P11  2000000   6000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+a3c8e352-1219-446c-b461-3b99fc3afc2f  U1_SOC         P12  2800000   6000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+6fc675a1-d470-4654-9f90-672ba926bb33  U1_SOC         P13  3600000   6000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+faee1c25-f007-4c6b-968e-0dea32f0e9d1  U1_SOC         P14  4400000   6000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+fe460fb5-7a43-4fe8-ba32-35fc77e24cd5  U1_SOC         P15  5200000   6000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+01567bc2-8a69-4d44-92f9-337822004438  U1_SOC         P16  6000000   6000000   400000   400000   smd       circle     TopCopper  0      1           GND          0.25
+09428a71-3ae6-4769-87a8-7db6df56d377  U2_LPDDR5_CH0  RA1  -2275000  -2275000  320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+67681eb0-9ad8-49ad-91b2-bafd5e61a768  U2_LPDDR5_CH0  RA2  -1625000  -2275000  320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+c859a440-4a19-47a0-aa3f-a569caa4890e  U2_LPDDR5_CH0  RA3  -975000   -2275000  320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+018bac92-c795-4f00-800d-027910eb541e  U2_LPDDR5_CH0  RA4  -325000   -2275000  320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+39da091f-0002-4a28-8b35-92ed844b7f05  U2_LPDDR5_CH0  RA5  325000    -2275000  320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+673d526a-734a-462a-af64-8fe79a761f62  U2_LPDDR5_CH0  RA6  975000    -2275000  320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+f0556fde-e511-4cc0-9db7-2ed7e34924a4  U2_LPDDR5_CH0  RA7  1625000   -2275000  320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+1d328ec7-5728-456f-bd9b-bb4325ad9cdc  U2_LPDDR5_CH0  RA8  2275000   -2275000  320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+623fff2c-6ab7-4752-b2c9-3cf727ed4ed2  U2_LPDDR5_CH0  RB1  -2275000  -1625000  320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+1b20f05e-2ae3-48cc-a182-4f0561eb7871  U2_LPDDR5_CH0  RB2  -1625000  -1625000  320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+63b296e7-748c-4f17-b472-0b19ab9bc13f  U2_LPDDR5_CH0  RB3  -975000   -1625000  320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+2c9e7067-6ca2-443a-abf6-11ab2ad904ea  U2_LPDDR5_CH0  RB4  -325000   -1625000  320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+52cc213e-03d4-4583-af86-5758e0f2f493  U2_LPDDR5_CH0  RB5  325000    -1625000  320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+8e295fad-5094-43bc-8450-68c4e965762e  U2_LPDDR5_CH0  RB6  975000    -1625000  320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+b66672a2-d224-494a-8ba1-61e1450bbd10  U2_LPDDR5_CH0  RB7  1625000   -1625000  320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+7d6ba90a-3f0c-421c-a5c1-4ca39dc01b32  U2_LPDDR5_CH0  RB8  2275000   -1625000  320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+723d7bfa-8468-4422-813f-0b65f560bea1  U2_LPDDR5_CH0  RC1  -2275000  -975000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+c2276b61-ae82-403a-8885-8a1b8b335da2  U2_LPDDR5_CH0  RC2  -1625000  -975000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+a9c9e426-7763-4c20-ae13-70f5ca2ed7e4  U2_LPDDR5_CH0  RC3  -975000   -975000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+ee96b273-dab7-4051-98d0-7390e951763c  U2_LPDDR5_CH0  RC4  -325000   -975000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+eeb7b240-a430-40f8-a1f8-89d4d0442e27  U2_LPDDR5_CH0  RC5  325000    -975000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+329b36c7-9deb-4d42-947c-67ef0b3aef78  U2_LPDDR5_CH0  RC6  975000    -975000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+ab84f1be-3d8b-45d2-b3b2-ff74f25452e3  U2_LPDDR5_CH0  RC7  1625000   -975000   320000   320000   smd       circle     TopCopper  0      7           DDR5_CK_P    0.25
+343d6e5a-ed38-46db-8acb-7c2095ff3239  U2_LPDDR5_CH0  RC8  2275000   -975000   320000   320000   smd       circle     TopCopper  0      8           DDR5_CK_N    0.25
+c6ec1c0a-7301-4cff-a676-29f32e26594f  U2_LPDDR5_CH0  RD1  -2275000  -325000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+c444bbcf-ddac-49b3-8df6-07826e61a808  U2_LPDDR5_CH0  RD2  -1625000  -325000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+d1880601-3fb5-4891-ac27-472e89935490  U2_LPDDR5_CH0  RD3  -975000   -325000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+b66ef210-01e7-4e2b-8bad-84d31fd44f4e  U2_LPDDR5_CH0  RD4  -325000   -325000   320000   320000   smd       circle     TopCopper  0      6           +1V1_DDR     0.25
+6e6870c1-fec9-4df1-81eb-3e5429cce5d5  U2_LPDDR5_CH0  RD5  325000    -325000   320000   320000   smd       circle     TopCopper  0      6           +1V1_DDR     0.25
+96fb5165-d672-45bb-a632-dd91d7b53a7a  U2_LPDDR5_CH0  RD6  975000    -325000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+11d05b60-e158-44c4-b463-47a8f7de0ada  U2_LPDDR5_CH0  RD7  1625000   -325000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+3492a3d5-fcd8-44c9-9d6f-cb49470d9c3d  U2_LPDDR5_CH0  RD8  2275000   -325000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+154ae090-a779-4263-a939-1d92f97f02bf  U2_LPDDR5_CH0  RE1  -2275000  325000    320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+57051a42-2ca7-402a-9f4d-c6a263843f76  U2_LPDDR5_CH0  RE2  -1625000  325000    320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+c9743004-0d41-4788-a381-97759d729e1d  U2_LPDDR5_CH0  RE3  -975000   325000    320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+1c45e6eb-1eb0-45db-b2d4-3896feea43c3  U2_LPDDR5_CH0  RE4  -325000   325000    320000   320000   smd       circle     TopCopper  0      6           +1V1_DDR     0.25
+c21fbe5c-d4ba-461a-81d4-a4d5a413f19d  U2_LPDDR5_CH0  RE5  325000    325000    320000   320000   smd       circle     TopCopper  0      6           +1V1_DDR     0.25
+a45a7eed-57e3-4b1f-9784-8292578a1d76  U2_LPDDR5_CH0  RE6  975000    325000    320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+bef1249b-b27a-476a-8389-8190c66a59e7  U2_LPDDR5_CH0  RE7  1625000   325000    320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+1f301fc8-5272-444e-917b-026b78bf95dc  U2_LPDDR5_CH0  RE8  2275000   325000    320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+c294ad11-5f7f-474d-a7b3-7997b4ed52b6  U2_LPDDR5_CH0  RF1  -2275000  975000    320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+44b1b4bb-08ea-4cb2-81a8-7fc1d561db53  U2_LPDDR5_CH0  RF2  -1625000  975000    320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+ba777c6f-455a-4b95-9ef4-35eeb1a4c7ab  U2_LPDDR5_CH0  RF3  -975000   975000    320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+ac6f019f-95f2-4fe6-9667-66ed49b9a032  U2_LPDDR5_CH0  RF4  -325000   975000    320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+adefb21d-a2ad-4a74-91f1-9c9b2bcf30f7  U2_LPDDR5_CH0  RF5  325000    975000    320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+ccca4eda-837a-415c-ae35-630eb04976c9  U2_LPDDR5_CH0  RF6  975000    975000    320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+2526ff37-1353-4426-bf01-67d3767607c0  U2_LPDDR5_CH0  RF7  1625000   975000    320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+b7445805-0786-4e84-a01f-44a0b544d5a1  U2_LPDDR5_CH0  RF8  2275000   975000    320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+64f6e5bd-5fc4-49c8-a625-7dcd543bd029  U2_LPDDR5_CH0  RG1  -2275000  1625000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+f91c1dae-b93d-47ba-8f0b-0a5ad7b03c02  U2_LPDDR5_CH0  RG2  -1625000  1625000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+e2818afa-069f-442d-8d20-4ca5e2b70ec1  U2_LPDDR5_CH0  RG3  -975000   1625000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+c8ab245f-32ac-4d67-b3c8-50a5d276d9b0  U2_LPDDR5_CH0  RG4  -325000   1625000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+6a4149a9-3328-48a5-b25e-b487136ba007  U2_LPDDR5_CH0  RG5  325000    1625000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+0d8e310e-d66d-49dc-909d-264e6e1fe3ef  U2_LPDDR5_CH0  RG6  975000    1625000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+091ba0e7-e9d2-4bfa-8b26-881a8705e037  U2_LPDDR5_CH0  RG7  1625000   1625000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+6359239d-89f3-4519-a95e-ba2098e06b04  U2_LPDDR5_CH0  RG8  2275000   1625000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+c1eba1a9-745e-47c5-b26f-f2c65a65ca1e  U2_LPDDR5_CH0  RH1  -2275000  2275000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+6bcd8542-9797-4834-a0c3-07e7d609e585  U2_LPDDR5_CH0  RH2  -1625000  2275000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+d6a7d644-ae0e-4349-af29-41f010088692  U2_LPDDR5_CH0  RH3  -975000   2275000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+4e795a89-2da6-4478-9737-e4b60ec9e7aa  U2_LPDDR5_CH0  RH4  -325000   2275000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+988717a9-f1cd-4073-abd8-edb64b6164ee  U2_LPDDR5_CH0  RH5  325000    2275000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+9c3cef69-7de5-4a87-8d91-3911876f11ad  U2_LPDDR5_CH0  RH6  975000    2275000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+44dba38e-dbfd-408f-8c35-5e1e304b70d2  U2_LPDDR5_CH0  RH7  1625000   2275000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+e4b89907-8513-40e4-97d4-53d8ac2d9a0e  U2_LPDDR5_CH0  RH8  2275000   2275000   320000   320000   smd       circle     TopCopper  0      1           GND          0.25
+36b78de9-0b27-4edd-b7c7-bdb5de32275a  U4_PMIC        33   0         0         3200000  3200000  smd       roundrect  TopCopper  0      1           GND          0.25
+40c99575-20f7-450a-8253-edfc17824739  U4_PMIC        1    -1750000  -2400000  300000   800000   smd       roundrect  TopCopper  0      3           +0V85_VCORE  0.25
+c3472a49-13f5-4a07-b29f-3b26ab1e13b1  U4_PMIC        17   1750000   2400000   300000   800000   smd       roundrect  TopCopper  0      5           +3V3_SYS     0.25
+15556855-8ce1-420f-b2f2-f64420429451  U4_PMIC        2    -1250000  -2400000  300000   800000   smd       roundrect  TopCopper  0      3           +0V85_VCORE  0.25
+b76aaf3d-6886-4b11-b883-f2663aca2f5e  U4_PMIC        18   1250000   2400000   300000   800000   smd       roundrect  TopCopper  0      5           +3V3_SYS     0.25
+ee85cff8-dded-4852-8f2e-870ada2f6175  U4_PMIC        3    -750000   -2400000  300000   800000   smd       roundrect  TopCopper  0      3           +0V85_VCORE  0.25
+4ab45339-2bec-4f16-8875-ba63e741f696  U4_PMIC        19   750000    2400000   300000   800000   smd       roundrect  TopCopper  0      5           +3V3_SYS     0.25
+e3e01336-3f17-40c1-82ab-223e8ae64980  U4_PMIC        4    -250000   -2400000  300000   800000   smd       roundrect  TopCopper  0      3           +0V85_VCORE  0.25
+ee7586c5-e92d-4c9e-ac49-0c8eb4146e65  U4_PMIC        20   250000    2400000   300000   800000   smd       roundrect  TopCopper  0      5           +3V3_SYS     0.25
+c1a0944a-7efb-4a0f-9816-d491767fe021  U4_PMIC        5    250000    -2400000  300000   800000   smd       roundrect  TopCopper  0      3           +0V85_VCORE  0.25
+dd9b45f2-cdf0-4a34-88a2-34987ffd3375  U4_PMIC        21   -250000   2400000   300000   800000   smd       roundrect  TopCopper  0      5           +3V3_SYS     0.25
+b5978aed-d62b-4970-9bef-0704f8470b19  U4_PMIC        6    750000    -2400000  300000   800000   smd       roundrect  TopCopper  0      3           +0V85_VCORE  0.25
+4747969b-3459-42be-b788-b3c98470c5d4  U4_PMIC        22   -750000   2400000   300000   800000   smd       roundrect  TopCopper  0      5           +3V3_SYS     0.25
+fde22916-0101-4b56-9ada-78861abb2610  U4_PMIC        7    1250000   -2400000  300000   800000   smd       roundrect  TopCopper  0      3           +0V85_VCORE  0.25
+7327026e-8250-4d0e-97c3-3ec7408ab501  U4_PMIC        23   -1250000  2400000   300000   800000   smd       roundrect  TopCopper  0      5           +3V3_SYS     0.25
+0abc6655-3c85-492a-89cb-7f01d132e308  U4_PMIC        8    1750000   -2400000  300000   800000   smd       roundrect  TopCopper  0      3           +0V85_VCORE  0.25
+41ea2fb2-1299-4662-b81b-7a9b5af1b53a  U4_PMIC        24   -1750000  2400000   300000   800000   smd       roundrect  TopCopper  0      5           +3V3_SYS     0.25
+548ec362-e894-4de6-953d-2f5e669e300d  NT1            1    -350000   0         600000   600000   smd       rect       TopCopper  0      1           GND          0.25
+e9ba01d7-aa57-43fb-aaba-f4eaf784f7df  NT1            2    350000    0         600000   600000   smd       rect       TopCopper  0      2           AGND         0.25
+6d8800fa-08f8-489b-95e4-716bba8571da  C1             1    -500000   0         600000   600000   smd       rect       TopCopper  0      1           GND          0.25
+33465464-d250-43ea-9c7e-99fdf7081c63  C1             2    500000    0         600000   600000   smd       rect       TopCopper  0      3           +0V85_VCORE  0.25
+050444d1-9425-4697-9dfd-e32870af4cae  C2             1    -500000   0         600000   600000   smd       rect       TopCopper  0      1           GND          0.25
+2c1848f9-1df6-4dfa-b62a-3855459eb238  C2             2    500000    0         600000   600000   smd       rect       TopCopper  0      3           +0V85_VCORE  0.25
+0afcc96d-3379-4ef1-acb2-252686a15394  C3             1    -500000   0         600000   600000   smd       rect       TopCopper  0      1           GND          0.25
+7a1cfc76-6d76-4bbd-af8d-c4436c2bbf6f  C3             2    500000    0         600000   600000   smd       rect       TopCopper  0      3           +0V85_VCORE  0.25
+87278668-52e8-45be-966c-24bff37a5bec  C4             1    -500000   0         600000   600000   smd       rect       TopCopper  0      1           GND          0.25
+12c67273-0cfa-46c3-9faa-84f1a6e0dfc7  C4             2    500000    0         600000   600000   smd       rect       TopCopper  0      6           +1V1_DDR     0.25
+fbbe8dc4-e14f-403e-a0f1-41270e7a02df  C5             1    -500000   0         600000   600000   smd       rect       TopCopper  0      1           GND          0.25
+3b8511b1-bae9-4ffc-965b-ae7ad7160762  C5             2    500000    0         600000   600000   smd       rect       TopCopper  0      5           +3V3_SYS     0.25
+5f464741-df33-438a-915a-7ef3600f7a47  C6             1    -500000   0         600000   600000   smd       rect       TopCopper  0      1           GND          0.25
+c4479706-d3bc-4103-8543-c83eecc40667  C6             2    500000    0         600000   600000   smd       rect       TopCopper  0      4           +1V8_IO      0.25
+"""
+
+[tracks]
+content = """
+uuid                                  net  layer           width   start_x   start_y   end_x     end_y
+6d11c545-74d6-415b-ae60-7125a425b888  7    TopCopper       150000  37300000  23600000  25000000  23600000
+237abecb-b530-4e88-a3b3-c1c7159ef8b6  8    TopCopper       150000  37300000  24400000  25000000  24400000
+84d724d4-7776-4e82-88c7-3c31200dfd48  13   In8.SIG03_PCIE  150000  48100000  33200000  75000000  33200000
+bb9a0c36-c54f-4795-bce7-7c114ffe0f44  14   In8.SIG03_PCIE  150000  48900000  34000000  75000000  34000000
+01a1ac39-8e3b-77f0-afb8-a8f2cc4a8014  7    TopCopper       150000  37000000  23600000  37300000  23440000
+01a1ac39-8e3b-77f0-afb8-a9073bcc1afe  7    TopCopper       150000  37000000  23600000  37300000  23760000
+01a1ac39-8e3b-77f0-afb8-a9126e324ab2  13   In8.SIG03_PCIE  150000  48475000  33200000  48100000  33400000
+01a1ac39-8e3b-77f0-afb8-a928d60356c5  13   In8.SIG03_PCIE  150000  48475000  33200000  48100000  33000000
+"""
+
+[vias]
+content = """
+uuid                                  net  pos_x     pos_y     drill   diameter  layers                     via_type
+b426ac20-56e8-4d75-9cd2-744b20d2cdaf  3    42500000  28000000  250000  500000    TopCopper,In4.PWR01_VCORE  through
+7da06b35-7500-42c4-ad77-b7726162f85b  1    41700000  28000000  250000  500000    TopCopper,In1.GND01        through
+7dc968ca-264f-4a1d-b9c5-4406f2a9f6c5  13   48100000  33200000  250000  500000    TopCopper,In8.SIG03_PCIE   blind
+"""
+
+[extras.footprints.071af110-ef25-47b1-b0f5-d7e26e054d9d]
+footprint_id = "Package_DFN_QFN:QFN-32-1EP_5x5mm_P0.5mm_EP3.2x3.2mm"
+locked = false
+graphics = []
+properties = []
+
+[extras.footprints.1376be7d-00b9-40c2-a61d-db896b39440e]
+footprint_id = "NetTie:NetTie-2_SMD_Pad0.6mm"
+locked = false
+graphics = []
+
+[[extras.footprints.1376be7d-00b9-40c2-a61d-db896b39440e.properties]]
+key = "ComponentKind"
+value = "NetTie"
+rotation = 0.0
+hidden = false
+
+[[extras.footprints.1376be7d-00b9-40c2-a61d-db896b39440e.properties]]
+key = "NetTie"
+value = "true"
+rotation = 0.0
+hidden = false
+
+[extras.footprints.1f30cab6-50a7-49cc-b32f-46a0603f2a10]
+footprint_id = "Capacitor_SMD:C_0402_1005Metric"
+locked = false
+graphics = []
+properties = []
+
+[extras.footprints.2a728778-1f96-4ad2-a156-c9ac730876f5]
+footprint_id = "Capacitor_SMD:C_0402_1005Metric"
+locked = false
+graphics = []
+properties = []
+
+[extras.footprints.75cf6205-fdc2-403e-babc-6a2491db220f]
+footprint_id = "Capacitor_SMD:C_0402_1005Metric"
+locked = false
+graphics = []
+properties = []
+
+[extras.footprints.911b1a57-b213-45d6-afcb-a82446404a98]
+footprint_id = "Capacitor_SMD:C_0402_1005Metric"
+locked = false
+graphics = []
+properties = []
+
+[extras.footprints.9e5be846-4c9f-4086-a57b-271483a633f4]
+footprint_id = "Package_BGA:BGA-315_12.0x12.0mm_P0.5mm"
+locked = false
+graphics = []
+properties = []
+
+[extras.footprints.bce631c2-c4ce-48a4-b43a-c0f2ec75d52d]
+footprint_id = "Package_BGA:BGA-684_23.0x23.0mm_P0.65mm"
+locked = true
+graphics = []
+properties = []
+
+[extras.footprints.c6905a0a-0b17-42bc-ac45-da5c6ed0da06]
+footprint_id = "Capacitor_SMD:C_0402_1005Metric"
+locked = false
+graphics = []
+properties = []
+
+[extras.footprints.e4c3d6e6-21b2-4b90-a994-68714a5240d8]
+footprint_id = "Capacitor_SMD:C_0402_1005Metric"
+locked = false
+graphics = []
+properties = []
+
+[extras.board]
+graphics = []
+texts = []
+
+[[extras.board.outline]]
+x = 0.0
+y = 0.0
+
+[[extras.board.outline]]
+x = 85.0
+y = 0.0
+
+[[extras.board.outline]]
+x = 85.0
+y = 56.0
+
+[[extras.board.outline]]
+x = 0.0
+y = 56.0
