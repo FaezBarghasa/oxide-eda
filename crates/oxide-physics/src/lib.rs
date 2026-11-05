@@ -7,6 +7,7 @@ pub mod hdi;
 pub mod impedance;
 pub mod kinematics;
 pub mod material;
+pub mod pdn_dc;
 pub mod stackup;
 pub mod strain;
 pub mod units;
@@ -32,6 +33,7 @@ pub use kinematics::{
     SubstrateZone,
 };
 pub use material::MaterialProperties;
+pub use pdn_dc::{PdnIrDropStats, PdnNode, PdnResistorMesh};
 pub use stackup::{CopperWeight, LayerDefinition, LayerStackup, LayerType};
 pub use units::{
     Microns, Nanometers, microns_to_mils, microns_to_mm, mils_to_microns, mm_to_microns,

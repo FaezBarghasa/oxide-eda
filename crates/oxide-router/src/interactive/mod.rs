@@ -1,6 +1,7 @@
 //! Interactive routing engine with weighted A* pathfinding, Push-and-Shove,
 //! Walk-Around, Hug-and-Push, Differential Pair, and Length Tuning modes.
 
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use oxide_physics::Microns;
@@ -46,6 +47,8 @@ pub struct InteractiveRouter {
     pub spatial_index: Arc<SpatialIndex>,
     pub session: Option<session::RoutingSession>,
     pub push_engine: PushAndShoveEngine,
+    pub target_impedance: HashMap<NetId, f64>,
+    pub target_diff_impedance: HashMap<NetId, f64>,
 }
 
 impl InteractiveRouter {
@@ -56,7 +59,19 @@ impl InteractiveRouter {
             spatial_index,
             session: None,
             push_engine: PushAndShoveEngine::default(),
+            target_impedance: HashMap::new(),
+            target_diff_impedance: HashMap::new(),
         }
+    }
+
+    /// Set target characteristic impedance (Ohms) for single-ended net routing.
+    pub fn set_net_target_impedance(&mut self, net_id: NetId, target_z0_ohms: f64) {
+        self.target_impedance.insert(net_id, target_z0_ohms);
+    }
+
+    /// Set target differential impedance (Ohms) for differential pair routing.
+    pub fn set_net_target_diff_impedance(&mut self, net_id: NetId, target_zdiff_ohms: f64) {
+        self.target_diff_impedance.insert(net_id, target_zdiff_ohms);
     }
 
     /// Start a routing session from a given pad/point.

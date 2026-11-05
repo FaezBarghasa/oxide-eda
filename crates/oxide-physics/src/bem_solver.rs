@@ -113,6 +113,45 @@ impl BemFieldSolver {
             effective_er: er_eff,
         }
     }
+
+    /// Evaluates symmetrical stripline parameters (trace centered between two ground planes).
+    pub fn solve_stripline(
+        cross_section: &TransmissionLineCrossSection,
+    ) -> ExtractedTransmissionLine {
+        let w = cross_section.trace_width_m;
+        let h = cross_section.dielectric_height_m.max(1e-9); // height to each plane
+        let t = cross_section.trace_thickness_m;
+        let er = cross_section.dielectric_er;
+        let b = 2.0 * h + t; // total plane separation
+
+        let denom = 0.8 * w + t;
+        let ratio = (1.9 * b) / denom.max(1e-9);
+        let z0 = if ratio > 1.0 && er > 1.0 {
+            (60.0 / er.sqrt()) * ratio.ln()
+        } else {
+            50.0
+        };
+
+        let v_prop = Self::C0 / er.sqrt();
+        let c_per_m = 1.0 / (v_prop * z0);
+        let l_per_m = z0 * z0 * c_per_m;
+        let t_pd_ps_per_mm = (1.0 / v_prop) * 1e12 * 1e-3;
+
+        let z_diff = cross_section.trace_spacing_m.map(|s| {
+            let s_norm = s / b;
+            let coupling = 1.0 - 0.348 * (-1.65 * s_norm).exp();
+            2.0 * z0 * coupling
+        });
+
+        ExtractedTransmissionLine {
+            characteristic_impedance_z0: z0,
+            differential_impedance_zdiff: z_diff,
+            capacitance_per_meter_f: c_per_m,
+            inductance_per_meter_h: l_per_m,
+            propagation_delay_ps_per_mm: t_pd_ps_per_mm,
+            effective_er: er,
+        }
+    }
 }
 
 #[cfg(test)]
