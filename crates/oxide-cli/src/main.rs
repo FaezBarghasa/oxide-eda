@@ -7,7 +7,17 @@ use oxide_output::{
 };
 use oxide_rules::ConstraintManager;
 use oxide_types::pcb::PcbBoard;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+
+fn load_board(path: &Path) -> Result<PcbBoard, Box<dyn std::error::Error>> {
+    let content = std::fs::read_to_string(path)?;
+    if let Ok(snx) = oxide_types::format::SnxPcb::parse(&content) {
+        Ok(snx.board)
+    } else {
+        let pcb: PcbBoard = serde_json::from_str(&content)?;
+        Ok(pcb)
+    }
+}
 
 #[derive(Parser)]
 #[command(name = "oxide")]
@@ -89,8 +99,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
             };
 
-            let board_content = std::fs::read_to_string(&board)?;
-            let pcb: PcbBoard = serde_json::from_str(&board_content)?;
+            let pcb = load_board(&board)?;
 
             println!(
                 "Loaded PCB with {} footprints, {} segments, {} vias",
@@ -131,8 +140,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("Oxide EDA CAM Release Exporter");
             std::fs::create_dir_all(&out_dir)?;
 
-            let board_content = std::fs::read_to_string(&board)?;
-            let pcb: PcbBoard = serde_json::from_str(&board_content)?;
+            let pcb = load_board(&board)?;
 
             // 1. Gerbers
             let gerber_exp = GerberExporter::new(GerberOptions::default());
@@ -169,8 +177,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("Oxide EDA Output Job Runner: {}", job.display());
             std::fs::create_dir_all(&out_dir)?;
 
-            let board_content = std::fs::read_to_string(&board)?;
-            let pcb: PcbBoard = serde_json::from_str(&board_content)?;
+            let pcb = load_board(&board)?;
 
             let job_content = std::fs::read_to_string(&job)?;
             let config: OutputJobConfig = serde_json::from_str(&job_content)?;
@@ -190,8 +197,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Commands::Ipc2581 { board, out } => {
             println!("Oxide EDA IPC-2581C Exporter: {}", board.display());
-            let board_content = std::fs::read_to_string(&board)?;
-            let pcb: PcbBoard = serde_json::from_str(&board_content)?;
+            let pcb = load_board(&board)?;
 
             let opts = oxide_output::Ipc2581Options::default();
             let res = oxide_output::export_ipc2581(&pcb, &opts)?;
@@ -202,8 +208,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("Oxide EDA ODB++ v8.1 Exporter: {}", board.display());
             std::fs::create_dir_all(&out_dir)?;
 
-            let board_content = std::fs::read_to_string(&board)?;
-            let pcb: PcbBoard = serde_json::from_str(&board_content)?;
+            let pcb = load_board(&board)?;
 
             let pkg = oxide_output::export_odbpp_package(&pcb)?;
             for file in &pkg.files {
