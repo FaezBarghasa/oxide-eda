@@ -77,6 +77,46 @@ impl ConstraintManager {
         cm
     }
 
+    /// HDI (High Density Interconnect) Any-Layer microvia and fine-pitch stackup rules
+    /// (0.10mm min trace/space, 0.15mm laser microvia drill / 0.35mm pad, 50µm mask expansion).
+    pub fn hdi_advanced_default() -> Self {
+        let mut cm = Self::new();
+        // Global 0.10mm (100 µm) minimum trace width, 0.15mm preferred, 2.0mm max
+        cm.add_rule(DesignRule::Width(WidthRule::new(
+            RuleScope::Global,
+            100,
+            150,
+            2000,
+        )));
+        // Global 0.10mm (100 µm) minimum electrical clearance
+        cm.add_rule(DesignRule::Clearance(ClearanceRule::new(
+            RuleScope::Global,
+            100,
+        )));
+        // Global microvia and fine via style (0.15mm drill, 0.35mm diameter)
+        cm.add_rule(DesignRule::ViaStyle(ViaStyleRule {
+            scope: RuleScope::Global,
+            min_drill: 150,
+            min_diameter: 350,
+            preferred_drill: 200,
+            preferred_diameter: 450,
+        }));
+        // Global solder mask (30µm expansion, 70µm min sliver)
+        cm.add_rule(DesignRule::SolderMask(SolderMaskRule {
+            scope: RuleScope::Global,
+            expansion: 30,
+            min_sliver: 70,
+        }));
+        // Global silkscreen
+        cm.add_rule(DesignRule::Silkscreen(SilkscreenRule {
+            scope: RuleScope::Global,
+            min_clearance_to_mask: 100,
+            min_clearance_to_silk: 100,
+            min_line_width: 100,
+        }));
+        cm
+    }
+
     /// Resolve the most specific [`WidthRule`] that applies to a given net, net class, and room.
     pub fn resolve_width_rule(
         &self,

@@ -323,17 +323,17 @@ fn test_generate_and_verify_high_stress_titan_sbc_12layer() {
                 } else {
                     (3, "+0V85_VCORE")
                 }
-            } else if row == 2 && col == 1 {
+            } else if row == 2 && col == 0 {
                 (7, "DDR5_CK_P")
-            } else if row == 2 && col == 2 {
+            } else if row == 3 && col == 0 {
                 (8, "DDR5_CK_N")
-            } else if row == 3 && col == 1 {
+            } else if row == 4 && col == 0 {
                 (9, "DDR5_DQS0_P")
-            } else if row == 3 && col == 2 {
+            } else if row == 5 && col == 0 {
                 (10, "DDR5_DQS0_N")
-            } else if row == 4 && col == 1 {
+            } else if row == 6 && col == 0 {
                 (11, "DDR5_DQ0")
-            } else if row == 4 && col == 2 {
+            } else if row == 7 && col == 0 {
                 (12, "DDR5_DQ1")
             } else if row == 14 && col == 14 {
                 (13, "PCIE4_TX0_P")
@@ -367,6 +367,7 @@ fn test_generate_and_verify_high_stress_titan_sbc_12layer() {
             ));
         }
     }
+    let soc_pads_ref = soc_pads.clone();
     board.footprints.push(Footprint {
         uuid: Uuid::new_v4(),
         reference: "U1_SOC".to_string(),
@@ -575,13 +576,71 @@ fn test_generate_and_verify_high_stress_titan_sbc_12layer() {
     ));
 
     // -------------------------------------------------------------
-    // 3. High-Speed Differential Pairs & Escape Fanout
+    // 3. High-Speed Differential Pairs & Procedural Escape Fanout
     // -------------------------------------------------------------
-    // DDR5 Clock Differential Pair (100Ω impedance, 0.15mm width, 0.65mm center spacing)
-    // Connects SoC (37.3, 23.6) to LPDDR5 RAM boundary (25.0, 23.6)
+    // Procedural BGA Dogbone and Escape Fanout across 4 signal/plane layers
+    // Connects outer and inner pads of SoC to microvias and inner stripline segments
+    let inner_layers = [
+        "In2.SIG01_DDR",
+        "In3.SIG02_HS",
+        "In5.PWR02_IO",
+        "In8.SIG03_PCIE",
+    ];
+    for (idx, pad) in soc_pads_ref.iter().enumerate() {
+        let abs_pad_x = 42.5 + pad.position.x;
+        let abs_pad_y = 28.0 + pad.position.y;
+        let net_num = pad.net.as_ref().map(|n| n.number).unwrap_or(0);
+        // Exclude manual differential pairs and net 0
+        if net_num == 0 || net_num == 7 || net_num == 8 || net_num == 13 || net_num == 14 {
+            continue;
+        }
+
+        // Fanout angle and dogbone offset direction (0.40mm diagonal offset into quad space)
+        let sign_x = if pad.position.x >= 0.0 { 1.0 } else { -1.0 };
+        let sign_y = if pad.position.y >= 0.0 { 1.0 } else { -1.0 };
+        let via_x = abs_pad_x + sign_x * 0.40;
+        let via_y = abs_pad_y + sign_y * 0.40;
+
+        // Top surface dogbone segment
+        board.segments.push(Segment {
+            uuid: Uuid::new_v4(),
+            start: Point::new(abs_pad_x, abs_pad_y),
+            end: Point::new(via_x, via_y),
+            width: 0.10,
+            layer: "TopCopper".to_string(),
+            net: net_num,
+        });
+
+        // Laser Microvia L1-L2 (TopCopper -> In1.GND01 / In2.SIG01_DDR) or Blind via
+        let target_layer = inner_layers[idx % inner_layers.len()];
+        board.vias.push(Via {
+            uuid: Uuid::new_v4(),
+            position: Point::new(via_x, via_y),
+            diameter: 0.35,
+            drill: 0.15,
+            layers: vec!["TopCopper".to_string(), target_layer.to_string()],
+            net: net_num,
+            via_type: ViaType::Micro,
+            via_span: Some(ViaSpan::new(0, (idx % 4 + 1) as u8)),
+        });
+
+        // Inner stripline breakout escape segment
+        let escape_len = 0.50 + ((idx % 5) as f64) * 0.20;
+        board.segments.push(Segment {
+            uuid: Uuid::new_v4(),
+            start: Point::new(via_x, via_y),
+            end: Point::new(via_x + sign_x * escape_len, via_y + sign_y * escape_len),
+            width: 0.10,
+            layer: target_layer.to_string(),
+            net: net_num,
+        });
+    }
+
+    // DDR5 Clock Differential Pair (100Ω impedance, 0.15mm width, 0.8mm center spacing)
+    // Connects SoC (36.5, 23.6) & (36.5, 24.4) to LPDDR5 RAM boundary (25.0, 23.6) & (25.0, 24.4)
     board.segments.push(Segment {
         uuid: Uuid::new_v4(),
-        start: Point::new(37.3, 23.6),
+        start: Point::new(36.5, 23.6),
         end: Point::new(25.0, 23.6),
         width: 0.15,
         layer: "TopCopper".to_string(),
@@ -589,7 +648,7 @@ fn test_generate_and_verify_high_stress_titan_sbc_12layer() {
     });
     board.segments.push(Segment {
         uuid: Uuid::new_v4(),
-        start: Point::new(37.3, 24.4),
+        start: Point::new(36.5, 24.4),
         end: Point::new(25.0, 24.4),
         width: 0.15,
         layer: "TopCopper".to_string(),
@@ -615,7 +674,7 @@ fn test_generate_and_verify_high_stress_titan_sbc_12layer() {
         net: 14, // PCIE4_TX0_N
     });
 
-    // Dogbone vias for Core Power, Ground, and PCIe inner breakout
+    // Core Power, Ground, and PCIe inner breakout vias
     board.vias.push(Via {
         uuid: Uuid::new_v4(),
         position: Point::new(42.5, 28.0),
@@ -650,7 +709,11 @@ fn test_generate_and_verify_high_stress_titan_sbc_12layer() {
     // -------------------------------------------------------------
     // 4. Automated Pre-CAM Teardrop Filleting
     // -------------------------------------------------------------
-    TeardropGenerator::apply_teardrops_to_board(&mut board);
+    let teardrops_added = TeardropGenerator::apply_teardrops_to_board(&mut board);
+    assert!(
+        teardrops_added > 0,
+        "Teardrop pass must generate filleted segments for connected vias/pads"
+    );
 
     // -------------------------------------------------------------
     // 5. Serialize and Write Native SnxPcb
@@ -708,11 +771,24 @@ fn test_generate_and_verify_high_stress_titan_sbc_12layer() {
         "Must contain SoC, RAM, PMIC, Net-Tie, caps"
     );
     assert!(
-        parsed_board.vias.len() >= 3,
-        "Must contain core power, ground, and blind/buried vias"
+        parsed_board.segments.len() >= 500,
+        "Flagship board must test non-trivial scale: expected >= 500 segments, got {}",
+        parsed_board.segments.len()
+    );
+    assert!(
+        parsed_board.vias.len() >= 200,
+        "Flagship board must test non-trivial scale: expected >= 200 vias, got {}",
+        parsed_board.vias.len()
     );
 
-    let cm = ConstraintManager::standard_default();
+    // Check that ratsnest routing completion ratio engine executes properly on the complex board
+    let completion = oxide_net::RatsnestEngine::routing_completion_ratio(&parsed_board);
+    println!(
+        "[Ratsnest Verified] Multi-layer routing completion: {:.2}%",
+        completion * 100.0
+    );
+
+    let cm = ConstraintManager::hdi_advanced_default();
     let violations = cm.run_drc(&parsed_board);
     assert!(
         violations.is_empty(),

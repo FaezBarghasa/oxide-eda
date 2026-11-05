@@ -21,7 +21,8 @@ pub struct RatsnestLine {
 pub struct RatsnestEngine;
 
 impl RatsnestEngine {
-    /// Compute all unrouted ratsnest lines for a given PCB layout.
+    /// Compute all unrouted ratsnest lines for a given PCB layout,
+    /// accounting for routed copper track segments connecting pad terminals.
     pub fn compute_ratsnest(board: &PcbBoard) -> Vec<RatsnestLine> {
         let mut net_pads: HashMap<u32, Vec<Point>> = HashMap::new();
 
@@ -42,26 +43,87 @@ impl RatsnestEngine {
             }
         }
 
+        // 2. Identify pads that already have connecting copper segments on the same net
+        let mut net_segments: HashMap<u32, Vec<(&Point, &Point)>> = HashMap::new();
+        for seg in &board.segments {
+            if seg.net > 0 {
+                net_segments
+                    .entry(seg.net)
+                    .or_default()
+                    .push((&seg.start, &seg.end));
+            }
+        }
+
         let mut lines = Vec::new();
 
-        // 2. Compute Minimum Spanning Tree (MST via Prim's algorithm) per Net
+        // 3. Compute unrouted edges per Net
         for (net_num, points) in net_pads {
             if points.len() < 2 {
                 continue;
             }
 
             let mst_edges = Self::compute_mst(&points);
+            let routed_segs = net_segments.get(&net_num);
+
             for (p1, p2, dist) in mst_edges {
-                lines.push(RatsnestLine {
-                    net_number: net_num,
-                    start: p1,
-                    end: p2,
-                    distance: dist,
+                // Check if an existing segment touches both terminals or bridges them
+                let is_routed = routed_segs.is_some_and(|segs| {
+                    segs.iter().any(|(s, e)| {
+                        let touches_p1 = (s.x - p1.x).hypot(s.y - p1.y) < 0.25
+                            || (e.x - p1.x).hypot(e.y - p1.y) < 0.25;
+                        let touches_p2 = (s.x - p2.x).hypot(s.y - p2.y) < 0.25
+                            || (e.x - p2.x).hypot(e.y - p2.y) < 0.25;
+                        touches_p1 && touches_p2
+                    })
                 });
+
+                if !is_routed {
+                    lines.push(RatsnestLine {
+                        net_number: net_num,
+                        start: p1,
+                        end: p2,
+                        distance: dist,
+                    });
+                }
             }
         }
 
         lines
+    }
+
+    /// Compute the overall ratsnest routing completion ratio (0.0 to 1.0).
+    /// Returns 1.0 if there are 0 required multi-point net connections.
+    pub fn routing_completion_ratio(board: &PcbBoard) -> f64 {
+        let mut total_required_connections = 0usize;
+        let mut net_pads: HashMap<u32, usize> = HashMap::new();
+
+        for fp in &board.footprints {
+            for pad in &fp.pads {
+                #[allow(clippy::collapsible_if)]
+                if let Some(ref pad_net) = pad.net {
+                    if pad_net.number > 0 {
+                        *net_pads.entry(pad_net.number).or_default() += 1;
+                    }
+                }
+            }
+        }
+
+        for count in net_pads.values() {
+            if *count >= 2 {
+                total_required_connections += count - 1;
+            }
+        }
+
+        if total_required_connections == 0 {
+            return 1.0;
+        }
+
+        let unrouted = Self::compute_ratsnest(board).len();
+        if unrouted >= total_required_connections {
+            0.0
+        } else {
+            (total_required_connections - unrouted) as f64 / total_required_connections as f64
+        }
     }
 
     /// Compute Minimum Spanning Tree across points using Prim's algorithm.

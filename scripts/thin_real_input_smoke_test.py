@@ -17,7 +17,11 @@ from Xlib.protocol import event
 WORKSPACE = Path("/home/jrad/RustroverProjects/oxide-eda")
 TARGET_OXIDE = WORKSPACE / "target/release/oxide"
 FIXTURE_PATH = WORKSPACE / "fixtures/high_stress_suite/titan_sbc_12layer_flagship.snxpcb"
-ARTIFACT_DIR = Path("/home/jrad/.gemini/antigravity/brain/295fc9a8-bb8a-48f5-9c63-d10d7ffc5363")
+ARTIFACT_DIR = Path(os.environ.get(
+    "OXIDE_ARTIFACT_DIR",
+    WORKSPACE / "target" / "smoke_artifacts"
+))
+ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
 
 def capture_screenshot(filename):
     out_path = ARTIFACT_DIR / filename
