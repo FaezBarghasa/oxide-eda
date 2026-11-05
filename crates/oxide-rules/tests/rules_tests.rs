@@ -880,7 +880,10 @@ fn test_incremental_dirty_region_drc_equivalence_and_speed() {
     // Initial board must have zero violations
     let dirty_all = DrcAabb::new(0, 0, 100_000, 100_000);
     let initial_violations = engine.check_dirty_region(&cm, &board, &dirty_all, 500);
-    assert!(initial_violations.is_empty(), "Initial board must have 0 violations");
+    assert!(
+        initial_violations.is_empty(),
+        "Initial board must have 0 violations"
+    );
 
     // Introduce an edit on segment 50 that causes a clearance violation (shift segment 50 towards 49)
     let bad_seg_idx = 50;
