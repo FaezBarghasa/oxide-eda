@@ -392,7 +392,26 @@ impl InteractiveRouter {
         layer: LayerId,
         width: Microns,
     ) -> Vec<RouteSegment> {
-        let gap = 150; // 150µm diff pair gap
+        let gap = if let Some(&target_zdiff) = self.target_diff_impedance.get(&net_id) {
+            // Synthesize differential spacing using SI field solver
+            let single_z0 =
+                oxide_physics::ImpedanceCalculator::calculate_microstrip(width, 100, 35, 4.3);
+            let mut best_s = 150;
+            let mut min_err = f64::MAX;
+            for s_cand in (50..=400).step_by(10) {
+                let z_diff = oxide_physics::ImpedanceCalculator::calculate_differential_microstrip(
+                    single_z0, s_cand, 100,
+                );
+                let err = (z_diff - target_zdiff).abs();
+                if err < min_err {
+                    min_err = err;
+                    best_s = s_cand;
+                }
+            }
+            best_s
+        } else {
+            150 // 150µm default diff pair gap
+        };
         let centerline =
             match astar::find_astar_path(&self.spatial_index, start, end, net_id, width) {
                 Ok(pts) => pts,
@@ -403,6 +422,9 @@ impl InteractiveRouter {
         for i in 0..centerline.len().saturating_sub(1) {
             let p1 = centerline[i];
             let p2 = centerline[i + 1];
+            if p1 == p2 {
+                continue;
+            }
             let (dx, dy) = p1.direction_to(p2);
             let perp_x = (-dy * ((gap + width) as f64 / 2.0)).round() as i64;
             let perp_y = (dx * ((gap + width) as f64 / 2.0)).round() as i64;
@@ -663,7 +685,16 @@ impl InteractiveRouter {
         segments
     }
 
-    fn get_track_width_for_net(&self, _net_id: NetId) -> Microns {
+    pub fn get_track_width_for_net(&self, net_id: NetId) -> Microns {
+        if let Some(&target_z0) = self.target_impedance.get(&net_id)
+            && let Some(width_um) = oxide_physics::ImpedanceCalculator::solve_microstrip_width(
+                target_z0, 100, // 100 µm dielectric height
+                35,  // 35 µm copper thickness (1 oz)
+                4.3, // FR-4 dielectric constant
+            )
+        {
+            return width_um;
+        }
         200 // Default 200 µm
     }
 }
