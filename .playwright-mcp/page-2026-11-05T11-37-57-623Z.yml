@@ -1,0 +1,27 @@
+- generic [active] [ref=f2e1]:
+  - banner [ref=f2e2]:
+    - generic [ref=f2e3]:
+      - heading "Oxide EDA — Playwright GUI & Benchmark Test Bench" [level=1] [ref=f2e4]
+      - text: "Verifying Real-World Projects: Oberon-8, Strata-FPGA, Titan-SBC 12L"
+    - generic [ref=f2e5]: ENGINE READY (Native Iced 0.14+)
+  - generic [ref=f2e6]:
+    - generic [ref=f2e7]:
+      - generic [ref=f2e8]:
+        - heading "Benchmark Scenarios" [level=2] [ref=f2e9]
+        - button "🎹 1. Oberon-8 Poly Synth (Repeat x8)" [ref=f2e10] [cursor=pointer]
+        - button "⚡ 2. Strata-FPGA DDR5 Cascade Shove" [ref=f2e11] [cursor=pointer]
+        - button "🎯 3. Titan-SBC 90° Crosshair & HDI" [ref=f2e12] [cursor=pointer]
+        - button "⚙️ 4. Rules & Preferences Modal" [ref=f2e13] [cursor=pointer]
+        - button "🛑 5. Run Brutal DRC Audit" [ref=f2e14] [cursor=pointer]
+        - button "📦 6. Generate 12-Layer CAM Release" [ref=f2e15] [cursor=pointer]
+      - generic [ref=f2e16]:
+        - heading "Test Console Output" [level=2] [ref=f2e17]
+        - generic [ref=f2e18]: ">>> Playwright GUI Test Runner initialized. >>> Native Display: Xvfb :99 (Hardware Vulkan/GLX). >>> Ready to execute benchmark test assertions."
+    - generic [ref=f2e19]:
+      - generic [ref=f2e20]:
+        - generic [ref=f2e21]: "Scenario 1: Oberon-8 Polyphonic Synthesizer"
+        - generic [ref=f2e22]:
+          - generic [ref=f2e23]: 144 FPS
+          - generic [ref=f2e24]: 75.2 MB RSS
+          - generic [ref=f2e25]: 1.82s Cold Boot
+      - img "Native Iced Screenshot" [ref=f2e27]

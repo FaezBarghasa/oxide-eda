@@ -79,7 +79,11 @@ fn test_benchmark_project_1_oberon_8_voice_analog_poly_expansion() {
 
     // Altium-style Repeat(Voice, 1, 8) expansion for 8 independent analog voice cards
     let instances = parse_and_expand_repeat("Repeat(Voice, 1, 8)", &child_sheet, &voice_sheet);
-    assert_eq!(instances.len(), 8, "Must expand to 8 full polyphonic voice channels");
+    assert_eq!(
+        instances.len(),
+        8,
+        "Must expand to 8 full polyphonic voice channels"
+    );
     assert_eq!(instances[0].sheet_name, "Voice_CH1");
     assert_eq!(instances[7].sheet_name, "Voice_CH8");
     assert_eq!(instances[0].designator_map.get("U101").unwrap(), "U101_CH1");
@@ -159,7 +163,9 @@ fn test_benchmark_project_2_fpga_ddr5_bga_fanout_placement() {
         graphics: Vec::new(),
     };
 
-    engine.execute(PcbCommand::PlaceFootprint { footprint: fpga }).unwrap();
+    engine
+        .execute(PcbCommand::PlaceFootprint { footprint: fpga })
+        .unwrap();
     assert_eq!(engine.board().footprints.len(), 1);
 
     // Add DDR5 differential clock pair segments (POD08, 0.10mm width, 0.12mm gap)
@@ -179,8 +185,12 @@ fn test_benchmark_project_2_fpga_ddr5_bga_fanout_placement() {
         width: 0.10,
         layer: "F.Cu".to_string(),
     };
-    engine.execute(PcbCommand::AddSegment { segment: ck_p_seg }).unwrap();
-    engine.execute(PcbCommand::AddSegment { segment: ck_n_seg }).unwrap();
+    engine
+        .execute(PcbCommand::AddSegment { segment: ck_p_seg })
+        .unwrap();
+    engine
+        .execute(PcbCommand::AddSegment { segment: ck_n_seg })
+        .unwrap();
     assert_eq!(engine.board().segments.len(), 2);
 }
 
@@ -241,7 +251,9 @@ fn test_benchmark_project_3_titan_sbc_12_layer_hdi_stackup() {
         graphics: Vec::new(),
     };
 
-    engine.execute(PcbCommand::PlaceFootprint { footprint: soc }).unwrap();
+    engine
+        .execute(PcbCommand::PlaceFootprint { footprint: soc })
+        .unwrap();
     assert_eq!(engine.board().footprints.len(), 1);
 
     // Place High-Speed PCIe Gen 4 x4 TX Differential Pair (16 Gbps, 85 Ohm diff)
@@ -261,8 +273,16 @@ fn test_benchmark_project_3_titan_sbc_12_layer_hdi_stackup() {
         width: 0.12,
         layer: "F.Cu".to_string(),
     };
-    engine.execute(PcbCommand::AddSegment { segment: pcie_tx0_p }).unwrap();
-    engine.execute(PcbCommand::AddSegment { segment: pcie_tx0_n }).unwrap();
+    engine
+        .execute(PcbCommand::AddSegment {
+            segment: pcie_tx0_p,
+        })
+        .unwrap();
+    engine
+        .execute(PcbCommand::AddSegment {
+            segment: pcie_tx0_n,
+        })
+        .unwrap();
     assert_eq!(engine.board().segments.len(), 2);
 
     // Add Stacked Any-Layer Microvia (L1 -> L2, L2 -> L3) for Core VDD 0.75V (50A peak transient)
@@ -287,7 +307,11 @@ fn test_benchmark_project_3_titan_sbc_12_layer_hdi_stackup() {
         via_span: Some(ViaSpan::new(2, 3)),
     };
 
-    engine.execute(PcbCommand::AddVia { via: microvia_1_2 }).unwrap();
-    engine.execute(PcbCommand::AddVia { via: microvia_2_3 }).unwrap();
+    engine
+        .execute(PcbCommand::AddVia { via: microvia_1_2 })
+        .unwrap();
+    engine
+        .execute(PcbCommand::AddVia { via: microvia_2_3 })
+        .unwrap();
     assert_eq!(engine.board().vias.len(), 2);
 }

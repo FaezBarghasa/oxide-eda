@@ -3,10 +3,12 @@
 //! 2. Strata-FPGA DDR5 Kintex-UltraScale+ Development Board
 //! 3. Titan-SBC 12-Layer Ultra-Dense ARM Single Board Computer
 
+#![allow(clippy::field_reassign_with_default)]
+
 use oxide_types::format::{SnxPcb, SnxSchematic};
 use oxide_types::pcb::{
-    Footprint, LayerDef, NetDef, Pad, PadNet, PadShape, PadType, PcbBoard, Point, Segment,
-    Via, ViaSpan, ViaType,
+    Footprint, LayerDef, NetDef, Pad, PadNet, PadShape, PadType, PcbBoard, Point, Segment, Via,
+    ViaSpan, ViaType,
 };
 use oxide_types::property::PcbProperty;
 use oxide_types::schematic::{
@@ -84,7 +86,10 @@ fn generate_project_1_oberon_8(base_dir: &Path) -> Result<(), Box<dyn std::error
     });
 
     let voice_snx = SnxSchematic::new(voice_sheet.clone());
-    fs::write(p1_dir.join("analog_voice.snxsch"), voice_snx.write_string()?)?;
+    fs::write(
+        p1_dir.join("analog_voice.snxsch"),
+        voice_snx.write_string()?,
+    )?;
 
     // 2. Top-Level Sheet with Repeat(Voice, 1, 8)
     let mut top_sheet = make_empty_sheet("1", "A2");
@@ -120,22 +125,56 @@ fn generate_project_1_oberon_8(base_dir: &Path) -> Result<(), Box<dyn std::error
     let mut board = PcbBoard::default();
     board.thickness = 1.6;
     board.layers = vec![
-        LayerDef { id: 0, name: "F.Cu".to_string(), layer_type: "signal".to_string() },
-        LayerDef { id: 1, name: "In1_AGND".to_string(), layer_type: "power".to_string() },
-        LayerDef { id: 2, name: "In2_Power".to_string(), layer_type: "power".to_string() },
-        LayerDef { id: 3, name: "B.Cu".to_string(), layer_type: "signal".to_string() },
+        LayerDef {
+            id: 0,
+            name: "F.Cu".to_string(),
+            layer_type: "signal".to_string(),
+        },
+        LayerDef {
+            id: 1,
+            name: "In1_AGND".to_string(),
+            layer_type: "power".to_string(),
+        },
+        LayerDef {
+            id: 2,
+            name: "In2_Power".to_string(),
+            layer_type: "power".to_string(),
+        },
+        LayerDef {
+            id: 3,
+            name: "B.Cu".to_string(),
+            layer_type: "signal".to_string(),
+        },
     ];
     board.nets = vec![
-        NetDef { number: 1, name: "AGND_CLEAN".to_string() },
-        NetDef { number: 2, name: "DGND".to_string() },
-        NetDef { number: 3, name: "+15V_ANALOG".to_string() },
-        NetDef { number: 4, name: "-15V_ANALOG".to_string() },
-        NetDef { number: 5, name: "+3V3_DIGITAL".to_string() },
+        NetDef {
+            number: 1,
+            name: "AGND_CLEAN".to_string(),
+        },
+        NetDef {
+            number: 2,
+            name: "DGND".to_string(),
+        },
+        NetDef {
+            number: 3,
+            name: "+15V_ANALOG".to_string(),
+        },
+        NetDef {
+            number: 4,
+            name: "-15V_ANALOG".to_string(),
+        },
+        NetDef {
+            number: 5,
+            name: "+3V3_DIGITAL".to_string(),
+        },
     ];
 
     let pcb_snx = SnxPcb::new(board.clone());
     fs::write(p1_dir.join("oberon8.snxpcb"), pcb_snx.write_string()?)?;
-    fs::write(p1_dir.join("oberon8.json"), serde_json::to_string_pretty(&board)?)?;
+    fs::write(
+        p1_dir.join("oberon8.json"),
+        serde_json::to_string_pretty(&board)?,
+    )?;
 
     println!("✓ Generated Project 1: Oberon-8 Polyphonic Synthesizer");
     Ok(())
@@ -148,24 +187,82 @@ fn generate_project_2_strata_fpga(base_dir: &Path) -> Result<(), Box<dyn std::er
     let mut board = PcbBoard::default();
     board.thickness = 1.6;
     board.layers = vec![
-        LayerDef { id: 0, name: "F.Cu".to_string(), layer_type: "signal".to_string() },
-        LayerDef { id: 1, name: "In1_GND".to_string(), layer_type: "power".to_string() },
-        LayerDef { id: 2, name: "In2_DDR5_CA".to_string(), layer_type: "signal".to_string() },
-        LayerDef { id: 3, name: "In3_DDR5_DQ0".to_string(), layer_type: "signal".to_string() },
-        LayerDef { id: 4, name: "In4_GND".to_string(), layer_type: "power".to_string() },
-        LayerDef { id: 5, name: "In5_Power_0V8".to_string(), layer_type: "power".to_string() },
-        LayerDef { id: 6, name: "In6_Power_1V8".to_string(), layer_type: "power".to_string() },
-        LayerDef { id: 7, name: "In7_GND".to_string(), layer_type: "power".to_string() },
-        LayerDef { id: 8, name: "In8_DDR5_DQ1".to_string(), layer_type: "signal".to_string() },
-        LayerDef { id: 9, name: "B.Cu".to_string(), layer_type: "signal".to_string() },
+        LayerDef {
+            id: 0,
+            name: "F.Cu".to_string(),
+            layer_type: "signal".to_string(),
+        },
+        LayerDef {
+            id: 1,
+            name: "In1_GND".to_string(),
+            layer_type: "power".to_string(),
+        },
+        LayerDef {
+            id: 2,
+            name: "In2_DDR5_CA".to_string(),
+            layer_type: "signal".to_string(),
+        },
+        LayerDef {
+            id: 3,
+            name: "In3_DDR5_DQ0".to_string(),
+            layer_type: "signal".to_string(),
+        },
+        LayerDef {
+            id: 4,
+            name: "In4_GND".to_string(),
+            layer_type: "power".to_string(),
+        },
+        LayerDef {
+            id: 5,
+            name: "In5_Power_0V8".to_string(),
+            layer_type: "power".to_string(),
+        },
+        LayerDef {
+            id: 6,
+            name: "In6_Power_1V8".to_string(),
+            layer_type: "power".to_string(),
+        },
+        LayerDef {
+            id: 7,
+            name: "In7_GND".to_string(),
+            layer_type: "power".to_string(),
+        },
+        LayerDef {
+            id: 8,
+            name: "In8_DDR5_DQ1".to_string(),
+            layer_type: "signal".to_string(),
+        },
+        LayerDef {
+            id: 9,
+            name: "B.Cu".to_string(),
+            layer_type: "signal".to_string(),
+        },
     ];
     board.nets = vec![
-        NetDef { number: 1, name: "GND".to_string() },
-        NetDef { number: 2, name: "VDD_CORE_0V85".to_string() },
-        NetDef { number: 3, name: "VDD_DDR5_0V8".to_string() },
-        NetDef { number: 10, name: "DDR5_CK_P".to_string() },
-        NetDef { number: 11, name: "DDR5_CK_N".to_string() },
-        NetDef { number: 12, name: "WIFI_RF_50R".to_string() },
+        NetDef {
+            number: 1,
+            name: "GND".to_string(),
+        },
+        NetDef {
+            number: 2,
+            name: "VDD_CORE_0V85".to_string(),
+        },
+        NetDef {
+            number: 3,
+            name: "VDD_DDR5_0V8".to_string(),
+        },
+        NetDef {
+            number: 10,
+            name: "DDR5_CK_P".to_string(),
+        },
+        NetDef {
+            number: 11,
+            name: "DDR5_CK_N".to_string(),
+        },
+        NetDef {
+            number: 12,
+            name: "WIFI_RF_50R".to_string(),
+        },
     ];
 
     // Place Kintex UltraScale+ (1156-pin BGA)
@@ -193,7 +290,10 @@ fn generate_project_2_strata_fpga(base_dir: &Path) -> Result<(), Box<dyn std::er
                 size: Point::new(0.40, 0.40),
                 drill: None,
                 layers: vec!["F.Cu".to_string()],
-                net: Some(PadNet { number: 1, name: "GND".to_string() }),
+                net: Some(PadNet {
+                    number: 1,
+                    name: "GND".to_string(),
+                }),
                 roundrect_ratio: 0.0,
             },
             Pad {
@@ -205,7 +305,10 @@ fn generate_project_2_strata_fpga(base_dir: &Path) -> Result<(), Box<dyn std::er
                 size: Point::new(0.40, 0.40),
                 drill: None,
                 layers: vec!["F.Cu".to_string()],
-                net: Some(PadNet { number: 10, name: "DDR5_CK_P".to_string() }),
+                net: Some(PadNet {
+                    number: 10,
+                    name: "DDR5_CK_P".to_string(),
+                }),
                 roundrect_ratio: 0.0,
             },
             Pad {
@@ -217,7 +320,10 @@ fn generate_project_2_strata_fpga(base_dir: &Path) -> Result<(), Box<dyn std::er
                 size: Point::new(0.40, 0.40),
                 drill: None,
                 layers: vec!["F.Cu".to_string()],
-                net: Some(PadNet { number: 11, name: "DDR5_CK_N".to_string() }),
+                net: Some(PadNet {
+                    number: 11,
+                    name: "DDR5_CK_N".to_string(),
+                }),
                 roundrect_ratio: 0.0,
             },
         ],
@@ -245,7 +351,10 @@ fn generate_project_2_strata_fpga(base_dir: &Path) -> Result<(), Box<dyn std::er
 
     let pcb_snx = SnxPcb::new(board.clone());
     fs::write(p2_dir.join("strata_fpga.snxpcb"), pcb_snx.write_string()?)?;
-    fs::write(p2_dir.join("strata_fpga.json"), serde_json::to_string_pretty(&board)?)?;
+    fs::write(
+        p2_dir.join("strata_fpga.json"),
+        serde_json::to_string_pretty(&board)?,
+    )?;
 
     println!("✓ Generated Project 2: Strata-FPGA DDR5 Kintex-UltraScale+ Platform");
     Ok(())
@@ -258,30 +367,108 @@ fn generate_project_3_titan_sbc(base_dir: &Path) -> Result<(), Box<dyn std::erro
     let mut board = PcbBoard::default();
     board.thickness = 1.2;
     board.layers = vec![
-        LayerDef { id: 0, name: "F.Cu".to_string(), layer_type: "signal".to_string() },
-        LayerDef { id: 1, name: "In1_GND".to_string(), layer_type: "power".to_string() },
-        LayerDef { id: 2, name: "In2_LPDDR5_CA".to_string(), layer_type: "signal".to_string() },
-        LayerDef { id: 3, name: "In3_LPDDR5_DQ0".to_string(), layer_type: "signal".to_string() },
-        LayerDef { id: 4, name: "In4_GND".to_string(), layer_type: "power".to_string() },
-        LayerDef { id: 5, name: "In5_VDD_Core".to_string(), layer_type: "power".to_string() },
-        LayerDef { id: 6, name: "In6_Power_Sys".to_string(), layer_type: "power".to_string() },
-        LayerDef { id: 7, name: "In7_GND".to_string(), layer_type: "power".to_string() },
-        LayerDef { id: 8, name: "In8_LPDDR5_DQ1".to_string(), layer_type: "signal".to_string() },
-        LayerDef { id: 9, name: "In9_PCIe_Gen4".to_string(), layer_type: "signal".to_string() },
-        LayerDef { id: 10, name: "In10_GND".to_string(), layer_type: "power".to_string() },
-        LayerDef { id: 11, name: "B.Cu".to_string(), layer_type: "signal".to_string() },
+        LayerDef {
+            id: 0,
+            name: "F.Cu".to_string(),
+            layer_type: "signal".to_string(),
+        },
+        LayerDef {
+            id: 1,
+            name: "In1_GND".to_string(),
+            layer_type: "power".to_string(),
+        },
+        LayerDef {
+            id: 2,
+            name: "In2_LPDDR5_CA".to_string(),
+            layer_type: "signal".to_string(),
+        },
+        LayerDef {
+            id: 3,
+            name: "In3_LPDDR5_DQ0".to_string(),
+            layer_type: "signal".to_string(),
+        },
+        LayerDef {
+            id: 4,
+            name: "In4_GND".to_string(),
+            layer_type: "power".to_string(),
+        },
+        LayerDef {
+            id: 5,
+            name: "In5_VDD_Core".to_string(),
+            layer_type: "power".to_string(),
+        },
+        LayerDef {
+            id: 6,
+            name: "In6_Power_Sys".to_string(),
+            layer_type: "power".to_string(),
+        },
+        LayerDef {
+            id: 7,
+            name: "In7_GND".to_string(),
+            layer_type: "power".to_string(),
+        },
+        LayerDef {
+            id: 8,
+            name: "In8_LPDDR5_DQ1".to_string(),
+            layer_type: "signal".to_string(),
+        },
+        LayerDef {
+            id: 9,
+            name: "In9_PCIe_Gen4".to_string(),
+            layer_type: "signal".to_string(),
+        },
+        LayerDef {
+            id: 10,
+            name: "In10_GND".to_string(),
+            layer_type: "power".to_string(),
+        },
+        LayerDef {
+            id: 11,
+            name: "B.Cu".to_string(),
+            layer_type: "signal".to_string(),
+        },
     ];
     board.nets = vec![
-        NetDef { number: 1, name: "GND".to_string() },
-        NetDef { number: 2, name: "VDD_CORE_0V75".to_string() },
-        NetDef { number: 3, name: "VDD_LPDDR5_0V8".to_string() },
-        NetDef { number: 4, name: "VCC_3V3_SYS".to_string() },
-        NetDef { number: 10, name: "PCIE_TX0_P".to_string() },
-        NetDef { number: 11, name: "PCIE_TX0_N".to_string() },
-        NetDef { number: 12, name: "HDMI21_D0_P".to_string() },
-        NetDef { number: 13, name: "HDMI21_D0_N".to_string() },
-        NetDef { number: 14, name: "USB_C_SS_TX_P".to_string() },
-        NetDef { number: 15, name: "USB_C_SS_TX_N".to_string() },
+        NetDef {
+            number: 1,
+            name: "GND".to_string(),
+        },
+        NetDef {
+            number: 2,
+            name: "VDD_CORE_0V75".to_string(),
+        },
+        NetDef {
+            number: 3,
+            name: "VDD_LPDDR5_0V8".to_string(),
+        },
+        NetDef {
+            number: 4,
+            name: "VCC_3V3_SYS".to_string(),
+        },
+        NetDef {
+            number: 10,
+            name: "PCIE_TX0_P".to_string(),
+        },
+        NetDef {
+            number: 11,
+            name: "PCIE_TX0_N".to_string(),
+        },
+        NetDef {
+            number: 12,
+            name: "HDMI21_D0_P".to_string(),
+        },
+        NetDef {
+            number: 13,
+            name: "HDMI21_D0_N".to_string(),
+        },
+        NetDef {
+            number: 14,
+            name: "USB_C_SS_TX_P".to_string(),
+        },
+        NetDef {
+            number: 15,
+            name: "USB_C_SS_TX_N".to_string(),
+        },
     ];
 
     // Place Main SoC (0.65mm BGA)
@@ -309,7 +496,10 @@ fn generate_project_3_titan_sbc(base_dir: &Path) -> Result<(), Box<dyn std::erro
                 size: Point::new(0.35, 0.35),
                 drill: None,
                 layers: vec!["F.Cu".to_string()],
-                net: Some(PadNet { number: 1, name: "GND".to_string() }),
+                net: Some(PadNet {
+                    number: 1,
+                    name: "GND".to_string(),
+                }),
                 roundrect_ratio: 0.0,
             },
             Pad {
@@ -321,7 +511,10 @@ fn generate_project_3_titan_sbc(base_dir: &Path) -> Result<(), Box<dyn std::erro
                 size: Point::new(0.35, 0.35),
                 drill: None,
                 layers: vec!["F.Cu".to_string()],
-                net: Some(PadNet { number: 2, name: "VDD_CORE_0V75".to_string() }),
+                net: Some(PadNet {
+                    number: 2,
+                    name: "VDD_CORE_0V75".to_string(),
+                }),
                 roundrect_ratio: 0.0,
             },
         ],
@@ -371,7 +564,10 @@ fn generate_project_3_titan_sbc(base_dir: &Path) -> Result<(), Box<dyn std::erro
 
     let pcb_snx = SnxPcb::new(board.clone());
     fs::write(p3_dir.join("titan_sbc.snxpcb"), pcb_snx.write_string()?)?;
-    fs::write(p3_dir.join("titan_sbc.json"), serde_json::to_string_pretty(&board)?)?;
+    fs::write(
+        p3_dir.join("titan_sbc.json"),
+        serde_json::to_string_pretty(&board)?,
+    )?;
 
     println!("✓ Generated Project 3: Titan-SBC 12-Layer Ultra-Dense ARM Board");
     Ok(())
@@ -385,6 +581,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     generate_project_2_strata_fpga(base_dir)?;
     generate_project_3_titan_sbc(base_dir)?;
 
-    println!("\n>>> High-Stress Benchmark Project Files successfully generated in benchmarks/high_stress_suite/!");
+    println!(
+        "\n>>> High-Stress Benchmark Project Files successfully generated in benchmarks/high_stress_suite/!"
+    );
     Ok(())
 }
