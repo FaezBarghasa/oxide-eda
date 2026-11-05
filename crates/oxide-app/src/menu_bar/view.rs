@@ -509,6 +509,34 @@ pub fn view(tokens: &ThemeTokens, ctx: MenuContext) -> Element<'static, MenuMess
         ]),
     );
 
+    let route_menu = Item::with_menu(
+        root_btn("Route", mc),
+        menu_template(vec![
+            leaf_stub("Interactive Routing", Some("Ctrl+W".to_string()), mc),
+            leaf_stub(
+                "Interactive Differential Pair Routing",
+                Some("Shift+2".to_string()),
+                mc,
+            ),
+            leaf_stub("Interactive Multi-Routing", None, mc),
+            leaf_stub(
+                "Interactive Length Tuning",
+                Some("Shift+T".to_string()),
+                mc,
+            ),
+            separator(mc),
+            leaf_stub("Auto Route Board", None, mc),
+            leaf_stub("Fanout Component / BGA", None, mc),
+            separator(mc),
+            leaf_stub("Teardrops...", None, mc),
+            leaf_stub("Unroute All", None, mc),
+            leaf_stub("Unroute Net", None, mc),
+            separator(mc),
+            leaf_stub("Corner Mode: 45° / Mitred", None, mc),
+            leaf_stub("Corner Mode: Rounded", None, mc),
+        ]),
+    );
+
     let window_menu = Item::with_menu(
         root_btn("Window", mc),
         menu_template(vec![
@@ -545,6 +573,7 @@ pub fn view(tokens: &ThemeTokens, ctx: MenuContext) -> Element<'static, MenuMess
         place_menu,
         design_menu,
         tools_menu,
+        route_menu,
         window_menu,
         help_menu,
     ])

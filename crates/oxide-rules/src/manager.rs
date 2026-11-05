@@ -836,10 +836,23 @@ impl ConstraintManager {
     pub fn run_drc(&self, board: &oxide_types::pcb::PcbBoard) -> Vec<RuleViolation> {
         let mut violations = Vec::new();
 
+        let net_names: std::collections::HashMap<u32, &str> = board
+            .nets
+            .iter()
+            .map(|n| (n.number, n.name.as_str()))
+            .collect();
+        let get_net_name = |net: u32| -> String {
+            net_names
+                .get(&net)
+                .copied()
+                .map(|s| s.to_string())
+                .unwrap_or_else(|| format!("NET_{net}"))
+        };
+
         // 1. Trace Width Validations
         for seg in &board.segments {
             let width_microns = (seg.width * 1000.0).round() as i64;
-            let net_name = format!("NET_{}", seg.net);
+            let net_name = get_net_name(seg.net);
             if let Err(v) = self.validate_trace_width(&net_name, None, None, width_microns) {
                 violations.push(v);
             }
@@ -849,7 +862,7 @@ impl ConstraintManager {
         for via in &board.vias {
             let drill_microns = (via.drill * 1000.0).round() as i64;
             let pad_microns = (via.diameter * 1000.0).round() as i64;
-            let net_name = format!("NET_{}", via.net);
+            let net_name = get_net_name(via.net);
             let obj_id = format!("Via_{}", via.uuid);
 
             if let Err(v) = self.validate_annular_ring(
@@ -880,8 +893,8 @@ impl ConstraintManager {
                         seg_b.end.y,
                     );
                     let dist_microns = (d * 1000.0).round() as i64;
-                    let net_a = format!("NET_{}", seg_a.net);
-                    let net_b = format!("NET_{}", seg_b.net);
+                    let net_a = get_net_name(seg_a.net);
+                    let net_b = get_net_name(seg_b.net);
 
                     if let Err(v) =
                         self.validate_clearance(&net_a, None, &net_b, None, None, dist_microns)
@@ -906,8 +919,8 @@ impl ConstraintManager {
 
                 let id_a = format!("Via_{}", via_a.uuid);
                 let id_b = format!("Via_{}", via_b.uuid);
-                let net_a = format!("NET_{}", via_a.net);
-                let net_b = format!("NET_{}", via_b.net);
+                let net_a = get_net_name(via_a.net);
+                let net_b = get_net_name(via_b.net);
 
                 if let Err(v) =
                     self.validate_hole_to_hole(&id_a, &net_a, &id_b, &net_b, None, edge_microns)

@@ -460,7 +460,22 @@ impl Oxide {
             ..Default::default()
         });
         app.ui_state.main_window_id = Some(main_id);
-        let boot_task = open_task.map(|id| Message::Window(WindowMsg::MainWindowOpened(id)));
+        let mut boot_task = open_task.map(|id| Message::Window(WindowMsg::MainWindowOpened(id)));
+
+        // Altium drop-in parity D1: accept file path from command line arguments
+        // e.g. `oxide project.snxprj` or `oxide board.snxpcb`
+        for arg in std::env::args().skip(1) {
+            if !arg.starts_with('-') {
+                let raw_path = std::path::PathBuf::from(arg);
+                if raw_path.exists() {
+                    let path = std::fs::canonicalize(&raw_path).unwrap_or(raw_path);
+                    let doc_task = app.handle_document_file_opened(Some(path));
+                    boot_task = Task::batch([boot_task, doc_task]);
+                    break;
+                }
+            }
+        }
+
         (app, boot_task)
     }
 }

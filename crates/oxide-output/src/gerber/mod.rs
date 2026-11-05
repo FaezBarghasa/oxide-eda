@@ -140,7 +140,10 @@ impl GerberExporter {
         let mut outputs = Vec::new();
         for layer in layers {
             let content = self.export_single_layer(board, layer)?;
-            let filename = format!("output.{extension}", extension = layer.file_extension());
+            let filename = match layer {
+                GerberLayer::InnerCopper(idx) => format!("output_in{idx}_cu.gbr"),
+                _ => format!("output.{extension}", extension = layer.file_extension()),
+            };
             outputs.push(GerberLayerOutput {
                 layer,
                 filename,
