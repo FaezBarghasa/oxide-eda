@@ -1,0 +1,58 @@
+{
+  "uuid": "55dab71a-a894-4eb9-96ac-ea264e2e68e3",
+  "version": 1,
+  "generator": "Oxide EDA",
+  "thickness": 1.6,
+  "outline": [],
+  "layers": [
+    {
+      "id": 0,
+      "name": "F.Cu",
+      "layer_type": "signal"
+    },
+    {
+      "id": 1,
+      "name": "In1_AGND",
+      "layer_type": "power"
+    },
+    {
+      "id": 2,
+      "name": "In2_Power",
+      "layer_type": "power"
+    },
+    {
+      "id": 3,
+      "name": "B.Cu",
+      "layer_type": "signal"
+    }
+  ],
+  "setup": null,
+  "nets": [
+    {
+      "number": 1,
+      "name": "AGND_CLEAN"
+    },
+    {
+      "number": 2,
+      "name": "DGND"
+    },
+    {
+      "number": 3,
+      "name": "+15V_ANALOG"
+    },
+    {
+      "number": 4,
+      "name": "-15V_ANALOG"
+    },
+    {
+      "number": 5,
+      "name": "+3V3_DIGITAL"
+    }
+  ],
+  "footprints": [],
+  "segments": [],
+  "vias": [],
+  "zones": [],
+  "graphics": [],
+  "texts": []
+}

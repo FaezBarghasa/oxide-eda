@@ -1,0 +1,29 @@
+G04 ===================================================================*
+G04 Oxide EDA - Gerber RS-274X / X2 Production Output*
+G04 Cleanroom Engine under Apache-2.0*
+G04 ===================================================================*
+%TF.GenerationSoftware,OxideEDA,Oxide,v0.16.0*%
+%TF.Part,Single*%
+%TF.FilePolarity,Positive*%
+%TF.FileFunction,Copper,L1,Top*%
+%MOMM*%
+%FSLAX46Y46*%
+%LPD*%
+%ADD10C,0.120000*%
+%ADD11C,0.300000*%
+%ADD12C,0.350000*%
+D12*
+X77500000Y48000000D03*
+D12*
+X78150000Y48000000D03*
+D11*
+X35650000Y19300000D03*
+D11*
+X35650000Y19300000D03*
+D10*
+X35000000Y22000000D02*
+X20000000Y22000000D01*
+D10*
+X35000000Y22250000D02*
+X20000000Y22250000D01*
+M02*

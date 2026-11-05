@@ -1,0 +1,260 @@
+{
+  "uuid": "865c071a-0430-4cc6-a435-510e76ac1bad",
+  "version": 1,
+  "generator": "Oxide EDA",
+  "thickness": 1.2,
+  "outline": [],
+  "layers": [
+    {
+      "id": 0,
+      "name": "F.Cu",
+      "layer_type": "signal"
+    },
+    {
+      "id": 1,
+      "name": "In1_GND",
+      "layer_type": "power"
+    },
+    {
+      "id": 2,
+      "name": "In2_LPDDR5_CA",
+      "layer_type": "signal"
+    },
+    {
+      "id": 3,
+      "name": "In3_LPDDR5_DQ0",
+      "layer_type": "signal"
+    },
+    {
+      "id": 4,
+      "name": "In4_GND",
+      "layer_type": "power"
+    },
+    {
+      "id": 5,
+      "name": "In5_VDD_Core",
+      "layer_type": "power"
+    },
+    {
+      "id": 6,
+      "name": "In6_Power_Sys",
+      "layer_type": "power"
+    },
+    {
+      "id": 7,
+      "name": "In7_GND",
+      "layer_type": "power"
+    },
+    {
+      "id": 8,
+      "name": "In8_LPDDR5_DQ1",
+      "layer_type": "signal"
+    },
+    {
+      "id": 9,
+      "name": "In9_PCIe_Gen4",
+      "layer_type": "signal"
+    },
+    {
+      "id": 10,
+      "name": "In10_GND",
+      "layer_type": "power"
+    },
+    {
+      "id": 11,
+      "name": "B.Cu",
+      "layer_type": "signal"
+    }
+  ],
+  "setup": null,
+  "nets": [
+    {
+      "number": 1,
+      "name": "GND"
+    },
+    {
+      "number": 2,
+      "name": "VDD_CORE_0V75"
+    },
+    {
+      "number": 3,
+      "name": "VDD_LPDDR5_0V8"
+    },
+    {
+      "number": 4,
+      "name": "VCC_3V3_SYS"
+    },
+    {
+      "number": 10,
+      "name": "PCIE_TX0_P"
+    },
+    {
+      "number": 11,
+      "name": "PCIE_TX0_N"
+    },
+    {
+      "number": 12,
+      "name": "HDMI21_D0_P"
+    },
+    {
+      "number": 13,
+      "name": "HDMI21_D0_N"
+    },
+    {
+      "number": 14,
+      "name": "USB_C_SS_TX_P"
+    },
+    {
+      "number": 15,
+      "name": "USB_C_SS_TX_N"
+    }
+  ],
+  "footprints": [
+    {
+      "uuid": "63b5e341-4135-4cbd-9182-734f07eec60a",
+      "reference": "U1",
+      "value": "ARM-SoC-OctaCore",
+      "footprint_id": "Package_BGA:BGA-684_23.0x23.0mm_P0.65mm",
+      "position": {
+        "x": 42.5,
+        "y": 28.0
+      },
+      "rotation": 0.0,
+      "layer": "F.Cu",
+      "locked": true,
+      "pads": [
+        {
+          "uuid": "843b86d8-1983-4ba8-affc-727ed8f2a715",
+          "number": "A1",
+          "pad_type": "smd",
+          "shape": "circle",
+          "position": {
+            "x": 35.0,
+            "y": 20.0
+          },
+          "size": {
+            "x": 0.35,
+            "y": 0.35
+          },
+          "drill": null,
+          "layers": [
+            "F.Cu"
+          ],
+          "net": {
+            "number": 1,
+            "name": "GND"
+          },
+          "roundrect_ratio": 0.0
+        },
+        {
+          "uuid": "a886d09e-3f79-4117-b972-7f1d1389288f",
+          "number": "A2",
+          "pad_type": "smd",
+          "shape": "circle",
+          "position": {
+            "x": 35.65,
+            "y": 20.0
+          },
+          "size": {
+            "x": 0.35,
+            "y": 0.35
+          },
+          "drill": null,
+          "layers": [
+            "F.Cu"
+          ],
+          "net": {
+            "number": 2,
+            "name": "VDD_CORE_0V75"
+          },
+          "roundrect_ratio": 0.0
+        }
+      ],
+      "graphics": [],
+      "properties": [
+        {
+          "key": "PartNumber",
+          "value": "ARM64-NPU-6TOPS",
+          "position": null,
+          "rotation": 0.0,
+          "layer": null,
+          "font_size": null,
+          "hidden": false
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "uuid": "19550ece-31dc-40de-87d9-0e2d8a2f56d5",
+      "start": {
+        "x": 35.0,
+        "y": 22.0
+      },
+      "end": {
+        "x": 20.0,
+        "y": 22.0
+      },
+      "width": 0.12,
+      "layer": "F.Cu",
+      "net": 10
+    },
+    {
+      "uuid": "e4f1669f-2fe4-4971-a7f1-040d0a484855",
+      "start": {
+        "x": 35.0,
+        "y": 22.25
+      },
+      "end": {
+        "x": 20.0,
+        "y": 22.25
+      },
+      "width": 0.12,
+      "layer": "F.Cu",
+      "net": 11
+    }
+  ],
+  "vias": [
+    {
+      "uuid": "f053b187-8b84-4715-9827-537c77713fe7",
+      "position": {
+        "x": 35.65,
+        "y": 19.3
+      },
+      "diameter": 0.3,
+      "drill": 0.1,
+      "layers": [
+        "F.Cu",
+        "In1_GND"
+      ],
+      "net": 2,
+      "via_type": "micro",
+      "via_span": {
+        "start_layer": 1,
+        "end_layer": 2
+      }
+    },
+    {
+      "uuid": "c3d3853f-635e-496b-9397-ba9c96e1f616",
+      "position": {
+        "x": 35.65,
+        "y": 19.3
+      },
+      "diameter": 0.3,
+      "drill": 0.1,
+      "layers": [
+        "In1_GND",
+        "In2_LPDDR5_CA"
+      ],
+      "net": 2,
+      "via_type": "micro",
+      "via_span": {
+        "start_layer": 2,
+        "end_layer": 3
+      }
+    }
+  ],
+  "zones": [],
+  "graphics": [],
+  "texts": []
+}

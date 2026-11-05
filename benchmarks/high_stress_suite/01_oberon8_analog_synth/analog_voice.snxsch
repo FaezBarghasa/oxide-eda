@@ -1,0 +1,96 @@
+format = "snxsch/1"
+schematic_id = "8c68f6f1-70bc-4397-9601-db556721e78d"
+version = 1
+generator = "Oxide EDA"
+generator_version = "1.5.0"
+paper_size = "A3"
+root_sheet_page = "2"
+
+
+[sheets.components]
+content = """
+uuid                                  ref   library  pos_x      pos_y     rotation  value     mpn
+01a1ab77-a762-7d22-b3ca-66ed64705f51  U101  ""       80000000   60000000  0         SSI2130   ""
+01a1ab77-a762-7d22-b3ca-66f632b65758  U102  ""       140000000  60000000  0         SSI2144   ""
+01a1ab77-a762-7d22-b3ca-67002783b2ed  U103  ""       200000000  60000000  0         THAT2180  ""
+"""
+
+[sheets.wires]
+content = """
+uuid                                  net  start_x    start_y   end_x      end_y     stroke_width
+e8e5d5ea-a822-4f7b-bf22-6fa9765cfe78  ""   95000000   60000000  135000000  60000000  0.15
+452283d1-adc7-4169-81c9-0bc88bef5b57  ""   155000000  60000000  195000000  60000000  0.15
+"""
+
+[sheets.junctions]
+content = """
+uuid  pos_x  pos_y  diameter
+"""
+
+[sheets.labels]
+content = """
+uuid  text  pos_x  pos_y  rotation  kind  shape  font_size  justify  justify_v
+"""
+
+[extras.symbols.01a1ab77-a762-7d22-b3ca-66ed64705f51]
+footprint = "Package_SO:TSSOP-30_4.4x7.8mm_P0.5mm"
+datasheet = ""
+mirror_x = false
+mirror_y = false
+unit = 1
+is_power = false
+fields_autoplaced = false
+fields_user_placed = false
+dnp = false
+in_bom = true
+on_board = true
+exclude_from_sim = false
+locked = false
+custom_properties = []
+instances = []
+
+[extras.symbols.01a1ab77-a762-7d22-b3ca-66ed64705f51.fields]
+
+[extras.symbols.01a1ab77-a762-7d22-b3ca-66ed64705f51.pin_uuids]
+
+[extras.symbols.01a1ab77-a762-7d22-b3ca-66f632b65758]
+footprint = "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm"
+datasheet = ""
+mirror_x = false
+mirror_y = false
+unit = 1
+is_power = false
+fields_autoplaced = false
+fields_user_placed = false
+dnp = false
+in_bom = true
+on_board = true
+exclude_from_sim = false
+locked = false
+custom_properties = []
+instances = []
+
+[extras.symbols.01a1ab77-a762-7d22-b3ca-66f632b65758.fields]
+
+[extras.symbols.01a1ab77-a762-7d22-b3ca-66f632b65758.pin_uuids]
+
+[extras.symbols.01a1ab77-a762-7d22-b3ca-67002783b2ed]
+footprint = "Package_SIP:SIP-8_2.54mm_Straight"
+datasheet = ""
+mirror_x = false
+mirror_y = false
+unit = 1
+is_power = false
+fields_autoplaced = false
+fields_user_placed = false
+dnp = false
+in_bom = true
+on_board = true
+exclude_from_sim = false
+locked = false
+custom_properties = []
+instances = []
+
+[extras.symbols.01a1ab77-a762-7d22-b3ca-67002783b2ed.fields]
+
+[extras.symbols.01a1ab77-a762-7d22-b3ca-67002783b2ed.pin_uuids]

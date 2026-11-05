@@ -1,0 +1,80 @@
+format = "snxsch/1"
+schematic_id = "608df84c-41e5-424c-991a-78730c890737"
+version = 1
+generator = "Oxide EDA"
+generator_version = "1.5.0"
+paper_size = "A2"
+root_sheet_page = "1"
+
+
+[sheets.components]
+content = """
+uuid                                  ref  library  pos_x      pos_y     rotation  value   mpn
+01a1ab77-a762-7d22-b3ca-671f3f147284  U1   ""       180000000  50000000  0         MN3007  ""
+"""
+
+[sheets.wires]
+content = """
+uuid  net  start_x  start_y  end_x  end_y  stroke_width
+"""
+
+[sheets.junctions]
+content = """
+uuid  pos_x  pos_y  diameter
+"""
+
+[sheets.labels]
+content = """
+uuid  text  pos_x  pos_y  rotation  kind  shape  font_size  justify  justify_v
+"""
+
+[extras.symbols.01a1ab77-a762-7d22-b3ca-671f3f147284]
+footprint = "Package_DIP:DIP-8_W7.62mm"
+datasheet = ""
+mirror_x = false
+mirror_y = false
+unit = 1
+is_power = false
+fields_autoplaced = false
+fields_user_placed = false
+dnp = false
+in_bom = true
+on_board = true
+exclude_from_sim = false
+locked = false
+custom_properties = []
+instances = []
+
+[extras.symbols.01a1ab77-a762-7d22-b3ca-671f3f147284.fields]
+
+[extras.symbols.01a1ab77-a762-7d22-b3ca-671f3f147284.pin_uuids]
+
+[extras.sheet]
+no_connects = []
+text_notes = []
+buses = []
+bus_entries = []
+drawings = []
+no_erc_directives = []
+
+[[extras.sheet.child_sheets]]
+uuid = "78bb37a9-4123-436c-b028-ff4017372277"
+name = "AnalogVoice"
+filename = "analog_voice.snxsch"
+size = [
+    100.0,
+    60.0,
+]
+stroke_width = 0.2
+fill = "none"
+fields_autoplaced = true
+pins = []
+instances = []
+
+[extras.sheet.child_sheets.position]
+x = 30.0
+y = 40.0
+
+[extras.sheet.title_block]
+
+[extras.sheet.lib_symbols]
