@@ -37,7 +37,7 @@ shrink.
 | `cycle_selection_mode` | Cycle selection mode | select | — | — |
 | `cycle_snap_grid_backward` | Cycle backward through snap grids | view | `Shift+G` | — |
 | `cycle_snap_grid_forward` | Cycle forward through snap grids | view | `G` | — |
-| `cycle_unit` | Cycle display unit | view | `Ctrl+Q` | `Ctrl+Q` |
+| `cycle_unit` | Cycle display unit | view | `Ctrl+Q`, `Q` | `Ctrl+Q` |
 | `cycle_wire_bus_graphic_mode` | Cycle wire/bus/graphic-line mode: free, 90 degrees, 45 degrees | interactive | — | `Shift+Space` |
 | `cycle_wiring_mode` | Change wiring mode while dragging connected electrical objects | interactive | `Ctrl+Space` | — |
 | `delete_selection` | Delete selection | edit | `Delete` | `Delete` |
@@ -68,7 +68,7 @@ shrink.
 | `new_document` | New | file | — | `Ctrl+N` |
 | `next_document_tab` | Next open document tab | window | `Ctrl+Tab` | — |
 | `next_grid` | Next grid | view | — | `N` |
-| `open_command_palette` | Open command palette | commands | `Ctrl+Shift+P` | `Ctrl+Shift+P` |
+| `open_command_palette` | Open command palette | commands | `Ctrl+K`, `Ctrl+Shift+P` | `Ctrl+Shift+P` |
 | `open_datasheet` | Open datasheet | edit | — | `D` |
 | `open_document` | Open document | file | `Ctrl+O` | `Ctrl+O` |
 | `open_grid_picker` | Open grid picker | view | — | — |
@@ -102,7 +102,7 @@ shrink.
 | `show_current_command_shortcuts` | Show valid shortcuts for the current interactive command | help | `Shift+F1` | — |
 | `smart_paste` | Smart Paste | edit | `Ctrl+Shift+V` | — |
 | `switch_segment_posture` | Switch current segment posture | interactive | — | `/` |
-| `toggle_auto_focus` | Toggle AutoFocus | view | `F9` | `F9` |
+| `toggle_auto_focus` | Toggle AutoFocus | view | — | `F9` |
 | `toggle_cross_select_mode` | Toggle Cross Select Mode | select | `Ctrl+Shift+X` | — |
 | `toggle_electrical_grid` | Toggle electrical grid | view | `Shift+E` | — |
 | `toggle_floating_panels` | Toggle floating panels | window | `F4` | — |
@@ -221,7 +221,7 @@ shrink.
 
 | command id | label | category | Altium | Classic |
 | --- | --- | --- | --- | --- |
-| `run_drc` | Run design rule check | validation | — | — |
+| `run_drc` | Run design rule check | validation | `F9` | — |
 
 ## 3D
 

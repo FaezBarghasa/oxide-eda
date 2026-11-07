@@ -305,6 +305,7 @@ impl Oxide {
                     }
                     ContextAction::MirrorX => self.dispatch_edit_message(EditMsg::MirrorSelectedY),
                     ContextAction::MirrorY => self.dispatch_edit_message(EditMsg::MirrorSelectedX),
+                    ContextAction::CrossProbe => self.handle_cross_probe(),
                     ContextAction::ActiveBar(active_bar_action) => {
                         self.handle_active_bar_action(active_bar_action)
                     }

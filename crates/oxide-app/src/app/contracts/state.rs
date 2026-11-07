@@ -21,6 +21,7 @@ pub enum ContextAction {
     RotateSelected,
     MirrorX,
     MirrorY,
+    CrossProbe,
     /// Run an Active Bar action from a context-menu submenu (Place /
     /// Align). Closes both menus and dispatches the action through the
     /// existing Active Bar handler so all the placement / transform

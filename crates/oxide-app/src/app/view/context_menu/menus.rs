@@ -260,10 +260,11 @@ pub(super) fn canvas_menu_entries(
         v.push(DropdownEntry::Separator);
     }
 
-    v.push(dd_disabled(
+    v.push(dd_kb(
         Some(ic::icon_dd_cross_probe(tid)),
         "Cross Probe",
-        None,
+        "X",
+        ContextAction::CrossProbe,
     ));
     v.push(DropdownEntry::Separator);
     v.push(dd_kb(

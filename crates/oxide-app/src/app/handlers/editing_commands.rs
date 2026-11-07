@@ -200,6 +200,69 @@ impl Oxide {
         }
         iced::Task::none()
     }
+
+    pub(crate) fn handle_cross_probe(&mut self) -> iced::Task<Message> {
+        let active_tab_idx = self.document_state.active_tab;
+        let Some(active_tab) = self.document_state.tabs.get(active_tab_idx) else {
+            return iced::Task::none();
+        };
+
+        match &active_tab.kind {
+            TabKind::Schematic => {
+                let ref_opt = if let Some(engine) = self.document_state.active_engine() {
+                    let selected_uuids: Vec<uuid::Uuid> = self
+                        .interaction_state
+                        .active_canvas()
+                        .selected
+                        .iter()
+                        .filter(|item| item.kind == oxide_types::schematic::SelectedKind::Symbol)
+                        .map(|item| item.uuid)
+                        .collect();
+                    engine
+                        .document()
+                        .symbols
+                        .iter()
+                        .find(|s| selected_uuids.contains(&s.uuid))
+                        .map(|s| s.reference.clone())
+                } else {
+                    None
+                };
+
+                if let Some(_target_ref) = ref_opt
+                    && let Some((pcb_idx, pcb_tab)) = self
+                        .document_state
+                        .tabs
+                        .iter()
+                        .enumerate()
+                        .find(|(_, t)| matches!(t.kind, TabKind::Pcb))
+                {
+                    let pcb_path = pcb_tab.path.clone();
+                    self.document_state.active_tab = pcb_idx;
+                    self.document_state.active_path = Some(pcb_path);
+                }
+            }
+            TabKind::Pcb => {
+                if let Some(board) = self.active_pcb()
+                    && let Some(fp) = board.footprints.first()
+                {
+                    let _target_ref = &fp.reference;
+                    if let Some((sch_idx, sch_tab)) = self
+                        .document_state
+                        .tabs
+                        .iter()
+                        .enumerate()
+                        .find(|(_, t)| matches!(t.kind, TabKind::Schematic))
+                    {
+                        let sch_path = sch_tab.path.clone();
+                        self.document_state.active_tab = sch_idx;
+                        self.document_state.active_path = Some(sch_path);
+                    }
+                }
+            }
+            _ => {}
+        }
+        iced::Task::none()
+    }
 }
 
 /// Patch a `SchDrawing` with a single field edit. Mutates a cloned
