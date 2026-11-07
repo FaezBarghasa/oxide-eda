@@ -35,16 +35,16 @@ fn test_router_single_ended_impedance_synthesis() {
     let unconstrained_net = 999;
 
     // 1. Unconstrained net uses default track width (200 µm)
-    assert_eq!(router.get_track_width_for_net(unconstrained_net), 200);
+    assert_eq!(router.get_track_width_for_net(unconstrained_net, 0), 200);
 
     // 2. Set target impedance to 50 Ohm (DDR5 / RF single-ended)
     // On 100 µm dielectric (FR-4 er=4.3, 35 µm copper), 50 Ohm evaluates to ~145-180 µm
     router.set_net_target_impedance(net_50, 50.0);
-    let width_50 = router.get_track_width_for_net(net_50);
+    let width_50 = router.get_track_width_for_net(net_50, 0);
 
     // 3. Set target impedance to 60 Ohm
     router.set_net_target_impedance(net_60, 60.0);
-    let width_60 = router.get_track_width_for_net(net_60);
+    let width_60 = router.get_track_width_for_net(net_60, 0);
 
     // Physical law: higher impedance -> narrower trace width
     assert!(
@@ -97,7 +97,7 @@ fn test_router_differential_impedance_pair_routing() {
     let seg_p = &diff_segments[0];
     let seg_n = &diff_segments[1];
     let center_to_center = (seg_p.start_point.y - seg_n.start_point.y).abs();
-    let edge_to_edge_gap = center_to_center - router.get_track_width_for_net(diff_net);
+    let edge_to_edge_gap = center_to_center - router.get_track_width_for_net(diff_net, 0);
 
     println!(
         "Differential Pair Routing: Target Z_diff=100 Ohm -> Synthesized Edge Gap = {} µm (Center-to-Center = {} µm)",

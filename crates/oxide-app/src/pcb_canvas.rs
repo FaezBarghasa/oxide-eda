@@ -46,6 +46,9 @@ pub struct PcbCanvasState {
     // --- Precision Crosshair Alignment ---
     pub show_large_crosshair: bool,
     pub crosshair_pos: Option<iced::Point>,
+    // --- Altium-Style Layer Visibilities ---
+    pub single_layer_mode: bool,
+    pub active_layer: Option<String>,
 }
 
 pub struct PcbCanvas {
@@ -605,6 +608,17 @@ impl canvas::Program<Message> for PcbCanvas {
                     if state.split_swipe_x <= 0.0 {
                         state.split_swipe_x = bounds.width / 2.0;
                     }
+                    return Some(
+                        canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved))
+                            .and_capture(),
+                    );
+                }
+                // Shift+S: Toggle Altium-Style Single-Layer Mode
+                if let iced::keyboard::Key::Character(c) = key
+                    && c.as_str().eq_ignore_ascii_case("s")
+                    && modifiers.shift()
+                {
+                    state.single_layer_mode = !state.single_layer_mode;
                     return Some(
                         canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved))
                             .and_capture(),

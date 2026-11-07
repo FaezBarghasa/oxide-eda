@@ -151,6 +151,63 @@ pub const DEFAULT_LAYER_COLORS: &[(OxideLayer, [u8; 4])] = &[
     (OxideLayer::KeepOut, [0xFF, 0x00, 0xFF, 0xFF]),   // bright magenta
 ];
 
+/// Resolve a canonical RGBA color `[f32; 4]` for any PCB layer name (case-insensitive)
+/// or layer index.
+pub fn layer_color_rgba(layer_name: &str, layer_index: Option<u8>) -> [f32; 4] {
+    let lower = layer_name.trim().to_ascii_lowercase();
+
+    // Direct name heuristics matching standard Altium and KiCad layer naming
+    if lower == "f.cu" || lower == "topcopper" || lower == "top layer" || lower == "top" {
+        return [0.78, 0.12, 0.12, 1.0]; // High-contrast Top Copper Red
+    }
+    if lower == "b.cu" || lower == "bottomcopper" || lower == "bottom layer" || lower == "bottom" {
+        return [0.12, 0.35, 0.82, 1.0]; // High-contrast Bottom Copper Blue
+    }
+    if lower == "f.silks" || lower == "topsilk" || lower == "top overlay" || lower.contains("silk") && lower.contains("top") {
+        return [0.92, 0.92, 0.20, 1.0]; // Top Silkscreen Yellow
+    }
+    if lower == "b.silks" || lower == "bottomsilk" || lower == "bottom overlay" || lower.contains("silk") && lower.contains("bot") {
+        return [0.65, 0.20, 0.75, 1.0]; // Bottom Silkscreen Purple
+    }
+    if lower == "f.mask" || lower == "topmask" || lower == "top solder" {
+        return [0.75, 0.15, 0.75, 0.55]; // Top Mask semi-transparent
+    }
+    if lower == "b.mask" || lower == "bottommask" || lower == "bottom solder" {
+        return [0.15, 0.75, 0.75, 0.55]; // Bottom Mask semi-transparent
+    }
+    if lower == "edge.cuts" || lower == "boardoutline" || lower == "outline" {
+        return [1.0, 0.85, 0.10, 1.0]; // Edge Cuts Gold
+    }
+    if lower.contains("courtyard") {
+        return [0.70, 0.70, 0.70, 0.90]; // Courtyard grey
+    }
+
+    // Inner copper layers (In1, In2, Mid Layer 1, etc.) or fallback via index
+    let idx = layer_index.unwrap_or_else(|| {
+        if let Some(pos) = lower.find("in") {
+            let digits: String = lower[pos + 2..].chars().take_while(|c| c.is_ascii_digit()).collect();
+            digits.parse::<u8>().unwrap_or(1)
+        } else if let Some(pos) = lower.find("mid") {
+            let digits: String = lower[pos + 3..].chars().filter(|c| c.is_ascii_digit()).collect();
+            digits.parse::<u8>().unwrap_or(1)
+        } else {
+            1
+        }
+    });
+
+    // Cyclic high-contrast inner copper layer palette
+    match idx % 8 {
+        0 => [0.85, 0.55, 0.20, 1.0], // Amber
+        1 => [0.18, 0.75, 0.45, 1.0], // Emerald Green
+        2 => [0.92, 0.40, 0.15, 1.0], // Orange
+        3 => [0.20, 0.75, 0.85, 1.0], // Cyan
+        4 => [0.85, 0.20, 0.65, 1.0], // Pink/Magenta
+        5 => [0.60, 0.45, 0.85, 1.0], // Violet
+        6 => [0.75, 0.75, 0.20, 1.0], // Lime
+        _ => [0.45, 0.80, 0.35, 1.0], // Light olive
+    }
+}
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------

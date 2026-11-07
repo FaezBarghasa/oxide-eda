@@ -1,8 +1,8 @@
-//! Live Ratsnest & Unrouted Connectivity Engine (Phase 1.6).
+//! Live Ratsnest & Unrouted Connectivity Engine (Phase 1.6 & Phase 2).
 //!
 //! Calculates minimal spanning trees (MST) of unrouted connections for all
 //! pads sharing identical net IDs on a PCB layout, accounting for routed
-//! copper segments and vias.
+//! copper segments and vias using true 3D multi-layer Union-Find connectivity.
 
 use oxide_types::pcb::{PcbBoard, Point};
 use serde::{Deserialize, Serialize};
@@ -17,25 +17,55 @@ pub struct RatsnestLine {
     pub distance: f64,
 }
 
+/// Quantized point key for spatial hashing (1 µm grid).
+type SpatialKey = (i64, i64);
+
+fn quantize_pt(p: Point) -> SpatialKey {
+    ((p.x * 1000.0).round() as i64, (p.y * 1000.0).round() as i64)
+}
+
+fn rotate_point(p: Point, deg: f64) -> Point {
+    let rad = deg.to_radians();
+    let cos_a = rad.cos();
+    let sin_a = rad.sin();
+    Point {
+        x: p.x * cos_a - p.y * sin_a,
+        y: p.x * sin_a + p.y * cos_a,
+    }
+}
+
 /// Ratsnest calculation engine.
 pub struct RatsnestEngine;
 
 impl RatsnestEngine {
     /// Compute all unrouted ratsnest lines for a given PCB layout,
-    /// accounting for routed copper track segments connecting pad terminals.
+    /// accounting for routed copper track segments and vias connecting pad terminals
+    /// across arbitrary multi-segment and multi-layer topologies.
     pub fn compute_ratsnest(board: &PcbBoard) -> Vec<RatsnestLine> {
+        // 1. Collect all pad absolute positions grouped by net
+        // Key: Net ID -> Vec<(Pad Absolute Position, Pad Index)>
         let mut net_pads: HashMap<u32, Vec<Point>> = HashMap::new();
 
-        // 1. Collect all pad positions grouped by assigned Net Number (ignoring Net 0 / unconnected)
         for fp in &board.footprints {
+            let fp_rot = fp.rotation;
+            let fp_pos = fp.position;
+            let is_bottom = fp.layer.to_ascii_lowercase().contains("bottom")
+                || fp.layer.to_ascii_lowercase() == "b.cu";
+
             for pad in &fp.pads {
                 #[allow(clippy::collapsible_if)]
                 if let Some(ref pad_net) = pad.net {
                     if pad_net.number > 0 {
-                        // Pad absolute position is Footprint origin + Pad local offset
+                        // Apply bottom-side X-mirroring if on bottom layer, then rotate by footprint rotation
+                        let mut local_x = pad.position.x;
+                        let local_y = pad.position.y;
+                        if is_bottom {
+                            local_x = -local_x;
+                        }
+                        let rotated = rotate_point(Point { x: local_x, y: local_y }, fp_rot);
                         let abs_pos = Point {
-                            x: fp.position.x + pad.position.x,
-                            y: fp.position.y + pad.position.y,
+                            x: fp_pos.x + rotated.x,
+                            y: fp_pos.y + rotated.y,
                         };
                         net_pads.entry(pad_net.number).or_default().push(abs_pos);
                     }
@@ -43,52 +73,148 @@ impl RatsnestEngine {
             }
         }
 
-        // 2. Identify pads that already have connecting copper segments on the same net
-        let mut net_segments: HashMap<u32, Vec<(&Point, &Point)>> = HashMap::new();
-        for seg in &board.segments {
-            if seg.net > 0 {
-                net_segments
-                    .entry(seg.net)
-                    .or_default()
-                    .push((&seg.start, &seg.end));
-            }
-        }
-
         let mut lines = Vec::new();
 
-        // 3. Compute unrouted edges per Net
-        for (net_num, points) in net_pads {
-            if points.len() < 2 {
+        // 2. Process each net independently
+        for (net_num, pads) in net_pads {
+            if pads.len() < 2 {
                 continue;
             }
 
-            let mst_edges = Self::compute_mst(&points);
-            let routed_segs = net_segments.get(&net_num);
+            // Build a union-find graph over all copper vertices on this net
+            let mut uf: HashMap<SpatialKey, SpatialKey> = HashMap::new();
 
-            for (p1, p2, dist) in mst_edges {
-                // Check if an existing segment touches both terminals or bridges them
-                let is_routed = routed_segs.is_some_and(|segs| {
-                    segs.iter().any(|(s, e)| {
-                        let touches_p1 = (s.x - p1.x).hypot(s.y - p1.y) < 0.25
-                            || (e.x - p1.x).hypot(e.y - p1.y) < 0.25;
-                        let touches_p2 = (s.x - p2.x).hypot(s.y - p2.y) < 0.25
-                            || (e.x - p2.x).hypot(e.y - p2.y) < 0.25;
-                        touches_p1 && touches_p2
-                    })
-                });
-
-                if !is_routed {
-                    lines.push(RatsnestLine {
-                        net_number: net_num,
-                        start: p1,
-                        end: p2,
-                        distance: dist,
-                    });
+            // Insert segments for this net
+            for seg in &board.segments {
+                if seg.net == net_num {
+                    let k_start = quantize_pt(seg.start);
+                    let k_end = quantize_pt(seg.end);
+                    crate::uf::union(&mut uf, k_start, k_end);
                 }
+            }
+
+            // Insert vias for this net (via bridges layers at its position)
+            for via in &board.vias {
+                if via.net == net_num {
+                    let k_via = quantize_pt(via.position);
+                    crate::uf::find(&mut uf, k_via);
+                }
+            }
+
+            // Find closest copper node in UF for each pad within tolerance (0.4 mm)
+            let mut pad_roots: Vec<Option<SpatialKey>> = Vec::with_capacity(pads.len());
+            let uf_nodes: Vec<SpatialKey> = uf.keys().copied().collect();
+
+            for pad_pt in &pads {
+                let mut best_root = None;
+                let mut best_dist = 0.40; // 400 µm touch radius
+
+                let pad_k = quantize_pt(*pad_pt);
+                if uf.contains_key(&pad_k) {
+                    best_root = Some(crate::uf::find(&mut uf, pad_k));
+                } else {
+                    let mut closest_node = None;
+                    for node in &uf_nodes {
+                        let nx = node.0 as f64 / 1000.0;
+                        let ny = node.1 as f64 / 1000.0;
+                        let dist = (nx - pad_pt.x).hypot(ny - pad_pt.y);
+                        if dist < best_dist {
+                            best_dist = dist;
+                            closest_node = Some(*node);
+                        }
+                    }
+                    if let Some(cn) = closest_node {
+                        best_root = Some(crate::uf::find(&mut uf, cn));
+                    }
+                }
+                pad_roots.push(best_root);
+            }
+
+            // Group pads into connected component clusters (islands)
+            // Island ID -> Vec<Point>
+            let mut island_map: HashMap<usize, Vec<Point>> = HashMap::new();
+            let mut next_island_id = 0usize;
+            let mut root_to_island: HashMap<SpatialKey, usize> = HashMap::new();
+
+            for (pad_idx, pad_pt) in pads.iter().enumerate() {
+                if let Some(r) = pad_roots[pad_idx] {
+                    let island_id = *root_to_island.entry(r).or_insert_with(|| {
+                        let id = next_island_id;
+                        next_island_id += 1;
+                        id
+                    });
+                    island_map.entry(island_id).or_default().push(*pad_pt);
+                } else {
+                    // Isolated pad (no copper touching) -> its own unique island
+                    let island_id = next_island_id;
+                    next_island_id += 1;
+                    island_map.entry(island_id).or_default().push(*pad_pt);
+                }
+            }
+
+            // If all pads belong to the same island, net is 100% routed
+            if island_map.len() <= 1 {
+                continue;
+            }
+
+            // Run MST across the disjoint islands
+            let islands: Vec<Vec<Point>> = island_map.into_values().collect();
+            let island_edges = Self::compute_island_mst(&islands);
+
+            for (p1, p2, dist) in island_edges {
+                lines.push(RatsnestLine {
+                    net_number: net_num,
+                    start: p1,
+                    end: p2,
+                    distance: dist,
+                });
             }
         }
 
         lines
+    }
+
+    /// Compute MST across disjoint component islands, picking the shortest Euclidean pair between islands.
+    fn compute_island_mst(islands: &[Vec<Point>]) -> Vec<(Point, Point, f64)> {
+        let n = islands.len();
+        if n < 2 {
+            return Vec::new();
+        }
+
+        let mut edges = Vec::with_capacity(n - 1);
+        let mut visited = HashSet::new();
+        visited.insert(0);
+
+        while visited.len() < n {
+            let mut min_dist = f64::MAX;
+            let mut best_pair = (islands[0][0], islands[0][0]);
+            let mut best_v = 0;
+
+            for &u in &visited {
+                for v in 0..n {
+                    if !visited.contains(&v) {
+                        // Find minimum distance between any pad in island u and any pad in island v
+                        for pu in &islands[u] {
+                            for pv in &islands[v] {
+                                let dx = pu.x - pv.x;
+                                let dy = pu.y - pv.y;
+                                let dist = (dx * dx + dy * dy).sqrt();
+                                if dist < min_dist {
+                                    min_dist = dist;
+                                    best_pair = (*pu, *pv);
+                                    best_v = v;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            visited.insert(best_v);
+            edges.push((best_pair.0, best_pair.1, min_dist));
+        }
+
+        edges
     }
 
     /// Compute the overall ratsnest routing completion ratio (0.0 to 1.0).
@@ -124,44 +250,6 @@ impl RatsnestEngine {
         } else {
             (total_required_connections - unrouted) as f64 / total_required_connections as f64
         }
-    }
-
-    /// Compute Minimum Spanning Tree across points using Prim's algorithm.
-    fn compute_mst(points: &[Point]) -> Vec<(Point, Point, f64)> {
-        let n = points.len();
-        if n < 2 {
-            return Vec::new();
-        }
-
-        let mut edges = Vec::with_capacity(n - 1);
-        let mut visited = HashSet::new();
-        visited.insert(0);
-
-        while visited.len() < n {
-            let mut min_dist = f64::MAX;
-            let mut best_u = 0;
-            let mut best_v = 0;
-
-            for &u in &visited {
-                for v in 0..n {
-                    if !visited.contains(&v) {
-                        let dx = points[u].x - points[v].x;
-                        let dy = points[u].y - points[v].y;
-                        let dist = (dx * dx + dy * dy).sqrt();
-                        if dist < min_dist {
-                            min_dist = dist;
-                            best_u = u;
-                            best_v = v;
-                        }
-                    }
-                }
-            }
-
-            visited.insert(best_v);
-            edges.push((points[best_u], points[best_v], min_dist));
-        }
-
-        edges
     }
 }
 

@@ -49,6 +49,7 @@ pub struct InteractiveRouter {
     pub push_engine: PushAndShoveEngine,
     pub target_impedance: HashMap<NetId, f64>,
     pub target_diff_impedance: HashMap<NetId, f64>,
+    pub stackup: Option<oxide_physics::stackup::LayerStackup>,
 }
 
 impl InteractiveRouter {
@@ -61,7 +62,13 @@ impl InteractiveRouter {
             push_engine: PushAndShoveEngine::default(),
             target_impedance: HashMap::new(),
             target_diff_impedance: HashMap::new(),
+            stackup: None,
         }
+    }
+
+    pub fn with_stackup(mut self, stackup: oxide_physics::stackup::LayerStackup) -> Self {
+        self.stackup = Some(stackup);
+        self
     }
 
     /// Set target characteristic impedance (Ohms) for single-ended net routing.
@@ -81,7 +88,7 @@ impl InteractiveRouter {
         net_id: NetId,
         layer: LayerId,
     ) -> Result<(), RoutingError> {
-        let track_width = self.get_track_width_for_net(net_id);
+        let track_width = self.get_track_width_for_net(net_id, layer);
         self.session = Some(session::RoutingSession {
             current_net: net_id,
             current_position: start_point,
@@ -231,7 +238,7 @@ impl InteractiveRouter {
 
     /// Route a complete net from start to target.
     pub fn route_net(&mut self, net_id: NetId, start: Point2D, target: Point2D) -> RoutingResult {
-        let width = self.get_track_width_for_net(net_id);
+        let width = self.get_track_width_for_net(net_id, 0);
         let segments = self.walk_around_route(start, target, net_id, 0, width);
         let total_length = segments.iter().map(|s| s.length()).sum();
 
@@ -392,15 +399,34 @@ impl InteractiveRouter {
         layer: LayerId,
         width: Microns,
     ) -> Vec<RouteSegment> {
+        let (dielectric_h, copper_t, er) = if let Some(st) = &self.stackup {
+            let copper_indices = st.copper_layer_indices();
+            let copper_idx = copper_indices
+                .get(layer as usize)
+                .copied()
+                .unwrap_or(0);
+            let ref_plane = st.get_reference_plane(copper_idx);
+            let h = ref_plane
+                .and_then(|rp| st.get_dielectric_height_to_plane(copper_idx, rp))
+                .unwrap_or(100);
+            let t = st.layers.get(copper_idx).map(|l| l.thickness).unwrap_or(35);
+            let effective_er = ref_plane
+                .and_then(|rp| st.get_effective_er_between(copper_idx, rp))
+                .unwrap_or(4.3);
+            (h, t, effective_er)
+        } else {
+            (100, 35, 4.3)
+        };
+
         let gap = if let Some(&target_zdiff) = self.target_diff_impedance.get(&net_id) {
-            // Synthesize differential spacing using SI field solver
+            // Synthesize differential spacing using SI field solver with real stackup
             let single_z0 =
-                oxide_physics::ImpedanceCalculator::calculate_microstrip(width, 100, 35, 4.3);
+                oxide_physics::ImpedanceCalculator::calculate_microstrip(width, dielectric_h, copper_t, er);
             let mut best_s = 150;
             let mut min_err = f64::MAX;
             for s_cand in (50..=400).step_by(10) {
                 let z_diff = oxide_physics::ImpedanceCalculator::calculate_differential_microstrip(
-                    single_z0, s_cand, 100,
+                    single_z0, s_cand, dielectric_h,
                 );
                 let err = (z_diff - target_zdiff).abs();
                 if err < min_err {
@@ -685,12 +711,32 @@ impl InteractiveRouter {
         segments
     }
 
-    pub fn get_track_width_for_net(&self, net_id: NetId) -> Microns {
+    pub fn get_track_width_for_net(&self, net_id: NetId, layer: LayerId) -> Microns {
+        let (dielectric_h, copper_t, er) = if let Some(st) = &self.stackup {
+            let copper_indices = st.copper_layer_indices();
+            let copper_idx = copper_indices
+                .get(layer as usize)
+                .copied()
+                .unwrap_or(0);
+            let ref_plane = st.get_reference_plane(copper_idx);
+            let h = ref_plane
+                .and_then(|rp| st.get_dielectric_height_to_plane(copper_idx, rp))
+                .unwrap_or(100);
+            let t = st.layers.get(copper_idx).map(|l| l.thickness).unwrap_or(35);
+            let effective_er = ref_plane
+                .and_then(|rp| st.get_effective_er_between(copper_idx, rp))
+                .unwrap_or(4.3);
+            (h, t, effective_er)
+        } else {
+            (100, 35, 4.3)
+        };
+
         if let Some(&target_z0) = self.target_impedance.get(&net_id)
             && let Some(width_um) = oxide_physics::ImpedanceCalculator::solve_microstrip_width(
-                target_z0, 100, // 100 µm dielectric height
-                35,  // 35 µm copper thickness (1 oz)
-                4.3, // FR-4 dielectric constant
+                target_z0,
+                dielectric_h,
+                copper_t,
+                er,
             )
         {
             return width_um;

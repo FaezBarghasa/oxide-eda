@@ -637,11 +637,19 @@ fn test_generate_and_verify_high_stress_titan_sbc_12layer() {
     }
 
     // DDR5 Clock Differential Pair (100Ω impedance, 0.15mm width, 0.8mm center spacing)
-    // Connects SoC (36.5, 23.6) & (36.5, 24.4) to LPDDR5 RAM boundary (25.0, 23.6) & (25.0, 24.4)
+    // Connects SoC (36.5, 23.6) & (36.5, 24.4) to LPDDR5 RAM pad (21.625, 27.025) & (22.275, 27.025)
     board.segments.push(Segment {
         uuid: Uuid::new_v4(),
         start: Point::new(36.5, 23.6),
-        end: Point::new(25.0, 23.6),
+        end: Point::new(21.625, 23.6),
+        width: 0.15,
+        layer: "TopCopper".to_string(),
+        net: 7, // DDR5_CK_P
+    });
+    board.segments.push(Segment {
+        uuid: Uuid::new_v4(),
+        start: Point::new(21.625, 23.6),
+        end: Point::new(21.625, 27.025),
         width: 0.15,
         layer: "TopCopper".to_string(),
         net: 7, // DDR5_CK_P
@@ -649,7 +657,15 @@ fn test_generate_and_verify_high_stress_titan_sbc_12layer() {
     board.segments.push(Segment {
         uuid: Uuid::new_v4(),
         start: Point::new(36.5, 24.4),
-        end: Point::new(25.0, 24.4),
+        end: Point::new(22.275, 24.4),
+        width: 0.15,
+        layer: "TopCopper".to_string(),
+        net: 8, // DDR5_CK_N
+    });
+    board.segments.push(Segment {
+        uuid: Uuid::new_v4(),
+        start: Point::new(22.275, 24.4),
+        end: Point::new(22.275, 27.025),
         width: 0.15,
         layer: "TopCopper".to_string(),
         net: 8, // DDR5_CK_N
@@ -785,6 +801,11 @@ fn test_generate_and_verify_high_stress_titan_sbc_12layer() {
     let completion = oxide_net::RatsnestEngine::routing_completion_ratio(&parsed_board);
     println!(
         "[Ratsnest Verified] Multi-layer routing completion: {:.2}%",
+        completion * 100.0
+    );
+    assert!(
+        completion > 0.0,
+        "Multi-layer 3D union-find ratsnest must detect completion for routed differential pairs (got {:.2}%)",
         completion * 100.0
     );
 

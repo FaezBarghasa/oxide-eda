@@ -30,6 +30,9 @@ pub struct TraceInput {
     pub p1: [f32; 2],
     pub width_mm: f32,
     pub net: u32,
+    pub layer_id: u8,
+    pub layer_name: String,
+    pub selected: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -38,6 +41,8 @@ pub struct ViaInput {
     pub diameter_mm: f32,
     pub drill_mm: f32,
     pub net: u32,
+    pub layers: Vec<String>,
+    pub selected: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -46,6 +51,29 @@ pub struct PadInput {
     pub size_mm: [f32; 2],
     pub shape: PadShape,
     pub pad_type: PadType,
+    pub rotation_deg: f32,
+    pub layers: Vec<String>,
+    pub net_name: Option<String>,
+    pub pad_number: String,
+    pub selected: bool,
+}
+
+#[derive(Clone, Debug)]
+pub struct PcbGraphicInput {
+    pub vertices: Vec<[f32; 2]>,
+    pub width_mm: f32,
+    pub layer_name: String,
+    pub filled: bool,
+    pub is_closed: bool,
+}
+
+#[derive(Clone, Debug)]
+pub struct PcbTextInput {
+    pub text: String,
+    pub position: [f32; 2],
+    pub font_size_mm: f32,
+    pub rotation_deg: f32,
+    pub layer_name: String,
 }
 
 #[derive(Clone, Debug)]
@@ -81,20 +109,84 @@ pub struct PcbSnapshot {
     pub pads: Vec<PadInput>,
     pub zones: Vec<ZonePolygonInput>,
     pub rule_areas: Vec<ZonePolygonInput>,
+    pub graphics: Vec<PcbGraphicInput>,
+    pub texts: Vec<PcbTextInput>,
     pub ratsnest_lines: Vec<RatsnestInput>,
     pub drc_markers: Vec<DrcMarkerInput>,
+    pub active_layer: Option<String>,
+    pub single_layer_mode: bool,
 }
 
 impl PcbSnapshot {
     pub fn from_board(board: &PcbBoard) -> Self {
-        let traces = board.segments.iter().map(trace_from_segment).collect();
-        let vias = board.vias.iter().map(via_from_board_via).collect();
         let layer_ranks = layer_rank_index(board);
+        let traces = board
+            .segments
+            .iter()
+            .map(|s| trace_from_segment(s, &layer_ranks))
+            .collect();
+        let vias = board.vias.iter().map(via_from_board_via).collect();
 
         let mut pads = Vec::new();
+        let mut graphics = Vec::new();
+        let mut texts = Vec::new();
+
+        // 1. Board-level outline, graphics, and texts
+        if board.outline.len() >= 3 {
+            graphics.push(PcbGraphicInput {
+                vertices: board.outline.iter().map(|p| point_to_xy(*p)).collect(),
+                width_mm: 0.15,
+                layer_name: "Edge.Cuts".to_string(),
+                filled: false,
+                is_closed: true,
+            });
+        }
+
+        for bg in &board.graphics {
+            if let Some(gi) = graphic_from_board_graphic(bg) {
+                graphics.push(gi);
+            }
+        }
+
+        for bt in &board.texts {
+            texts.push(PcbTextInput {
+                text: bt.text.clone(),
+                position: point_to_xy(bt.position),
+                font_size_mm: if bt.font_size > 0.0 { bt.font_size as f32 } else { 1.2 },
+                rotation_deg: bt.rotation as f32,
+                layer_name: bt.layer.clone(),
+            });
+        }
+
+        // 2. Footprint pads, silkscreen graphics, and reference designators
         for footprint in &board.footprints {
             for pad in &footprint.pads {
                 pads.push(pad_from_footprint(footprint, pad));
+            }
+
+            for fg in &footprint.graphics {
+                if let Some(gi) = graphic_from_fp_graphic(footprint, fg) {
+                    graphics.push(gi);
+                }
+            }
+
+            if !footprint.reference.is_empty() {
+                texts.push(PcbTextInput {
+                    text: footprint.reference.clone(),
+                    position: [
+                        footprint.position.x as f32,
+                        (footprint.position.y - 1.2) as f32,
+                    ],
+                    font_size_mm: 1.0,
+                    rotation_deg: footprint.rotation as f32,
+                    layer_name: if footprint.layer.to_ascii_lowercase().contains("bottom")
+                        || footprint.layer.to_ascii_lowercase() == "b.cu"
+                    {
+                        "B.SilkS".to_string()
+                    } else {
+                        "F.SilkS".to_string()
+                    },
+                });
             }
         }
 
@@ -120,8 +212,12 @@ impl PcbSnapshot {
             pads,
             zones,
             rule_areas,
+            graphics,
+            texts,
             ratsnest_lines: Vec::new(),
             drc_markers: Vec::new(),
+            active_layer: None,
+            single_layer_mode: false,
         }
     }
 
@@ -132,6 +228,12 @@ impl PcbSnapshot {
 
     pub fn with_drc_markers(mut self, drc_markers: Vec<DrcMarkerInput>) -> Self {
         self.drc_markers = drc_markers;
+        self
+    }
+
+    pub fn with_active_layer(mut self, layer: Option<String>, single_layer_mode: bool) -> Self {
+        self.active_layer = layer;
+        self.single_layer_mode = single_layer_mode;
         self
     }
 }

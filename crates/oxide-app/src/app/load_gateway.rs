@@ -208,9 +208,76 @@ impl Oxide {
     }
 
     pub(crate) fn sync_pcb_canvas_from_visible_board(&mut self) {
-        let renderer_snapshot = self
-            .active_pcb()
-            .map(oxide_renderer::pcb::PcbSnapshot::from_board);
+        let renderer_snapshot = self.active_pcb().map(|board| {
+            let mut snapshot = oxide_renderer::pcb::PcbSnapshot::from_board(board);
+
+            // 1. Live Ratsnest lines from 3D multi-point / MST connectivity
+            let ratsnest_lines: Vec<oxide_renderer::pcb::RatsnestInput> =
+                oxide_net::RatsnestEngine::compute_ratsnest(board)
+                    .into_iter()
+                    .map(|r| oxide_renderer::pcb::RatsnestInput {
+                        p0: [r.start.x as f32, r.start.y as f32],
+                        p1: [r.end.x as f32, r.end.y as f32],
+                        net: r.net_number,
+                    })
+                    .collect();
+            snapshot = snapshot.with_ratsnest_lines(ratsnest_lines);
+
+            // 2. Active DRC violation markers from panel context
+            let drc_markers: Vec<oxide_renderer::pcb::DrcMarkerInput> = self
+                .document_state
+                .panel_ctx
+                .drc_violations
+                .iter()
+                .filter_map(|v| {
+                    v.location.map(|(lx, ly)| {
+                        let drc_type = match v.violation_type {
+                            oxide_rules::RuleViolationType::ClearanceViolation => {
+                                oxide_types::violation::DrcViolationType::Clearance
+                            }
+                            oxide_rules::RuleViolationType::WidthTooSmall
+                            | oxide_rules::RuleViolationType::WidthTooLarge => {
+                                oxide_types::violation::DrcViolationType::MinTrackWidth
+                            }
+                            oxide_rules::RuleViolationType::ViaDrillTooSmall => {
+                                oxide_types::violation::DrcViolationType::MinViaDrill
+                            }
+                            oxide_rules::RuleViolationType::ViaDiameterTooSmall => {
+                                oxide_types::violation::DrcViolationType::MinViaDiameter
+                            }
+                            oxide_rules::RuleViolationType::HoleToHoleTooSmall => {
+                                oxide_types::violation::DrcViolationType::MinHoleToHole
+                            }
+                            oxide_rules::RuleViolationType::AnnularRingTooSmall => {
+                                oxide_types::violation::DrcViolationType::MinAnnularRing
+                            }
+                            oxide_rules::RuleViolationType::AcidTrapViolation => {
+                                oxide_types::violation::DrcViolationType::AcidTrap
+                            }
+                            oxide_rules::RuleViolationType::CopperSliverViolation => {
+                                oxide_types::violation::DrcViolationType::CopperSliver
+                            }
+                            _ => oxide_types::violation::DrcViolationType::Clearance,
+                        };
+
+                        oxide_renderer::pcb::DrcMarkerInput {
+                            center: [lx as f32, ly as f32],
+                            radius_mm: 0.8,
+                            severity: oxide_types::violation::Severity::Error,
+                            violation_type: Some(drc_type),
+                        }
+                    })
+                })
+                .collect();
+            snapshot = snapshot.with_drc_markers(drc_markers);
+
+            // 3. Preserve active layer and single-layer mode if previously configured
+            if let Some(existing) = self.interaction_state.pcb_canvas.active_renderer_snapshot() {
+                snapshot = snapshot.with_active_layer(existing.active_layer.clone(), existing.single_layer_mode);
+            }
+
+            snapshot
+        });
 
         self.interaction_state
             .pcb_canvas

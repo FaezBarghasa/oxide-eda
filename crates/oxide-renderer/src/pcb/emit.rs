@@ -2,12 +2,21 @@
 
 use super::*;
 
-pub(super) fn trace_from_segment(segment: &Segment) -> TraceInput {
+pub(super) fn trace_from_segment(segment: &Segment, layer_ranks: &HashMap<String, u16>) -> TraceInput {
+    let layer_name = segment.layer.clone();
+    let layer_id = layer_ranks
+        .get(&layer_name.to_ascii_lowercase())
+        .copied()
+        .unwrap_or(0) as u8;
+
     TraceInput {
         p0: point_to_xy(segment.start),
         p1: point_to_xy(segment.end),
         width_mm: mm_with_floor(segment.width, PCB_DEFAULT_TRACE_WIDTH_MM, PCB_TRACK_MIN_MM),
         net: segment.net,
+        layer_id,
+        layer_name,
+        selected: false,
     }
 }
 
@@ -21,6 +30,8 @@ pub(super) fn via_from_board_via(via: &Via) -> ViaInput {
         ),
         drill_mm: mm_with_floor(via.drill, PCB_DEFAULT_VIA_DRILL_MM, PCB_VIA_MIN_DRILL_MM),
         net: via.net,
+        layers: via.layers.clone(),
+        selected: false,
     }
 }
 
@@ -40,7 +51,94 @@ pub(super) fn pad_from_footprint(footprint: &Footprint, pad: &Pad) -> PadInput {
         ],
         shape: pad.shape,
         pad_type: pad.pad_type,
+        rotation_deg: footprint.rotation as f32,
+        layers: if pad.layers.is_empty() {
+            vec![footprint.layer.clone()]
+        } else {
+            pad.layers.clone()
+        },
+        net_name: pad.net.as_ref().map(|n| n.name.clone()),
+        pad_number: pad.number.clone(),
+        selected: false,
     }
+}
+
+pub(super) fn graphic_from_board_graphic(bg: &oxide_types::pcb::BoardGraphic) -> Option<PcbGraphicInput> {
+    let mut vertices = Vec::new();
+    let mut is_closed = false;
+
+    if !bg.points.is_empty() {
+        vertices = bg.points.iter().map(|p| point_to_xy(*p)).collect();
+        is_closed = bg.graphic_type.to_ascii_lowercase().contains("poly")
+            || bg.graphic_type.to_ascii_lowercase().contains("rect");
+    } else if let (Some(s), Some(e)) = (bg.start, bg.end) {
+        vertices = vec![point_to_xy(s), point_to_xy(e)];
+    } else if let Some(c) = bg.center {
+        let r = bg.radius.max(0.1) as f32;
+        let c_xy = point_to_xy(c);
+        let count = 24;
+        for i in 0..count {
+            let theta = (i as f32 / count as f32) * std::f32::consts::TAU;
+            vertices.push([c_xy[0] + r * theta.cos(), c_xy[1] + r * theta.sin()]);
+        }
+        is_closed = true;
+    }
+
+    if vertices.len() < 2 {
+        return None;
+    }
+
+    Some(PcbGraphicInput {
+        vertices,
+        width_mm: if bg.width > 0.0 { bg.width as f32 } else { 0.15 },
+        layer_name: bg.layer.clone(),
+        filled: is_closed && bg.graphic_type.to_ascii_lowercase().contains("fill"),
+        is_closed,
+    })
+}
+
+pub(super) fn graphic_from_fp_graphic(
+    footprint: &Footprint,
+    fg: &oxide_types::pcb::FpGraphic,
+) -> Option<PcbGraphicInput> {
+    let origin = point_to_xy(footprint.position);
+    let rot = footprint.rotation as f32;
+    let transform = |p: Point| -> [f32; 2] {
+        let rotated = rotate_local(point_to_xy(p), rot);
+        [origin[0] + rotated[0], origin[1] + rotated[1]]
+    };
+
+    let mut vertices = Vec::new();
+    let mut is_closed = false;
+
+    if !fg.points.is_empty() {
+        vertices = fg.points.iter().map(|p| transform(*p)).collect();
+        is_closed = fg.graphic_type.to_ascii_lowercase().contains("poly")
+            || fg.graphic_type.to_ascii_lowercase().contains("rect");
+    } else if let (Some(s), Some(e)) = (fg.start, fg.end) {
+        vertices = vec![transform(s), transform(e)];
+    } else if let Some(c) = fg.center {
+        let c_trans = transform(c);
+        let r = fg.radius.max(0.1) as f32;
+        let count = 24;
+        for i in 0..count {
+            let theta = (i as f32 / count as f32) * std::f32::consts::TAU;
+            vertices.push([c_trans[0] + r * theta.cos(), c_trans[1] + r * theta.sin()]);
+        }
+        is_closed = true;
+    }
+
+    if vertices.len() < 2 {
+        return None;
+    }
+
+    Some(PcbGraphicInput {
+        vertices,
+        width_mm: if fg.width > 0.0 { fg.width as f32 } else { 0.12 },
+        layer_name: fg.layer.clone(),
+        filled: is_closed && fg.fill.to_ascii_lowercase().contains("fill"),
+        is_closed,
+    })
 }
 
 pub(super) fn zone_from_board_zone(
@@ -163,7 +261,7 @@ pub(super) fn pad_vertices(pad: &PadInput) -> Vec<[f32; 2]> {
     let half_w = (pad.size_mm[0] * 0.5).max(0.01);
     let half_h = (pad.size_mm[1] * 0.5).max(0.01);
 
-    match pad.shape {
+    let raw_vertices = match pad.shape {
         PadShape::Circle => ellipse_vertices(
             pad.center,
             [half_w.min(half_h), half_w.min(half_h)],
@@ -173,6 +271,26 @@ pub(super) fn pad_vertices(pad: &PadInput) -> Vec<[f32; 2]> {
         PadShape::Rect | PadShape::RoundRect | PadShape::Trapezoid | PadShape::Custom => {
             rectangle_vertices(pad.center, pad.size_mm)
         }
+    };
+
+    // If pad rotation is non-zero, rotate around pad.center
+    if pad.rotation_deg.abs() > 0.001 && pad.shape != PadShape::Circle {
+        let angle = pad.rotation_deg.to_radians();
+        let cos_a = angle.cos();
+        let sin_a = angle.sin();
+        raw_vertices
+            .into_iter()
+            .map(|v| {
+                let dx = v[0] - pad.center[0];
+                let dy = v[1] - pad.center[1];
+                [
+                    pad.center[0] + dx * cos_a - dy * sin_a,
+                    pad.center[1] + dx * sin_a + dy * cos_a,
+                ]
+            })
+            .collect()
+    } else {
+        raw_vertices
     }
 }
 
@@ -193,14 +311,37 @@ pub(super) fn emit_traces(snapshot: &PcbSnapshot, theme: &ResolvedTheme, scene: 
     scene.lines.clear();
     scene.lines.reserve(snapshot.traces.len());
 
-    let trace_color = theme.color(ColorSlot::Wire);
+    let default_trace_color = theme.color(ColorSlot::Wire);
 
     for trace in &snapshot.traces {
+        let is_active_layer = snapshot
+            .active_layer
+            .as_ref()
+            .map(|l| l.eq_ignore_ascii_case(&trace.layer_name))
+            .unwrap_or(true);
+
+        if snapshot.single_layer_mode && !is_active_layer {
+            continue;
+        }
+
+        let mut color = oxide_types::layer::layer_color_rgba(&trace.layer_name, Some(trace.layer_id));
+        // Fallback to theme Wire color if alpha is zero or unknown
+        if color[3] == 0.0 {
+            color = default_trace_color;
+        }
+
+        // Single-layer or active layer dimming
+        if let Some(active) = &snapshot.active_layer {
+            if !active.eq_ignore_ascii_case(&trace.layer_name) {
+                color[3] *= 0.25; // Altium-style inactive layer dimming
+            }
+        }
+
         scene.lines.push(LineSegment {
             p0: trace.p0,
             p1: trace.p1,
             width: trace.width_mm,
-            color: trace_color,
+            color,
             style: trace.net,
             _pad: 0,
         });
@@ -232,19 +373,42 @@ pub(super) fn emit_static_polygons(
     scene: &mut Scene,
 ) {
     scene.polygons.clear();
-    scene
-        .polygons
-        .reserve(snapshot.pads.len() + snapshot.zones.len() + snapshot.rule_areas.len());
+    scene.polygons.reserve(
+        snapshot.pads.len()
+            + snapshot.zones.len()
+            + snapshot.rule_areas.len()
+            + snapshot.graphics.len(),
+    );
 
     let base_fill = theme.color(ColorSlot::Pin);
     let stroke_color = theme.color(ColorSlot::SymbolBody);
-    let zone_fill = with_alpha_mul(theme.color(ColorSlot::Ghost), 0.38);
+    let _zone_fill = with_alpha_mul(theme.color(ColorSlot::Ghost), 0.38);
     let zone_stroke = theme.color(ColorSlot::Bus);
     let rule_area_fill = with_alpha_mul(theme.color(ColorSlot::LassoFill), 0.32);
     let rule_area_stroke = theme.color(ColorSlot::LassoStroke);
 
     for pad in &snapshot.pads {
-        let fill_color = with_alpha_mul(base_fill, pad_alpha_mul(pad.pad_type));
+        let pad_layer = pad.layers.first().map(|s| s.as_str()).unwrap_or("F.Cu");
+        let is_active = snapshot
+            .active_layer
+            .as_ref()
+            .map(|l| l.eq_ignore_ascii_case(pad_layer))
+            .unwrap_or(true);
+
+        if snapshot.single_layer_mode && !is_active {
+            continue;
+        }
+
+        let mut fill_color = oxide_types::layer::layer_color_rgba(pad_layer, None);
+        if fill_color[3] == 0.0 {
+            fill_color = with_alpha_mul(base_fill, pad_alpha_mul(pad.pad_type));
+        }
+
+        if let Some(active) = &snapshot.active_layer {
+            if !active.eq_ignore_ascii_case(pad_layer) {
+                fill_color[3] *= 0.25;
+            }
+        }
 
         let stroke_width = (pad.size_mm[0].min(pad.size_mm[1]) * 0.08).max(0.02);
 
@@ -257,9 +421,28 @@ pub(super) fn emit_static_polygons(
     }
 
     for zone in &snapshot.zones {
+        let is_active = snapshot
+            .active_layer
+            .as_ref()
+            .map(|l| l.eq_ignore_ascii_case(&zone.layer_name))
+            .unwrap_or(true);
+
+        if snapshot.single_layer_mode && !is_active {
+            continue;
+        }
+
+        let mut z_fill = oxide_types::layer::layer_color_rgba(&zone.layer_name, Some(zone.layer_rank as u8));
+        z_fill[3] = 0.35; // Semi-transparent plane fill
+
+        if let Some(active) = &snapshot.active_layer {
+            if !active.eq_ignore_ascii_case(&zone.layer_name) {
+                z_fill[3] *= 0.25;
+            }
+        }
+
         scene.polygons.push(GpuPolygon {
             vertices: zone.vertices.clone(),
-            fill_color: zone_fill,
+            fill_color: z_fill,
             stroke_color: Some(zone_stroke),
             stroke_width: 0.06,
         });
@@ -272,6 +455,58 @@ pub(super) fn emit_static_polygons(
             stroke_color: Some(rule_area_stroke),
             stroke_width: 0.08,
         });
+    }
+
+    // Footprint & Board Outline Graphics (Edge.Cuts, Silkscreen outlines, courtyards)
+    for g in &snapshot.graphics {
+        let is_active = snapshot
+            .active_layer
+            .as_ref()
+            .map(|l| l.eq_ignore_ascii_case(&g.layer_name))
+            .unwrap_or(true);
+
+        if snapshot.single_layer_mode && !is_active {
+            continue;
+        }
+
+        let mut g_color = oxide_types::layer::layer_color_rgba(&g.layer_name, None);
+        if let Some(active) = &snapshot.active_layer {
+            if !active.eq_ignore_ascii_case(&g.layer_name) {
+                g_color[3] *= 0.25;
+            }
+        }
+
+        if g.is_closed && g.filled {
+            scene.polygons.push(GpuPolygon {
+                vertices: g.vertices.clone(),
+                fill_color: g_color,
+                stroke_color: Some(g_color),
+                stroke_width: g.width_mm,
+            });
+        } else if g.vertices.len() >= 2 {
+            for win in g.vertices.windows(2) {
+                scene.lines.push(LineSegment {
+                    p0: win[0],
+                    p1: win[1],
+                    width: g.width_mm,
+                    color: g_color,
+                    style: 0,
+                    _pad: 0,
+                });
+            }
+            if g.is_closed {
+                if let (Some(first), Some(last)) = (g.vertices.first(), g.vertices.last()) {
+                    scene.lines.push(LineSegment {
+                        p0: *last,
+                        p1: *first,
+                        width: g.width_mm,
+                        color: g_color,
+                        style: 0,
+                        _pad: 0,
+                    });
+                }
+            }
+        }
     }
 }
 
