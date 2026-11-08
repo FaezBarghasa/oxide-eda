@@ -323,8 +323,10 @@ impl IncrementalDrcEngine {
             let half_w = (seg_a.width * 500.0).round() as i64;
             let seg_aabb = DrcAabb::from_mm_points(seg_a.start, seg_a.end, 0.0).expand(half_w);
             if seg_aabb.intersects(dirty_region)
-                && let Err(v) = manager.validate_trace_width(&net_name, None, None, width_microns)
+                && let Err(mut v) =
+                    manager.validate_trace_width(&net_name, None, None, width_microns)
             {
+                v.location = Some((seg_a.start.x, seg_a.start.y));
                 violations.push(v);
             }
 
@@ -360,9 +362,10 @@ impl IncrementalDrcEngine {
                     let net_a = get_net_name(seg_a.net);
                     let net_b = get_net_name(seg_b.net);
 
-                    if let Err(v) =
+                    if let Err(mut v) =
                         manager.validate_clearance(&net_a, None, &net_b, None, None, dist_microns)
                     {
+                        v.location = Some((seg_a.start.x, seg_a.start.y));
                         violations.push(v);
                     }
                 }
@@ -530,6 +533,10 @@ impl IncrementalDrcEngine {
                 manager
                     .validate_trace_width(&net_name, None, None, width_microns)
                     .err()
+                    .map(|mut v| {
+                        v.location = Some((seg.start.x, seg.start.y));
+                        v
+                    })
             })
             .collect();
 
@@ -615,7 +622,7 @@ impl IncrementalDrcEngine {
                         let net_a = get_net_name(seg_a.net);
                         let net_b = get_net_name(seg_b.net);
 
-                        if let Err(v) = manager.validate_clearance(
+                        if let Err(mut v) = manager.validate_clearance(
                             &net_a,
                             None,
                             &net_b,
@@ -623,6 +630,7 @@ impl IncrementalDrcEngine {
                             None,
                             dist_microns,
                         ) {
+                            v.location = Some((seg_a.start.x, seg_a.start.y));
                             list.push(v);
                         }
                     }

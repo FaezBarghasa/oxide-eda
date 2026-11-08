@@ -924,7 +924,8 @@ impl ConstraintManager {
         for seg in &board.segments {
             let width_microns = (seg.width * 1000.0).round() as i64;
             let net_name = get_net_name(seg.net);
-            if let Err(v) = self.validate_trace_width(&net_name, None, None, width_microns) {
+            if let Err(mut v) = self.validate_trace_width(&net_name, None, None, width_microns) {
+                v.location = Some((seg.start.x, seg.start.y));
                 violations.push(v);
             }
         }
@@ -1003,9 +1004,10 @@ impl ConstraintManager {
                     let net_a = get_net_name(seg_a.net);
                     let net_b = get_net_name(seg_b.net);
 
-                    if let Err(v) =
+                    if let Err(mut v) =
                         self.validate_clearance(&net_a, None, &net_b, None, None, dist_microns)
                     {
+                        v.location = Some((seg_a.start.x, seg_a.start.y));
                         violations.push(v);
                     }
                 }
@@ -1029,9 +1031,10 @@ impl ConstraintManager {
                 let net_a = get_net_name(via_a.net);
                 let net_b = get_net_name(via_b.net);
 
-                if let Err(v) =
+                if let Err(mut v) =
                     self.validate_hole_to_hole(&id_a, &net_a, &id_b, &net_b, None, edge_microns)
                 {
+                    v.location = Some((via_a.position.x, via_a.position.y));
                     violations.push(v);
                 }
             }

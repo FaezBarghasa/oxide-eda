@@ -8,8 +8,7 @@
 use uuid::Uuid;
 
 use oxide_app::app::{
-    CanvasEvent, ContextAction, ContextMenuMsg, FileMsg, MenuMessage, Message, Oxide, TabKind,
-    Tool,
+    CanvasEvent, ContextAction, ContextMenuMsg, FileMsg, MenuMessage, Message, Oxide, TabKind, Tool,
 };
 use oxide_app::dock::DockMessage;
 use oxide_app::panels::PanelMsg;
@@ -179,15 +178,20 @@ fn test_real_user_e2e_gui_workflow_lifecycle() {
     // -------------------------------------------------------------------------
     // 3. Live DRC & Cross-Probe
     // -------------------------------------------------------------------------
-    // Introduce intentional clearance violation: overlapping segment with different net
+    let target_layer = app
+        .active_pcb()
+        .and_then(|b| b.segments.first().map(|s| s.layer.clone()))
+        .unwrap_or_else(|| "F.Cu".to_string());
+
+    // Introduce intentional clearance/width violation: narrow overlapping segment with different net
     app.apply_pcb_command(PcbCommand::AddSegment {
         segment: Segment {
             uuid: Uuid::new_v4(),
             start: Point::new(100.0, 100.0),
             end: Point::new(105.0, 100.0),
-            width: 0.5,
-            layer: "F.Cu".to_string(),
-            net: 999, // Incompatible net
+            width: 0.05, // 50µm violates minimum 150µm track width rule
+            layer: target_layer,
+            net: 999, // Incompatible net shorting against existing route
         },
     });
 
