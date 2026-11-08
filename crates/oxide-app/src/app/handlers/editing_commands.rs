@@ -294,16 +294,14 @@ impl Oxide {
 
                     // Locate matching symbol in schematic, select it, and center camera
                     let mut sym_target = None;
-                    if let Some(engine) = self.document_state.engines.get_mut(&sch_path) {
-                        if let Some(sym) = engine
+                    if let Some(engine) = self.document_state.engines.get_mut(&sch_path)
+                        && let Some(sym) = engine
                             .document()
                             .symbols
                             .iter()
                             .find(|s| s.reference.eq_ignore_ascii_case(&target_ref))
-                        {
-                            sym_target =
-                                Some((sym.uuid, sym.position.x as f32, sym.position.y as f32));
-                        }
+                    {
+                        sym_target = Some((sym.uuid, sym.position.x as f32, sym.position.y as f32));
                     }
 
                     if let Some((sym_uuid, x, y)) = sym_target {

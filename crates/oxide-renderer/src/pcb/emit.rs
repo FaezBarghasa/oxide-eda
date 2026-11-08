@@ -40,7 +40,7 @@ pub(super) fn via_from_board_via(via: &Via) -> ViaInput {
 
 pub(super) fn pad_from_footprint(footprint: &Footprint, pad: &Pad) -> PadInput {
     let is_bottom = footprint.layer.to_ascii_lowercase().contains("bottom")
-        || footprint.layer.to_ascii_lowercase() == "b.cu";
+        || footprint.layer.eq_ignore_ascii_case("b.cu");
     let mut local = point_to_xy(pad.position);
     if is_bottom {
         local[0] = -local[0];
@@ -116,7 +116,7 @@ pub(super) fn graphic_from_fp_graphic(
     fg: &oxide_types::pcb::FpGraphic,
 ) -> Option<PcbGraphicInput> {
     let is_bottom = footprint.layer.to_ascii_lowercase().contains("bottom")
-        || footprint.layer.to_ascii_lowercase() == "b.cu";
+        || footprint.layer.eq_ignore_ascii_case("b.cu");
     let origin = point_to_xy(footprint.position);
     let rot = footprint.rotation as f32;
     let transform = |p: Point| -> [f32; 2] {
@@ -437,10 +437,10 @@ pub(super) fn emit_static_polygons(
             fill_color = with_alpha_mul(base_fill, pad_alpha_mul(pad.pad_type));
         }
 
-        if let Some(active) = &snapshot.active_layer {
-            if !active.eq_ignore_ascii_case(pad_layer) {
-                fill_color[3] *= 0.25;
-            }
+        if let Some(active) = &snapshot.active_layer
+            && !active.eq_ignore_ascii_case(pad_layer)
+        {
+            fill_color[3] *= 0.25;
         }
 
         let stroke_color = if pad.selected {
@@ -477,10 +477,10 @@ pub(super) fn emit_static_polygons(
             oxide_types::layer::layer_color_rgba(&zone.layer_name, Some(zone.layer_rank as u8));
         z_fill[3] = 0.35; // Semi-transparent plane fill
 
-        if let Some(active) = &snapshot.active_layer {
-            if !active.eq_ignore_ascii_case(&zone.layer_name) {
-                z_fill[3] *= 0.25;
-            }
+        if let Some(active) = &snapshot.active_layer
+            && !active.eq_ignore_ascii_case(&zone.layer_name)
+        {
+            z_fill[3] *= 0.25;
         }
 
         scene.polygons.push(GpuPolygon {
@@ -513,10 +513,10 @@ pub(super) fn emit_static_polygons(
         }
 
         let mut g_color = oxide_types::layer::layer_color_rgba(&g.layer_name, None);
-        if let Some(active) = &snapshot.active_layer {
-            if !active.eq_ignore_ascii_case(&g.layer_name) {
-                g_color[3] *= 0.25;
-            }
+        if let Some(active) = &snapshot.active_layer
+            && !active.eq_ignore_ascii_case(&g.layer_name)
+        {
+            g_color[3] *= 0.25;
         }
 
         if g.is_closed && g.filled {
@@ -537,17 +537,17 @@ pub(super) fn emit_static_polygons(
                     _pad: 0,
                 });
             }
-            if g.is_closed {
-                if let (Some(first), Some(last)) = (g.vertices.first(), g.vertices.last()) {
-                    scene.lines.push(LineSegment {
-                        p0: *last,
-                        p1: *first,
-                        width: g.width_mm,
-                        color: g_color,
-                        style: 0,
-                        _pad: 0,
-                    });
-                }
+            if g.is_closed
+                && let (Some(first), Some(last)) = (g.vertices.first(), g.vertices.last())
+            {
+                scene.lines.push(LineSegment {
+                    p0: *last,
+                    p1: *first,
+                    width: g.width_mm,
+                    color: g_color,
+                    style: 0,
+                    _pad: 0,
+                });
             }
         }
     }
