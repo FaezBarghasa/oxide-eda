@@ -34,6 +34,26 @@ fn rotate_point(p: Point, deg: f64) -> Point {
     }
 }
 
+fn point_in_polygon(p: Point, poly: &[Point]) -> bool {
+    let mut inside = false;
+    let n = poly.len();
+    if n < 3 {
+        return false;
+    }
+    let mut j = n - 1;
+    for i in 0..n {
+        let pi = poly[i];
+        let pj = poly[j];
+        if ((pi.y > p.y) != (pj.y > p.y))
+            && (p.x < (pj.x - pi.x) * (p.y - pi.y) / (pj.y - pi.y) + pi.x)
+        {
+            inside = !inside;
+        }
+        j = i;
+    }
+    inside
+}
+
 /// Ratsnest calculation engine.
 pub struct RatsnestEngine;
 
@@ -98,6 +118,25 @@ impl RatsnestEngine {
                 if via.net == net_num {
                     let k_via = quantize_pt(via.position);
                     crate::uf::find(&mut uf, k_via);
+                }
+            }
+
+            // Insert zones for this net (connect copper within zone polygon)
+            for zone in &board.zones {
+                if zone.net == net_num && zone.outline.len() >= 3 {
+                    // Connect any existing UF node inside this zone to a zone anchor
+                    let z_anchor = quantize_pt(zone.outline[0]);
+                    crate::uf::find(&mut uf, z_anchor);
+                    let candidate_nodes: Vec<SpatialKey> = uf.keys().copied().collect();
+                    for node in candidate_nodes {
+                        let pt = Point {
+                            x: node.0 as f64 / 1000.0,
+                            y: node.1 as f64 / 1000.0,
+                        };
+                        if point_in_polygon(pt, &zone.outline) {
+                            crate::uf::union(&mut uf, z_anchor, node);
+                        }
+                    }
                 }
             }
 
@@ -325,8 +364,47 @@ mod tests {
         let lines = RatsnestEngine::compute_ratsnest(&board);
         assert_eq!(lines.len(), 1);
         assert_eq!(lines[0].net_number, 1);
-        assert_eq!(lines[0].start, Point { x: 10.0, y: 10.0 });
-        assert_eq!(lines[0].end, Point { x: 40.0, y: 50.0 });
+        let (p1, p2) = if lines[0].start.x < lines[0].end.x {
+            (lines[0].start, lines[0].end)
+        } else {
+            (lines[0].end, lines[0].start)
+        };
+        assert_eq!(p1, Point { x: 10.0, y: 10.0 });
+        assert_eq!(p2, Point { x: 40.0, y: 50.0 });
         assert!((lines[0].distance - 50.0).abs() < 1e-6);
+        assert_eq!(RatsnestEngine::routing_completion_ratio(&board), 0.0);
+
+        // Connect pads with a multi-segment track and intermediate layer via
+        board.segments.push(oxide_types::pcb::Segment {
+            uuid: Uuid::new_v4(),
+            start: Point { x: 10.0, y: 10.0 },
+            end: Point { x: 25.0, y: 10.0 },
+            width: 0.25,
+            layer: "TopCopper".to_string(),
+            net: 1,
+        });
+        board.vias.push(oxide_types::pcb::Via {
+            uuid: Uuid::new_v4(),
+            position: Point { x: 25.0, y: 10.0 },
+            diameter: 0.6,
+            drill: 0.3,
+            layers: vec!["TopCopper".to_string(), "In1.GND".to_string()],
+            net: 1,
+            via_type: oxide_types::pcb::ViaType::Through,
+            via_span: None,
+        });
+        board.segments.push(oxide_types::pcb::Segment {
+            uuid: Uuid::new_v4(),
+            start: Point { x: 25.0, y: 10.0 },
+            end: Point { x: 40.0, y: 50.0 },
+            width: 0.25,
+            layer: "In1.GND".to_string(),
+            net: 1,
+        });
+
+        // 3D Union-Find connectivity now recognizes the full routed path
+        let routed_lines = RatsnestEngine::compute_ratsnest(&board);
+        assert_eq!(routed_lines.len(), 0);
+        assert_eq!(RatsnestEngine::routing_completion_ratio(&board), 1.0);
     }
 }

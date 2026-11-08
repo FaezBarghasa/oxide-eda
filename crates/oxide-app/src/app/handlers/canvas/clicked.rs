@@ -10,7 +10,6 @@ impl Oxide {
             if self.interaction_state.current_tool == Tool::Wire {
                 let pt = oxide_types::pcb::Point::new(world_x, world_y);
                 if let Some(anchor) = self.interaction_state.shape_anchor.take() {
-                    // Check if we have an active interactive routing session
                     let pt_microns = oxide_router::geometry::Point2D::from_mm(world_x, world_y);
                     let mut segments_to_commit: Vec<oxide_types::pcb::Segment> = Vec::new();
                     let vias_to_commit: Vec<oxide_types::pcb::Via> = Vec::new();
@@ -18,6 +17,16 @@ impl Oxide {
                     let maybe_board = self.active_pcb().cloned();
 
                     if let Some(board) = maybe_board {
+                        // Detect net and layer from starting anchor or clicked point
+                        let (net_id, layer_id, layer_name) = self
+                            .active_pcb_engine()
+                            .and_then(|e| {
+                                e.find_copper_at(anchor.x, anchor.y)
+                                    .or_else(|| e.find_copper_at(world_x, world_y))
+                            })
+                            .map(|(n, _name, l_name, l_id)| (n, l_id, l_name))
+                            .unwrap_or((1, 0, "F.Cu".to_string()));
+
                         let rules =
                             std::sync::Arc::new(oxide_rules::ConstraintManager::standard_default());
                         let spatial =
@@ -26,7 +35,7 @@ impl Oxide {
                             oxide_router::interactive::InteractiveRouter::new(rules, spatial);
                         router.mode = oxide_router::RoutingMode::PushAndShove;
                         let start_pt = oxide_router::geometry::Point2D::from_mm(anchor.x, anchor.y);
-                        let _res = router.start_routing(start_pt, 1, 0);
+                        let _res = router.start_routing(start_pt, net_id, layer_id);
                         let route_segments = router.on_mouse_move(pt_microns);
 
                         if !route_segments.is_empty() {
@@ -47,9 +56,18 @@ impl Oxide {
                                 });
                             }
                         }
-                    }
 
-                    if segments_to_commit.is_empty() {
+                        if segments_to_commit.is_empty() {
+                            segments_to_commit.push(oxide_types::pcb::Segment {
+                                uuid: uuid::Uuid::new_v4(),
+                                start: anchor,
+                                end: pt,
+                                width: 0.25,
+                                layer: layer_name,
+                                net: net_id,
+                            });
+                        }
+                    } else if segments_to_commit.is_empty() {
                         segments_to_commit.push(oxide_types::pcb::Segment {
                             uuid: uuid::Uuid::new_v4(),
                             start: anchor,
@@ -98,23 +116,24 @@ impl Oxide {
                 let fp = oxide_types::pcb::Footprint {
                     uuid: uuid::Uuid::new_v4(),
                     reference: format!("U{}", fp_idx),
-                    value: "IC".to_string(),
+                    value: "SOIC-8".to_string(),
                     footprint_id: "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm".to_string(),
                     position: oxide_types::pcb::Point::new(world_x, world_y),
                     rotation: 0.0,
-                    layer: "F.Cu".to_string(),
+                    layer: "TopCopper".to_string(),
                     locked: false,
                     properties: Vec::new(),
                     pads: vec![
+                        // Pin 1 (top-left) to Pin 8 with footprint-relative offsets
                         oxide_types::pcb::Pad {
                             uuid: uuid::Uuid::new_v4(),
                             number: "1".to_string(),
                             pad_type: oxide_types::pcb::PadType::Smd,
                             shape: oxide_types::pcb::PadShape::Rect,
-                            position: oxide_types::pcb::Point::new(world_x - 1.9, world_y - 1.905),
+                            position: oxide_types::pcb::Point::new(-2.6, -1.905),
                             size: oxide_types::pcb::Point::new(1.5, 0.6),
                             drill: None,
-                            layers: vec!["F.Cu".to_string()],
+                            layers: vec!["TopCopper".to_string()],
                             net: None,
                             roundrect_ratio: 0.0,
                         },
@@ -123,10 +142,82 @@ impl Oxide {
                             number: "2".to_string(),
                             pad_type: oxide_types::pcb::PadType::Smd,
                             shape: oxide_types::pcb::PadShape::Rect,
-                            position: oxide_types::pcb::Point::new(world_x - 1.9, world_y - 0.635),
+                            position: oxide_types::pcb::Point::new(-2.6, -0.635),
                             size: oxide_types::pcb::Point::new(1.5, 0.6),
                             drill: None,
-                            layers: vec!["F.Cu".to_string()],
+                            layers: vec!["TopCopper".to_string()],
+                            net: None,
+                            roundrect_ratio: 0.0,
+                        },
+                        oxide_types::pcb::Pad {
+                            uuid: uuid::Uuid::new_v4(),
+                            number: "3".to_string(),
+                            pad_type: oxide_types::pcb::PadType::Smd,
+                            shape: oxide_types::pcb::PadShape::Rect,
+                            position: oxide_types::pcb::Point::new(-2.6, 0.635),
+                            size: oxide_types::pcb::Point::new(1.5, 0.6),
+                            drill: None,
+                            layers: vec!["TopCopper".to_string()],
+                            net: None,
+                            roundrect_ratio: 0.0,
+                        },
+                        oxide_types::pcb::Pad {
+                            uuid: uuid::Uuid::new_v4(),
+                            number: "4".to_string(),
+                            pad_type: oxide_types::pcb::PadType::Smd,
+                            shape: oxide_types::pcb::PadShape::Rect,
+                            position: oxide_types::pcb::Point::new(-2.6, 1.905),
+                            size: oxide_types::pcb::Point::new(1.5, 0.6),
+                            drill: None,
+                            layers: vec!["TopCopper".to_string()],
+                            net: None,
+                            roundrect_ratio: 0.0,
+                        },
+                        oxide_types::pcb::Pad {
+                            uuid: uuid::Uuid::new_v4(),
+                            number: "5".to_string(),
+                            pad_type: oxide_types::pcb::PadType::Smd,
+                            shape: oxide_types::pcb::PadShape::Rect,
+                            position: oxide_types::pcb::Point::new(2.6, 1.905),
+                            size: oxide_types::pcb::Point::new(1.5, 0.6),
+                            drill: None,
+                            layers: vec!["TopCopper".to_string()],
+                            net: None,
+                            roundrect_ratio: 0.0,
+                        },
+                        oxide_types::pcb::Pad {
+                            uuid: uuid::Uuid::new_v4(),
+                            number: "6".to_string(),
+                            pad_type: oxide_types::pcb::PadType::Smd,
+                            shape: oxide_types::pcb::PadShape::Rect,
+                            position: oxide_types::pcb::Point::new(2.6, 0.635),
+                            size: oxide_types::pcb::Point::new(1.5, 0.6),
+                            drill: None,
+                            layers: vec!["TopCopper".to_string()],
+                            net: None,
+                            roundrect_ratio: 0.0,
+                        },
+                        oxide_types::pcb::Pad {
+                            uuid: uuid::Uuid::new_v4(),
+                            number: "7".to_string(),
+                            pad_type: oxide_types::pcb::PadType::Smd,
+                            shape: oxide_types::pcb::PadShape::Rect,
+                            position: oxide_types::pcb::Point::new(2.6, -0.635),
+                            size: oxide_types::pcb::Point::new(1.5, 0.6),
+                            drill: None,
+                            layers: vec!["TopCopper".to_string()],
+                            net: None,
+                            roundrect_ratio: 0.0,
+                        },
+                        oxide_types::pcb::Pad {
+                            uuid: uuid::Uuid::new_v4(),
+                            number: "8".to_string(),
+                            pad_type: oxide_types::pcb::PadType::Smd,
+                            shape: oxide_types::pcb::PadShape::Rect,
+                            position: oxide_types::pcb::Point::new(2.6, -1.905),
+                            size: oxide_types::pcb::Point::new(1.5, 0.6),
+                            drill: None,
+                            layers: vec!["TopCopper".to_string()],
                             net: None,
                             roundrect_ratio: 0.0,
                         },

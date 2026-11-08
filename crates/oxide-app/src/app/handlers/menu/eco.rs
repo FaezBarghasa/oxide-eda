@@ -106,6 +106,12 @@ impl Oxide {
             {
                 self.document_state.active_tab = idx;
             }
+
+            // Sync visual canvas and fit viewport to the updated board
+            self.sync_pcb_canvas_from_visible_board();
+            self.interaction_state.pcb_canvas.fit_to_board();
+            self.interaction_state.pcb_canvas.clear_bg_cache();
+            self.interaction_state.pcb_canvas.clear_content_cache();
         }
 
         Task::none()

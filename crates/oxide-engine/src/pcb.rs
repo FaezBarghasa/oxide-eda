@@ -250,6 +250,109 @@ impl PcbEngine {
         &mut self.board
     }
 
+    /// Find copper element (pad, via, or segment) at world coordinates (in mm).
+    /// Returns (net_id, net_name, layer_name, layer_id).
+    pub fn find_copper_at(&self, x: f64, y: f64) -> Option<(u32, String, String, u8)> {
+        // 1. Check pads first (footprints)
+        for fp in &self.board.footprints {
+            let fp_rot = fp.rotation;
+            let fp_pos = fp.position;
+            let is_bottom = fp.layer.to_ascii_lowercase().contains("bottom")
+                || fp.layer.to_ascii_lowercase() == "b.cu";
+
+            for pad in &fp.pads {
+                let mut local_x = pad.position.x;
+                let local_y = pad.position.y;
+                if is_bottom {
+                    local_x = -local_x;
+                }
+                let rad = fp_rot.to_radians();
+                let cos_t = rad.cos();
+                let sin_t = rad.sin();
+                let abs_x = fp_pos.x + (local_x * cos_t - local_y * sin_t);
+                let abs_y = fp_pos.y + (local_x * sin_t + local_y * cos_t);
+
+                let (w, h) = if pad.size.x > 0.0 && pad.size.y > 0.0 {
+                    (pad.size.x, pad.size.y)
+                } else {
+                    (1.0, 1.0)
+                };
+                let dx = (x - abs_x).abs();
+                let dy = (y - abs_y).abs();
+                if dx <= (w / 2.0).max(0.3) && dy <= (h / 2.0).max(0.3) {
+                    if let Some(net) = &pad.net {
+                        let layer_name = pad
+                            .layers
+                            .first()
+                            .cloned()
+                            .unwrap_or_else(|| fp.layer.clone());
+                        let layer_id = if layer_name.to_ascii_lowercase().contains("bottom")
+                            || layer_name.to_ascii_lowercase() == "b.cu"
+                        {
+                            1
+                        } else {
+                            0
+                        };
+                        return Some((net.number, net.name.clone(), layer_name, layer_id));
+                    }
+                }
+            }
+        }
+
+        // 2. Check vias
+        for via in &self.board.vias {
+            let diam = if via.diameter > 0.0 { via.diameter } else { 0.6 };
+            let radius = (diam / 2.0).max(0.3);
+            let dx = x - via.position.x;
+            let dy = y - via.position.y;
+            if dx * dx + dy * dy <= radius * radius {
+                let layer_name = via.layers.first().cloned().unwrap_or_else(|| "F.Cu".to_string());
+                let layer_id = if layer_name.to_ascii_lowercase().contains("bottom")
+                    || layer_name.to_ascii_lowercase() == "b.cu"
+                {
+                    1
+                } else {
+                    0
+                };
+                let net_name = self
+                    .board
+                    .nets
+                    .iter()
+                    .find(|n| n.number == via.net)
+                    .map(|n| n.name.clone())
+                    .unwrap_or_else(|| format!("Net {}", via.net));
+                return Some((via.net, net_name, layer_name, layer_id));
+            }
+        }
+
+        // 3. Check segments
+        for seg in &self.board.segments {
+            let half_width = (seg.width / 2.0).max(0.25);
+            let dist_sq =
+                point_to_segment_dist_sq(x, y, seg.start.x, seg.start.y, seg.end.x, seg.end.y);
+            if dist_sq <= half_width * half_width {
+                let layer_name = seg.layer.clone();
+                let layer_id = if layer_name.to_ascii_lowercase().contains("bottom")
+                    || layer_name.to_ascii_lowercase() == "b.cu"
+                {
+                    1
+                } else {
+                    0
+                };
+                let net_name = self
+                    .board
+                    .nets
+                    .iter()
+                    .find(|n| n.number == seg.net)
+                    .map(|n| n.name.clone())
+                    .unwrap_or_else(|| format!("Net {}", seg.net));
+                return Some((seg.net, net_name, layer_name, layer_id));
+            }
+        }
+
+        None
+    }
+
     pub fn generation(&self) -> u64 {
         self.generation
     }

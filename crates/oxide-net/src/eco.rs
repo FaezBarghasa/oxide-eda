@@ -143,7 +143,17 @@ impl EcoEngine {
             }
         }
 
-        // 2. Net connectivity diff
+        // 2. Net connectivity and net definitions diff
+        let existing_pcb_nets: HashSet<&str> = board.nets.iter().map(|n| n.name.as_str()).collect();
+        for net in &netlist.nets {
+            if !existing_pcb_nets.contains(net.name.as_str()) && !net.name.is_empty() {
+                actions.push(EcoAction::AddNet {
+                    name: net.name.clone(),
+                    net_id: net.id.0,
+                });
+            }
+        }
+
         // Build map of expected (RefDes, Pin) -> NetName & NetID from Schematic Netlist
         let mut expected_connections: HashMap<(&str, &str), (&str, u32)> = HashMap::new();
         for net in &netlist.nets {
@@ -209,6 +219,37 @@ impl EcoEngine {
                     footprint_id,
                     suggested_pos,
                 } => {
+        let mut synthetic_pads = Vec::new();
+        let fp_lower = footprint_id.to_ascii_lowercase();
+        if fp_lower.contains("0402") || fp_lower.contains("0603") || fp_lower.contains("0805") || fp_lower.contains("1206") || fp_lower.contains("r_") || fp_lower.contains("c_") || reference.starts_with('R') || reference.starts_with('C') || reference.starts_with('L') || reference.starts_with('D') {
+            // 2-pad passive component
+            let spacing = if fp_lower.contains("0402") { 1.0 } else if fp_lower.contains("0603") { 1.6 } else { 2.0 };
+            synthetic_pads.push(oxide_types::pcb::Pad {
+                uuid: Uuid::new_v4(),
+                number: "1".to_string(),
+                pad_type: oxide_types::pcb::PadType::Smd,
+                shape: oxide_types::pcb::PadShape::Rect,
+                position: Point { x: -spacing / 2.0, y: 0.0 },
+                size: Point { x: 0.6, y: 0.8 },
+                drill: None,
+                layers: vec!["TopCopper".to_string()],
+                net: None,
+                roundrect_ratio: 0.0,
+            });
+            synthetic_pads.push(oxide_types::pcb::Pad {
+                uuid: Uuid::new_v4(),
+                number: "2".to_string(),
+                pad_type: oxide_types::pcb::PadType::Smd,
+                shape: oxide_types::pcb::PadShape::Rect,
+                position: Point { x: spacing / 2.0, y: 0.0 },
+                size: Point { x: 0.6, y: 0.8 },
+                drill: None,
+                layers: vec!["TopCopper".to_string()],
+                net: None,
+                roundrect_ratio: 0.0,
+            });
+        }
+
                     board.footprints.push(Footprint {
                         uuid: Uuid::new_v4(),
                         reference: reference.clone(),
@@ -216,9 +257,9 @@ impl EcoEngine {
                         footprint_id: footprint_id.clone(),
                         position: *suggested_pos,
                         rotation: 0.0,
-                        layer: "F.Cu".to_string(),
+                        layer: "TopCopper".to_string(),
                         locked: false,
-                        pads: Vec::new(),
+                        pads: synthetic_pads,
                         graphics: Vec::new(),
                         properties: Vec::new(),
                     });
@@ -262,6 +303,17 @@ impl EcoEngine {
                         }
                     }
                 }
+                EcoAction::AddNet { name, net_id } => {
+                    if !board.nets.iter().any(|n| n.number == *net_id || n.name == *name) {
+                        board.nets.push(oxide_types::pcb::NetDef {
+                            number: *net_id,
+                            name: name.clone(),
+                        });
+                    }
+                }
+                EcoAction::RemoveNet { net_id, .. } => {
+                    board.nets.retain(|n| n.number != *net_id);
+                }
                 EcoAction::RenameDesignator {
                     old_reference,
                     new_reference,
@@ -284,7 +336,6 @@ impl EcoEngine {
 mod tests {
     use super::*;
     use oxide_types::net::{Net, NetId, Terminal};
-    use oxide_types::pcb::{Pad, PadShape, PadType};
 
     #[test]
     fn test_eco_diff_and_apply() {
@@ -304,28 +355,18 @@ mod tests {
             ("C1".to_string(), "100nF".to_string(), "C_0402".to_string()),
         ];
 
-        // 1. Initial diff should detect missing R1 and C1
+        // 1. Initial diff should detect missing R1, C1, and net GND
         let report = EcoEngine::diff_schematic_to_pcb(&netlist, &board, &sch_components);
-        assert_eq!(report.actions.len(), 2);
+        assert_eq!(report.actions.len(), 3);
+        assert!(report.actions.iter().any(|a| matches!(a, EcoAction::AddNet { name, .. } if name == "GND")));
 
         // 2. Apply ECO
         EcoEngine::apply_eco(&mut board, &report);
         assert_eq!(board.footprints.len(), 2);
+        assert_eq!(board.nets.len(), 1);
+        assert_eq!(board.nets[0].name, "GND");
 
-        // 3. Add pad to R1 without net and verify PadNet assignment action
-        board.footprints[0].pads.push(Pad {
-            uuid: Uuid::new_v4(),
-            number: "1".to_string(),
-            pad_type: PadType::Smd,
-            shape: PadShape::Rect,
-            position: Point { x: 0.0, y: 0.0 },
-            size: Point { x: 1.0, y: 1.0 },
-            drill: None,
-            layers: vec!["F.Cu".to_string()],
-            net: None,
-            roundrect_ratio: 0.0,
-        });
-
+        // 3. Verify PadNet assignment action
         let pad_report = EcoEngine::diff_schematic_to_pcb(&netlist, &board, &sch_components);
         assert_eq!(pad_report.actions.len(), 1);
         match &pad_report.actions[0] {

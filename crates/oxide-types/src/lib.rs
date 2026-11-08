@@ -22,3 +22,4 @@ pub use command::{
     ProjectMenuCommand, ReportsMenuCommand, SchematicDesignCommand, SchematicPlaceCommand,
     ToolsMenuCommand, ViewMenuCommand, WindowMenuCommand,
 };
+pub use uuid::Uuid;

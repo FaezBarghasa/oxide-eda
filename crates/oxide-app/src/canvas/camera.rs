@@ -105,4 +105,12 @@ impl Camera {
     pub fn zoom_percent(&self) -> f64 {
         (self.scale as f64 / oxide_types::schematic::SCHEMATIC_ZOOM_100_SCALE as f64) * 100.0
     }
+
+    /// Center camera on world coordinates (mm), keeping current scale and assuming a nominal 1000x800 viewport.
+    pub fn center_on_world(&mut self, world_x: f32, world_y: f32) {
+        let nominal_w = 1000.0;
+        let nominal_h = 800.0;
+        self.offset.x = nominal_w / 2.0 - world_x * self.scale;
+        self.offset.y = nominal_h / 2.0 - world_y * self.scale;
+    }
 }

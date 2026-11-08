@@ -208,8 +208,14 @@ impl Oxide {
     }
 
     pub(crate) fn sync_pcb_canvas_from_visible_board(&mut self) {
+        let selected_uuids: Vec<uuid::Uuid> = self
+            .active_pcb_engine()
+            .map(|e| e.selected_items().iter().map(|s| s.uuid).collect())
+            .unwrap_or_default();
+
         let renderer_snapshot = self.active_pcb().map(|board| {
-            let mut snapshot = oxide_renderer::pcb::PcbSnapshot::from_board(board);
+            let mut snapshot =
+                oxide_renderer::pcb::PcbSnapshot::from_board_with_selection(board, &selected_uuids);
 
             // 1. Live Ratsnest lines from 3D multi-point / MST connectivity
             let ratsnest_lines: Vec<oxide_renderer::pcb::RatsnestInput> =

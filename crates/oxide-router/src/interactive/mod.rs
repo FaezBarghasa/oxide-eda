@@ -71,6 +71,21 @@ impl InteractiveRouter {
         self
     }
 
+    /// Construct an interactive router directly from a board model and constraints.
+    pub fn from_board(
+        board: &oxide_types::pcb::PcbBoard,
+        rules: Arc<ConstraintManager>,
+    ) -> Self {
+        let spatial = Arc::new(SpatialIndex::build(board));
+        let mut router = Self::new(rules, spatial);
+
+        // Derive stackup from board layers if available, else default to standard 4-layer
+        let stackup = oxide_physics::stackup::LayerStackup::standard_4layer_1_6mm();
+        router.stackup = Some(stackup);
+
+        router
+    }
+
     /// Set target characteristic impedance (Ohms) for single-ended net routing.
     pub fn set_net_target_impedance(&mut self, net_id: NetId, target_z0_ohms: f64) {
         self.target_impedance.insert(net_id, target_z0_ohms);

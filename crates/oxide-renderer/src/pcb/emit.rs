@@ -36,7 +36,12 @@ pub(super) fn via_from_board_via(via: &Via) -> ViaInput {
 }
 
 pub(super) fn pad_from_footprint(footprint: &Footprint, pad: &Pad) -> PadInput {
-    let local = point_to_xy(pad.position);
+    let is_bottom = footprint.layer.to_ascii_lowercase().contains("bottom")
+        || footprint.layer.to_ascii_lowercase() == "b.cu";
+    let mut local = point_to_xy(pad.position);
+    if is_bottom {
+        local[0] = -local[0];
+    }
     let rotated = rotate_local(local, footprint.rotation as f32);
     let footprint_origin = point_to_xy(footprint.position);
 
@@ -101,10 +106,16 @@ pub(super) fn graphic_from_fp_graphic(
     footprint: &Footprint,
     fg: &oxide_types::pcb::FpGraphic,
 ) -> Option<PcbGraphicInput> {
+    let is_bottom = footprint.layer.to_ascii_lowercase().contains("bottom")
+        || footprint.layer.to_ascii_lowercase() == "b.cu";
     let origin = point_to_xy(footprint.position);
     let rot = footprint.rotation as f32;
     let transform = |p: Point| -> [f32; 2] {
-        let rotated = rotate_local(point_to_xy(p), rot);
+        let mut local = point_to_xy(p);
+        if is_bottom {
+            local[0] = -local[0];
+        }
+        let rotated = rotate_local(local, rot);
         [origin[0] + rotated[0], origin[1] + rotated[1]]
     };
 
@@ -330,8 +341,11 @@ pub(super) fn emit_traces(snapshot: &PcbSnapshot, theme: &ResolvedTheme, scene: 
             color = default_trace_color;
         }
 
-        // Single-layer or active layer dimming
-        if let Some(active) = &snapshot.active_layer {
+        // Selection highlight override
+        if trace.selected {
+            color = theme.color(ColorSlot::Selection);
+        } else if let Some(active) = &snapshot.active_layer {
+            // Single-layer or active layer dimming
             if !active.eq_ignore_ascii_case(&trace.layer_name) {
                 color[3] *= 0.25; // Altium-style inactive layer dimming
             }
@@ -357,12 +371,17 @@ pub(super) fn emit_vias(snapshot: &PcbSnapshot, theme: &ResolvedTheme, scene: &m
     for via in &snapshot.vias {
         let radius = (via.diameter_mm * 0.5).max(0.01);
         let annulus = ((via.diameter_mm - via.drill_mm) * 0.5).max(0.0);
+        let color = if via.selected {
+            theme.color(ColorSlot::Selection)
+        } else {
+            via_color
+        };
 
         scene.circles.push(Circle {
             center: via.center,
             radius,
             stroke_width: annulus,
-            color: via_color,
+            color,
         });
     }
 }
@@ -410,7 +429,16 @@ pub(super) fn emit_static_polygons(
             }
         }
 
-        let stroke_width = (pad.size_mm[0].min(pad.size_mm[1]) * 0.08).max(0.02);
+        let stroke_color = if pad.selected {
+            theme.color(ColorSlot::Selection)
+        } else {
+            stroke_color
+        };
+        let stroke_width = if pad.selected {
+            (pad.size_mm[0].min(pad.size_mm[1]) * 0.15).max(0.06)
+        } else {
+            (pad.size_mm[0].min(pad.size_mm[1]) * 0.08).max(0.02)
+        };
 
         scene.polygons.push(GpuPolygon {
             vertices: pad_vertices(pad),

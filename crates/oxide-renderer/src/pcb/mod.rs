@@ -119,13 +119,30 @@ pub struct PcbSnapshot {
 
 impl PcbSnapshot {
     pub fn from_board(board: &PcbBoard) -> Self {
+        Self::from_board_with_selection(board, &[])
+    }
+
+    pub fn from_board_with_selection(board: &PcbBoard, selected_uuids: &[oxide_types::Uuid]) -> Self {
+        let is_selected = |id: oxide_types::Uuid| selected_uuids.contains(&id);
         let layer_ranks = layer_rank_index(board);
         let traces = board
             .segments
             .iter()
-            .map(|s| trace_from_segment(s, &layer_ranks))
+            .map(|s| {
+                let mut t = trace_from_segment(s, &layer_ranks);
+                t.selected = is_selected(s.uuid);
+                t
+            })
             .collect();
-        let vias = board.vias.iter().map(via_from_board_via).collect();
+        let vias = board
+            .vias
+            .iter()
+            .map(|v| {
+                let mut vi = via_from_board_via(v);
+                vi.selected = is_selected(v.uuid);
+                vi
+            })
+            .collect();
 
         let mut pads = Vec::new();
         let mut graphics = Vec::new();
@@ -160,8 +177,11 @@ impl PcbSnapshot {
 
         // 2. Footprint pads, silkscreen graphics, and reference designators
         for footprint in &board.footprints {
+            let fp_selected = is_selected(footprint.uuid);
             for pad in &footprint.pads {
-                pads.push(pad_from_footprint(footprint, pad));
+                let mut pi = pad_from_footprint(footprint, pad);
+                pi.selected = fp_selected || is_selected(pad.uuid);
+                pads.push(pi);
             }
 
             for fg in &footprint.graphics {
