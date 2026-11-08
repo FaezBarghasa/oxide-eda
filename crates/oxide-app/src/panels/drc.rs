@@ -77,29 +77,34 @@ pub fn view_drc<'a>(ctx: &'a PanelContext) -> Element<'a, PanelMsg> {
             );
     } else {
         for (i, v) in ctx.drc_violations.iter().enumerate() {
-            let item = Column::new()
-                .spacing(2)
-                .padding([4, 6])
-                .push(
-                    row![
-                        text(format!("{}. {:?}", i + 1, v.violation_type))
-                            .size(10)
-                            .color(iced::Color::from_rgb(0.95, 0.35, 0.35)),
-                        Space::new().width(Length::Fill).height(Length::Shrink),
-                        text(format!(
-                            "Req: {} | Act: {}",
-                            v.required_value, v.actual_value
-                        ))
-                        .size(9)
-                        .color(theme_ext::text_secondary(&ctx.tokens)),
-                    ]
-                    .align_y(iced::Alignment::Center),
-                )
-                .push(
-                    text(&v.message)
-                        .size(9)
-                        .color(theme_ext::text_primary(&ctx.tokens)),
-                );
+            let item = button(
+                Column::new()
+                    .spacing(2)
+                    .push(
+                        row![
+                            text(format!("{}. {:?}", i + 1, v.violation_type))
+                                .size(10)
+                                .color(iced::Color::from_rgb(0.95, 0.35, 0.35)),
+                            Space::new().width(Length::Fill).height(Length::Shrink),
+                            text(format!(
+                                "Req: {} | Act: {}",
+                                v.required_value, v.actual_value
+                            ))
+                            .size(9)
+                            .color(theme_ext::text_secondary(&ctx.tokens)),
+                        ]
+                        .align_y(iced::Alignment::Center),
+                    )
+                    .push(
+                        text(&v.message)
+                            .size(9)
+                            .color(theme_ext::text_primary(&ctx.tokens)),
+                    ),
+            )
+            .padding([4, 6])
+            .width(Length::Fill)
+            .style(crate::styles::menu_item(&ctx.tokens))
+            .on_press(PanelMsg::FocusDrcViolation(i));
             body_col = body_col.push(item);
         }
     }

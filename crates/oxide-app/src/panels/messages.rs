@@ -965,6 +965,8 @@ pub enum PanelMsg {
     RunDrc,
     /// Clear DRC violation results
     ClearDrc,
+    /// Focus and zoom PCB camera on DRC violation by index
+    FocusDrcViolation(usize),
     /// Recalculate multilayer stackup impedance
     RecalculateStackupImpedance,
     /// Clear AI Copilot chat history

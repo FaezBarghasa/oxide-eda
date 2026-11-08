@@ -402,11 +402,33 @@ impl Oxide {
                     self.document_state.panel_ctx.drc_violations.clear();
                     crate::diagnostics::log_info("No active PCB layout document to run DRC on.");
                 }
+                self.sync_pcb_canvas_from_visible_board();
+                self.interaction_state.pcb_canvas.clear_content_cache();
                 self.refresh_panel_ctx();
             }
             crate::panels::PanelMsg::ClearDrc => {
                 self.document_state.panel_ctx.drc_violations.clear();
+                self.sync_pcb_canvas_from_visible_board();
+                self.interaction_state.pcb_canvas.clear_content_cache();
                 self.refresh_panel_ctx();
+            }
+            crate::panels::PanelMsg::FocusDrcViolation(idx) => {
+                if let Some(v) = self.document_state.panel_ctx.drc_violations.get(*idx)
+                    && let Some((lx, ly)) = v.location
+                {
+                    self.interaction_state
+                        .pcb_canvas
+                        .center_on_world(lx as f32, ly as f32);
+                    self.interaction_state.pcb_canvas.clear_bg_cache();
+                    self.interaction_state.pcb_canvas.clear_content_cache();
+                    crate::diagnostics::log_info(format!(
+                        "Centered PCB camera on DRC violation #{}: {:?} at ({:.2}, {:.2}) mm",
+                        idx + 1,
+                        v.violation_type,
+                        lx,
+                        ly
+                    ));
+                }
             }
             crate::panels::PanelMsg::RecalculateStackupImpedance => {
                 self.refresh_panel_ctx();
