@@ -219,36 +219,58 @@ impl EcoEngine {
                     footprint_id,
                     suggested_pos,
                 } => {
-        let mut synthetic_pads = Vec::new();
-        let fp_lower = footprint_id.to_ascii_lowercase();
-        if fp_lower.contains("0402") || fp_lower.contains("0603") || fp_lower.contains("0805") || fp_lower.contains("1206") || fp_lower.contains("r_") || fp_lower.contains("c_") || reference.starts_with('R') || reference.starts_with('C') || reference.starts_with('L') || reference.starts_with('D') {
-            // 2-pad passive component
-            let spacing = if fp_lower.contains("0402") { 1.0 } else if fp_lower.contains("0603") { 1.6 } else { 2.0 };
-            synthetic_pads.push(oxide_types::pcb::Pad {
-                uuid: Uuid::new_v4(),
-                number: "1".to_string(),
-                pad_type: oxide_types::pcb::PadType::Smd,
-                shape: oxide_types::pcb::PadShape::Rect,
-                position: Point { x: -spacing / 2.0, y: 0.0 },
-                size: Point { x: 0.6, y: 0.8 },
-                drill: None,
-                layers: vec!["TopCopper".to_string()],
-                net: None,
-                roundrect_ratio: 0.0,
-            });
-            synthetic_pads.push(oxide_types::pcb::Pad {
-                uuid: Uuid::new_v4(),
-                number: "2".to_string(),
-                pad_type: oxide_types::pcb::PadType::Smd,
-                shape: oxide_types::pcb::PadShape::Rect,
-                position: Point { x: spacing / 2.0, y: 0.0 },
-                size: Point { x: 0.6, y: 0.8 },
-                drill: None,
-                layers: vec!["TopCopper".to_string()],
-                net: None,
-                roundrect_ratio: 0.0,
-            });
-        }
+                    let mut synthetic_pads = Vec::new();
+                    let fp_lower = footprint_id.to_ascii_lowercase();
+                    if fp_lower.contains("0402")
+                        || fp_lower.contains("0603")
+                        || fp_lower.contains("0805")
+                        || fp_lower.contains("1206")
+                        || fp_lower.contains("r_")
+                        || fp_lower.contains("c_")
+                        || reference.starts_with('R')
+                        || reference.starts_with('C')
+                        || reference.starts_with('L')
+                        || reference.starts_with('D')
+                    {
+                        // 2-pad passive component
+                        let spacing = if fp_lower.contains("0402") {
+                            1.0
+                        } else if fp_lower.contains("0603") {
+                            1.6
+                        } else {
+                            2.0
+                        };
+                        synthetic_pads.push(oxide_types::pcb::Pad {
+                            uuid: Uuid::new_v4(),
+                            number: "1".to_string(),
+                            pad_type: oxide_types::pcb::PadType::Smd,
+                            shape: oxide_types::pcb::PadShape::Rect,
+                            position: Point {
+                                x: -spacing / 2.0,
+                                y: 0.0,
+                            },
+                            size: Point { x: 0.6, y: 0.8 },
+                            drill: None,
+                            layers: vec!["TopCopper".to_string()],
+                            net: None,
+                            roundrect_ratio: 0.0,
+                        });
+                        synthetic_pads.push(oxide_types::pcb::Pad {
+                            uuid: Uuid::new_v4(),
+                            number: "2".to_string(),
+                            pad_type: oxide_types::pcb::PadType::Smd,
+                            shape: oxide_types::pcb::PadShape::Rect,
+                            position: Point {
+                                x: spacing / 2.0,
+                                y: 0.0,
+                            },
+                            size: Point { x: 0.6, y: 0.8 },
+                            drill: None,
+                            layers: vec!["TopCopper".to_string()],
+                            net: None,
+                            roundrect_ratio: 0.0,
+                        });
+                    }
 
                     board.footprints.push(Footprint {
                         uuid: Uuid::new_v4(),
@@ -304,7 +326,11 @@ impl EcoEngine {
                     }
                 }
                 EcoAction::AddNet { name, net_id } => {
-                    if !board.nets.iter().any(|n| n.number == *net_id || n.name == *name) {
+                    if !board
+                        .nets
+                        .iter()
+                        .any(|n| n.number == *net_id || n.name == *name)
+                    {
                         board.nets.push(oxide_types::pcb::NetDef {
                             number: *net_id,
                             name: name.clone(),
@@ -358,7 +384,12 @@ mod tests {
         // 1. Initial diff should detect missing R1, C1, and net GND
         let report = EcoEngine::diff_schematic_to_pcb(&netlist, &board, &sch_components);
         assert_eq!(report.actions.len(), 3);
-        assert!(report.actions.iter().any(|a| matches!(a, EcoAction::AddNet { name, .. } if name == "GND")));
+        assert!(
+            report
+                .actions
+                .iter()
+                .any(|a| matches!(a, EcoAction::AddNet { name, .. } if name == "GND"))
+        );
 
         // 2. Apply ECO
         EcoEngine::apply_eco(&mut board, &report);

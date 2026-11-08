@@ -258,7 +258,7 @@ impl PcbEngine {
             let fp_rot = fp.rotation;
             let fp_pos = fp.position;
             let is_bottom = fp.layer.to_ascii_lowercase().contains("bottom")
-                || fp.layer.to_ascii_lowercase() == "b.cu";
+                || fp.layer.eq_ignore_ascii_case("b.cu");
 
             for pad in &fp.pads {
                 let mut local_x = pad.position.x;
@@ -279,36 +279,45 @@ impl PcbEngine {
                 };
                 let dx = (x - abs_x).abs();
                 let dy = (y - abs_y).abs();
-                if dx <= (w / 2.0).max(0.3) && dy <= (h / 2.0).max(0.3) {
-                    if let Some(net) = &pad.net {
-                        let layer_name = pad
-                            .layers
-                            .first()
-                            .cloned()
-                            .unwrap_or_else(|| fp.layer.clone());
-                        let layer_id = if layer_name.to_ascii_lowercase().contains("bottom")
-                            || layer_name.to_ascii_lowercase() == "b.cu"
-                        {
-                            1
-                        } else {
-                            0
-                        };
-                        return Some((net.number, net.name.clone(), layer_name, layer_id));
-                    }
+                if dx <= (w / 2.0).max(0.3)
+                    && dy <= (h / 2.0).max(0.3)
+                    && let Some(net) = &pad.net
+                {
+                    let layer_name = pad
+                        .layers
+                        .first()
+                        .cloned()
+                        .unwrap_or_else(|| fp.layer.clone());
+                    let layer_id = if layer_name.to_ascii_lowercase().contains("bottom")
+                        || layer_name.eq_ignore_ascii_case("b.cu")
+                    {
+                        1
+                    } else {
+                        0
+                    };
+                    return Some((net.number, net.name.clone(), layer_name, layer_id));
                 }
             }
         }
 
         // 2. Check vias
         for via in &self.board.vias {
-            let diam = if via.diameter > 0.0 { via.diameter } else { 0.6 };
+            let diam = if via.diameter > 0.0 {
+                via.diameter
+            } else {
+                0.6
+            };
             let radius = (diam / 2.0).max(0.3);
             let dx = x - via.position.x;
             let dy = y - via.position.y;
             if dx * dx + dy * dy <= radius * radius {
-                let layer_name = via.layers.first().cloned().unwrap_or_else(|| "F.Cu".to_string());
+                let layer_name = via
+                    .layers
+                    .first()
+                    .cloned()
+                    .unwrap_or_else(|| "F.Cu".to_string());
                 let layer_id = if layer_name.to_ascii_lowercase().contains("bottom")
-                    || layer_name.to_ascii_lowercase() == "b.cu"
+                    || layer_name.eq_ignore_ascii_case("b.cu")
                 {
                     1
                 } else {
@@ -333,7 +342,7 @@ impl PcbEngine {
             if dist_sq <= half_width * half_width {
                 let layer_name = seg.layer.clone();
                 let layer_id = if layer_name.to_ascii_lowercase().contains("bottom")
-                    || layer_name.to_ascii_lowercase() == "b.cu"
+                    || layer_name.eq_ignore_ascii_case("b.cu")
                 {
                     1
                 } else {

@@ -220,11 +220,52 @@ impl PcbCanvas {
             let step = (w.min(h) / 20.0).max(1.0);
 
             let mut grid = oxide_gfx::pdn_heatmap::PdnMeshGrid::new(w, h, step, 3.3, 35.0);
-            // Add VRM supply point at board origin and realistic load sinks
-            grid.set_voltage_source(0, 0, 3.3);
-            if grid.cols > 1 && grid.rows > 1 {
-                grid.add_current_sink(grid.cols / 2, grid.rows / 2, 2.5); // 2.5A MCU load
-                grid.add_current_sink(grid.cols - 1, grid.rows - 1, 1.2); // 1.2A PHY load
+
+            // Synthesize VRM source and load sinks from actual pads belonging to power nets
+            let mut vrm_placed = false;
+            let mut sink_count = 0;
+            let min_x_f64 = bounds.x as f64;
+            let min_y_f64 = bounds.y as f64;
+
+            for pad in &snapshot.pads {
+                if let Some(net_name) = &pad.net_name {
+                    let net_upper = net_name.to_ascii_uppercase();
+                    let is_pwr = net_upper.contains("VCC")
+                        || net_upper.contains("VDD")
+                        || net_upper.contains("3V3")
+                        || net_upper.contains("5V")
+                        || net_upper.contains("1V8")
+                        || net_upper.contains("1V2")
+                        || net_upper.contains("0V85")
+                        || net_upper.contains("PWR")
+                        || net_upper.contains("CORE");
+
+                    if is_pwr {
+                        let col = (((pad.center[0] as f64 - min_x_f64) / step).round() as usize)
+                            .min(grid.cols.saturating_sub(1));
+                        let row = (((pad.center[1] as f64 - min_y_f64) / step).round() as usize)
+                            .min(grid.rows.saturating_sub(1));
+
+                        if !vrm_placed {
+                            // First detected power pin acts as VRM supply terminal
+                            grid.set_voltage_source(col, row, 3.3);
+                            vrm_placed = true;
+                        } else if sink_count < 16 {
+                            // Subsequent power pins act as distributed IC/PHY DC current sinks
+                            grid.add_current_sink(col, row, 0.45);
+                            sink_count += 1;
+                        }
+                    }
+                }
+            }
+
+            // Fallback if no annotated power net pads are present
+            if !vrm_placed {
+                grid.set_voltage_source(0, 0, 3.3);
+                if grid.cols > 1 && grid.rows > 1 {
+                    grid.add_current_sink(grid.cols / 2, grid.rows / 2, 2.5);
+                    grid.add_current_sink(grid.cols - 1, grid.rows - 1, 1.2);
+                }
             }
             grid.solve_dc_drop(100);
 

@@ -163,10 +163,18 @@ pub fn layer_color_rgba(layer_name: &str, layer_index: Option<u8>) -> [f32; 4] {
     if lower == "b.cu" || lower == "bottomcopper" || lower == "bottom layer" || lower == "bottom" {
         return [0.12, 0.35, 0.82, 1.0]; // High-contrast Bottom Copper Blue
     }
-    if lower == "f.silks" || lower == "topsilk" || lower == "top overlay" || lower.contains("silk") && lower.contains("top") {
+    if lower == "f.silks"
+        || lower == "topsilk"
+        || lower == "top overlay"
+        || lower.contains("silk") && lower.contains("top")
+    {
         return [0.92, 0.92, 0.20, 1.0]; // Top Silkscreen Yellow
     }
-    if lower == "b.silks" || lower == "bottomsilk" || lower == "bottom overlay" || lower.contains("silk") && lower.contains("bot") {
+    if lower == "b.silks"
+        || lower == "bottomsilk"
+        || lower == "bottom overlay"
+        || lower.contains("silk") && lower.contains("bot")
+    {
         return [0.65, 0.20, 0.75, 1.0]; // Bottom Silkscreen Purple
     }
     if lower == "f.mask" || lower == "topmask" || lower == "top solder" {
@@ -185,10 +193,16 @@ pub fn layer_color_rgba(layer_name: &str, layer_index: Option<u8>) -> [f32; 4] {
     // Inner copper layers (In1, In2, Mid Layer 1, etc.) or fallback via index
     let idx = layer_index.unwrap_or_else(|| {
         if let Some(pos) = lower.find("in") {
-            let digits: String = lower[pos + 2..].chars().take_while(|c| c.is_ascii_digit()).collect();
+            let digits: String = lower[pos + 2..]
+                .chars()
+                .take_while(|c| c.is_ascii_digit())
+                .collect();
             digits.parse::<u8>().unwrap_or(1)
         } else if let Some(pos) = lower.find("mid") {
-            let digits: String = lower[pos + 3..].chars().filter(|c| c.is_ascii_digit()).collect();
+            let digits: String = lower[pos + 3..]
+                .chars()
+                .filter(|c| c.is_ascii_digit())
+                .collect();
             digits.parse::<u8>().unwrap_or(1)
         } else {
             1

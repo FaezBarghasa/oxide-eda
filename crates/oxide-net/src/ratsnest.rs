@@ -70,7 +70,7 @@ impl RatsnestEngine {
             let fp_rot = fp.rotation;
             let fp_pos = fp.position;
             let is_bottom = fp.layer.to_ascii_lowercase().contains("bottom")
-                || fp.layer.to_ascii_lowercase() == "b.cu";
+                || fp.layer.eq_ignore_ascii_case("b.cu");
 
             for pad in &fp.pads {
                 #[allow(clippy::collapsible_if)]
@@ -82,7 +82,13 @@ impl RatsnestEngine {
                         if is_bottom {
                             local_x = -local_x;
                         }
-                        let rotated = rotate_point(Point { x: local_x, y: local_y }, fp_rot);
+                        let rotated = rotate_point(
+                            Point {
+                                x: local_x,
+                                y: local_y,
+                            },
+                            fp_rot,
+                        );
                         let abs_pos = Point {
                             x: fp_pos.x + rotated.x,
                             y: fp_pos.y + rotated.y,

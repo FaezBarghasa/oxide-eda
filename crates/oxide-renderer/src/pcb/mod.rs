@@ -122,7 +122,10 @@ impl PcbSnapshot {
         Self::from_board_with_selection(board, &[])
     }
 
-    pub fn from_board_with_selection(board: &PcbBoard, selected_uuids: &[oxide_types::Uuid]) -> Self {
+    pub fn from_board_with_selection(
+        board: &PcbBoard,
+        selected_uuids: &[oxide_types::Uuid],
+    ) -> Self {
         let is_selected = |id: oxide_types::Uuid| selected_uuids.contains(&id);
         let layer_ranks = layer_rank_index(board);
         let traces = board
@@ -169,7 +172,11 @@ impl PcbSnapshot {
             texts.push(PcbTextInput {
                 text: bt.text.clone(),
                 position: point_to_xy(bt.position),
-                font_size_mm: if bt.font_size > 0.0 { bt.font_size as f32 } else { 1.2 },
+                font_size_mm: if bt.font_size > 0.0 {
+                    bt.font_size as f32
+                } else {
+                    1.2
+                },
                 rotation_deg: bt.rotation as f32,
                 layer_name: bt.layer.clone(),
             });
@@ -200,7 +207,7 @@ impl PcbSnapshot {
                     font_size_mm: 1.0,
                     rotation_deg: footprint.rotation as f32,
                     layer_name: if footprint.layer.to_ascii_lowercase().contains("bottom")
-                        || footprint.layer.to_ascii_lowercase() == "b.cu"
+                        || footprint.layer.eq_ignore_ascii_case("b.cu")
                     {
                         "B.SilkS".to_string()
                     } else {

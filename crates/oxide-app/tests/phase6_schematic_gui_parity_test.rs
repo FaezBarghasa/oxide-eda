@@ -169,6 +169,25 @@ fn test_elm_pure_cross_probe_and_tab_navigation() {
         "Cross-probe must switch active view to PCB tab"
     );
 
+    // Verify footprint selection and camera synchronization on PCB
+    assert!(
+        app.active_pcb_engine()
+            .map(|e| !e.selected_items().is_empty())
+            .unwrap_or(false),
+        "PCB engine must have selected matching footprint"
+    );
+
+    // Verify PCB canvas scene and PDN heatmap overlay composition
+    app.interaction_state.pcb_canvas.show_pdn_heatmap = true;
+    app.sync_pcb_canvas_from_visible_board();
+    if let Some(snap) = app.interaction_state.pcb_canvas.active_renderer_snapshot() {
+        let scene = app.interaction_state.pcb_canvas.build_scene(snap);
+        assert!(
+            !scene.overlay_polygons.is_empty(),
+            "PDN heatmap must render overlay quads"
+        );
+    }
+
     // 5. Cross-probe from PCB back to Schematic
     let _ = app.update(Message::ContextMenu(ContextMenuMsg::Action(
         ContextAction::CrossProbe,
@@ -177,6 +196,16 @@ fn test_elm_pure_cross_probe_and_tab_navigation() {
     assert_eq!(
         app.document_state.active_tab, 0,
         "Cross-probe from PCB must return to Schematic tab"
+    );
+
+    // Verify symbol selection on schematic
+    assert!(
+        app.interaction_state
+            .active_canvas()
+            .selected
+            .iter()
+            .any(|s| s.uuid == sym1_uuid),
+        "Symbol U1 must be selected on schematic"
     );
 }
 

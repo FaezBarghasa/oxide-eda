@@ -72,10 +72,7 @@ impl InteractiveRouter {
     }
 
     /// Construct an interactive router directly from a board model and constraints.
-    pub fn from_board(
-        board: &oxide_types::pcb::PcbBoard,
-        rules: Arc<ConstraintManager>,
-    ) -> Self {
+    pub fn from_board(board: &oxide_types::pcb::PcbBoard, rules: Arc<ConstraintManager>) -> Self {
         let spatial = Arc::new(SpatialIndex::build(board));
         let mut router = Self::new(rules, spatial);
 
@@ -416,10 +413,7 @@ impl InteractiveRouter {
     ) -> Vec<RouteSegment> {
         let (dielectric_h, copper_t, er) = if let Some(st) = &self.stackup {
             let copper_indices = st.copper_layer_indices();
-            let copper_idx = copper_indices
-                .get(layer as usize)
-                .copied()
-                .unwrap_or(0);
+            let copper_idx = copper_indices.get(layer as usize).copied().unwrap_or(0);
             let ref_plane = st.get_reference_plane(copper_idx);
             let h = ref_plane
                 .and_then(|rp| st.get_dielectric_height_to_plane(copper_idx, rp))
@@ -435,13 +429,19 @@ impl InteractiveRouter {
 
         let gap = if let Some(&target_zdiff) = self.target_diff_impedance.get(&net_id) {
             // Synthesize differential spacing using SI field solver with real stackup
-            let single_z0 =
-                oxide_physics::ImpedanceCalculator::calculate_microstrip(width, dielectric_h, copper_t, er);
+            let single_z0 = oxide_physics::ImpedanceCalculator::calculate_microstrip(
+                width,
+                dielectric_h,
+                copper_t,
+                er,
+            );
             let mut best_s = 150;
             let mut min_err = f64::MAX;
             for s_cand in (50..=400).step_by(10) {
                 let z_diff = oxide_physics::ImpedanceCalculator::calculate_differential_microstrip(
-                    single_z0, s_cand, dielectric_h,
+                    single_z0,
+                    s_cand,
+                    dielectric_h,
                 );
                 let err = (z_diff - target_zdiff).abs();
                 if err < min_err {
@@ -729,10 +729,7 @@ impl InteractiveRouter {
     pub fn get_track_width_for_net(&self, net_id: NetId, layer: LayerId) -> Microns {
         let (dielectric_h, copper_t, er) = if let Some(st) = &self.stackup {
             let copper_indices = st.copper_layer_indices();
-            let copper_idx = copper_indices
-                .get(layer as usize)
-                .copied()
-                .unwrap_or(0);
+            let copper_idx = copper_indices.get(layer as usize).copied().unwrap_or(0);
             let ref_plane = st.get_reference_plane(copper_idx);
             let h = ref_plane
                 .and_then(|rp| st.get_dielectric_height_to_plane(copper_idx, rp))

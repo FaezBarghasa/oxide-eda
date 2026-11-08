@@ -2,7 +2,10 @@
 
 use super::*;
 
-pub(super) fn trace_from_segment(segment: &Segment, layer_ranks: &HashMap<String, u16>) -> TraceInput {
+pub(super) fn trace_from_segment(
+    segment: &Segment,
+    layer_ranks: &HashMap<String, u16>,
+) -> TraceInput {
     let layer_name = segment.layer.clone();
     let layer_id = layer_ranks
         .get(&layer_name.to_ascii_lowercase())
@@ -68,7 +71,9 @@ pub(super) fn pad_from_footprint(footprint: &Footprint, pad: &Pad) -> PadInput {
     }
 }
 
-pub(super) fn graphic_from_board_graphic(bg: &oxide_types::pcb::BoardGraphic) -> Option<PcbGraphicInput> {
+pub(super) fn graphic_from_board_graphic(
+    bg: &oxide_types::pcb::BoardGraphic,
+) -> Option<PcbGraphicInput> {
     let mut vertices = Vec::new();
     let mut is_closed = false;
 
@@ -95,7 +100,11 @@ pub(super) fn graphic_from_board_graphic(bg: &oxide_types::pcb::BoardGraphic) ->
 
     Some(PcbGraphicInput {
         vertices,
-        width_mm: if bg.width > 0.0 { bg.width as f32 } else { 0.15 },
+        width_mm: if bg.width > 0.0 {
+            bg.width as f32
+        } else {
+            0.15
+        },
         layer_name: bg.layer.clone(),
         filled: is_closed && bg.graphic_type.to_ascii_lowercase().contains("fill"),
         is_closed,
@@ -145,7 +154,11 @@ pub(super) fn graphic_from_fp_graphic(
 
     Some(PcbGraphicInput {
         vertices,
-        width_mm: if fg.width > 0.0 { fg.width as f32 } else { 0.12 },
+        width_mm: if fg.width > 0.0 {
+            fg.width as f32
+        } else {
+            0.12
+        },
         layer_name: fg.layer.clone(),
         filled: is_closed && fg.fill.to_ascii_lowercase().contains("fill"),
         is_closed,
@@ -335,7 +348,8 @@ pub(super) fn emit_traces(snapshot: &PcbSnapshot, theme: &ResolvedTheme, scene: 
             continue;
         }
 
-        let mut color = oxide_types::layer::layer_color_rgba(&trace.layer_name, Some(trace.layer_id));
+        let mut color =
+            oxide_types::layer::layer_color_rgba(&trace.layer_name, Some(trace.layer_id));
         // Fallback to theme Wire color if alpha is zero or unknown
         if color[3] == 0.0 {
             color = default_trace_color;
@@ -459,7 +473,8 @@ pub(super) fn emit_static_polygons(
             continue;
         }
 
-        let mut z_fill = oxide_types::layer::layer_color_rgba(&zone.layer_name, Some(zone.layer_rank as u8));
+        let mut z_fill =
+            oxide_types::layer::layer_color_rgba(&zone.layer_name, Some(zone.layer_rank as u8));
         z_fill[3] = 0.35; // Semi-transparent plane fill
 
         if let Some(active) = &snapshot.active_layer {

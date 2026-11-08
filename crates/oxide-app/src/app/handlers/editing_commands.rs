@@ -309,10 +309,12 @@ impl Oxide {
                     if let Some((sym_uuid, x, y)) = sym_target {
                         let canvas = self.interaction_state.active_canvas_mut();
                         canvas.selected.clear();
-                        canvas.selected.push(oxide_types::schematic::SelectedItem::new(
-                            sym_uuid,
-                            oxide_types::schematic::SelectedKind::Symbol,
-                        ));
+                        canvas
+                            .selected
+                            .push(oxide_types::schematic::SelectedItem::new(
+                                sym_uuid,
+                                oxide_types::schematic::SelectedKind::Symbol,
+                            ));
                         canvas.center_on_world(x, y);
                     }
                 }

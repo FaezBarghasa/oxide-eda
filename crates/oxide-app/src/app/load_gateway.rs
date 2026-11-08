@@ -13,23 +13,23 @@ impl Oxide {
             .and_then(|tab| tab.cached_document.as_ref())
     }
 
-    pub(crate) fn active_schematic(&self) -> Option<&SchematicSheet> {
+    pub fn active_schematic(&self) -> Option<&SchematicSheet> {
         self.document_state
             .active_engine()
             .map(|engine| engine.document())
     }
 
-    pub(crate) fn active_pcb_engine(&self) -> Option<&oxide_engine::PcbEngine> {
+    pub fn active_pcb_engine(&self) -> Option<&oxide_engine::PcbEngine> {
         let path = self.active_tab_path()?;
         self.document_state.pcb_engines.get(&path)
     }
 
-    pub(crate) fn active_pcb_engine_mut(&mut self) -> Option<&mut oxide_engine::PcbEngine> {
+    pub fn active_pcb_engine_mut(&mut self) -> Option<&mut oxide_engine::PcbEngine> {
         let path = self.active_tab_path()?;
         self.document_state.pcb_engines.get_mut(&path)
     }
 
-    pub(crate) fn active_pcb(&self) -> Option<&PcbBoard> {
+    pub fn active_pcb(&self) -> Option<&PcbBoard> {
         if let Some(engine) = self.active_pcb_engine() {
             Some(engine.board())
         } else {
@@ -38,11 +38,11 @@ impl Oxide {
         }
     }
 
-    pub(crate) fn has_active_schematic(&self) -> bool {
+    pub fn has_active_schematic(&self) -> bool {
         self.active_schematic().is_some()
     }
 
-    pub(crate) fn has_active_pcb(&self) -> bool {
+    pub fn has_active_pcb(&self) -> bool {
         self.active_pcb().is_some()
     }
 
@@ -207,7 +207,7 @@ impl Oxide {
             .set_render_cache(None);
     }
 
-    pub(crate) fn sync_pcb_canvas_from_visible_board(&mut self) {
+    pub fn sync_pcb_canvas_from_visible_board(&mut self) {
         let selected_uuids: Vec<uuid::Uuid> = self
             .active_pcb_engine()
             .map(|e| e.selected_items().iter().map(|s| s.uuid).collect())
@@ -279,7 +279,8 @@ impl Oxide {
 
             // 3. Preserve active layer and single-layer mode if previously configured
             if let Some(existing) = self.interaction_state.pcb_canvas.active_renderer_snapshot() {
-                snapshot = snapshot.with_active_layer(existing.active_layer.clone(), existing.single_layer_mode);
+                snapshot = snapshot
+                    .with_active_layer(existing.active_layer.clone(), existing.single_layer_mode);
             }
 
             snapshot
