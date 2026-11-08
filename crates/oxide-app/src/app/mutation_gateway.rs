@@ -333,7 +333,7 @@ impl Oxide {
         }
     }
 
-    pub(crate) fn apply_pcb_command(&mut self, command: oxide_engine::PcbCommand) -> bool {
+    pub fn apply_pcb_command(&mut self, command: oxide_engine::PcbCommand) -> bool {
         let Some(engine) = self.active_pcb_engine_mut() else {
             return false;
         };

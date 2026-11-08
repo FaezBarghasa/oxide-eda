@@ -4,9 +4,9 @@ use iced::{Task, Theme};
 use oxide_types::coord::Unit;
 use oxide_types::theme::ThemeId;
 
-use crate::canvas::CanvasEvent;
-use crate::dock::PanelPosition;
-use crate::menu_bar::{self, MenuMessage};
+pub use crate::canvas::CanvasEvent;
+pub use crate::dock::PanelPosition;
+pub use crate::menu_bar::{self, MenuMessage};
 use crate::status_bar;
 use crate::tab_bar::{self, TabMessage};
 use crate::toolbar::ToolMessage;
