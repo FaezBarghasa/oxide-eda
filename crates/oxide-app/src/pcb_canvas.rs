@@ -187,6 +187,12 @@ impl PcbCanvas {
         cam.zoom_at(center, -1.0, iced::Rectangle::default());
     }
 
+    /// Center camera on world coordinates (in mm).
+    pub fn center_on_world(&self, world_x: f32, world_y: f32) {
+        let mut cam = self.camera.borrow_mut();
+        cam.center_on_world(world_x, world_y);
+    }
+
     /// Build the `oxide_gfx` scene for a board snapshot. Shared by the CPU
     /// `draw` path and the GPU [`Self::gpu_scene`] path so both tessellate from
     /// identical instance data.

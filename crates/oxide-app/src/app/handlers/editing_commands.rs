@@ -228,7 +228,7 @@ impl Oxide {
                     None
                 };
 
-                if let Some(_target_ref) = ref_opt
+                if let Some(target_ref) = ref_opt
                     && let Some((pcb_idx, pcb_tab)) = self
                         .document_state
                         .tabs
@@ -239,23 +239,81 @@ impl Oxide {
                     let pcb_path = pcb_tab.path.clone();
                     self.document_state.active_tab = pcb_idx;
                     self.document_state.active_path = Some(pcb_path);
+
+                    // Locate footprint on PCB, select it, and center camera
+                    let mut fp_target = None;
+                    if let Some(engine) = self.active_pcb_engine_mut() {
+                        if let Some(fp) = engine
+                            .board()
+                            .footprints
+                            .iter()
+                            .find(|f| f.reference.eq_ignore_ascii_case(&target_ref))
+                        {
+                            fp_target = Some((fp.uuid, fp.position.x as f32, fp.position.y as f32));
+                        }
+                        if let Some((fp_uuid, _, _)) = fp_target {
+                            engine.set_selection(vec![oxide_engine::pcb::SelectedPcbItem {
+                                uuid: fp_uuid,
+                                kind: oxide_engine::pcb::SelectedPcbKind::Footprint,
+                                name: Some(target_ref.clone()),
+                            }]);
+                        }
+                    }
+
+                    if let Some((_, x, y)) = fp_target {
+                        self.interaction_state.pcb_canvas.center_on_world(x, y);
+                        self.interaction_state.pcb_canvas.clear_bg_cache();
+                        self.interaction_state.pcb_canvas.clear_content_cache();
+                    }
+                    self.sync_pcb_canvas_from_visible_board();
                 }
             }
             TabKind::Pcb => {
-                if let Some(board) = self.active_pcb()
-                    && let Some(fp) = board.footprints.first()
-                {
-                    let _target_ref = &fp.reference;
-                    if let Some((sch_idx, sch_tab)) = self
+                let target_ref = self.active_pcb_engine().and_then(|e| {
+                    let selected_uuids: Vec<uuid::Uuid> =
+                        e.selected_items().iter().map(|s| s.uuid).collect();
+                    e.board()
+                        .footprints
+                        .iter()
+                        .find(|f| selected_uuids.contains(&f.uuid))
+                        .map(|f| f.reference.clone())
+                        .or_else(|| e.board().footprints.first().map(|f| f.reference.clone()))
+                });
+
+                if let Some(target_ref) = target_ref
+                    && let Some((sch_idx, sch_tab)) = self
                         .document_state
                         .tabs
                         .iter()
                         .enumerate()
                         .find(|(_, t)| matches!(t.kind, TabKind::Schematic))
-                    {
-                        let sch_path = sch_tab.path.clone();
-                        self.document_state.active_tab = sch_idx;
-                        self.document_state.active_path = Some(sch_path);
+                {
+                    let sch_path = sch_tab.path.clone();
+                    self.document_state.active_tab = sch_idx;
+                    self.document_state.active_path = Some(sch_path.clone());
+
+                    // Locate matching symbol in schematic, select it, and center camera
+                    let mut sym_target = None;
+                    if let Some(engine) = self.document_state.engines.get_mut(&sch_path) {
+                        if let Some(sym) = engine
+                            .document()
+                            .symbols
+                            .iter()
+                            .find(|s| s.reference.eq_ignore_ascii_case(&target_ref))
+                        {
+                            sym_target =
+                                Some((sym.uuid, sym.position.x as f32, sym.position.y as f32));
+                        }
+                    }
+
+                    if let Some((sym_uuid, x, y)) = sym_target {
+                        let canvas = self.interaction_state.active_canvas_mut();
+                        canvas.selected.clear();
+                        canvas.selected.push(oxide_types::schematic::SelectedItem::new(
+                            sym_uuid,
+                            oxide_types::schematic::SelectedKind::Symbol,
+                        ));
+                        canvas.center_on_world(x, y);
                     }
                 }
             }

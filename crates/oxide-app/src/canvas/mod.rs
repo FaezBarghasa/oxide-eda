@@ -258,6 +258,12 @@ impl CanvasSlot {
         cam.zoom_at(center, -1.0, iced::Rectangle::default());
     }
 
+    /// Center camera on world coordinates (in mm).
+    pub fn center_on_world(&self, world_x: f32, world_y: f32) {
+        let mut cam = self.camera.borrow_mut();
+        cam.center_on_world(world_x, world_y);
+    }
+
     pub fn set_render_cache(
         &mut self,
         render_cache: Option<crate::schematic_runtime::SchematicRenderCache>,
