@@ -397,6 +397,15 @@ pub(super) fn emit_vias(snapshot: &PcbSnapshot, theme: &ResolvedTheme, scene: &m
             stroke_width: annulus,
             color,
         });
+
+        // Dark drill hole cutout for thru-hole via
+        let drill_radius = (via.drill_mm * 0.5).max(0.005);
+        scene.circles.push(Circle {
+            center: via.center,
+            radius: drill_radius,
+            stroke_width: 0.0,
+            color: [0.08, 0.08, 0.10, 1.0],
+        });
     }
 }
 
@@ -722,6 +731,101 @@ pub(super) fn emit_overlays(snapshot: &PcbSnapshot, theme: &ResolvedTheme, scene
                 style: 0,
                 _pad: 0,
             });
+        }
+    }
+}
+
+pub(super) fn emit_texts(snapshot: &PcbSnapshot, _theme: &ResolvedTheme, scene: &mut Scene) {
+    use oxide_gfx::primitive::text::{TextHAlign, TextItem, TextVAlign};
+
+    scene.texts.clear();
+    scene.texts.reserve(snapshot.texts.len() + snapshot.pads.len());
+
+    let silkscreen_color = [0.95, 0.95, 0.92, 0.95];
+    let pad_text_color = [1.0, 1.0, 1.0, 0.9];
+    let net_text_color = [0.2, 0.9, 1.0, 0.85];
+
+    // 1. Board & Footprint Silkscreen texts
+    for t in &snapshot.texts {
+        scene.texts.push(TextItem {
+            content: t.text.clone(),
+            position: t.position,
+            size_mm: t.font_size_mm,
+            color: silkscreen_color,
+            bold: false,
+            italic: false,
+            rotation: t.rotation_deg,
+            h_align: TextHAlign::Left,
+            v_align: TextVAlign::Bottom,
+        });
+    }
+
+    // 2. Pad numbers & net names inside pads
+    for pad in &snapshot.pads {
+        let pad_w = pad.size_mm[0];
+        let pad_h = pad.size_mm[1];
+        let font_size = (pad_w.min(pad_h) * 0.38).clamp(0.2, 1.2);
+
+        if !pad.pad_number.is_empty() {
+            let offset_y = if pad.net_name.is_some() {
+                font_size * 0.55
+            } else {
+                0.0
+            };
+            scene.texts.push(TextItem {
+                content: pad.pad_number.clone(),
+                position: [pad.center[0], pad.center[1] - offset_y],
+                size_mm: font_size,
+                color: pad_text_color,
+                bold: true,
+                italic: false,
+                rotation: pad.rotation_deg,
+                h_align: TextHAlign::Center,
+                v_align: TextVAlign::Center,
+            });
+        }
+
+        if let Some(net) = &pad.net_name {
+            if !net.is_empty() && font_size >= 0.25 {
+                scene.texts.push(TextItem {
+                    content: net.clone(),
+                    position: [pad.center[0], pad.center[1] + font_size * 0.55],
+                    size_mm: font_size * 0.8,
+                    color: net_text_color,
+                    bold: false,
+                    italic: false,
+                    rotation: pad.rotation_deg,
+                    h_align: TextHAlign::Center,
+                    v_align: TextVAlign::Center,
+                });
+            }
+        }
+    }
+
+    // 3. Dynamic trace net names along segments
+    for trace in &snapshot.traces {
+        if trace.net > 0 && trace.width_mm >= 0.2 {
+            let dx = trace.p1[0] - trace.p0[0];
+            let dy = trace.p1[1] - trace.p0[1];
+            let len = (dx * dx + dy * dy).sqrt();
+            if len >= 3.0 {
+                let mid = [
+                    (trace.p0[0] + trace.p1[0]) * 0.5,
+                    (trace.p0[1] + trace.p1[1]) * 0.5,
+                ];
+                let rot = dy.atan2(dx).to_degrees();
+                scene.texts.push(TextItem {
+                    content: format!("Net_{}", trace.net),
+                    position: mid,
+                    size_mm: (trace.width_mm * 0.65).clamp(0.2, 0.8),
+                    color: [1.0, 1.0, 1.0, 0.75],
+                    bold: false,
+                    italic: false,
+                    rotation: rot,
+                    h_align: TextHAlign::Center,
+                    v_align: TextVAlign::Center,
+                });
+            }
         }
     }
 }

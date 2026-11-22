@@ -379,6 +379,10 @@ impl ViewRenderer for PcbRenderer {
             emit_static_polygons(snapshot, theme, scene);
         }
 
+        if dirty.contains(DirtyFlags::TEXT) {
+            emit_texts(snapshot, theme, scene);
+        }
+
         if dirty.contains(DirtyFlags::OVERLAY) {
             emit_overlays(snapshot, theme, scene);
         }

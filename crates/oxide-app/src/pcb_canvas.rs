@@ -249,7 +249,7 @@ impl PcbCanvas {
             DirtyFlags::LINES
                 | DirtyFlags::CIRCLES
                 | DirtyFlags::POLYGONS
-                | DirtyFlags::TEXTS
+                | DirtyFlags::TEXT
                 | DirtyFlags::OVERLAY,
             &mut scene,
         );
