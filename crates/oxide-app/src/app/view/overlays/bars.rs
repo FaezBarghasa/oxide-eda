@@ -304,7 +304,7 @@ impl Oxide {
         items.push(btn(
             crate::icons::icon_align(tid),
             false,
-            Message::CommandExecuted("measure_distance".to_string()),
+            Message::Tool(crate::toolbar::ToolMessage::SelectTool(crate::app::Tool::Line)),
             "Measure (Ctrl+M)",
         ));
 

@@ -26,7 +26,7 @@ impl Oxide {
                 self.interaction_state.current_tool = Tool::Wire;
                 self.interaction_state
                     .pcb_canvas
-                    .set_routing_mode(oxide_router::interactive::RoutingMode::Walkaround);
+                    .set_routing_mode(oxide_router::interactive::RoutingMode::WalkAround);
                 crate::diagnostics::log_info("Interactive Routing: Walkaround / Multi-route enabled");
                 Some(Task::none())
             }
@@ -49,7 +49,7 @@ impl Oxide {
                     let mut autorouter =
                         oxide_router::topology::TopologicalAutorouter::new(rules, spatial);
                     let _ = autorouter.build_topological_map(&board);
-                    let net_ids: Vec<u32> = board.nets.iter().map(|n| n.id).collect();
+                    let net_ids: Vec<u32> = board.nets.iter().map(|n| n.number).collect();
                     let results = autorouter.route_board(&mut board, &net_ids);
                     let count = results.len();
                     crate::diagnostics::log_info(format!(
@@ -159,14 +159,14 @@ impl Oxide {
             MenuMessage::RouteCorner45 => {
                 self.interaction_state
                     .pcb_canvas
-                    .set_corner_mode(oxide_router::CornerMode::Mitred45);
+                    .set_corner_mode(oxide_router::CornerMode::FortyFiveDeg);
                 crate::diagnostics::log_info("Corner mode set to 45° Mitred");
                 Some(Task::none())
             }
             MenuMessage::RouteCornerRounded => {
                 self.interaction_state
                     .pcb_canvas
-                    .set_corner_mode(oxide_router::CornerMode::Arc90);
+                    .set_corner_mode(oxide_router::CornerMode::FortyFiveArc);
                 crate::diagnostics::log_info("Corner mode set to Rounded (Arc)");
                 Some(Task::none())
             }

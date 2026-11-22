@@ -86,8 +86,8 @@ impl Oxide {
                             vias_to_commit.push(oxide_types::pcb::Via {
                                 uuid: uuid::Uuid::new_v4(),
                                 position: oxide_types::pcb::Point::new(vx, vy),
-                                diameter: via.diameter as f64 / 1000.0,
-                                drill: via.drill as f64 / 1000.0,
+                                diameter: via.pad_diameter as f64 / 1000.0,
+                                drill: via.drill_size as f64 / 1000.0,
                                 layers: vec!["F.Cu".to_string(), "B.Cu".to_string()],
                                 net: net_id,
                                 via_type: oxide_types::pcb::ViaType::Through,

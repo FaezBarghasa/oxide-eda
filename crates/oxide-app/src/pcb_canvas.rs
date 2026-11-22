@@ -106,6 +106,7 @@ pub struct PcbCanvas {
     pub pending_corner_mode: std::cell::Cell<Option<oxide_router::CornerMode>>,
     pub pending_length_tuning: std::cell::Cell<Option<(i64, i64)>>,
     pub live_preview_cache: std::cell::RefCell<(Vec<RouteSegment>, Vec<ViaPlacement>)>,
+    pub routing_net: std::cell::Cell<u32>,
 }
 
 impl Default for PcbCanvas {
@@ -140,6 +141,7 @@ impl PcbCanvas {
             pending_corner_mode: std::cell::Cell::new(None),
             pending_length_tuning: std::cell::Cell::new(None),
             live_preview_cache: std::cell::RefCell::new((Vec::new(), Vec::new())),
+            routing_net: std::cell::Cell::new(0),
         }
     }
 
@@ -1269,7 +1271,7 @@ impl canvas::Program<Message> for PcbCanvas {
                 let p_bot0 = project_3d(bx0, by0, -thickness);
                 let p_bot1 = project_3d(bx1, by0, -thickness);
                 let p_bot2 = project_3d(bx1, by1, -thickness);
-                let p_bot3 = project_3d(bx0, by1, -thickness);
+                let _p_bot3 = project_3d(bx0, by1, -thickness);
 
                 let p_top0 = project_3d(bx0, by0, 0.0);
                 let p_top1 = project_3d(bx1, by0, 0.0);
