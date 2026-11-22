@@ -255,7 +255,10 @@ fn compact_message(rendered: &str) -> String {
     if compact.len() <= 160 {
         compact
     } else {
-        format!("{}...", &compact[..157])
+        // Truncate at a char boundary so multi-byte UTF-8 (e.g. the em-dash
+        // in warning text) never panics on a byte slice.
+        let head = compact.chars().take(157).collect::<String>();
+        format!("{}...", head)
     }
 }
 

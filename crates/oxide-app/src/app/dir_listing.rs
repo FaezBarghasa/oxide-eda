@@ -100,6 +100,35 @@ mod tests {
             .collect()
     }
 
+    /// Serializes the two tests that emit a `directory unreadable` error so
+    /// their entries don't interleave in the shared ring buffer.
+    static ERROR_TEST_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+    /// Highest diagnostic entry id in the ring, or 0 if empty.
+    fn latest_entry_id() -> u64 {
+        crate::diagnostics::recent_entries()
+            .iter()
+            .map(|entry| entry.id)
+            .max()
+            .unwrap_or(0)
+    }
+
+    /// Error entries emitted after `before_id` that name an unreadable dir.
+    ///
+    /// The stable prefix "directory unreadable" always survives the 160-char
+    /// compaction (it sits in the first ~78 chars), unlike the path tail that
+    /// used to be the marker — which gets truncated on long temp-dir paths.
+    fn unreadable_entries_since(before_id: u64) -> Vec<crate::diagnostics::DiagnosticEntry> {
+        crate::diagnostics::recent_entries()
+            .into_iter()
+            .filter(|entry| {
+                entry.id > before_id
+                    && entry.level == crate::diagnostics::DiagnosticLevel::Error
+                    && entry.message.contains("directory unreadable")
+            })
+            .collect()
+    }
+
     #[test]
     fn a_missing_directory_lists_empty_and_says_nothing() {
         // First run: no library installed, no `symbols/` yet. Empty is
@@ -122,15 +151,16 @@ mod tests {
         // A path that exists but is not a directory fails with
         // `NotADirectory` — the same non-`NotFound` shape a permission
         // error takes, and the one this helper exists to surface.
+        let _guard = ERROR_TEST_LOCK.lock();
+        let before = latest_entry_id();
         let file = unique_dir("unreadable");
-        let marker = file.file_name().unwrap().to_string_lossy().to_string();
         std::fs::write(&file, b"not a directory").expect("write probe file");
         let _ = crate::diagnostics::init_logging();
 
         let paths = list_dir_or_report(&file, "test: unreadable directory");
 
         assert!(paths.is_empty(), "an unreadable directory reads as empty");
-        let records = records_mentioning(&marker);
+        let records = unreadable_entries_since(before);
         assert_eq!(
             records.len(),
             1,
@@ -149,8 +179,9 @@ mod tests {
         // The panel-context builders re-list on every rebuild. Without
         // the once-per-directory guard, one unreadable `symbols/` dir
         // evicts the user's ERC results from the 200-entry ring.
+        let _guard = ERROR_TEST_LOCK.lock();
+        let before = latest_entry_id();
         let file = unique_dir("flood");
-        let marker = file.file_name().unwrap().to_string_lossy().to_string();
         std::fs::write(&file, b"not a directory").expect("write probe file");
         let _ = crate::diagnostics::init_logging();
 
@@ -160,7 +191,7 @@ mod tests {
         }
 
         assert_eq!(
-            records_mentioning(&marker).len(),
+            unreadable_entries_since(before).len(),
             1,
             "a standing failure is reported once, not once per rebuild"
         );

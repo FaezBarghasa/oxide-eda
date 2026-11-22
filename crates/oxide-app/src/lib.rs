@@ -55,3 +55,5 @@ pub mod tab_bar;
 #[cfg(test)]
 pub(crate) mod test_support;
 pub mod toolbar;
+
+pub mod ui_catalog;

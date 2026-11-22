@@ -1,6 +1,89 @@
 use super::super::*;
 
 impl Oxide {
+    /// Break the wire under the cursor (Altium E key): split the segment
+    /// at the cursor position into two, leaving a small gap. No-op when
+    /// no PCB is active or no segment is under the cursor.
+    pub(crate) fn handle_break_wire_requested(&mut self) {
+        if !self.has_active_pcb() {
+            return;
+        }
+        // Convert the screen-space cursor to world (mm) using the active
+        // canvas camera. `live_camera()` returns (offset_x, offset_y, scale);
+        // world = (screen - offset) / scale.
+        let (off_x, off_y, scale) = self.interaction_state.active_canvas().live_camera();
+        let world_x = (self.ui_state.cursor_x - f64::from(off_x)) / f64::from(scale);
+        let world_y = (self.ui_state.cursor_y - f64::from(off_y)) / f64::from(scale);
+        // Find the copper element under the cursor; only segments (tracks)
+        // are breakable.
+        let hit = self
+            .active_pcb_engine()
+            .and_then(|e| e.hit_test(world_x, world_y));
+        let Some(hit) = hit else { return; };
+        if !matches!(hit.kind, oxide_engine::SelectedPcbKind::Segment) {
+            return;
+        }
+        let seg_uuid = hit.uuid;
+        // Locate the segment in the board and clone its geometry so we can
+        // release the immutable borrow before mutating via apply_pcb_command.
+        let Some(board) = self.active_pcb() else { return; };
+        let Some(seg) = board.segments.iter().find(|s| s.uuid == seg_uuid) else {
+            return;
+        };
+        let start = seg.start.clone();
+        let end = seg.end.clone();
+        let width = seg.width;
+        let layer = seg.layer.clone();
+        let net = seg.net.clone();
+        // Project the cursor onto the segment's line and split there, leaving
+        // a small gap on each side of the split point.
+        let dx = end.x - start.x;
+        let dy = end.y - start.y;
+        let len_sq = dx * dx + dy * dy;
+        if len_sq < 1e-9 {
+            return;
+        }
+        // Parameter t in [0,1] of the cursor along the segment.
+        let t = ((world_x - start.x) * dx + (world_y - start.y) * dy) / len_sq;
+        let t = t.clamp(0.0, 1.0);
+        // Unit direction from start to end.
+        let len = len_sq.sqrt();
+        let ux = dx / len;
+        let uy = dy / len;
+        const GAP_MM: f64 = 0.25;
+        // Split point and the two gap-offset endpoints.
+        let split_x = start.x + dx * t;
+        let split_y = start.y + dy * t;
+        let end1_x = split_x - ux * GAP_MM;
+        let end1_y = split_y - uy * GAP_MM;
+        let start2_x = split_x + ux * GAP_MM;
+        let start2_y = split_y + uy * GAP_MM;
+        // Commit: delete the original, add the two halves.
+        self.apply_pcb_command(oxide_engine::PcbCommand::DeleteSegment {
+            uuid: seg_uuid,
+        });
+        self.apply_pcb_command(oxide_engine::PcbCommand::AddSegment {
+            segment: oxide_types::pcb::Segment {
+                uuid: uuid::Uuid::new_v4(),
+                start: start.clone(),
+                end: oxide_types::pcb::Point::new(end1_x, end1_y),
+                width,
+                layer: layer.clone(),
+                net: net.clone(),
+            },
+        });
+        self.apply_pcb_command(oxide_engine::PcbCommand::AddSegment {
+            segment: oxide_types::pcb::Segment {
+                uuid: uuid::Uuid::new_v4(),
+                start: oxide_types::pcb::Point::new(start2_x, start2_y),
+                end: end.clone(),
+                width,
+                layer: layer.clone(),
+                net: net.clone(),
+            },
+        });
+    }
+
     pub(crate) fn handle_selection_delete_requested(&mut self) {
         if let Some(engine) = self.document_state.active_engine()
             && engine.has_selected_items(&self.interaction_state.active_canvas().selected)

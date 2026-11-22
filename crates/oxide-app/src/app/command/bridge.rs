@@ -16,7 +16,7 @@ use super::super::*;
 /// Commands without a live dispatch arm return `None`, and
 /// [`log_unmapped`] says so — naming the id and which of the two
 /// failure modes it hit — so an invocation can no longer vanish without
-/// a trace. 64 catalog ids are in that state, every one of them bound to
+/// a trace. 62 catalog ids are in that state, every one of them bound to
 /// a trigger in a shipped profile; the set is pinned by
 /// `tests::UNMAPPED_CATALOG_IDS` and may only shrink.
 ///
@@ -57,6 +57,7 @@ fn resolve(command: &AppCommandId) -> Option<Message> {
         // typed. `None` resolves as a main-window Esc (#547).
         "cancel_current_tool" => Message::EscapePressed { window: None },
         "center_view_at_cursor"
+        | "center_on_cursor"
         | "show_all_design_objects"
         | "zoom_to_all_objects"
         | "zoom_to_fit" => Message::CanvasEvent(CanvasEvent::FitAll),
@@ -67,6 +68,9 @@ fn resolve(command: &AppCommandId) -> Option<Message> {
         "cycle_wire_bus_graphic_mode" => Message::Tool(ToolMessage::CycleDrawMode),
         "cut" => Message::Edit(EditMsg::Cut),
         "delete_selection" | "remove_last_vertex" => Message::Edit(EditMsg::DeleteSelected),
+        // Break the wire under the cursor (Altium E key). No-op when no
+        // PCB is active or no segment is under the cursor.
+        "break_wire" => Message::Edit(EditMsg::BreakWire),
         "draw_graphic_line" => Message::Tool(ToolMessage::SelectTool(Tool::Line)),
         "duplicate" => Message::Edit(EditMsg::Duplicate),
         // Docking the Properties panel IS how this app shows the
@@ -135,6 +139,10 @@ fn resolve(command: &AppCommandId) -> Option<Message> {
         "save_document" => Message::File(FileMsg::Save),
         "save_document_as" => Message::Menu(MenuMessage::SaveAs),
         "select_all" => Message::Selection(selection_request::SelectionRequest::SelectAll),
+        // M key (Altium): start a move-drag on the current selection. ArmDrag
+        // arms the drag so the next click commits the move regardless of whether
+        // it lands on an already-selected item — the Active Bar "Drag" path.
+        "move_object" => Message::Selection(selection_request::SelectionRequest::ArmDrag),
         "show_current_command_hotkeys" | "show_current_command_shortcuts" => {
             Message::Menu(MenuMessage::OpenKeyboardShortcuts)
         }
@@ -338,7 +346,7 @@ mod tests {
     /// `docs/audit/command-registry-action-surface-2026-07-25.md` §5.
     #[rustfmt::skip]
     const UNMAPPED_CATALOG_IDS: &[&str] = &[
-        "autoplace_fields", "break_wire", "center_on_cursor", "clear_net_highlighting",
+        "autoplace_fields", "clear_net_highlighting",
         "close_active_document", "copy_attributes_or_add_vertex", "cycle_fast_grid",
         "cycle_snap_grid_backward", "cycle_wiring_mode", "drag_keep_connections",
         "draw_hierarchical_sheet", "edit_footprint_field",
@@ -347,7 +355,7 @@ mod tests {
         "edit_text_in_place", "edit_value", "fast_grid_1", "fast_grid_2", "find_next",
         "find_previous", "find_similar_objects", "highlight_net_under_cursor",
         "highlight_related_net_objects", "import_graphics", "leave_sheet", "measure_distance",
-        "move_object", "navigate_up_hierarchy", "next_document_tab",
+        "navigate_up_hierarchy", "next_document_tab",
         "next_grid", "next_highlighted_net_item", "next_sheet", "open_datasheet",
         "place_design_block",
         "place_global_label", "place_hierarchical_label", "place_junction",
@@ -446,6 +454,15 @@ mod tests {
         assert!(matches!(
             resolve("zoom_to_all_objects"),
             Message::CanvasEvent(CanvasEvent::FitAll)
+        ));
+        // Phase 8 parity: center-on-cursor and move-object now resolve.
+        assert!(matches!(
+            resolve("center_on_cursor"),
+            Message::CanvasEvent(CanvasEvent::FitAll)
+        ));
+        assert!(matches!(
+            resolve("move_object"),
+            Message::Selection(crate::app::selection_request::SelectionRequest::ArmDrag)
         ));
     }
 

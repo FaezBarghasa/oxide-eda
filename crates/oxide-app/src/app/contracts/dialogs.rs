@@ -357,6 +357,10 @@ pub enum EditMsg {
     SmartPaste,
     /// Duplicate the current selection in place.
     Duplicate,
+    /// Break the wire under the cursor (Altium E key): split the segment
+    /// at the cursor position into two, leaving a small gap. No-op when
+    /// no PCB is active or no segment is under the cursor.
+    BreakWire,
 }
 
 /// Per-shape edit descriptor. The Properties panel dispatches one of

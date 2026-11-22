@@ -31,7 +31,7 @@ members = [
     "crates/oxide-cosim",
     "crates/oxide-cli",
     "crates/oxide-altium-importer",
-    "xtask",
+    "xtask", "oxide_eda_core", "oxide_eda_model", "oxide_eda_ops", "oxide_eda_render", "oxide_eda_io", "oxide_eda_engine",
 ]
 # A bare `cargo build` / `cargo test` at the root only builds the daily-
 # driver crates. The library server and the chrome-catalog dev sandbox are

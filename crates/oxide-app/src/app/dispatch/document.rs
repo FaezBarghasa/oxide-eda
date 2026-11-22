@@ -74,6 +74,10 @@ impl Oxide {
                 self.handle_selection_duplicate_requested();
                 self.finish_update()
             }
+            EditMsg::BreakWire => {
+                self.handle_break_wire_requested();
+                self.finish_update()
+            }
         }
     }
 
