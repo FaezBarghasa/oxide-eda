@@ -34,6 +34,7 @@ fn workspace_root() -> PathBuf {
         .to_path_buf()
 }
 
+#[allow(clippy::too_many_arguments)]
 fn make_pad(
     number: &str,
     pos: Point,

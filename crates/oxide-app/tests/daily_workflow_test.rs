@@ -87,22 +87,22 @@ fn test_phase4_daily_workflow_end_to_end_on_t2() {
     // Dispatched key sequence: 'P' then 'W' (Altium: Place Wire / Route Track)
     let p_key = character("p", iced::keyboard::Modifiers::default());
     let w_key = character("w", iced::keyboard::Modifiers::default());
-    let _ = app.handle_key_input(w, p_key);
-    let _ = app.handle_key_input(w, w_key);
+    drop(app.handle_key_input(w, p_key));
+    drop(app.handle_key_input(w, w_key));
 
     // Dispatched key sequence: 'Shift + Space' (Altium: Cycle Corner Mode)
     let shift_space = named(
         iced::keyboard::key::Named::Space,
         iced::keyboard::Modifiers::SHIFT,
     );
-    let _ = app.handle_key_input(w, shift_space);
+    drop(app.handle_key_input(w, shift_space));
 
     // Dispatched key sequence: 'Escape' (Altium: Exit Tool)
     let esc_key = named(
         iced::keyboard::key::Named::Escape,
         iced::keyboard::Modifiers::default(),
     );
-    let _ = app.handle_key_input(w, esc_key);
+    drop(app.handle_key_input(w, esc_key));
 
     // =========================================================================
     // STAGE 3: DRC Oracle (F9 Shortcut & Zero-Violation Audit)
@@ -111,7 +111,7 @@ fn test_phase4_daily_workflow_end_to_end_on_t2() {
         iced::keyboard::key::Named::F9,
         iced::keyboard::Modifiers::default(),
     );
-    let _ = app.handle_key_input(w, f9_key);
+    drop(app.handle_key_input(w, f9_key));
 
     let rules = ConstraintManager::standard_default();
     let violations = rules.run_drc(&board);

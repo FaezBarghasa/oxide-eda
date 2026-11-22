@@ -62,6 +62,12 @@ pub struct CommandRegistry {
     handlers: HashMap<String, Box<dyn CommandHandler>>,
 }
 
+impl Default for CommandRegistry {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CommandRegistry {
     /// Build a registry from the embedded Altium UI catalog. Every command in
     /// the catalog is pre-registered with a default stub handler so dispatch
@@ -112,8 +118,11 @@ impl CommandRegistry {
 
     /// All distinct command names in the catalog, sorted.
     pub fn all_command_names(&self) -> Vec<String> {
-        let names: std::collections::HashSet<String> =
-            self.catalog.all_commands().map(|c| c.command.clone()).collect();
+        let names: std::collections::HashSet<String> = self
+            .catalog
+            .all_commands()
+            .map(|c| c.command.clone())
+            .collect();
         let mut out: Vec<String> = names.into_iter().collect();
         out.sort();
         out
@@ -180,7 +189,10 @@ mod tests {
     fn register_and_dispatch_live_handler() {
         let mut reg = CommandRegistry::new();
         reg.register("PCB:Undo", EchoHandler);
-        assert!(reg.dispatch("PCB:Undo", "Action=Toggle|SetFocus=True").is_ok());
+        assert!(
+            reg.dispatch("PCB:Undo", "Action=Toggle|SetFocus=True")
+                .is_ok()
+        );
     }
 
     #[test]

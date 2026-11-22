@@ -110,12 +110,10 @@ impl GerberLayer {
                     || n.eq_ignore_ascii_case("BottomSilkscreen")
             }
             GerberLayer::TopPaste => {
-                n.eq_ignore_ascii_case("TopPaste")
-                    || n.eq_ignore_ascii_case("F.Paste")
+                n.eq_ignore_ascii_case("TopPaste") || n.eq_ignore_ascii_case("F.Paste")
             }
             GerberLayer::BottomPaste => {
-                n.eq_ignore_ascii_case("BottomPaste")
-                    || n.eq_ignore_ascii_case("B.Paste")
+                n.eq_ignore_ascii_case("BottomPaste") || n.eq_ignore_ascii_case("B.Paste")
             }
             GerberLayer::EdgeCuts => {
                 n.eq_ignore_ascii_case("Edge.Cuts")
@@ -286,7 +284,9 @@ impl GerberExporter {
                     }
                 }
                 for via in &board.vias {
-                    if via.layers.is_empty() || via.layers.iter().any(|l| layer.matches_layer_name(l)) {
+                    if via.layers.is_empty()
+                        || via.layers.iter().any(|l| layer.matches_layer_name(l))
+                    {
                         let d_nm = (via.diameter * 1_000_000.0).round() as i64;
                         get_or_insert_aperture(ApertureDef::Circle { diameter_nm: d_nm });
                     }
@@ -498,7 +498,9 @@ impl GerberExporter {
 
                 // Flash vias with Net attributes
                 for via in &board.vias {
-                    if !via.layers.is_empty() && !via.layers.iter().any(|l| layer.matches_layer_name(l)) {
+                    if !via.layers.is_empty()
+                        && !via.layers.iter().any(|l| layer.matches_layer_name(l))
+                    {
                         continue;
                     }
 

@@ -3,7 +3,7 @@
 //! Validates:
 //! - 6.1: Elm-pure Message/update architecture (Tab switching, mode selection, headless interaction).
 //! - 6.2: Cross-probe, Bus/Harness verification, Assembly Variants (DNP), Sequential Annotation,
-//!        and KiCad ERC parity across all 12 standard rules.
+//!   and KiCad ERC parity across all 12 standard rules.
 //! - 6.3: Keyboard shortcut coverage and profile determinism.
 
 use std::collections::{HashMap, HashSet};
@@ -159,9 +159,9 @@ fn test_elm_pure_cross_probe_and_tab_navigation() {
         vec![SelectedItem::new(sym1_uuid, SelectedKind::Symbol)];
 
     // 4. Dispatch Cross-Probe from context menu
-    let _ = app.update(Message::ContextMenu(ContextMenuMsg::Action(
+    drop(app.update(Message::ContextMenu(ContextMenuMsg::Action(
         ContextAction::CrossProbe,
-    )));
+    ))));
 
     // Verify active tab shifted to PCB tab (Tab index 1)
     assert_eq!(
@@ -189,9 +189,9 @@ fn test_elm_pure_cross_probe_and_tab_navigation() {
     }
 
     // 5. Cross-probe from PCB back to Schematic
-    let _ = app.update(Message::ContextMenu(ContextMenuMsg::Action(
+    drop(app.update(Message::ContextMenu(ContextMenuMsg::Action(
         ContextAction::CrossProbe,
-    )));
+    ))));
 
     assert_eq!(
         app.document_state.active_tab, 0,

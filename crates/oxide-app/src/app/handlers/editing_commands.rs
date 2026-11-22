@@ -19,22 +19,26 @@ impl Oxide {
         let hit = self
             .active_pcb_engine()
             .and_then(|e| e.hit_test(world_x, world_y));
-        let Some(hit) = hit else { return; };
+        let Some(hit) = hit else {
+            return;
+        };
         if !matches!(hit.kind, oxide_engine::SelectedPcbKind::Segment) {
             return;
         }
         let seg_uuid = hit.uuid;
         // Locate the segment in the board and clone its geometry so we can
         // release the immutable borrow before mutating via apply_pcb_command.
-        let Some(board) = self.active_pcb() else { return; };
+        let Some(board) = self.active_pcb() else {
+            return;
+        };
         let Some(seg) = board.segments.iter().find(|s| s.uuid == seg_uuid) else {
             return;
         };
-        let start = seg.start.clone();
-        let end = seg.end.clone();
+        let start = seg.start;
+        let end = seg.end;
         let width = seg.width;
         let layer = seg.layer.clone();
-        let net = seg.net.clone();
+        let net = seg.net;
         // Project the cursor onto the segment's line and split there, leaving
         // a small gap on each side of the split point.
         let dx = end.x - start.x;
@@ -59,27 +63,25 @@ impl Oxide {
         let start2_x = split_x + ux * GAP_MM;
         let start2_y = split_y + uy * GAP_MM;
         // Commit: delete the original, add the two halves.
-        self.apply_pcb_command(oxide_engine::PcbCommand::DeleteSegment {
-            uuid: seg_uuid,
-        });
+        self.apply_pcb_command(oxide_engine::PcbCommand::DeleteSegment { uuid: seg_uuid });
         self.apply_pcb_command(oxide_engine::PcbCommand::AddSegment {
             segment: oxide_types::pcb::Segment {
                 uuid: uuid::Uuid::new_v4(),
-                start: start.clone(),
+                start,
                 end: oxide_types::pcb::Point::new(end1_x, end1_y),
                 width,
                 layer: layer.clone(),
-                net: net.clone(),
+                net,
             },
         });
         self.apply_pcb_command(oxide_engine::PcbCommand::AddSegment {
             segment: oxide_types::pcb::Segment {
                 uuid: uuid::Uuid::new_v4(),
                 start: oxide_types::pcb::Point::new(start2_x, start2_y),
-                end: end.clone(),
+                end,
                 width,
-                layer: layer.clone(),
-                net: net.clone(),
+                layer,
+                net,
             },
         });
     }

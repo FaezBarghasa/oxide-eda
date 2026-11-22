@@ -58,7 +58,10 @@ impl UiCommand {
 
     /// Strip the mnemonic marker (`&`) from a caption for plain-text display.
     pub fn plain_caption(&self) -> String {
-        self.caption.strip_prefix('&').unwrap_or(self.caption.as_str()).to_string()
+        self.caption
+            .strip_prefix('&')
+            .unwrap_or(self.caption.as_str())
+            .to_string()
     }
 }
 
@@ -79,13 +82,10 @@ impl UiCatalog {
     /// The JSON is a map of `.rcs` file name to list of command objects, which
     /// deserializes directly to `HashMap<String, Vec<UiCommand>>`.
     pub fn load() -> Self {
-        let json = include_str!(
-            "../../../../refernces/AltiumDesigner/decompiled/altium_ui_catalog.json"
-        );
-        let files: std::collections::HashMap<String, Vec<UiCommand>> =
-            serde_json::from_str(json).unwrap_or_else(|e| {
-                panic!("failed to parse embedded Altium UI catalog: {e}")
-            });
+        let json =
+            include_str!("../../../../refernces/AltiumDesigner/decompiled/altium_ui_catalog.json");
+        let files: std::collections::HashMap<String, Vec<UiCommand>> = serde_json::from_str(json)
+            .unwrap_or_else(|e| panic!("failed to parse embedded Altium UI catalog: {e}"));
         Self { files }
     }
 
@@ -128,7 +128,11 @@ mod tests {
     fn catalog_loads_all_commands() {
         let cat = UiCatalog::load();
         assert_eq!(cat.count(), 3004, "expected 3004 command entries");
-        assert_eq!(cat.unique_command_count(), 1190, "expected 1190 unique names");
+        assert_eq!(
+            cat.unique_command_count(),
+            1190,
+            "expected 1190 unique names"
+        );
         assert!(!cat.file_names().is_empty());
     }
 
@@ -155,7 +159,9 @@ mod tests {
     fn interactive_commands_have_at_namespace() {
         let cat = UiCatalog::load();
         // @PLSCH commands are the schematic interactive-mode commands.
-        let any = cat.all_commands().find(|c| c.command.starts_with("@PLSCH:") || c.command.starts_with("@PLSch:"));
+        let any = cat
+            .all_commands()
+            .find(|c| c.command.starts_with("@PLSCH:") || c.command.starts_with("@PLSch:"));
         if let Some(cmd) = any {
             assert!(cmd.namespace() == "@interactive" || cmd.namespace().starts_with('@'));
         }

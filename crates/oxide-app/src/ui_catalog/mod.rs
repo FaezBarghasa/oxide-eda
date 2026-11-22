@@ -15,7 +15,7 @@ pub mod catalog;
 pub mod registry;
 
 pub use catalog::{UiCatalog, UiCommand};
-pub use registry::{CommandRegistry, CommandHandler, DispatchResult, NotImplementedHandler};
+pub use registry::{CommandHandler, CommandRegistry, DispatchResult, NotImplementedHandler};
 
 #[cfg(test)]
 mod tests {
@@ -45,8 +45,10 @@ mod tests {
             "PCB:Select",
             "@PLSCH:InteractiveZoomIn",
         ] {
-            assert!(reg.dispatch(name, "").is_not_implemented() || reg.dispatch(name, "").is_ok(),
-                "{name} should be dispatchable");
+            assert!(
+                reg.dispatch(name, "").is_not_implemented() || reg.dispatch(name, "").is_ok(),
+                "{name} should be dispatchable"
+            );
         }
     }
 }

@@ -15,12 +15,13 @@ use oxide_router::interactive::InteractiveRouter;
 use oxide_router::{RoutingMode, SpatialIndex};
 
 fn create_test_board() -> PcbBoard {
-    let mut board = PcbBoard::default();
-    board.uuid = Uuid::new_v4();
-    board.version = 1;
-    board.generator = "oxide".to_string();
-    board.thickness = 1.6;
-    board
+    PcbBoard {
+        uuid: Uuid::new_v4(),
+        version: 1,
+        generator: "oxide".to_string(),
+        thickness: 1.6,
+        ..Default::default()
+    }
 }
 
 #[test]
@@ -105,7 +106,7 @@ fn test_router_differential_impedance_pair_routing() {
     );
 
     assert!(
-        edge_to_edge_gap >= 50 && edge_to_edge_gap <= 400,
+        (50..=400).contains(&edge_to_edge_gap),
         "Synthesized differential edge gap {edge_to_edge_gap} µm out of expected range"
     );
 }

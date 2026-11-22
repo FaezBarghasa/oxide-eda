@@ -709,19 +709,19 @@ fn test_drc_3d_component_and_enclosure_clearance() {
 #[test]
 fn test_d9_net_tie_exempts_tied_nets_from_clearance_violations() {
     let cm = ConstraintManager::standard_default();
-    let mut board = oxide_types::pcb::PcbBoard::default();
-
-    // Define 2 distinct nets: AGND (1) and DGND (2)
-    board.nets = vec![
-        oxide_types::pcb::NetDef {
-            number: 1,
-            name: "AGND".into(),
-        },
-        oxide_types::pcb::NetDef {
-            number: 2,
-            name: "DGND".into(),
-        },
-    ];
+    let mut board = oxide_types::pcb::PcbBoard {
+        nets: vec![
+            oxide_types::pcb::NetDef {
+                number: 1,
+                name: "AGND".into(),
+            },
+            oxide_types::pcb::NetDef {
+                number: 2,
+                name: "DGND".into(),
+            },
+        ],
+        ..Default::default()
+    };
 
     // Two segments very close (0.05mm apart < 0.254mm default clearance rule)
     board.segments.push(oxide_types::pcb::Segment {
