@@ -8,6 +8,7 @@ pub(crate) mod export;
 mod file_commands;
 mod panel_commands;
 mod placement;
+mod route;
 mod view_commands;
 
 impl Oxide {
@@ -25,6 +26,9 @@ impl Oxide {
             return task;
         }
         if let Some(task) = self.handle_menu_placement_command(&msg) {
+            return task;
+        }
+        if let Some(task) = self.handle_menu_route_command(&msg) {
             return task;
         }
 

@@ -512,24 +512,75 @@ pub fn view(tokens: &ThemeTokens, ctx: MenuContext) -> Element<'static, MenuMess
     let route_menu = Item::with_menu(
         root_btn("Route", mc),
         menu_template(vec![
-            leaf_stub("Interactive Routing", Some("Ctrl+W".to_string()), mc),
-            leaf_stub(
+            leaf_if(
+                "Interactive Routing",
+                shortcut_for(&ctx, "place_wire", "Ctrl+W"),
+                MenuMessage::RouteInteractive,
+                ctx.has_pcb,
+            ),
+            leaf_if(
                 "Interactive Differential Pair Routing",
                 Some("Shift+2".to_string()),
-                mc,
+                MenuMessage::RouteDiffPair,
+                ctx.has_pcb,
             ),
-            leaf_stub("Interactive Multi-Routing", None, mc),
-            leaf_stub("Interactive Length Tuning", Some("Shift+T".to_string()), mc),
+            leaf_if(
+                "Interactive Multi-Routing",
+                None,
+                MenuMessage::RouteMulti,
+                ctx.has_pcb,
+            ),
+            leaf_if(
+                "Interactive Length Tuning",
+                Some("Shift+T".to_string()),
+                MenuMessage::RouteLengthTuning,
+                ctx.has_pcb,
+            ),
             separator(mc),
-            leaf_stub("Auto Route Board", None, mc),
-            leaf_stub("Fanout Component / BGA", None, mc),
+            leaf_if(
+                "Auto Route Board",
+                None,
+                MenuMessage::RouteAutoRoute,
+                ctx.has_pcb,
+            ),
+            leaf_if(
+                "Fanout Component / BGA",
+                None,
+                MenuMessage::RouteFanoutBga,
+                ctx.has_pcb,
+            ),
             separator(mc),
-            leaf_stub("Teardrops...", None, mc),
-            leaf_stub("Unroute All", None, mc),
-            leaf_stub("Unroute Net", None, mc),
+            leaf_if(
+                "Teardrops...",
+                None,
+                MenuMessage::RouteTeardrops,
+                ctx.has_pcb,
+            ),
+            leaf_if(
+                "Unroute All",
+                None,
+                MenuMessage::RouteUnrouteAll,
+                ctx.has_pcb,
+            ),
+            leaf_if(
+                "Unroute Net",
+                None,
+                MenuMessage::RouteUnrouteNet,
+                ctx.has_pcb,
+            ),
             separator(mc),
-            leaf_stub("Corner Mode: 45° / Mitred", None, mc),
-            leaf_stub("Corner Mode: Rounded", None, mc),
+            leaf_if(
+                "Corner Mode: 45° / Mitred",
+                None,
+                MenuMessage::RouteCorner45,
+                ctx.has_pcb,
+            ),
+            leaf_if(
+                "Corner Mode: Rounded",
+                None,
+                MenuMessage::RouteCornerRounded,
+                ctx.has_pcb,
+            ),
         ]),
     );
 

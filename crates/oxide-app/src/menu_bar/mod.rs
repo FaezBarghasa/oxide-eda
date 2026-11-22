@@ -223,6 +223,18 @@ pub enum MenuMessage {
     /// Altium's Tools ▸ Document Options entry. No-op when not on
     /// a SchLib tab.
     ToolsDocumentOptions,
+    // Route
+    RouteInteractive,
+    RouteDiffPair,
+    RouteMulti,
+    RouteLengthTuning,
+    RouteAutoRoute,
+    RouteFanoutBga,
+    RouteTeardrops,
+    RouteUnrouteAll,
+    RouteUnrouteNet,
+    RouteCorner45,
+    RouteCornerRounded,
 }
 
 /// Context passed into `view` so each menu leaf can decide whether to

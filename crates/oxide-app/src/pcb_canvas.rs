@@ -38,6 +38,10 @@ pub struct PcbCanvasState {
     pub routing_layer: u8,
     pub routing_net: u32,
     pub corner_mode: CornerMode,
+    // --- 3D Viewport Mode (Altium/KiCad '2' / '3' Toggle) ---
+    pub view_mode_3d: bool,
+    pub camera_3d_pitch: f32,
+    pub camera_3d_yaw: f32,
     // --- Git-Native Visual Diff-Merge Viewport ---
     pub visual_diff: Option<crate::diff::PcbVisualDiff>,
     pub diff_mode: crate::diff::VisualDiffMode,
@@ -95,6 +99,13 @@ pub struct PcbCanvas {
     pub visible_grid_mm: f64,
     pub show_pdn_heatmap: bool,
     pub pdn_mesh_cache: std::cell::RefCell<Option<oxide_gfx::pdn_heatmap::PdnMeshGrid>>,
+    // Dynamic Interactive Push-and-Shove Router Dispatch Channels
+    pub pending_start_router: std::cell::RefCell<Option<(InteractiveRouter, u8, u32)>>,
+    pub pending_cancel_router: std::cell::Cell<bool>,
+    pub pending_routing_mode: std::cell::Cell<Option<oxide_router::interactive::RoutingMode>>,
+    pub pending_corner_mode: std::cell::Cell<Option<oxide_router::CornerMode>>,
+    pub pending_length_tuning: std::cell::Cell<Option<(i64, i64)>>,
+    pub live_preview_cache: std::cell::RefCell<(Vec<RouteSegment>, Vec<ViaPlacement>)>,
 }
 
 impl Default for PcbCanvas {
@@ -123,7 +134,40 @@ impl PcbCanvas {
             visible_grid_mm: 2.54,
             show_pdn_heatmap: false,
             pdn_mesh_cache: std::cell::RefCell::new(None),
+            pending_start_router: std::cell::RefCell::new(None),
+            pending_cancel_router: std::cell::Cell::new(false),
+            pending_routing_mode: std::cell::Cell::new(None),
+            pending_corner_mode: std::cell::Cell::new(None),
+            pending_length_tuning: std::cell::Cell::new(None),
+            live_preview_cache: std::cell::RefCell::new((Vec::new(), Vec::new())),
         }
+    }
+
+    pub fn start_interactive_router(&self, router: InteractiveRouter, layer: u8, net: u32) {
+        *self.pending_start_router.borrow_mut() = Some((router, layer, net));
+    }
+
+    pub fn cancel_interactive_router(&self) {
+        self.pending_cancel_router.set(true);
+        self.live_preview_cache.borrow_mut().0.clear();
+        self.live_preview_cache.borrow_mut().1.clear();
+    }
+
+    pub fn set_routing_mode(&self, mode: oxide_router::interactive::RoutingMode) {
+        self.pending_routing_mode.set(Some(mode));
+    }
+
+    pub fn set_corner_mode(&self, mode: oxide_router::CornerMode) {
+        self.pending_corner_mode.set(Some(mode));
+    }
+
+    pub fn enable_length_tuning(&self, target_len: i64, tolerance: i64) {
+        self.pending_length_tuning.set(Some((target_len, tolerance)));
+    }
+
+    pub fn take_live_preview(&self) -> (Vec<RouteSegment>, Vec<ViaPlacement>) {
+        let mut cache = self.live_preview_cache.borrow_mut();
+        (std::mem::take(&mut cache.0), std::mem::take(&mut cache.1))
     }
 
     pub fn active_renderer_snapshot(&self) -> Option<&PcbSnapshot> {
