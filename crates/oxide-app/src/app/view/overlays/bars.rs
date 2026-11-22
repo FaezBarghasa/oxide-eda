@@ -225,6 +225,101 @@ impl Oxide {
         )
     }
 
+    /// PCB Active Bar overlay — quick layout tools (Select, Route Track, Diff Pair, Via, Polygon, Text, Measure).
+    pub(in crate::app::view) fn pcb_active_bar_overlay(&self) -> Option<Element<'_, Message>> {
+        if !self.has_active_pcb() {
+            return None;
+        }
+        let document = &self.document_state;
+        let interaction = &self.interaction_state;
+        let y_offset: f32 =
+            crate::menu_bar::MENU_BAR_HEIGHT + if document.tabs.is_empty() { 0.0 } else { 28.0 };
+        let tokens = &document.panel_ctx.tokens;
+        let tid = self.ui_state.theme_id;
+
+        use oxide_widgets::active_bar::{ActiveBarButton, ActiveBarIcon, ActiveBarItem};
+
+        let btn = |icon: iced::widget::svg::Handle,
+                   selected: bool,
+                   msg: Message,
+                   tooltip: &str|
+         -> ActiveBarItem<Message> {
+            ActiveBarItem::Button(ActiveBarButton {
+                icon: ActiveBarIcon::Svg(icon),
+                tooltip: tooltip.to_string(),
+                enabled: true,
+                selected,
+                on_press: Some(msg),
+                on_right_press: None,
+                dropdown_indicator: None,
+            })
+        };
+
+        let mut items = Vec::new();
+        // Select (Q)
+        items.push(btn(
+            crate::icons::icon_select(tid),
+            interaction.current_tool == crate::app::Tool::Select,
+            Message::Tool(crate::toolbar::ToolMessage::SelectTool(crate::app::Tool::Select)),
+            "Select (Q)",
+        ));
+        items.push(ActiveBarItem::Separator);
+        // Wire / Route Track (W)
+        items.push(btn(
+            crate::icons::icon_wire(tid),
+            interaction.current_tool == crate::app::Tool::Wire,
+            Message::Tool(crate::toolbar::ToolMessage::SelectTool(crate::app::Tool::Wire)),
+            "Route Track (W)",
+        ));
+        // Route Diff Pair (Shift+W)
+        items.push(btn(
+            crate::icons::icon_dd_diff_pair(tid),
+            false,
+            Message::Menu(crate::menu_bar::MenuMessage::RouteDiffPair),
+            "Route Differential Pair (Shift+W)",
+        ));
+        // Via (V)
+        items.push(btn(
+            crate::icons::icon_shape_circle(tid),
+            interaction.current_tool == crate::app::Tool::Circle,
+            Message::Tool(crate::toolbar::ToolMessage::SelectTool(crate::app::Tool::Circle)),
+            "Place Via (V)",
+        ));
+        // Polygon Pour (P)
+        items.push(btn(
+            crate::icons::icon_shape_polygon(tid),
+            interaction.current_tool == crate::app::Tool::Polyline,
+            Message::Tool(crate::toolbar::ToolMessage::SelectTool(crate::app::Tool::Polyline)),
+            "Polygon Pour (P)",
+        ));
+        // Text (T)
+        items.push(btn(
+            crate::icons::icon_text(tid),
+            interaction.current_tool == crate::app::Tool::Text,
+            Message::Tool(crate::toolbar::ToolMessage::SelectTool(crate::app::Tool::Text)),
+            "Place Text (T)",
+        ));
+        items.push(ActiveBarItem::Separator);
+        // Measure (Ctrl+M)
+        items.push(btn(
+            crate::icons::icon_align(tid),
+            false,
+            Message::CommandExecuted("measure_distance".to_string()),
+            "Measure (Ctrl+M)",
+        ));
+
+        let bar = oxide_widgets::active_bar::view(items, tokens);
+        Some(
+            column![
+                iced::widget::Space::new().height(y_offset + 4.0),
+                container(bar)
+                    .width(Length::Fill)
+                    .align_x(iced::alignment::Horizontal::Center),
+            ]
+            .into(),
+        )
+    }
+
     /// v0.13 — footprint editor active bar (+ its dropdown overlay)
     /// mounted at the SAME app-view layer as the schematic's, so both
     /// share identical `Space::height(y_offset + 4.0)` math and land on

@@ -12,7 +12,10 @@ impl Oxide {
                 if let Some(anchor) = self.interaction_state.shape_anchor.take() {
                     let pt_microns = oxide_router::geometry::Point2D::from_mm(world_x, world_y);
                     let mut segments_to_commit: Vec<oxide_types::pcb::Segment> = Vec::new();
-                    let vias_to_commit: Vec<oxide_types::pcb::Via> = Vec::new();
+                    let mut vias_to_commit: Vec<oxide_types::pcb::Via> = Vec::new();
+
+                    let (live_segs, live_vias) =
+                        self.interaction_state.pcb_canvas.take_live_preview();
 
                     let maybe_board = self.active_pcb().cloned();
 
@@ -27,19 +30,8 @@ impl Oxide {
                             .map(|(n, _name, l_name, l_id)| (n, l_id, l_name))
                             .unwrap_or((1, 0, "F.Cu".to_string()));
 
-                        let rules =
-                            std::sync::Arc::new(oxide_rules::ConstraintManager::standard_default());
-                        let spatial =
-                            std::sync::Arc::new(oxide_router::SpatialIndex::build(&board));
-                        let mut router =
-                            oxide_router::interactive::InteractiveRouter::new(rules, spatial);
-                        router.mode = oxide_router::RoutingMode::PushAndShove;
-                        let start_pt = oxide_router::geometry::Point2D::from_mm(anchor.x, anchor.y);
-                        let _res = router.start_routing(start_pt, net_id, layer_id);
-                        let route_segments = router.on_mouse_move(pt_microns);
-
-                        if !route_segments.is_empty() {
-                            for r_seg in route_segments {
+                        if !live_segs.is_empty() {
+                            for r_seg in live_segs {
                                 let (p0_x, p0_y) = r_seg.start_point.to_mm();
                                 let (p1_x, p1_y) = r_seg.end_point.to_mm();
                                 segments_to_commit.push(oxide_types::pcb::Segment {
@@ -55,6 +47,52 @@ impl Oxide {
                                     net: r_seg.net_id,
                                 });
                             }
+                        } else {
+                            let rules = std::sync::Arc::new(
+                                oxide_rules::ConstraintManager::standard_default(),
+                            );
+                            let spatial =
+                                std::sync::Arc::new(oxide_router::SpatialIndex::build(&board));
+                            let mut router =
+                                oxide_router::interactive::InteractiveRouter::new(rules, spatial);
+                            router.mode = oxide_router::RoutingMode::PushAndShove;
+                            let start_pt =
+                                oxide_router::geometry::Point2D::from_mm(anchor.x, anchor.y);
+                            let _res = router.start_routing(start_pt, net_id, layer_id);
+                            let route_segments = router.on_mouse_move(pt_microns);
+
+                            if !route_segments.is_empty() {
+                                for r_seg in route_segments {
+                                    let (p0_x, p0_y) = r_seg.start_point.to_mm();
+                                    let (p1_x, p1_y) = r_seg.end_point.to_mm();
+                                    segments_to_commit.push(oxide_types::pcb::Segment {
+                                        uuid: uuid::Uuid::new_v4(),
+                                        start: oxide_types::pcb::Point::new(p0_x, p0_y),
+                                        end: oxide_types::pcb::Point::new(p1_x, p1_y),
+                                        width: (r_seg.width as f64) / 1000.0,
+                                        layer: if r_seg.layer == 0 {
+                                            "F.Cu".to_string()
+                                        } else {
+                                            "B.Cu".to_string()
+                                        },
+                                        net: r_seg.net_id,
+                                    });
+                                }
+                            }
+                        }
+
+                        for via in live_vias {
+                            let (vx, vy) = via.position.to_mm();
+                            vias_to_commit.push(oxide_types::pcb::Via {
+                                uuid: uuid::Uuid::new_v4(),
+                                position: oxide_types::pcb::Point::new(vx, vy),
+                                diameter: via.diameter as f64 / 1000.0,
+                                drill: via.drill as f64 / 1000.0,
+                                layers: vec!["F.Cu".to_string(), "B.Cu".to_string()],
+                                net: net_id,
+                                via_type: oxide_types::pcb::ViaType::Through,
+                                via_span: None,
+                            });
                         }
 
                         if segments_to_commit.is_empty() {
@@ -63,9 +101,61 @@ impl Oxide {
                                 start: anchor,
                                 end: pt,
                                 width: 0.25,
-                                layer: layer_name,
+                                layer: layer_name.clone(),
                                 net: net_id,
                             });
+                        }
+
+                        for seg in segments_to_commit {
+                            self.apply_pcb_command(oxide_engine::PcbCommand::AddSegment {
+                                segment: seg,
+                            });
+                        }
+                        for via in vias_to_commit {
+                            self.apply_pcb_command(oxide_engine::PcbCommand::AddVia { via });
+                        }
+
+                        // Check if clicked point hit a destination pad of matching net
+                        let dest_copper = self
+                            .active_pcb_engine()
+                            .and_then(|e| e.find_copper_at(world_x, world_y));
+                        let hit_target = dest_copper
+                            .map(|(dn, _, _, _)| dn == net_id)
+                            .unwrap_or(false)
+                            && (world_x != anchor.x || world_y != anchor.y);
+
+                        if hit_target {
+                            self.interaction_state.shape_anchor = None;
+                            self.interaction_state.pcb_canvas.cancel_interactive_router();
+                        } else {
+                            // Anchor next segment and keep interactive router active
+                            self.interaction_state.shape_anchor = Some(pt);
+                            if let Some(fresh_board) = self.active_pcb().cloned() {
+                                let rules = std::sync::Arc::new(
+                                    oxide_rules::ConstraintManager::standard_default(),
+                                );
+                                let spatial = std::sync::Arc::new(
+                                    oxide_router::SpatialIndex::build(&fresh_board),
+                                );
+                                let mut router = oxide_router::interactive::InteractiveRouter::new(
+                                    rules, spatial,
+                                );
+                                router.mode = oxide_router::RoutingMode::PushAndShove;
+                                let start_pt =
+                                    oxide_router::geometry::Point2D::from_mm(world_x, world_y);
+                                let _ = router.start_routing(start_pt, net_id, layer_id);
+                                self.interaction_state.pcb_canvas.start_interactive_router(
+                                    router,
+                                    layer_id as u8,
+                                    net_id,
+                                );
+                            }
+                        }
+
+                        // Trigger continuous incremental DRC
+                        if let Some(b) = self.active_pcb() {
+                            let cm = oxide_rules::ConstraintManager::standard_default();
+                            self.document_state.panel_ctx.drc_violations = cm.run_drc(b);
                         }
                     } else if segments_to_commit.is_empty() {
                         segments_to_commit.push(oxide_types::pcb::Segment {
@@ -76,19 +166,41 @@ impl Oxide {
                             layer: "F.Cu".to_string(),
                             net: 1,
                         });
+                        for seg in segments_to_commit {
+                            self.apply_pcb_command(oxide_engine::PcbCommand::AddSegment {
+                                segment: seg,
+                            });
+                        }
+                        self.interaction_state.shape_anchor = Some(pt);
                     }
 
-                    for seg in segments_to_commit {
-                        self.apply_pcb_command(oxide_engine::PcbCommand::AddSegment {
-                            segment: seg,
-                        });
-                    }
-                    for via in vias_to_commit {
-                        self.apply_pcb_command(oxide_engine::PcbCommand::AddVia { via });
-                    }
-                    self.interaction_state.shape_anchor = Some(pt);
+                    self.sync_pcb_canvas_from_visible_board();
+                    self.interaction_state.pcb_canvas.clear_content_cache();
                 } else {
+                    // Click 1: Initialize Interactive Router session
                     self.interaction_state.shape_anchor = Some(pt);
+                    if let Some(board) = self.active_pcb().cloned() {
+                        let (net_id, layer_id, _) = self
+                            .active_pcb_engine()
+                            .and_then(|e| e.find_copper_at(world_x, world_y))
+                            .map(|(n, _name, l_name, l_id)| (n, l_id, l_name))
+                            .unwrap_or((1, 0, "F.Cu".to_string()));
+
+                        let rules =
+                            std::sync::Arc::new(oxide_rules::ConstraintManager::standard_default());
+                        let spatial =
+                            std::sync::Arc::new(oxide_router::SpatialIndex::build(&board));
+                        let mut router =
+                            oxide_router::interactive::InteractiveRouter::new(rules, spatial);
+                        router.mode = oxide_router::RoutingMode::PushAndShove;
+                        let start_pt = oxide_router::geometry::Point2D::from_mm(world_x, world_y);
+                        let _ = router.start_routing(start_pt, net_id, layer_id);
+                        self.interaction_state.pcb_canvas.start_interactive_router(
+                            router,
+                            layer_id as u8,
+                            net_id,
+                        );
+                    }
                 }
                 return Task::none();
             }

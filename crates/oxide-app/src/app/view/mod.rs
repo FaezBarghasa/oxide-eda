@@ -386,7 +386,10 @@ impl Oxide {
             active_tab_kind_any,
             Some(crate::app::TabKind::SymbolEditor(_))
         );
-        let has_active_bar = self.has_active_schematic() || has_footprint_bar || has_symbol_bar;
+        let has_active_bar = self.has_active_schematic()
+            || self.has_active_pcb()
+            || has_footprint_bar
+            || has_symbol_bar;
         let dragging_tab = ui.tab_dragging.is_some();
         let needs_overlay = has_active_bar
             || interaction.editing_text.is_some()

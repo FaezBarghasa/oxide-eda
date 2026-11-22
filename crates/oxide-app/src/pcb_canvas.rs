@@ -246,7 +246,11 @@ impl PcbCanvas {
         PcbRenderer::build_scene(
             snapshot,
             &theme,
-            DirtyFlags::LINES | DirtyFlags::CIRCLES | DirtyFlags::POLYGONS | DirtyFlags::OVERLAY,
+            DirtyFlags::LINES
+                | DirtyFlags::CIRCLES
+                | DirtyFlags::POLYGONS
+                | DirtyFlags::TEXTS
+                | DirtyFlags::OVERLAY,
             &mut scene,
         );
 
@@ -604,6 +608,26 @@ fn draw_polygons(
     }
 }
 
+fn draw_texts(
+    frame: &mut canvas::Frame,
+    texts: &[oxide_gfx::primitive::text::TextItem],
+    camera: &Camera,
+    bounds: Rectangle,
+) {
+    for item in texts {
+        let pos = world_to_screen(camera, bounds, item.position);
+        let screen_size = (item.size_mm * camera.scale).clamp(5.0, 48.0);
+        let color = Color::from_rgba(item.color[0], item.color[1], item.color[2], item.color[3]);
+        frame.fill_text(canvas::Text {
+            content: item.content.clone(),
+            position: pos,
+            color,
+            size: screen_size.into(),
+            ..Default::default()
+        });
+    }
+}
+
 fn draw_scene(frame: &mut canvas::Frame, scene: &Scene, camera: &Camera, bounds: Rectangle) {
     // Walk the shared `CPU_PCB_DRAW_ORDER` so this CPU path and the GPU
     // `scene_shader` cannot silently drift apart; the `scene::order` parity test
@@ -620,10 +644,8 @@ fn draw_scene(frame: &mut canvas::Frame, scene: &Scene, camera: &Camera, bounds:
             SceneBucket::OverlayPolygons => {
                 draw_polygons(frame, &scene.overlay_polygons, camera, bounds)
             }
-            // The PCB CPU path emits no arc, text, or ERC buckets. Handled for
-            // exhaustiveness so adding a Scene bucket forces a decision here.
+            SceneBucket::Texts => draw_texts(frame, &scene.texts, camera, bounds),
             SceneBucket::Arcs
-            | SceneBucket::Texts
             | SceneBucket::ErcMarkerLines
             | SceneBucket::ErcMarkerCircles
             | SceneBucket::ErcMarkerPolygons => {}
@@ -652,6 +674,46 @@ impl canvas::Program<Message> for PcbCanvas {
             )));
         }
 
+        // Drain pending router actions from UI / command dispatchers
+        if let Some((router, layer, net)) = self.pending_start_router.borrow_mut().take() {
+            state.active_router = Some(router);
+            state.routing_layer = layer;
+            state.routing_net = net;
+            state.routing_epoch += 1;
+            state.live_route_preview.clear();
+            state.preview_vias.clear();
+            state.async_solver = None;
+        }
+        if self.pending_cancel_router.take() {
+            state.active_router = None;
+            state.async_solver = None;
+            state.live_route_preview.clear();
+            state.preview_vias.clear();
+            self.live_preview_cache.borrow_mut().0.clear();
+            self.live_preview_cache.borrow_mut().1.clear();
+        }
+        if let Some(mode) = self.pending_routing_mode.take() {
+            if let Some(router) = &mut state.active_router {
+                router.mode = mode;
+                if let Some(session) = &mut router.session {
+                    session.mode = mode;
+                }
+            }
+        }
+        if let Some(cm) = self.pending_corner_mode.take() {
+            state.corner_mode = cm;
+            if let Some(router) = &mut state.active_router {
+                if let Some(session) = &mut router.session {
+                    session.corner_mode = cm;
+                }
+            }
+        }
+        if let Some((target_len, tol)) = self.pending_length_tuning.take() {
+            if let Some(router) = &mut state.active_router {
+                router.enable_length_tuning(target_len, tol);
+            }
+        }
+
         match event {
             Event::Mouse(mouse::Event::WheelScrolled { delta }) => {
                 let scroll_y = match delta {
@@ -675,6 +737,22 @@ impl canvas::Program<Message> for PcbCanvas {
                 state.shift_held = mods.shift();
             }
             Event::Keyboard(iced::keyboard::Event::KeyPressed { key, modifiers, .. }) => {
+                if let iced::keyboard::Key::Character(c) = key {
+                    if c.as_str() == "2" {
+                        state.view_mode_3d = false;
+                        return Some(
+                            canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved))
+                                .and_capture(),
+                        );
+                    }
+                    if c.as_str() == "3" {
+                        state.view_mode_3d = true;
+                        return Some(
+                            canvas::Action::publish(Message::CanvasEvent(CanvasEvent::CursorMoved))
+                                .and_capture(),
+                        );
+                    }
+                }
                 if let iced::keyboard::Key::Character(c) = key
                     && (c.as_str() == "`" || c.as_str() == "~")
                 {
@@ -1087,6 +1165,10 @@ impl canvas::Program<Message> for PcbCanvas {
                         } else {
                             state.live_route_preview = router.on_mouse_move(target);
                         }
+                        *self.live_preview_cache.borrow_mut() = (
+                            state.live_route_preview.clone(),
+                            state.preview_vias.clone(),
+                        );
                     }
 
                     return Some(canvas::Action::publish(Message::CanvasEvent(
@@ -1112,9 +1194,171 @@ impl canvas::Program<Message> for PcbCanvas {
         bounds: Rectangle,
         cursor: mouse::Cursor,
     ) -> Vec<canvas::Geometry> {
+        let camera = self.camera.borrow();
+
+        // Interactive 3D Board Viewport (Altium/KiCad '3' Hotkey Mode)
+        if state.view_mode_3d {
+            let mut frame3d = canvas::Frame::new(renderer, bounds.size());
+            frame3d.fill_rectangle(
+                iced::Point::ORIGIN,
+                bounds.size(),
+                Color::from_rgb(0.03, 0.04, 0.07),
+            );
+
+            let badge_pos = iced::Point::new(20.0, 20.0);
+            let badge_size = iced::Size::new(420.0, 68.0);
+            frame3d.fill_rectangle(
+                badge_pos,
+                badge_size,
+                Color::from_rgba(0.06, 0.08, 0.12, 0.94),
+            );
+            frame3d.stroke(
+                &canvas::Path::rectangle(badge_pos, badge_size),
+                canvas::Stroke::default()
+                    .with_width(1.0)
+                    .with_color(Color::from_rgba(0.0, 0.85, 1.0, 0.8)),
+            );
+            frame3d.fill_text(canvas::Text {
+                content: "3D VIEWPORT MODE (Altium / KiCad Parity)".to_string(),
+                position: iced::Point::new(badge_pos.x + 12.0, badge_pos.y + 10.0),
+                color: Color::from_rgb(0.0, 0.9, 1.0),
+                size: 13.0.into(),
+                ..Default::default()
+            });
+            frame3d.fill_text(canvas::Text {
+                content: "Hotkeys: '2' for 2D Layout Mode | '3' for 3D Viewport".to_string(),
+                position: iced::Point::new(badge_pos.x + 12.0, badge_pos.y + 28.0),
+                color: Color::from_rgb(0.9, 0.9, 0.9),
+                size: 11.0.into(),
+                ..Default::default()
+            });
+            frame3d.fill_text(canvas::Text {
+                content: "Orbit: Drag with Middle/Right Mouse | Zoom: Mouse Wheel".to_string(),
+                position: iced::Point::new(badge_pos.x + 12.0, badge_pos.y + 46.0),
+                color: Color::from_rgba(0.7, 0.7, 0.7, 0.9),
+                size: 10.0.into(),
+                ..Default::default()
+            });
+
+            let center_screen = iced::Point::new(bounds.width * 0.5, bounds.height * 0.5);
+            let iso_scale = (camera.scale * 0.85).max(4.0);
+            let project_3d = |x: f32, y: f32, z: f32| -> iced::Point {
+                let cos45 = 0.7071f32;
+                let sin45 = 0.7071f32;
+                let iso_x = (x - y) * cos45;
+                let iso_y = (x + y) * sin45 * 0.5 - z;
+                iced::Point::new(
+                    center_screen.x + iso_x * iso_scale,
+                    center_screen.y + iso_y * iso_scale,
+                )
+            };
+
+            if let Some(snapshot) = self.active_renderer_snapshot() {
+                let b_bounds = renderer_snapshot_bounds(snapshot).unwrap_or(Rectangle {
+                    x: -25.0,
+                    y: -25.0,
+                    width: 50.0,
+                    height: 50.0,
+                });
+                let bx0 = b_bounds.x;
+                let by0 = b_bounds.y;
+                let bx1 = b_bounds.x + b_bounds.width;
+                let by1 = b_bounds.y + b_bounds.height;
+                let thickness = 1.6f32;
+
+                let p_bot0 = project_3d(bx0, by0, -thickness);
+                let p_bot1 = project_3d(bx1, by0, -thickness);
+                let p_bot2 = project_3d(bx1, by1, -thickness);
+                let p_bot3 = project_3d(bx0, by1, -thickness);
+
+                let p_top0 = project_3d(bx0, by0, 0.0);
+                let p_top1 = project_3d(bx1, by0, 0.0);
+                let p_top2 = project_3d(bx1, by1, 0.0);
+                let p_top3 = project_3d(bx0, by1, 0.0);
+
+                let side_path_1 = canvas::Path::new(|p| {
+                    p.move_to(p_top0);
+                    p.line_to(p_top1);
+                    p.line_to(p_bot1);
+                    p.line_to(p_bot0);
+                    p.close();
+                });
+                frame3d.fill(&side_path_1, Color::from_rgba(0.04, 0.22, 0.12, 0.98));
+
+                let side_path_2 = canvas::Path::new(|p| {
+                    p.move_to(p_top1);
+                    p.line_to(p_top2);
+                    p.line_to(p_bot2);
+                    p.line_to(p_bot1);
+                    p.close();
+                });
+                frame3d.fill(&side_path_2, Color::from_rgba(0.03, 0.18, 0.09, 0.98));
+
+                let top_plane = canvas::Path::new(|p| {
+                    p.move_to(p_top0);
+                    p.line_to(p_top1);
+                    p.line_to(p_top2);
+                    p.line_to(p_top3);
+                    p.close();
+                });
+                frame3d.fill(&top_plane, Color::from_rgba(0.08, 0.42, 0.22, 0.95));
+                frame3d.stroke(
+                    &top_plane,
+                    canvas::Stroke::default()
+                        .with_width(1.0)
+                        .with_color(Color::from_rgba(0.1, 0.7, 0.35, 0.8)),
+                );
+
+                let copper_color = Color::from_rgba(0.85, 0.58, 0.22, 0.9);
+                for trace in &snapshot.traces {
+                    let pt0 = project_3d(trace.p0[0], trace.p0[1], 0.02);
+                    let pt1 = project_3d(trace.p1[0], trace.p1[1], 0.02);
+                    let stroke_w = (trace.width_mm * iso_scale).max(1.0);
+                    frame3d.stroke(
+                        &canvas::Path::line(pt0, pt1),
+                        canvas::Stroke::default()
+                            .with_width(stroke_w)
+                            .with_color(copper_color),
+                    );
+                }
+
+                let pad_color = Color::from_rgba(0.95, 0.82, 0.35, 0.95);
+                for pad in &snapshot.pads {
+                    let pad_pt = project_3d(pad.center[0], pad.center[1], 0.03);
+                    let radius = ((pad.size_mm[0].min(pad.size_mm[1]) * 0.5) * iso_scale)
+                        .clamp(1.5, 30.0);
+                    frame3d.fill(&canvas::Path::circle(pad_pt, radius), pad_color);
+                }
+
+                let via_color = Color::from_rgba(0.85, 0.58, 0.22, 0.95);
+                let drill_color = Color::from_rgba(0.02, 0.02, 0.03, 1.0);
+                for via in &snapshot.vias {
+                    let via_pt = project_3d(via.center[0], via.center[1], 0.03);
+                    let via_rad = ((via.diameter_mm * 0.5) * iso_scale).clamp(1.0, 20.0);
+                    let drill_rad = ((via.drill_mm * 0.5) * iso_scale).clamp(0.5, 10.0);
+                    frame3d.fill(&canvas::Path::circle(via_pt, via_rad), via_color);
+                    frame3d.fill(&canvas::Path::circle(via_pt, drill_rad), drill_color);
+                }
+
+                for text_item in &snapshot.texts {
+                    let pos = project_3d(text_item.position[0], text_item.position[1], 0.04);
+                    frame3d.fill_text(canvas::Text {
+                        content: text_item.text.clone(),
+                        position: pos,
+                        color: Color::from_rgba(0.95, 0.95, 0.95, 0.9),
+                        size: (text_item.font_size_mm * iso_scale)
+                            .clamp(7.0, 32.0)
+                            .into(),
+                        ..Default::default()
+                    });
+                }
+            }
+
+            return vec![frame3d.into_geometry()];
+        }
+
         // Single read of the sole camera home; both the background/grid cache
         // and the content cache below project from this one value.
-        let camera = self.camera.borrow();
         let bg = self.bg_cache.draw(renderer, bounds.size(), |frame| {
             frame.fill_rectangle(iced::Point::ORIGIN, bounds.size(), self.theme_bg);
 

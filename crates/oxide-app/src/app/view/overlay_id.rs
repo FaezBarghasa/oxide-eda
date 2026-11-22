@@ -49,6 +49,7 @@ pub(crate) enum OverlayId {
     // Editor-surface chrome.
     PlacementPaused,
     SchematicActiveBar,
+    PcbActiveBar,
     FootprintActiveBar,
     FootprintContextMenu,
     FootprintMoveBy,
@@ -117,7 +118,7 @@ const PRE_BLOCKING: usize = 5;
 /// behaviour change to both the paint stack and the Esc precedence, and
 /// `paint_order_is_exhaustive_and_unique` keeps it honest about covering
 /// every [`OverlayId`] exactly once.
-pub(crate) const PAINT_ORDER: [OverlayId; 50] = [
+pub(crate) const PAINT_ORDER: [OverlayId; 51] = [
     OverlayId::ErrorNotice,
     OverlayId::NetlistIncompletePrompt,
     OverlayId::PrintPreview,
@@ -125,6 +126,7 @@ pub(crate) const PAINT_ORDER: [OverlayId; 50] = [
     OverlayId::NetColorCustom,
     OverlayId::PlacementPaused,
     OverlayId::SchematicActiveBar,
+    OverlayId::PcbActiveBar,
     OverlayId::FootprintActiveBar,
     OverlayId::FootprintContextMenu,
     OverlayId::FootprintMoveBy,
@@ -224,6 +226,7 @@ pub(crate) fn swallows_scroll(id: OverlayId) -> bool {
         | OverlayId::NetColorCustom
         | OverlayId::PlacementPaused
         | OverlayId::SchematicActiveBar
+        | OverlayId::PcbActiveBar
         | OverlayId::FootprintActiveBar
         | OverlayId::FootprintContextMenu
         | OverlayId::FootprintMoveBy
@@ -301,6 +304,7 @@ impl Oxide {
             OverlayId::NetColorCustom => layers.extend(self.net_color_custom_overlay()),
             OverlayId::PlacementPaused => layers.extend(self.placement_paused_overlay()),
             OverlayId::SchematicActiveBar => layers.extend(self.schematic_active_bar_overlay()),
+            OverlayId::PcbActiveBar => layers.extend(self.pcb_active_bar_overlay()),
             OverlayId::FootprintActiveBar => layers.extend(self.footprint_active_bar_overlay()),
             OverlayId::FootprintContextMenu => layers.extend(self.footprint_context_menu_overlay()),
             OverlayId::FootprintMoveBy => layers.extend(self.footprint_move_by_overlay()),

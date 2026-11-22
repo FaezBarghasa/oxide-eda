@@ -195,6 +195,7 @@ impl OpenOverlays {
             // top — but a behaviour change, and part 2 is a derivation.
             OverlayId::PlacementPaused
             | OverlayId::SchematicActiveBar
+            | OverlayId::PcbActiveBar
             | OverlayId::FootprintActiveBar
             | OverlayId::FootprintContextMenu
             | OverlayId::FootprintMoveBy
