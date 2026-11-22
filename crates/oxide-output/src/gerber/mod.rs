@@ -67,6 +67,63 @@ impl GerberLayer {
             GerberLayer::EdgeCuts => "%TF.FileFunction,Profile,NP*%".to_string(),
         }
     }
+
+    pub fn matches_layer_name(&self, name: &str) -> bool {
+        let n = name.trim();
+        match self {
+            GerberLayer::TopCopper => {
+                n.eq_ignore_ascii_case("TopCopper")
+                    || n.eq_ignore_ascii_case("F.Cu")
+                    || n.eq_ignore_ascii_case("L1")
+                    || n.eq_ignore_ascii_case("Top")
+            }
+            GerberLayer::BottomCopper => {
+                n.eq_ignore_ascii_case("BottomCopper")
+                    || n.eq_ignore_ascii_case("B.Cu")
+                    || n.eq_ignore_ascii_case("Bottom")
+            }
+            GerberLayer::InnerCopper(idx) => {
+                n.eq_ignore_ascii_case(&format!("In{idx}.Cu"))
+                    || n.eq_ignore_ascii_case(&format!("Inner{idx}"))
+                    || n.eq_ignore_ascii_case(&format!("In{idx}"))
+                    || n.eq_ignore_ascii_case(&format!("L{idx}"))
+                    || n.to_ascii_lowercase().starts_with(&format!("in{idx}."))
+            }
+            GerberLayer::TopSolderMask => {
+                n.eq_ignore_ascii_case("TopMask")
+                    || n.eq_ignore_ascii_case("F.Mask")
+                    || n.eq_ignore_ascii_case("TopSolderMask")
+            }
+            GerberLayer::BottomSolderMask => {
+                n.eq_ignore_ascii_case("BottomMask")
+                    || n.eq_ignore_ascii_case("B.Mask")
+                    || n.eq_ignore_ascii_case("BottomSolderMask")
+            }
+            GerberLayer::TopSilkscreen => {
+                n.eq_ignore_ascii_case("TopSilk")
+                    || n.eq_ignore_ascii_case("F.SilkS")
+                    || n.eq_ignore_ascii_case("TopSilkscreen")
+            }
+            GerberLayer::BottomSilkscreen => {
+                n.eq_ignore_ascii_case("BottomSilk")
+                    || n.eq_ignore_ascii_case("B.SilkS")
+                    || n.eq_ignore_ascii_case("BottomSilkscreen")
+            }
+            GerberLayer::TopPaste => {
+                n.eq_ignore_ascii_case("TopPaste")
+                    || n.eq_ignore_ascii_case("F.Paste")
+            }
+            GerberLayer::BottomPaste => {
+                n.eq_ignore_ascii_case("BottomPaste")
+                    || n.eq_ignore_ascii_case("B.Paste")
+            }
+            GerberLayer::EdgeCuts => {
+                n.eq_ignore_ascii_case("Edge.Cuts")
+                    || n.eq_ignore_ascii_case("EdgeCuts")
+                    || n.eq_ignore_ascii_case("Profile")
+            }
+        }
+    }
 }
 
 /// Shape definition for a dynamic Gerber aperture.
@@ -223,15 +280,27 @@ impl GerberExporter {
         match layer {
             GerberLayer::TopCopper | GerberLayer::BottomCopper | GerberLayer::InnerCopper(_) => {
                 for seg in &board.segments {
-                    let d_nm = (seg.width * 1_000_000.0).round() as i64;
-                    get_or_insert_aperture(ApertureDef::Circle { diameter_nm: d_nm });
+                    if seg.layer.is_empty() || layer.matches_layer_name(&seg.layer) {
+                        let d_nm = (seg.width * 1_000_000.0).round() as i64;
+                        get_or_insert_aperture(ApertureDef::Circle { diameter_nm: d_nm });
+                    }
                 }
                 for via in &board.vias {
-                    let d_nm = (via.diameter * 1_000_000.0).round() as i64;
-                    get_or_insert_aperture(ApertureDef::Circle { diameter_nm: d_nm });
+                    if via.layers.is_empty() || via.layers.iter().any(|l| layer.matches_layer_name(l)) {
+                        let d_nm = (via.diameter * 1_000_000.0).round() as i64;
+                        get_or_insert_aperture(ApertureDef::Circle { diameter_nm: d_nm });
+                    }
                 }
                 for fp in &board.footprints {
+                    let fp_on_layer = fp.layer.is_empty() || layer.matches_layer_name(&fp.layer);
                     for pad in &fp.pads {
+                        let is_thru = pad.pad_type == PadType::Thru;
+                        let pad_on_layer = is_thru
+                            || (pad.layers.is_empty() && fp_on_layer)
+                            || pad.layers.iter().any(|l| layer.matches_layer_name(l));
+                        if !pad_on_layer {
+                            continue;
+                        }
                         let def = match pad.shape {
                             PadShape::Circle => ApertureDef::Circle {
                                 diameter_nm: (pad.size.x * 1_000_000.0).round() as i64,
@@ -341,6 +410,22 @@ impl GerberExporter {
             GerberLayer::TopCopper | GerberLayer::BottomCopper | GerberLayer::InnerCopper(_) => {
                 // Flash pads with optional X3 Component & Pin attributes
                 for fp in &board.footprints {
+                    let fp_on_layer = fp.layer.is_empty() || layer.matches_layer_name(&fp.layer);
+                    let mut fp_has_pads = false;
+                    for pad in &fp.pads {
+                        let is_thru = pad.pad_type == PadType::Thru;
+                        if is_thru
+                            || (pad.layers.is_empty() && fp_on_layer)
+                            || pad.layers.iter().any(|l| layer.matches_layer_name(l))
+                        {
+                            fp_has_pads = true;
+                            break;
+                        }
+                    }
+                    if !fp_has_pads {
+                        continue;
+                    }
+
                     if self.options.use_gerber_x3_attributes {
                         writeln!(out, "%TO.CN,{}*%", fp.reference)?;
                         writeln!(out, "%TO.CF,{}*%", fp.footprint_id)?;
@@ -350,6 +435,14 @@ impl GerberExporter {
                     }
 
                     for (pin_idx, pad) in fp.pads.iter().enumerate() {
+                        let is_thru = pad.pad_type == PadType::Thru;
+                        let pad_on_layer = is_thru
+                            || (pad.layers.is_empty() && fp_on_layer)
+                            || pad.layers.iter().any(|l| layer.matches_layer_name(l));
+                        if !pad_on_layer {
+                            continue;
+                        }
+
                         let def = match pad.shape {
                             PadShape::Circle => ApertureDef::Circle {
                                 diameter_nm: (pad.size.x * 1_000_000.0).round() as i64,
@@ -405,6 +498,10 @@ impl GerberExporter {
 
                 // Flash vias with Net attributes
                 for via in &board.vias {
+                    if !via.layers.is_empty() && !via.layers.iter().any(|l| layer.matches_layer_name(l)) {
+                        continue;
+                    }
+
                     let def = ApertureDef::Circle {
                         diameter_nm: (via.diameter * 1_000_000.0).round() as i64,
                     };
@@ -426,6 +523,10 @@ impl GerberExporter {
 
                 // Interpolate segments with Net attributes
                 for seg in &board.segments {
+                    if !seg.layer.is_empty() && !layer.matches_layer_name(&seg.layer) {
+                        continue;
+                    }
+
                     let def = ApertureDef::Circle {
                         diameter_nm: (seg.width * 1_000_000.0).round() as i64,
                     };
@@ -449,6 +550,10 @@ impl GerberExporter {
 
                 // Polygon zones (G36 / G37 region fill)
                 for zone in &board.zones {
+                    if !zone.layer.is_empty() && !layer.matches_layer_name(&zone.layer) {
+                        continue;
+                    }
+
                     if !zone.outline.is_empty() {
                         writeln!(out, "G36*")?;
                         let (first_x, first_y) =

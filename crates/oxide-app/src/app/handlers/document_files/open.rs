@@ -152,9 +152,15 @@ impl Oxide {
             // it leaves every library recorded as pending and never
             // spawned, so the project opens with no libraries mounted and
             // nothing logs a failure.
-            "standard_pro" | "snxprj" => self.open_project_file(path)?,
-            "standard_sch" | "snxsch" => self.open_schematic_file(path)?,
-            "standard_pcb" | "snxpcb" => self.open_pcb_file(path)?,
+            ext if ext.ends_with("_pro") || ext == "snxprj" || ext == "standard_pro" => {
+                self.open_project_file(path)?
+            }
+            ext if ext.ends_with("_sch") || ext == "snxsch" || ext == "standard_sch" => {
+                self.open_schematic_file(path)?
+            }
+            ext if ext.ends_with("_pcb") || ext == "snxpcb" || ext == "standard_pcb" => {
+                self.open_pcb_file(path)?
+            }
             "snxsym" | "snxfpt" => self.handle_open_primitive(path),
             // `.snxlib/` is a directory package — open it as a Library
             // Browser tab in the main canvas area. The handler mounts
