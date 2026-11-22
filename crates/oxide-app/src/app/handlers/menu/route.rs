@@ -138,7 +138,7 @@ impl Oxide {
                 Some(Task::none())
             }
             MenuMessage::RouteUnrouteNet => {
-                let net_to_unroute = self.interaction_state.pcb_canvas.routing_net;
+                let net_to_unroute = self.interaction_state.pcb_canvas.routing_net.get();
                 if let Some(engine) = self.active_pcb_engine_mut() {
                     if net_to_unroute > 0 {
                         engine
