@@ -416,6 +416,7 @@ impl Oxide {
             || ui.preferences_open
             || ui.keyboard_shortcuts_open
             || ui.passive_calculator_open
+            || ui.altium_catalog_modal.open
             || ui.first_run_tour_open
             || ui.rename_dialog.is_some()
             || ui.remove_dialog.is_some()

@@ -157,6 +157,16 @@ pub enum OverlayMsg {
     /// Close the Tools > Passive Network Calculator modal - fired by
     /// the close chrome X.
     ClosePassiveCalculator,
+    /// Open the Tools > Altium Command Explorer modal.
+    OpenAltiumCatalog,
+    /// Close the Tools > Altium Command Explorer modal.
+    CloseAltiumCatalog,
+    /// Update search query inside the Altium Command Explorer modal.
+    AltiumCatalogQuery(String),
+    /// Filter by Altium command namespace inside the Altium Command Explorer modal.
+    AltiumCatalogNamespace(String),
+    /// Dispatch a named Altium `.rcs` command through `CommandRegistry`.
+    DispatchAltiumCommand(String),
     /// Dismiss the first-run tour card and persist the flag so it
     /// never reappears. Fired by the card's ✕ button, by Esc, and by
     /// the first canvas interaction after launch.

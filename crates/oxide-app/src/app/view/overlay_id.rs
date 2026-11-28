@@ -73,6 +73,7 @@ pub(crate) enum OverlayId {
     FindReplace,
     KeyboardShortcuts,
     PassiveCalculator,
+    AltiumCatalog,
     FirstRunTour,
     RenameDialog,
     RemoveDialog,
@@ -146,6 +147,7 @@ pub(crate) const PAINT_ORDER: [OverlayId; 51] = [
     OverlayId::FindReplace,
     OverlayId::KeyboardShortcuts,
     OverlayId::PassiveCalculator,
+    OverlayId::AltiumCatalog,
     OverlayId::FirstRunTour,
     OverlayId::RenameDialog,
     OverlayId::RemoveDialog,
@@ -246,6 +248,7 @@ pub(crate) fn swallows_scroll(id: OverlayId) -> bool {
         | OverlayId::FindReplace
         | OverlayId::KeyboardShortcuts
         | OverlayId::PassiveCalculator
+        | OverlayId::AltiumCatalog
         | OverlayId::FirstRunTour
         | OverlayId::RenameDialog
         | OverlayId::RemoveDialog
@@ -328,6 +331,7 @@ impl Oxide {
             OverlayId::FindReplace => layers.extend(self.find_replace_overlay()),
             OverlayId::KeyboardShortcuts => layers.extend(self.keyboard_shortcuts_overlay()),
             OverlayId::PassiveCalculator => layers.extend(self.passive_calculator_overlay()),
+            OverlayId::AltiumCatalog => layers.extend(self.altium_catalog_overlay()),
             OverlayId::FirstRunTour => layers.extend(self.first_run_tour_overlay()),
             OverlayId::RenameDialog => layers.extend(self.rename_dialog_overlay()),
             OverlayId::RemoveDialog => layers.extend(self.remove_dialog_overlay()),

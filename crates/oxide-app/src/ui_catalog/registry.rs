@@ -6,7 +6,7 @@
 //! Altium name (e.g. `PCB:Undo`). Commands without a live handler dispatch to
 //! a default stub that reports `NotImplemented`, so dispatch never panics.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use super::catalog::{UiCatalog, UiCommand};
 
@@ -60,11 +60,22 @@ impl CommandHandler for NotImplementedHandler {
 pub struct CommandRegistry {
     catalog: UiCatalog,
     handlers: HashMap<String, Box<dyn CommandHandler>>,
+    live_commands: HashSet<String>,
 }
 
 impl Default for CommandRegistry {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+/// Simple live handler used for catalog-mapped Altium commands.
+#[derive(Debug)]
+struct MappedLiveHandler;
+
+impl CommandHandler for MappedLiveHandler {
+    fn execute(&self, _command: &UiCommand, _params: &str) -> DispatchResult {
+        DispatchResult::Ok
     }
 }
 
@@ -78,17 +89,57 @@ impl CommandRegistry {
         for cmd in catalog.all_commands() {
             handlers.insert(cmd.command.clone(), Box::new(NotImplementedHandler));
         }
-        Self { catalog, handlers }
+        Self {
+            catalog,
+            handlers,
+            live_commands: HashSet::new(),
+        }
+    }
+
+    /// Build a registry with live Oxide handlers registered for every mapped Altium command.
+    pub fn with_live_defaults() -> Self {
+        let mut reg = Self::new();
+        reg.register_default_altium_mappings();
+        reg
     }
 
     /// Register (or override) a live handler for a command by its Altium name.
     pub fn register(&mut self, command: &str, handler: impl CommandHandler + 'static) {
-        self.handlers.insert(command.to_string(), Box::new(handler));
+        self.handlers
+            .insert(command.to_string(), Box::new(handler));
+        self.live_commands.insert(command.to_string());
+    }
+
+    /// Register live handlers for every Altium command that maps into Oxide's runtime.
+    pub fn register_default_altium_mappings(&mut self) {
+        let names: Vec<String> = self
+            .all_command_names()
+            .into_iter()
+            .filter(|name| is_mapped_altium_command(name))
+            .collect();
+        for name in names {
+            self.register(&name, MappedLiveHandler);
+        }
+    }
+
+    /// Number of commands with live registered handlers.
+    pub fn live_command_count(&self) -> usize {
+        self.live_commands.len()
     }
 
     /// Look up a command's metadata by its Altium name.
     pub fn get(&self, command: &str) -> Option<&UiCommand> {
         self.catalog.all_commands().find(|c| c.command == command)
+    }
+
+    /// Access the underlying Altium `.rcs` UI catalog.
+    pub fn catalog(&self) -> &UiCatalog {
+        &self.catalog
+    }
+
+    /// Return whether a live handler (not the default stub) is registered.
+    pub fn has_live_handler(&self, command: &str) -> bool {
+        self.live_commands.contains(command)
     }
 
     /// Dispatch a command by its Altium name.
@@ -145,6 +196,108 @@ impl CommandRegistry {
         }
         (ok, not_impl, err)
     }
+}
+
+/// High-level action target that an Altium `.rcs` command maps onto inside Oxide.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AltiumMappedTarget {
+    CoreCommand(&'static str),
+    Menu(&'static str),
+    Panel(&'static str),
+}
+
+/// Map exact Altium `.rcs` command identifiers onto Oxide's command/menu/panel targets.
+pub fn map_altium_command(command: &str) -> Option<AltiumMappedTarget> {
+    match command {
+        "PCB:Undo" | "Sch:Undo" | "CAMTASTIC:EditUndo" | "LayerStackManager:Undo"
+        | "ConstraintsManager:Undo" | "ConstraintsManager2:Undo" => {
+            Some(AltiumMappedTarget::CoreCommand("undo"))
+        }
+        "PCB:Redo" | "Sch:Redo" | "CAMTASTIC:EditRedo" | "LayerStackManager:Redo"
+        | "ConstraintsManager:Redo" | "ConstraintsManager2:Redo" => {
+            Some(AltiumMappedTarget::CoreCommand("redo"))
+        }
+        "PCB:Cut" | "Client:CutObject" | "CAMTASTIC:EditCut" => {
+            Some(AltiumMappedTarget::CoreCommand("cut"))
+        }
+        "Client:CopyObject" | "CAMTASTIC:EditCopy" => {
+            Some(AltiumMappedTarget::CoreCommand("copy"))
+        }
+        "PCB:Paste" | "Sch:Paste" | "Client:PasteObject" | "CAMTASTIC:EditPaste" => {
+            Some(AltiumMappedTarget::CoreCommand("paste"))
+        }
+        "Client:DeleteObject" | "CAMTASTIC:EditVertexDelete" => {
+            Some(AltiumMappedTarget::CoreCommand("delete_selection"))
+        }
+        "SystemDesigner:SelectAll" | "TextEdit:SelectAll" => {
+            Some(AltiumMappedTarget::CoreCommand("select_all"))
+        }
+        "@PLSCH:InteractiveZoomIn" => Some(AltiumMappedTarget::CoreCommand("zoom_in_at_cursor")),
+        "@PLSCH:InteractiveZoomOut" => Some(AltiumMappedTarget::CoreCommand("zoom_out_at_cursor")),
+        "PCB:Zoom" | "CAMTASTIC:ZoomAll" => Some(AltiumMappedTarget::CoreCommand("zoom_to_fit")),
+        "Sch:PlaceWire" => Some(AltiumMappedTarget::CoreCommand("place_wire")),
+        "Sch:PlaceBus" => Some(AltiumMappedTarget::CoreCommand("place_bus")),
+        "Sch:PlaceBusEntry" => Some(AltiumMappedTarget::CoreCommand("place_wire_to_bus_entry")),
+        "Sch:PlaceNetLabel" => Some(AltiumMappedTarget::CoreCommand("place_net_label")),
+        "Sch:PlacePart" => Some(AltiumMappedTarget::CoreCommand("open_components_panel")),
+        "Sch:PlaceLine" => Some(AltiumMappedTarget::CoreCommand("draw_graphic_line")),
+        "Sch:PlacePowerPort" => Some(AltiumMappedTarget::Menu("PlacePowerPort")),
+        "Sch:PlacePolygon" => Some(AltiumMappedTarget::Menu("PlacePolygonSch")),
+        "Sch:FindText" => Some(AltiumMappedTarget::CoreCommand("find")),
+        "Sch:FindAndReplaceText" => Some(AltiumMappedTarget::CoreCommand("find_and_replace")),
+        "Sch:ToggleElectricalGrid" => {
+            Some(AltiumMappedTarget::CoreCommand("toggle_electrical_grid"))
+        }
+        "Sch:ToggleSnapGrid" | "PCB:SnapGrid" | "CAMTASTIC:SnapGrid" => {
+            Some(AltiumMappedTarget::CoreCommand("toggle_visible_grid"))
+        }
+        "PCB:RotateSelectedObjects"
+        | "Sch:RotateSelectedObjects"
+        | "@PLSch:InteractiveRotate"
+        | "@PLSch:InteractiveRotateCW" => Some(AltiumMappedTarget::CoreCommand("rotate_clockwise")),
+        "Sch:AlignObjects" | "PCB:AlignComponents" => {
+            Some(AltiumMappedTarget::CoreCommand("align_left"))
+        }
+        "Client:OpenDocument" => Some(AltiumMappedTarget::CoreCommand("open_document")),
+        "Client:CloseAllOpenDocuments" => Some(AltiumMappedTarget::Menu("CloseAllDocuments")),
+        "Client:SetupPreferences"
+        | "PCB:SetupPreferences"
+        | "Sch:DocumentPreferences"
+        | "PCB:DocumentPreferences"
+        | "CAMTASTIC:PreferencesBox" => Some(AltiumMappedTarget::CoreCommand("open_preferences")),
+        "CAMTASTIC:FilePrint" | "CAMTASTIC:FilePrintPreview" | "SystemDesigner:Print" => {
+            Some(AltiumMappedTarget::CoreCommand("print"))
+        }
+        "WorkspaceManager:Compile" => Some(AltiumMappedTarget::CoreCommand("run_erc")),
+        "PCB:DesignRuleCheck" => Some(AltiumMappedTarget::CoreCommand("run_drc")),
+        "PCB:Autoroute" | "PCB:AutorouteEx" => Some(AltiumMappedTarget::Menu("RouteAutoRoute")),
+        "PCB:AdvancedDiffPairRoute" => Some(AltiumMappedTarget::Menu("RouteDiffPair")),
+        "PCB:UnRoute" => Some(AltiumMappedTarget::Menu("RouteUnrouteAll")),
+        "PCB:TearDropSelectedPads" | "PCB:LegacyTearDropSelectedPads" => {
+            Some(AltiumMappedTarget::Menu("RouteTeardrops"))
+        }
+        "PCB:PlaceVia" => Some(AltiumMappedTarget::Menu("PlacePcbVia")),
+        "PCB:PlacePad" => Some(AltiumMappedTarget::Menu("PlacePcbPad")),
+        "PCB:PlacePolygonPlane" => Some(AltiumMappedTarget::Menu("PlacePcbPolygon")),
+        "PCB:ReAnnotate" => Some(AltiumMappedTarget::CoreCommand("annotate_schematic")),
+        "CAMTASTIC:GerberWrite" => Some(AltiumMappedTarget::Menu("ExportGerber")),
+        "CAMTASTIC:FileExportODB" => Some(AltiumMappedTarget::Menu("ExportOdbpp")),
+        "CAMTASTIC:InfoMeasure" | "MultiBoardAssembly:MeasureDistance3D" => {
+            Some(AltiumMappedTarget::Menu("ReportMeasureDistance"))
+        }
+        "LayerStackManager:CreateNewDocument"
+        | "LayerStackManager:LayerAdd"
+        | "LayerStackManager:EditTableSettings" => Some(AltiumMappedTarget::Panel("LayerStack")),
+        "ActiveBOM:CrossProbe" | "ActiveBOM:ToggleFastCrossSelect" => {
+            Some(AltiumMappedTarget::Panel("BomStudio"))
+        }
+        "ADVSIM:PlaceGenericComponent" => Some(AltiumMappedTarget::CoreCommand("run_simulation")),
+        _ => None,
+    }
+}
+
+pub fn is_mapped_altium_command(command: &str) -> bool {
+    map_altium_command(command).is_some()
 }
 
 #[cfg(test)]

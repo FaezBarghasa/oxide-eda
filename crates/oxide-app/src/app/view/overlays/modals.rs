@@ -100,6 +100,20 @@ impl Oxide {
         ))
     }
 
+    /// Tools > Altium Command Explorer modal.
+    pub(in crate::app::view) fn altium_catalog_overlay(&self) -> Option<Element<'_, Message>> {
+        let ui = &self.ui_state;
+        if !ui.altium_catalog_modal.open {
+            return None;
+        }
+        Some(iced::widget::opaque(crate::altium_catalog_modal::view(
+            &self.document_state.panel_ctx.tokens,
+            ui.theme_id,
+            &ui.altium_catalog_modal,
+            &ui.command_registry,
+        )))
+    }
+
     /// First-run onboarding tour overlay.
     pub(in crate::app::view) fn first_run_tour_overlay(&self) -> Option<Element<'_, Message>> {
         if !self.ui_state.first_run_tour_open {

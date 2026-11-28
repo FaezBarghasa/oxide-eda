@@ -377,6 +377,10 @@ pub struct UiState {
     pub passive_calculator: oxide_widgets::passive_calculator::CalculatorControl,
     /// Whether the Tools > Passive Network Calculator modal is open.
     pub passive_calculator_open: bool,
+    /// Altium 3,004-command catalog registry (wired with live handlers).
+    pub command_registry: crate::ui_catalog::CommandRegistry,
+    /// Tools > Altium Command Explorer modal state.
+    pub altium_catalog_modal: crate::altium_catalog_modal::AltiumCatalogModalState,
     /// Command palette state — query / dropdown open flag / selected
     /// row. The chrome-strip search bar is the always-rendered input;
     /// `open` gates the dropdown overlay only.

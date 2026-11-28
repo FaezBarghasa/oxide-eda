@@ -22,6 +22,7 @@
 #![cfg_attr(test, allow(clippy::let_underscore_must_use))]
 
 pub mod active_bar;
+pub mod altium_catalog_modal;
 pub mod app;
 pub mod canvas;
 pub mod chrome;

@@ -213,3 +213,126 @@ fn test_cli_bom_drift_detection_gate() {
 
     let _ = fs::remove_dir_all(&temp_dir);
 }
+
+#[test]
+fn test_cli_mcp_and_utcp_rich_surfaces() {
+    let ws = get_workspace_root();
+    let board_path = ws.join("fixtures/high_stress_suite/titan_sbc_12layer_flagship.snxpcb");
+    let sch_path = ws.join("fixtures/high_stress_suite/titan_sbc_12layer_flagship.snxsch");
+
+    // 1. UTCP manifest default + validation
+    let utcp_manifest_out = Command::new(env!("CARGO_BIN_EXE_oxide-cli"))
+        .args(["utcp"])
+        .output()
+        .expect("run utcp");
+    assert!(utcp_manifest_out.status.success());
+    let manifest_json: serde_json::Value =
+        serde_json::from_slice(&utcp_manifest_out.stdout).expect("valid UTCP JSON");
+    assert_eq!(manifest_json["protocol"], "utcp/1.0");
+    assert!(manifest_json["tools"].as_array().unwrap().len() >= 18);
+
+    let utcp_validate = Command::new(env!("CARGO_BIN_EXE_oxide-cli"))
+        .args(["utcp", "validate"])
+        .output()
+        .expect("run utcp validate");
+    assert!(utcp_validate.status.success());
+    let val_json: serde_json::Value = serde_json::from_slice(&utcp_validate.stdout).unwrap();
+    assert_eq!(val_json["valid"], true);
+
+    // 2. UTCP call with --arg key=value coercion on impedance calculator
+    let utcp_call = Command::new(env!("CARGO_BIN_EXE_oxide-cli"))
+        .args([
+            "utcp",
+            "call",
+            "calculate_impedance",
+            "--arg",
+            "mode=microstrip",
+            "--arg",
+            "trace_width_um=150",
+            "--arg",
+            "dielectric_height_um=100",
+            "--arg",
+            "er=4.3",
+        ])
+        .output()
+        .expect("run utcp call");
+    assert!(utcp_call.status.success());
+    let call_json: serde_json::Value = serde_json::from_slice(&utcp_call.stdout).unwrap();
+    assert_eq!(call_json["ok"], true);
+    assert!(call_json["result"]["z0_ohms"].as_f64().unwrap() > 40.0);
+
+    // 3. MCP list, schema, and call against flagship board + schematic
+    let mcp_list = Command::new(env!("CARGO_BIN_EXE_oxide-cli"))
+        .args(["mcp", "list", "--format", "json"])
+        .output()
+        .expect("run mcp list");
+    assert!(mcp_list.status.success());
+    let tools: Vec<serde_json::Value> = serde_json::from_slice(&mcp_list.stdout).unwrap();
+    assert!(tools.len() >= 18);
+
+    let mcp_call = Command::new(env!("CARGO_BIN_EXE_oxide-cli"))
+        .args([
+            "mcp",
+            "call",
+            "read_pcb",
+            "--board",
+            board_path.to_str().unwrap(),
+            "--arg",
+            "include_details=true",
+        ])
+        .output()
+        .expect("run mcp call read_pcb");
+    assert!(mcp_call.status.success());
+    let pcb_resp: serde_json::Value = serde_json::from_slice(&mcp_call.stdout).unwrap();
+    assert!(pcb_resp["error"].is_null());
+    assert!(pcb_resp["result"]["footprints_count"].as_u64().unwrap() > 0);
+
+    let mcp_erc = Command::new(env!("CARGO_BIN_EXE_oxide-cli"))
+        .args([
+            "mcp",
+            "call",
+            "read_schematic",
+            "--schematic",
+            sch_path.to_str().unwrap(),
+        ])
+        .output()
+        .expect("run mcp call read_schematic");
+    assert!(mcp_erc.status.success());
+    let sch_resp: serde_json::Value = serde_json::from_slice(&mcp_erc.stdout).unwrap();
+    assert_eq!(sch_resp["result"]["loaded"], true);
+
+    // 4. UTCP batch pipeline via stdin
+    use std::io::Write;
+    let mut batch_child = Command::new(env!("CARGO_BIN_EXE_oxide-cli"))
+        .args(["utcp", "batch", "--board", board_path.to_str().unwrap()])
+        .stdin(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .spawn()
+        .expect("spawn utcp batch");
+    {
+        let stdin = batch_child.stdin.as_mut().unwrap();
+        stdin
+            .write_all(
+                br#"[
+                    {"tool": "run_drc", "arguments": {"limit": 10}},
+                    {"tool": "altium_catalog_search", "arguments": {"query": "PCB:Undo", "limit": 5}}
+                ]"#,
+            )
+            .unwrap();
+    }
+    let batch_out = batch_child.wait_with_output().unwrap();
+    assert!(batch_out.status.success());
+    let batch_json: serde_json::Value = serde_json::from_slice(&batch_out.stdout).unwrap();
+    assert_eq!(batch_json["succeeded"], 2);
+    assert_eq!(batch_json["failed"], 0);
+
+    // 5. Altium catalog CLI stats + search + inspect
+    let cat_stats = Command::new(env!("CARGO_BIN_EXE_oxide-cli"))
+        .args(["altium-catalog", "stats", "--format", "json"])
+        .output()
+        .expect("run altium-catalog stats");
+    assert!(cat_stats.status.success());
+    let stats_json: serde_json::Value = serde_json::from_slice(&cat_stats.stdout).unwrap();
+    assert_eq!(stats_json["total_entries"], 3004);
+    assert_eq!(stats_json["unique_commands"], 1190);
+}

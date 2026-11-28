@@ -20,6 +20,7 @@ mod symbol_editor_properties;
 
 // v0.14.x -- domain modules split out of the former single-file panels module.
 mod ai_diff;
+mod altium_panels;
 mod color_field;
 mod components;
 mod context;
@@ -273,10 +274,10 @@ pub fn view_panel<'a>(kind: PanelKind, ctx: &'a PanelContext) -> Element<'a, Pan
         PanelKind::Projects => view_projects(ctx),
         PanelKind::Navigator => view_navigator(ctx),
         PanelKind::Properties => view_properties(ctx),
-        PanelKind::Filter => view_stub("Selection Filter", "All object types enabled", ctx),
+        PanelKind::Filter => altium_panels::view_selection_filter(ctx, false),
         PanelKind::Erc => view_erc(ctx),
         PanelKind::Messages => view_messages(ctx),
-        PanelKind::Signal => view_stub("Signal AI", "Pro feature — AI design review", ctx),
+        PanelKind::Signal => altium_panels::view_signal_panel(ctx),
         PanelKind::Drc => drc::view_drc(ctx),
         PanelKind::LayerStack => layer_stack::view_layer_stack(ctx),
         PanelKind::Copilot => copilot::view_copilot(ctx),
@@ -284,16 +285,16 @@ pub fn view_panel<'a>(kind: PanelKind, ctx: &'a PanelContext) -> Element<'a, Pan
         PanelKind::Waveform => return waveform::view_waveform(ctx),
         PanelKind::Telecom => return telecom::view_telecom(ctx),
         PanelKind::McuConsole => return mcu_console::view_mcu_console(ctx),
-        PanelKind::NetClasses => view_stub("Net Classes", "Define net classes and rules", ctx),
+        PanelKind::NetClasses => altium_panels::view_net_classes(ctx),
         PanelKind::Variants => variants::view(&ctx.variant_state, &ctx.tokens),
-        PanelKind::OutputJobs => view_stub("Output Jobs", "Manufacturing output config", ctx),
-        PanelKind::SchFilter => view_stub("SCH Filter", "Schematic object filter", ctx),
-        PanelKind::SchList => view_stub("SCH List", "Schematic object list inspector", ctx),
-        PanelKind::BomStudio => view_stub("BOM Studio", "Bill of Materials management", ctx),
-        PanelKind::Favorites => view_stub("Favorites", "Favorite components and snippets", ctx),
-        PanelKind::Snippets => view_stub("Snippets", "Reusable schematic snippets", ctx),
-        PanelKind::Todo => view_stub("To-Do", "Task and issue tracking", ctx),
-        PanelKind::Wiki => view_stub("Wiki", "Project documentation wiki", ctx),
+        PanelKind::OutputJobs => altium_panels::view_output_jobs(ctx),
+        PanelKind::SchFilter => altium_panels::view_selection_filter(ctx, true),
+        PanelKind::SchList => altium_panels::view_sch_list(ctx),
+        PanelKind::BomStudio => altium_panels::view_bom_studio(ctx),
+        PanelKind::Favorites => altium_panels::view_snippets_favorites(ctx, true),
+        PanelKind::Snippets => altium_panels::view_snippets_favorites(ctx, false),
+        PanelKind::Todo => altium_panels::view_todo_panel(ctx),
+        PanelKind::Wiki => altium_panels::view_wiki_panel(ctx),
         PanelKind::Library => view_stub(
             "Library",
             "Library panel — see Oxide.library state. Use the dock host's Library panel \

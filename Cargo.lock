@@ -5901,12 +5901,21 @@ dependencies = [
 name = "oxide-ai"
 version = "1.5.0"
 dependencies = [
+ "oxide-altium-importer",
+ "oxide-bom",
+ "oxide-erc",
+ "oxide-net",
+ "oxide-output",
  "oxide-physics",
+ "oxide-rf",
+ "oxide-router",
  "oxide-rules",
+ "oxide-sim",
  "oxide-types",
  "serde",
  "serde_json",
  "thiserror 2.0.18",
+ "uuid",
 ]
 
 [[package]]

@@ -1,5 +1,7 @@
 //! Headless CLI binary for Oxide EDA CI/CD and automation.
 
+mod protocol_cli;
+
 use clap::{Parser, Subcommand};
 use oxide_output::{
     ExcellonExporter, GerberExporter, GerberOptions, OutputJobConfig, OutputJobRunner,
@@ -7,6 +9,10 @@ use oxide_output::{
 };
 use oxide_rules::ConstraintManager;
 use oxide_types::pcb::PcbBoard;
+use protocol_cli::{
+    AltiumCatalogArgs, McpArgs, UtcpArgs, run_altium_catalog_command, run_mcp_command,
+    run_utcp_command,
+};
 use std::path::{Path, PathBuf};
 
 fn load_board(path: &Path) -> Result<PcbBoard, Box<dyn std::error::Error>> {
@@ -140,10 +146,13 @@ enum Commands {
         #[arg(long)]
         golden: Option<PathBuf>,
     },
-    /// Start Oxide EDA Model Context Protocol (MCP) server over stdio for agent interaction
-    Mcp,
-    /// Print Universal Tool Call Protocol (UTCP) discovery manifest
-    Utcp,
+    /// Rich Model Context Protocol (MCP) server, tool caller, schema inspector, and batch runner
+    Mcp(McpArgs),
+    /// Rich Universal Tool Call Protocol (UTCP) manifest, tool caller, validator, and batch pipeline
+    Utcp(UtcpArgs),
+    /// Search, inspect, and audit the 3,004-command Altium Designer .rcs UI catalog
+    #[command(alias = "altium")]
+    AltiumCatalog(AltiumCatalogArgs),
 }
 
 #[tokio::main]
@@ -664,38 +673,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 println!("Wrote BOM to {}", out_path.display());
             }
         }
-        Commands::Mcp => {
-            use tokio::io::AsyncBufReadExt;
-            eprintln!("[oxide-mcp] Oxide EDA MCP stdio server listening...");
-            let stdin = tokio::io::BufReader::new(tokio::io::stdin());
-            let mut lines = stdin.lines();
-            while let Some(line) = lines.next_line().await? {
-                let trimmed = line.trim();
-                if trimmed.is_empty() {
-                    continue;
-                }
-                match serde_json::from_str::<oxide_ai::McpRequest>(trimmed) {
-                    Ok(req) => {
-                        let resp = oxide_ai::McpServer::handle_request(&req, None, None);
-                        println!("{}", serde_json::to_string(&resp)?);
-                    }
-                    Err(e) => {
-                        let err_resp = oxide_ai::McpResponse {
-                            id: "null".to_string(),
-                            result: None,
-                            error: Some(oxide_ai::McpError {
-                                code: -32700,
-                                message: format!("Parse error: {e}"),
-                            }),
-                        };
-                        println!("{}", serde_json::to_string(&err_resp)?);
-                    }
-                }
-            }
+        Commands::Mcp(args) => {
+            run_mcp_command(args).await?;
         }
-        Commands::Utcp => {
-            let manifest = oxide_ai::utcp_manifest();
-            println!("{}", serde_json::to_string_pretty(&manifest)?);
+        Commands::Utcp(args) => {
+            run_utcp_command(args)?;
+        }
+        Commands::AltiumCatalog(args) => {
+            run_altium_catalog_command(args)?;
         }
     }
 

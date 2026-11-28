@@ -245,6 +245,8 @@ impl Oxide {
                 windows: std::collections::HashMap::new(),
                 passive_calculator: oxide_widgets::passive_calculator::CalculatorControl::default(),
                 passive_calculator_open: false,
+                command_registry: crate::ui_catalog::CommandRegistry::with_live_defaults(),
+                altium_catalog_modal: crate::altium_catalog_modal::AltiumCatalogModalState::default(),
                 move_selection: crate::app::state::MoveSelectionState::default(),
                 net_color_palette_open: false,
                 parameter_manager_open: false,
